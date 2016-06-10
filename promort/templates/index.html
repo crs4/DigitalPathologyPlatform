@@ -10,10 +10,11 @@
 </head>
 
 <body ng-app="promort">
+    {% include 'navbar.html' %}
+
     <div class="container">
         <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-md-8">Hello there!</div>
+            <div class="col-md-12 ng-view"></div>
         </div>
     </div>
 
