@@ -17,8 +17,16 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 from promort.views import IndexView
+from authentication.views import LoginView, LogoutView
 
 urlpatterns = [
+    # authentication
+    url(r'^api/auth/login/$', LoginView.as_view(), name='login'),
+    url(r'^api/auth/logout/$', LogoutView.as_view(), name='logout'),
+
+    # Django admin
     url(r'^admin/', include(admin.site.urls)),
+
+    # catch'em all
     url(r'^.*$', IndexView.as_view(), name='index'),
 ]
