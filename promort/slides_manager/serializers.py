@@ -4,22 +4,28 @@ from slides_manager.models import Case, Slide
 
 
 class CaseSerializer(serializers.ModelSerializer):
+    slides = serializers.StringRelatedField(many=True, read_only=True)
+
     class Meta:
         model = Case
 
-        fields = ('id', 'import_date')
-        read_only_fields = ('import_date',)
+        fields = ('id', 'import_date', 'slides')
+        read_only_fields = ('import_date', 'slides')
 
 
 class SlideSerializer(serializers.ModelSerializer):
-    case = CaseSerializer(read_only=True, required=False)
-
     class Meta:
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id', 'image_type')
-        read_only_fields = ('import_date',)
+        read_only_fields = ('import_date', 'case')
 
-    def get_validation_exclusion(self, *args, **kwargs):
-        exclusions = super(SlideSerializer, self).get_validation_exclusions()
-        return exclusions + ['case']
+
+class CaseDetailedSerializer(serializers.ModelSerializer):
+    slides = SlideSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Case
+
+        fields = ('id', 'import_date', 'slides')
+        read_only_fields = ('import_date', 'slides')

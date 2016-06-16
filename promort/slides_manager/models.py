@@ -18,8 +18,9 @@ class Slide(models.Model):
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False)
     import_date = models.DateTimeField(auto_now_add=True)
-    omero_id = models.IntegerField(blank=True, null=True)
-    image_type = models.CharField(max_length=5, blank=False)
+    omero_id = models.IntegerField(blank=True, null=True,
+                                   default=None)
+    image_type = models.CharField(max_length=15, blank=False)
 
     def __unicode__(self):
         return 'Slide %s [img type: %s --- OMERO id: %r]' % (self.id, self.image_type,
