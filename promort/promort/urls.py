@@ -16,13 +16,23 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from rest_framework.urlpatterns import format_suffix_patterns
+
 from promort.views import IndexView
 from authentication.views import LoginView, LogoutView
+from slides_manager.views import CaseList, CaseDetail, SlideList, SlideDetail
+
 
 urlpatterns = [
     # authentication
     url(r'^api/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/auth/logout/$', LogoutView.as_view(), name='logout'),
+
+    # cases and slides
+    url(r'^api/cases/$', CaseList.as_view()),
+    url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
+    url(r'^api/slides/$', SlideList.as_view()),
+    url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
@@ -30,3 +40,5 @@ urlpatterns = [
     # catch'em all
     url(r'^.*$', IndexView.as_view(), name='index'),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
