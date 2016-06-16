@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'view_templates',
     'authentication',
     'slides_manager',
 )
@@ -92,7 +93,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'GMT'
 
 USE_I18N = True
 
@@ -120,3 +121,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+
+# CUSTOM SETTINGS
