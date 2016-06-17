@@ -20,7 +20,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from promort.views import IndexView
 from authentication.views import LoginView, LogoutView
-from slides_manager.views import CaseList, CaseDetail, SlideList, SlideDetail
+from slides_manager.views import CaseList, CaseDetail, \
+    SlideList, SlideDetail, SlideQualityControlList
 
 
 urlpatterns = [
@@ -33,6 +34,9 @@ urlpatterns = [
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
+    # slide quality control
+    url(r'api/slides/(?P<pk>[\w\-.]+)/quality_control/$',
+        SlideQualityControlList.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
