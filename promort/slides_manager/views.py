@@ -4,7 +4,7 @@ from rest_framework import permissions
 
 from slides_manager.models import Case, Slide
 from slides_manager.serializers import CaseSerializer, CaseDetailedSerializer,\
-    SlideSerializer
+    SlideSerializer, SlideDetailSerializer
 
 
 class CaseList(GenericListView):
@@ -14,9 +14,9 @@ class CaseList(GenericListView):
 
 
 class CaseDetail(GenericDetailView):
-    permission_classes = (permissions.IsAuthenticated,)
     model = Case
     model_serializer = CaseDetailedSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class SlideList(GenericListView):
@@ -26,6 +26,6 @@ class SlideList(GenericListView):
 
 
 class SlideDetail(GenericDetailView):
-    permission_classes = (permissions.IsAuthenticated,)
     model = Slide
-    model_serializer = SlideSerializer
+    model_serializer = SlideDetailSerializer
+    permission_classes = (permissions.IsAuthenticated,)

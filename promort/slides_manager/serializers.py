@@ -18,7 +18,7 @@ class SlideSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id', 'image_type')
-        read_only_fields = ('import_date', 'case')
+        read_only_fields = ('import_date',)
 
 
 class CaseDetailedSerializer(serializers.ModelSerializer):
@@ -29,3 +29,12 @@ class CaseDetailedSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'import_date', 'slides')
         read_only_fields = ('import_date', 'slides')
+
+
+class SlideDetailSerializer(serializers.ModelSerializer):
+    case = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Slide
+        fields = ('id', 'case', 'import_date', 'omero_id', 'image_type')
+        read_only_fields = ('import_date',)
