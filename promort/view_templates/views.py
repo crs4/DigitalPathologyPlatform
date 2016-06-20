@@ -11,6 +11,9 @@ from rest_framework.response import Response
 from django.http import Http404
 from django.db import IntegrityError
 
+import logging
+logger = logging.getLogger('promort')
+
 
 class GenericListView(APIView):
     model = None
@@ -23,6 +26,7 @@ class GenericListView(APIView):
                         status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
+        logger.debug('Serializing data %r -- Object class %r', request.data, self.model)
         serializer = self.model_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -37,9 +41,11 @@ class GenericDetailView(APIView):
     model_serializer = None
 
     def get_object(self, pk):
+        logger.debug('Loading object with PK %r -- Object class %r', pk, self.model)
         try:
             return self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
+            logger.debug('Object not found!')
             raise Http404
 
     def get(self, request, pk, format=None):
@@ -49,6 +55,7 @@ class GenericDetailView(APIView):
                         status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
+        logger.debug('Deleting object with PK %r -- Object class %r', pk, self.model)
         obj = self.get_object(pk)
         try:
             obj.delete()

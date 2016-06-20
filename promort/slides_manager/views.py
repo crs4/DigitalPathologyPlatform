@@ -10,6 +10,9 @@ from slides_manager.models import Case, Slide, SlideQualityControl
 from slides_manager.serializers import CaseSerializer, CaseDetailedSerializer,\
     SlideSerializer, SlideDetailSerializer, SlideQualityControlSerializer
 
+import logging
+logger = logging.getLogger('promort')
+
 
 class CaseList(GenericListView):
     model = Case
@@ -42,6 +45,8 @@ class SlideQualityControlList(APIView):
         qc_data = request.data
         qc_data['reviewer'] = request.user.username
         qc_data['slide'] = pk
+
+        logger.debug('Serializing data %r -- Object class %r', qc_data, SlideQualityControl)
 
         serializer = SlideQualityControlSerializer(data=qc_data)
         if serializer.is_valid():
