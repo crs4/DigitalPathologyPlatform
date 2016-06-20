@@ -76,6 +76,46 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'promort.wsgi.application'
 
+# Django logger
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s -- %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/promort.log',
+            'maxBytes': 1024*1024*10,
+            'backupCount': 10,
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'WARNING',
+        },
+        'promort': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
+    }
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
