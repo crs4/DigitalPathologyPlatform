@@ -52,6 +52,7 @@ coverage.xml
 # Django stuff:
 *.log
 db.sqlite3
+migrations
 
 # Sphinx documentation
 docs/_build/
@@ -68,3 +69,6 @@ target/
 # Grunt output files
 node_modules
 promort/static/js/promort.min.js
+
+# Application logs
+logs
