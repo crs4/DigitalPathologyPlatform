@@ -28,7 +28,7 @@ class Review(models.Model):
 
 class ReviewStep(models.Model):
     review = models.ForeignKey(Review, on_delete=models.PROTECT,
-                               blank=False)
+                               blank=False, related_name='steps')
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
                               blank=False)
     creation_date = models.DateTimeField(auto_now_add=True)
