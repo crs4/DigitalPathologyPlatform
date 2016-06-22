@@ -55,7 +55,7 @@ class CaseDetailedSerializer(serializers.ModelSerializer):
         model = Case
 
         fields = ('id', 'import_date', 'slides')
-        read_only_fields = ('import_date', 'slides')
+        read_only_fields = ('import_date',)
 
 
 class SlideDetailSerializer(serializers.ModelSerializer):
