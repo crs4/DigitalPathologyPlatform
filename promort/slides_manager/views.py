@@ -1,9 +1,9 @@
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from django.db import IntegrityError
-from django.http import Http404
 
 from view_templates.views import GenericDetailView, GenericListView
 
@@ -56,7 +56,7 @@ class SlideQualityControlDetail(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         else:
-            raise Http404
+            raise NotFound('Unable to find quality control data for slide ID \'%s\'' % slide)
 
     def post(self, request, slide, format=None):
         qc_data = request.data
@@ -72,7 +72,7 @@ class SlideQualityControlDetail(APIView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated entry for slide %s' % pk
+                    'message': 'duplicated entry for slide %s' % slide
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
@@ -91,5 +91,4 @@ class SlideQualityControlDetail(APIView):
                 }, status=status.HTTP_409_CONFLICT)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            raise Http404
-
+            raise NotFound('Unable to find quality control data for slide ID \'%s\'' % slide)
