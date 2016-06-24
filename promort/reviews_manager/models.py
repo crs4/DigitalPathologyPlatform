@@ -25,6 +25,18 @@ class Review(models.Model):
     class Meta:
         unique_together = ('case', 'type')
 
+    def is_started(self):
+        return not(self.start_date is None)
+
+    def is_completed(self):
+        return not(self.completion_date is None)
+
+    def can_be_closed(self):
+        for rs in self.steps.all():
+            if not rs.is_completed():
+                return False
+        return True
+
 
 class ReviewStep(models.Model):
     review = models.ForeignKey(Review, on_delete=models.PROTECT,
@@ -40,3 +52,9 @@ class ReviewStep(models.Model):
 
     class Meta:
         unique_together = ('review', 'slide')
+
+    def is_started(self):
+        return not (self.start_date is None)
+
+    def is_completed(self):
+        return not (self.completion_date is None)
