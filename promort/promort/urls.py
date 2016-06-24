@@ -23,7 +23,7 @@ from authentication.views import LoginView, LogoutView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ReviewsList, ReviewsDetail,\
-    ReviewDetail
+    ReviewDetail, ReviewStepDetail
 
 
 urlpatterns = [
@@ -46,6 +46,8 @@ urlpatterns = [
     url(r'api/reviews/(?P<case>[\w\-.]+)/$', ReviewsDetail.as_view()),
     url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/$',
         ReviewDetail.as_view()),
+    url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/(?P<slide>[\w\-.]+)/$',
+        ReviewStepDetail.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
