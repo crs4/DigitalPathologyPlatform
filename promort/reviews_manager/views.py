@@ -63,8 +63,15 @@ class ReviewDetail(APIView):
                         status=status.HTTP_200_OK)
 
     def post(self, request, case, review_type, format=None):
+        reviewer = request.data.get('reviewer')
+        if reviewer is None:
+            return Response({
+                'status': 'ERROR',
+                'message': 'No reviewer specified'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         review_data = {
-            'reviewer': request.user.username,
+            'reviewer': reviewer,
             'case': case,
             'type': review_type.upper()
         }
