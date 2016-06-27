@@ -1,9 +1,9 @@
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from django.db import IntegrityError
-from django.http import Http404
 
 from view_templates.views import GenericDetailView, GenericListView
 
@@ -44,19 +44,15 @@ class SlideQualityControlDetail(APIView):
 
     def _find_by_slide(self, slide_id):
         try:
-            qc = SlideQualityControl.objects.get(slide=slide_id)
+            return SlideQualityControl.objects.get(slide=slide_id)
         except SlideQualityControl.DoesNotExist:
-            qc = None
-        return qc
+            raise NotFound('Unable to find quality control data for slide ID \'%s\'' % slide_id)
 
     def get(self, request, slide, format=None):
         qc_obj = self._find_by_slide(slide)
-        if qc_obj:
-            serializer = SlideQualityControlSerializer(qc_obj)
-            return Response(serializer.data,
-                            status=status.HTTP_200_OK)
-        else:
-            raise Http404
+        serializer = SlideQualityControlSerializer(qc_obj)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)
 
     def post(self, request, slide, format=None):
         qc_data = request.data
@@ -72,7 +68,7 @@ class SlideQualityControlDetail(APIView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated entry for slide %s' % pk
+                    'message': 'duplicated entry for slide %s' % slide
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
@@ -81,15 +77,11 @@ class SlideQualityControlDetail(APIView):
 
     def delete(self, request, slide, format=None):
         qc_obj = self._find_by_slide(slide)
-        if qc_obj:
-            try:
-                qc_obj.delete()
-            except IntegrityError:
-                return Response({
-                    'status': 'ERROR',
-                    'message': 'unable to complete delete operation, there are still references to this object'
-                }, status=status.HTTP_409_CONFLICT)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            raise Http404
-
+        try:
+            qc_obj.delete()
+        except IntegrityError:
+            return Response({
+                'status': 'ERROR',
+                'message': 'unable to complete delete operation, there are still references to this object'
+            }, status=status.HTTP_409_CONFLICT)
+        return Response(status=status.HTTP_204_NO_CONTENT)

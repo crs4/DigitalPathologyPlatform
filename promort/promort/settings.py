@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'view_templates',
     'authentication',
     'slides_manager',
+    'reviews_manager',
 )
 
 MIDDLEWARE_CLASSES = (

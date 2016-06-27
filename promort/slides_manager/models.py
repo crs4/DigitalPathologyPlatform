@@ -17,7 +17,7 @@ class Case(models.Model):
 class Slide(models.Model):
     id = models.CharField(max_length=25, primary_key=True)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
-                             blank=False)
+                             blank=False, related_name='slides')
     import_date = models.DateTimeField(auto_now_add=True)
     omero_id = models.IntegerField(blank=True, null=True,
                                    default=None)

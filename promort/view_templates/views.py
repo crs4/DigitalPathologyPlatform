@@ -7,8 +7,8 @@ except ImportError:
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
-from django.http import Http404
 from django.db import IntegrityError
 
 import logging
@@ -46,7 +46,7 @@ class GenericDetailView(APIView):
             return self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
             logger.debug('Object not found!')
-            raise Http404
+            raise NotFound('There is no %s with ID %s' % (self.model, pk))
 
     def get(self, request, pk, format=None):
         obj = self.get_object(pk)

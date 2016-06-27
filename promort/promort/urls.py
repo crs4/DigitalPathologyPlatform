@@ -22,6 +22,8 @@ from promort.views import IndexView
 from authentication.views import LoginView, LogoutView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
+from reviews_manager.views import ReviewsList, ReviewsDetail,\
+    ReviewDetail, ReviewStepDetail
 
 
 urlpatterns = [
@@ -34,9 +36,18 @@ urlpatterns = [
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
+
     # slide quality control
     url(r'api/slides/(?P<slide>[\w\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
+
+    # reviews and review steps
+    url(r'api/reviews/$', ReviewsList.as_view()),
+    url(r'api/reviews/(?P<case>[\w\-.]+)/$', ReviewsDetail.as_view()),
+    url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/$',
+        ReviewDetail.as_view()),
+    url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/(?P<slide>[\w\-.]+)/$',
+        ReviewStepDetail.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
