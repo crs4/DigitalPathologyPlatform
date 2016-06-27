@@ -5,7 +5,7 @@ except ImportError:
 from datetime import datetime
 
 from rest_framework.views import APIView
-from rest_framework import status, permissions
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import MethodNotAllowed, NotFound
 
@@ -16,6 +16,7 @@ from view_templates.views import GenericListView
 from reviews_manager.models import Review, ReviewStep
 from reviews_manager.serializers import ReviewSerializer,\
     ReviewDetailsSerializer, ReviewStepSerializer
+from reviews_manager.permissions import IsReviewManager
 
 import logging
 logger = logging.getLogger('promort')
@@ -24,14 +25,14 @@ logger = logging.getLogger('promort')
 class ReviewsList(GenericListView):
     model = Review
     model_serializer = ReviewSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsReviewManager,)
 
     def post(self, request, format=None):
         raise MethodNotAllowed
 
 
 class ReviewsDetail(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsReviewManager,)
 
     def _find_review(self, case_id):
         try:
@@ -47,7 +48,7 @@ class ReviewsDetail(APIView):
 
 
 class ReviewDetail(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsReviewManager,)
 
     def _find_review(self, case_id, review_type):
         try:
@@ -122,7 +123,7 @@ class ReviewDetail(APIView):
 
 
 class ReviewStepDetail(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsReviewManager,)
 
     def _find_review_step(self, case_id, review_type, slide_id):
         try:
