@@ -19,7 +19,8 @@ from django.contrib import admin
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from promort.views import IndexView
-from authentication.views import LoginView, LogoutView
+from authentication.views import LoginView, LogoutView, \
+    GroupListView, GroupDetailsView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ReviewsList, ReviewsDetail,\
@@ -30,6 +31,10 @@ urlpatterns = [
     # authentication
     url(r'^api/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/auth/logout/$', LogoutView.as_view(), name='logout'),
+
+    # groups
+    url(r'api/groups/$', GroupListView.as_view()),
+    url(r'api/groups/(?P<group>reviewer_1|reviewer_2|reviewer_3)/$', GroupDetailsView.as_view()),
 
     # cases and slides
     url(r'^api/cases/$', CaseList.as_view()),
