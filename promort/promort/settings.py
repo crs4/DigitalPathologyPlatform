@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'authentication',
     'slides_manager',
     'reviews_manager',
+    'worklist_manager',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -165,3 +166,14 @@ REST_FRAMEWORK = {
 
 
 # CUSTOM SETTINGS
+DEFAULT_GROUPS = {
+    'reviewer_1': {
+        'name': 'REVIEWER_1',
+    },
+    'reviewer_2': {
+        'name': 'REVIEWER_2',
+    },
+    'reviewer_3': {
+        'name': 'REVIEWER_3',
+    }
+}
