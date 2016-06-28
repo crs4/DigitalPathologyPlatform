@@ -25,6 +25,7 @@ from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ReviewsList, ReviewsDetail,\
     ReviewDetail, ReviewStepDetail
+from worklist_manager.views import UserWorkList, WorkListAdmin
 
 
 urlpatterns = [
@@ -53,6 +54,10 @@ urlpatterns = [
         ReviewDetail.as_view()),
     url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/(?P<slide>[\w\-.]+)/$',
         ReviewStepDetail.as_view()),
+
+    # worklists
+    url(r'api/worklist/$', UserWorkList.as_view()),
+    url(r'api/worklist/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
