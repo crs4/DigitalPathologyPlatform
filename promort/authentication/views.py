@@ -4,11 +4,19 @@ except ImportError:
     import json
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
 
 from rest_framework import status, views, permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
 
-from serializers import UserSerializer
+from serializers import UserSerializer, GroupSerializer, GroupDetailsSerializer
+
+from promort.settings import DEFAULT_GROUPS
+
+import logging
+logger = logging.getLogger('promort')
 
 
 class LoginView(views.APIView):
@@ -48,3 +56,24 @@ class LogoutView(views.APIView):
         logout(request)
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupListView(APIView):
+    permission_classes = (permissions.IsAdminUser,)
+
+    def get(self, request, format=None):
+        groups = []
+        for _, group in DEFAULT_GROUPS.iteritems():
+            logger.debug('Loading data for group %s', group)
+            groups.append(Group.objects.get(name=group['name']))
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GroupDetailsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, group, format=None):
+        group = Group.objects.get(name=DEFAULT_GROUPS[group]['name'])
+        serializer = GroupDetailsSerializer(group)
+        return Response(serializer.data, status=status.HTTP_200_OK)

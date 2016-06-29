@@ -85,8 +85,10 @@ class SlidesImporter(object):
         response = self.promort_client.post(url, payload)
         if response.status_code == requests.codes.CREATED:
             self.logger.info('Case with ID %r created', case_id)
-        elif response.status_code == requests.codes.BAD:
+            return True
+        elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
             self.logger.warn('Unable to create case with ID %r', case_id)
+            return False
 
     def _save_slide(self, slide_id, case, omero_id, image_type):
         payload = {
@@ -100,8 +102,10 @@ class SlidesImporter(object):
         response = self.promort_client.post(url, payload)
         if response.status_code == requests.codes.CREATED:
             self.logger.info('Slide with ID %r created', slide_id)
+            return True
         elif response.status_code == requests.codes.BAD:
-            self.logger.warn('Unable to create slide with ID %r' , slide_id)
+            self.logger.warn('Unable to create slide with ID %r', slide_id)
+            return False
 
     def _get_ome_images(self):
         url = urljoin(self.ome_host, 'ome_seadragon/get/images/index/')
@@ -124,16 +128,72 @@ class SlidesImporter(object):
             sys.exit('Unable to load slides from OMERO')
 
     def _serialize_slide_map(self, slides_map):
+        saved_objects_map = {}
         for case, slides in slides_map.iteritems():
-            self._save_case(case)
-            for slide in slides:
-                self._save_slide(slide['name'], case,
-                                 slide['omero_id'], slide['img_type'])
+            case_saved = self._save_case(case)
+            if case_saved:
+                saved_objects_map[case] = []
+                for slide in slides:
+                    slide_saved = self._save_slide(slide['name'], case,
+                                                   slide['omero_id'], slide['img_type'])
+                    if slide_saved:
+                        saved_objects_map[case].append(slide['name'])
+        return saved_objects_map
+
+    def _get_first_reviewers_list(self):
+        url = urljoin(self.promort_host, 'api/groups/reviewer_1/')
+        response = self.promort_client.get(url)
+        if response.status_code == requests.codes.OK:
+            users = response.json()['users']
+            self.logger.info('Loaded %d users' % len(users))
+            return [u['username'] for u in users]
+        else:
+            self.logger.error('Unable to load users list for "reviewer_1" group')
+            self._promort_logout()
+            sys.exit('Unable to load users list for "reviewer_1" group')
+
+    def _create_review(self, case_id, reviewer):
+        payload = {
+            'reviewer': reviewer
+        }
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/' % case_id)
+        response = self.promort_client.post(url, payload)
+        if response.status_code == requests.codes.CREATED:
+            self.logger.info('Created a review for case %s', case_id)
+            return True
+        elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
+            self.logger.warn('Unable to create review for case %s [status code %s]',
+                             case_id, response.status_code)
+            return False
+
+    def _create_review_step(self, case_id, slide_id):
+        payload = dict()
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/%s/' % (case_id, slide_id))
+        response = self.promort_client.post(url, payload)
+        if response.status_code == requests.codes.CREATED:
+            self.logger.info('Created a review step for slide %s of case %s', slide_id, case_id)
+        elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
+            self.logger.warn('Unable to create review step for slide %s of case %s [status code %s]',
+                             slide_id, case_id, response.status_code)
+
+    def _create_worklists(self, objs_map):
+        r1_users = self._get_first_reviewers_list()
+        for i, (case, slides) in enumerate(objs_map.iteritems()):
+            reviewer = r1_users[i % len(r1_users)]
+            self.logger.info('Assigning review for case %s to user %s', case, reviewer)
+            rev_created = self._create_review(case, reviewer)
+            if rev_created:
+                for slide in slides:
+                    self.logger.info('Assigning review step for slide %s of case %s', slide, case)
+                    self._create_review_step(case, slide)
 
     def run(self):
         self._promort_login()
         slides_map = self._get_ome_images()
-        self._serialize_slide_map(slides_map)
+        saved_objs_map = self._serialize_slide_map(slides_map)
+        self._create_worklists(saved_objs_map)
         self._promort_logout()
 
 

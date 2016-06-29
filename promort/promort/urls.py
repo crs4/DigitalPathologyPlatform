@@ -19,17 +19,23 @@ from django.contrib import admin
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from promort.views import IndexView
-from authentication.views import LoginView, LogoutView
+from authentication.views import LoginView, LogoutView, \
+    GroupListView, GroupDetailsView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ReviewsList, ReviewsDetail,\
     ReviewDetail, ReviewStepDetail
+from worklist_manager.views import UserWorkList, WorkListAdmin
 
 
 urlpatterns = [
     # authentication
     url(r'^api/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/auth/logout/$', LogoutView.as_view(), name='logout'),
+
+    # groups
+    url(r'api/groups/$', GroupListView.as_view()),
+    url(r'api/groups/(?P<group>reviewer_1|reviewer_2|reviewer_3)/$', GroupDetailsView.as_view()),
 
     # cases and slides
     url(r'^api/cases/$', CaseList.as_view()),
@@ -48,6 +54,10 @@ urlpatterns = [
         ReviewDetail.as_view()),
     url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/(?P<slide>[\w\-.]+)/$',
         ReviewStepDetail.as_view()),
+
+    # worklists
+    url(r'api/worklist/$', UserWorkList.as_view()),
+    url(r'api/worklist/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
