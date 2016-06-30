@@ -3,6 +3,8 @@ try:
 except ImportError:
     import json
 
+from django.contrib.auth.models import User
+
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
@@ -19,8 +21,10 @@ class UserWorkList(APIView):
 
     def _get_pending_reviews(self, username):
         try:
-            return Review.objects.filter(reviewer=username,
-                                         completion_date=None)
+            return Review.objects.filter(
+                reviewer=User.objects.get(username=username),
+                completion_date=None
+            )
         except Review.DoesNotExist:
             return []
 
