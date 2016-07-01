@@ -27,7 +27,7 @@
             function loginSuccessFn(data, status, header, config) {
                 Authentication.setAuthenticatedAccount(data.data);
                 
-                window.location = '/';
+                window.location = '/worklist';
             }
             
             function loginErrorFn(data, status, headers, config) {
