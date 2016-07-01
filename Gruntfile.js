@@ -10,7 +10,10 @@ module.exports = function(grunt) {
         "promort/src/js/authentication/authentication.services.js",
         "promort/src/js/authentication/authentication.controllers.js",
         "promort/src/js/layout/layout.modules.js",
-        "promort/src/js/layout/layout.controllers.js"
+        "promort/src/js/layout/layout.controllers.js",
+        "promort/src/js/worklist/worklist.module.js",
+        "promort/src/js/worklist/worklist.services.js",
+        "promort/src/js/worklist/worklist.controllers.js"
     ];
 
     grunt.initConfig({
