@@ -6,7 +6,8 @@
             'promort.config',
             'promort.routes',
             'promort.authentication',
-            'promort.layout'
+            'promort.layout',
+            'promort.worklist'
         ])
         .run(run);
 
