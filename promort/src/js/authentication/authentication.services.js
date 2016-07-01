@@ -43,7 +43,7 @@
             function logoutSuccessFn(data, status, headers, config) {
                 Authentication.unauthenticate();
                 
-                window.location = '/';
+                window.location = '/login';
             }
             
             function logoutErrorFn(data, status, headers, config) {
