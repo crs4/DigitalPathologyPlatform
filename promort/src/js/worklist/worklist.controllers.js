@@ -3,7 +3,8 @@
     
     angular
         .module('promort.worklist.controllers')
-        .controller('WorkListController', WorkListController);
+        .controller('WorkListController', WorkListController)
+        .controller('ReviewController', ReviewController);
     
     WorkListController.$inject = ['$scope', 'WorkListService'];
     
@@ -66,5 +67,51 @@
         }
     }
     
+    ReviewController.$inject = ['$scope', '$routeParams', 'ReviewStepsService'];
+
+    function ReviewController($scope, $routeParams, ReviewStepsService) {
+        var vm = this;
+        vm.reviewSteps = [];
+        vm.case_id = undefined;
+        vm.reviewStepPending = reviewStepPending;
+        vm.reviewStepInProgress = reviewStepInProgress;
+        vm.reviewStepCompleted = reviewStepCompleted;
+        vm.getReviewStepLink = getReviewStepLink;
+
+        activate();
+
+        function activate() {
+            vm.case_id = $routeParams.case;
+            ReviewStepsService.get(vm.case_id)
+                .then(ReviewStepsSuccessFn, ReviewStepsErrorFn);
+
+            function ReviewStepsSuccessFn(data, status, headers, config) {
+                vm.reviewSteps = data.data;
+            }
+
+            function ReviewStepsErrorFn(data, status, headers, config) {
+                console.error(data.error);
+            }
+        }
+
+        function reviewStepPending(reviewStep) {
+            return (!reviewStep.start_date && !reviewStep.completion_date);
+        }
+
+        function reviewStepInProgress(reviewStep) {
+            return (reviewStep.start_date && !reviewStep.completion_date);
+        }
+
+        function reviewStepCompleted(reviewStep) {
+            return (reviewStep.start_date && reviewStep.completion_date);
+        }
+
+        function getReviewStepLink(reviewStep) {
+            if (reviewStep.review_type === 'REVIEW_1') {
+                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/rois';
+            } else {
+                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/annotations';
+            }
+        }
     }
 })();
