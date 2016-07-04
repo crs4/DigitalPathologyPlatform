@@ -10,10 +10,11 @@
     function WorkListController($scope, WorkListService) {
         var vm = this;
         vm.pendingReviews = [];
-        vm.dummyString  = 'Hey there, I am just a stupid string';
         vm.reviewInProgress = reviewInProgress;
         vm.checkPendingReviews = checkPendingReviews;
         vm.getReviewLink = getReviewLink;
+        vm.openReview = openReview;
+        vm.closeReview = closeReview;
         
         activate();
         
@@ -54,5 +55,16 @@
             }
             return 'worklist/' + review.case;
         }
+        
+        function openReview(review) {
+            console.info('Starting review for case ' + review.case);
+            WorkListService.startReview(review.case, review.type);
+        }
+
+        function closeReview(review) {
+            WorkListService.closeReview(review.case, review.type);
+        }
+    }
+    
     }
 })();
