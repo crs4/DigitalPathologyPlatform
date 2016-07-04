@@ -24,12 +24,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ReviewStepSerializer(serializers.ModelSerializer):
+    review_type = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = ReviewStep
 
-        fields = ('id', 'review', 'slide', 'creation_date', 'start_date',
-                  'completion_date', 'notes')
+        fields = ('id', 'review', 'review_type', 'slide', 'creation_date',
+                  'start_date', 'completion_date', 'notes')
         read_only_fields = ('id', 'creation_date',)
+
+    def get_review_type(self, obj):
+        rev = obj.review
+        return rev.type
 
 
 class ReviewDetailsSerializer(serializers.ModelSerializer):
