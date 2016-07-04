@@ -3,23 +3,24 @@
         <h1 class="text-center">WORKLIST - Pending reviews</h1>
         <div id="worklist-details" ng-repeat="review in wlc.pendingReviews">
             <div class="well row">
-                <div class="col-md-10 valign">
+                <div class="col-md-9 valign">
                     <div>
                         <p><strong>Case ID:</strong> {{ review.case }}</p>
                         <p><strong>Review Type:</strong> {{ review.type }}</p>
                         <p><strong>Slides count:</strong> {{ review.steps_count | number:0 }}</p>
                     </div>
                 </div><!--
-                        Removing blank spaces between DIVs, this will make valign work
-                    --><div class="col-md-2 text-center valign">
-                <div>
-                    <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
-                       ng-href="{{ wlc.getReviewLink(review) }}"
-                       ng-disabled="wlc.checkPendingReviews()">Start Review</a>
-                    <a class="brn btn-warning" ng-show="wlc.reviewInProgress(review)"
-                       ng-href="worklist/{{ review.case }}">Continue Review</a>
+                  Removing blank spaces between DIVs, this will make valign work
+             --><div class="col-md-3 text-right valign">
+                    <div>
+                        <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
+                           ng-href="{{ wlc.getReviewLink(review) }}"
+                           ng-click="wlc.openReview(review)"
+                           ng-disabled="wlc.checkPendingReviews()">Start Review</a>
+                        <a class="btn btn-warning" ng-show="wlc.reviewInProgress(review)"
+                           ng-href="worklist/{{ review.case }}">Continue Review</a>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
