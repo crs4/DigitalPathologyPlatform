@@ -58,7 +58,6 @@
         }
         
         function openReview(review) {
-            console.info('Starting review for case ' + review.case);
             WorkListService.startReview(review.case, review.type);
         }
 
@@ -77,6 +76,8 @@
         vm.reviewStepInProgress = reviewStepInProgress;
         vm.reviewStepCompleted = reviewStepCompleted;
         vm.getReviewStepLink = getReviewStepLink;
+        vm.startReviewStep = startReviewStep;
+        vm.closeReviewStep = closeReviewStep;
 
         activate();
 
@@ -112,6 +113,16 @@
             } else {
                 return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/annotations';
             }
+        }
+
+        function startReviewStep(reviewStep) {
+            ReviewStepsService.startReviewStep(vm.case_id, reviewStep.review_type,
+                reviewStep.slide);
+        }
+
+        function closeReviewStep(reviewStep) {
+            ReviewStepsService.closeReviewStep(vm.case_id, reviewStep.review_type,
+                reviewStep.slide);
         }
     }
 })();
