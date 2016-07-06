@@ -108,7 +108,7 @@
 
         function getReviewStepLink(reviewStep) {
             if (reviewStep.review_type === 'REVIEW_1') {
-                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/rois';
+                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/quality_check';
             } else {
                 return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/annotations';
             }
