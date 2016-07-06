@@ -32,10 +32,7 @@
         }
 
         function reviewInProgress(review) {
-            if (review.start_date && !review.completion_date ) {
-                return true;
-            }
-            return false;
+            return (review.start_date && !review.completion_date );
         }
 
         function checkPendingReviews() {
