@@ -12,14 +12,15 @@
              --><div class="col-md-3 text-right valign">
                     <div>
                         <a class="btn btn-success"
-                           ng-href="{{ rc.getReviewStepLink(step) }}"
-                           ng-show="rc.reviewStepPending(step)">Start slide review</a>
+                            ng-href="{{ rc.getReviewStepLink(step) }}"
+                            ng-show="rc.reviewStepPending(step)"
+                            ng-click="rc.startReviewStep(step)">Start slide review</a>
                         <a class="btn btn-warning"
-                           ng-show="rc.reviewStepInProgress(step)"
-                           ng-href="{{ rc.getReviewStep(step) }}">Continue slide review</a>
+                            ng-show="rc.reviewStepInProgress(step)"
+                            ng-href="{{ rc.getReviewStepLink(step) }}">Continue slide review</a>
                         <a class="btn btn-default"
-                           ng-show="rc.reviewStepCompleted(step)"
-                           href="#" disabled="true">Slide review completed</a>
+                            ng-show="rc.reviewStepCompleted(step)"
+                            href="#" disabled="true">Slide review completed</a>
                     </div>
                 </div>
             </div>
