@@ -177,3 +177,6 @@ DEFAULT_GROUPS = {
         'name': 'REVIEWER_3',
     }
 }
+
+OME_SEADRAGON_BASE_URL = 'http://localhost:8080/ome_seadragon/'
+OME_SEADRAGON_STATIC_FILES_URL = 'http://localhost:8080/static/'
