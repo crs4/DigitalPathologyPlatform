@@ -52,10 +52,14 @@
             return $http.get('/api/worklist/' + case_id + '/');
         }
 
-        function _reviewStepAction(case_id, review_type, slide_id, action) {
+        function _reviewStepAction(case_id, review_type, slide_id, action, notes) {
+            var params = {action: action};
+            if (typeof notes !== 'undefined') {
+                params.notes = notes;
+            }
             return $http.put(
                 '/api/reviews/' + case_id + '/' + review_type.toLowerCase() + '/' + slide_id + '/',
-                {action: action}
+                params
             );
         }
 
@@ -63,8 +67,8 @@
             return _reviewStepAction(case_id, review_type, slide_id, 'START');
         }
 
-        function closeReviewStep(case_id, review_type, slide_id) {
-            return _reviewStepAction(case_id, review_type, slide_id, 'FINISH');
+        function closeReviewStep(case_id, review_type, slide_id, notes) {
+            return _reviewStepAction(case_id, review_type, slide_id, 'FINISH', notes);
         }
     }
 })();
