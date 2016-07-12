@@ -27,7 +27,7 @@ from reviews_manager.views import ReviewsList, ReviewsDetail,\
     ReviewDetail, ReviewStepDetail
 from worklist_manager.views import UserWorkList, UserWorkListReview,\
     WorkListAdmin
-
+import utils.views as promort_utils
 
 urlpatterns = [
     # authentication
@@ -60,6 +60,9 @@ urlpatterns = [
     url(r'api/worklist/$', UserWorkList.as_view()),
     url(r'api/worklist/(?P<case>[\w\-.]+)/$', UserWorkListReview.as_view()),
     url(r'api/worklist/admin/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
+
+    # utils
+    url(r'api/utils/omeseadragon_base_urls/$', promort_utils.get_ome_seadragon_base_url),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
