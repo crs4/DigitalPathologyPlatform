@@ -164,6 +164,8 @@ REST_FRAMEWORK = {
     )
 }
 
+SESSION_COOKIE_NAME = 'promort_sessionid'
+
 
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
