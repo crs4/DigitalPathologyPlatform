@@ -22,6 +22,7 @@ class Slide(models.Model):
     omero_id = models.IntegerField(blank=True, null=True,
                                    default=None)
     image_type = models.CharField(max_length=15, blank=False)
+    image_microns_per_pixel = models.FloatField(default=0.0)
 
     def __unicode__(self):
         return 'Slide %s [img type: %s --- OMERO id: %r]' % (self.id, self.image_type,
