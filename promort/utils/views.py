@@ -19,11 +19,12 @@ def get_ome_seadragon_base_url(request):
 
 
 @api_view()
-@permission_classes(permissions.IsAuthenticated)
+@permission_classes([permissions.IsAuthenticated])
 def get_slide_qc_not_adequacy_reasons(request):
-    return [
+    not_adequacy_reasons_map = [
         {
             'value': ch[0],
             'text': ch[1]
         } for ch in SlideQualityControl.NOT_ADEQUACY_REASONS_CHOICES
     ]
+    return Response(not_adequacy_reasons_map, status=status.HTTP_200_OK)
