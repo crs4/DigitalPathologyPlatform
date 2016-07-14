@@ -63,6 +63,7 @@ urlpatterns = [
 
     # utils
     url(r'api/utils/omeseadragon_base_urls/$', promort_utils.get_ome_seadragon_base_url),
+    url(r'api/utils/slide_not_adequacy_reasons/$', promort_utils.get_slide_qc_not_adequacy_reasons),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
