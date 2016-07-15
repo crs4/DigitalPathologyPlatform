@@ -4,7 +4,8 @@
     angular
         .module('promort.slides_manager', [
             'promort.slides_manager.services',
-            'promort.slides_manager.controllers'
+            'promort.slides_manager.controllers',
+            'promort.slides_manager.directives'
         ]);
     
     angular
@@ -12,4 +13,7 @@
     
     angular
         .module('promort.slides_manager.controllers', []);
+    
+    angular
+        .module('promort.slides_manager.directives', []);
 })();

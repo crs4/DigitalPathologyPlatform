@@ -16,7 +16,8 @@ module.exports = function(grunt) {
         "promort/src/js/worklist/worklist.controllers.js",
         "promort/src/js/slides_manager/slides_manager.module.js",
         "promort/src/js/slides_manager/slides_manager.services.js",
-        "promort/src/js/slides_manager/slides_manager.controllers.js"
+        "promort/src/js/slides_manager/slides_manager.controllers.js",
+        "promort/src/js/slides_manager/slides_manager.directives.js"
     ];
 
     grunt.initConfig({
