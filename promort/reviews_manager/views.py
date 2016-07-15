@@ -132,23 +132,20 @@ class ReviewDetail(APIView):
 class ReviewStepDetail(APIView):
     permission_classes = (IsReviewManager,)
 
+    def _find_review(self, case_id, review_type):
+        try:
+            return Review.objects.get(case=case_id, type=review_type.upper())
+        except Review.DoesNotExist:
+            raise NotFound('No review of type %s for case ID \'%s\'' % (review_type, case_id))
+
     def _find_review_step(self, case_id, review_type, slide_id):
         try:
-            review = Review.objects.get(case=case_id, type=review_type)
+            review = self._find_review(case_id, review_type)
             review_step = ReviewStep.objects.get(review=review, slide=slide_id)
             return review_step
-        except Review.DoesNotExist:
-            logger.error('No review for case %s of type %s' % (case_id, review_type))
-            raise NotFound
         except ReviewStep.DoesNotExist:
             logger.error('No review step for slide %s for review type %s' % (slide_id, review_type))
             raise NotFound
-
-    def _find_review(self, case_id, review_type):
-        try:
-            return Review.objects.get(case=case_id, type=review_type)
-        except Review.DoesNotExist:
-            raise NotFound('No review of type %s for case ID \'%s\'' % (review_type, case_id))
 
     def get(self, request, case, review_type, slide, format=None):
         review_step = self._find_review_step(case, review_type.upper(), slide)

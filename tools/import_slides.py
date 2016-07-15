@@ -90,12 +90,13 @@ class SlidesImporter(object):
             self.logger.warn('Unable to create case with ID %r', case_id)
             return False
 
-    def _save_slide(self, slide_id, case, omero_id, image_type):
+    def _save_slide(self, slide_id, case, omero_id, image_type, image_mpp):
         payload = {
             'id': slide_id,
             'case': case,
             'omero_id': omero_id,
-            'image_type': image_type
+            'image_type': image_type,
+            'image_microns_per_pixel': image_mpp
         }
         self._update_payload(payload)
         url = urljoin(self.promort_host, 'api/slides/')
@@ -127,6 +128,20 @@ class SlidesImporter(object):
             self.logger.error('Unable to load slides from OMERO')
             sys.exit('Unable to load slides from OMERO')
 
+    def _get_slide_mpp(self, slide):
+        if slide['img_type'] == 'OMERO_IMG':
+            url = urljoin(self.ome_host, 'ome_seadragon/deepzoom/image_mpp/' +
+                          slide['omero_id'] + '.dzi')
+        else:
+            url = urljoin(self.ome_host, 'ome_seadragon/mirax/deepzoom/image_mpp/' +
+                          slide['name'] + '.dzi')
+        self.logger.info(url)
+        response = requests.get(url)
+        if response.status_code == requests.codes.OK:
+            return response.json()['image_mpp']
+        else:
+            return 0
+
     def _serialize_slide_map(self, slides_map):
         saved_objects_map = {}
         for case, slides in slides_map.iteritems():
@@ -135,7 +150,8 @@ class SlidesImporter(object):
                 saved_objects_map[case] = []
                 for slide in slides:
                     slide_saved = self._save_slide(slide['name'], case,
-                                                   slide['omero_id'], slide['img_type'])
+                                                   slide['omero_id'], slide['img_type'],
+                                                   self._get_slide_mpp(slide))
                     if slide_saved:
                         saved_objects_map[case].append(slide['name'])
         return saved_objects_map

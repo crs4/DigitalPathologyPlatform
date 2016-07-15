@@ -27,7 +27,7 @@
             function loginSuccessFn(data, status, header, config) {
                 Authentication.setAuthenticatedAccount(data.data);
                 
-                window.location = '/';
+                window.location = '/worklist';
             }
             
             function loginErrorFn(data, status, headers, config) {
@@ -43,7 +43,7 @@
             function logoutSuccessFn(data, status, headers, config) {
                 Authentication.unauthenticate();
                 
-                window.location = '/';
+                window.location = '/login';
             }
             
             function logoutErrorFn(data, status, headers, config) {
@@ -52,23 +52,22 @@
         }
 
         function getAuthenticatedAccount() {
-            if (!$cookies.authenticatedAccount) {
+            if (!$cookies.get('authenticatedAccount')) {
                 return ;
             }
-
-            return JSON.parse($cookies.authenticatedAccount);
+            return $cookies.get('authenticatedAccount');
         }
 
         function isAuthenticated() {
-            return !!$cookies.authenticatedAccount;
+            return !!$cookies.get('authenticatedAccount');
         }
 
         function setAuthenticatedAccount(account) {
-            $cookies.authenticatedAccount = JSON.stringify(account);
+            $cookies.putObject('authenticatedAccount', account);
         }
 
         function unauthenticate() {
-            delete $cookies.authenticatedAccount;
+            $cookies.remove('authenticatedAccount');
         }
     }
 })();

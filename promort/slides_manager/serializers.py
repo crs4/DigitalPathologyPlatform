@@ -26,7 +26,8 @@ class SlideSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'quality_control_passed')
+                  'image_type', 'quality_control_passed',
+                  'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 
 
@@ -67,6 +68,7 @@ class SlideDetailSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'quality_control')
+                  'image_type', 'quality_control',
+                  'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 

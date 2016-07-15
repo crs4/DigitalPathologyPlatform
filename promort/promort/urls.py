@@ -25,8 +25,9 @@ from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ReviewsList, ReviewsDetail,\
     ReviewDetail, ReviewStepDetail
-from worklist_manager.views import UserWorkList, WorkListAdmin
-
+from worklist_manager.views import UserWorkList, UserWorkListReview,\
+    WorkListAdmin
+import utils.views as promort_utils
 
 urlpatterns = [
     # authentication
@@ -57,7 +58,12 @@ urlpatterns = [
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
-    url(r'api/worklist/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
+    url(r'api/worklist/(?P<case>[\w\-.]+)/$', UserWorkListReview.as_view()),
+    url(r'api/worklist/admin/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
+
+    # utils
+    url(r'api/utils/omeseadragon_base_urls/$', promort_utils.get_ome_seadragon_base_url),
+    url(r'api/utils/slide_not_adequacy_reasons/$', promort_utils.get_slide_qc_not_adequacy_reasons),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),

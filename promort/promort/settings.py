@@ -164,6 +164,8 @@ REST_FRAMEWORK = {
     )
 }
 
+SESSION_COOKIE_NAME = 'promort_sessionid'
+
 
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
@@ -177,3 +179,6 @@ DEFAULT_GROUPS = {
         'name': 'REVIEWER_3',
     }
 }
+
+OME_SEADRAGON_BASE_URL = 'http://localhost:8080/ome_seadragon/'
+OME_SEADRAGON_STATIC_FILES_URL = 'http://localhost:8080/static/'

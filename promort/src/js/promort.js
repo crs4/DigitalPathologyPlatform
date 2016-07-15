@@ -6,7 +6,9 @@
             'promort.config',
             'promort.routes',
             'promort.authentication',
-            'promort.layout'
+            'promort.layout',
+            'promort.worklist',
+            'promort.slides_manager'
         ])
         .run(run);
 
