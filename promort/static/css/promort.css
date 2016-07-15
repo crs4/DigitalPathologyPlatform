@@ -3,3 +3,16 @@ div.valign {
     vertical-align: middle;
     float: none;
 }
+
+div.viewer_frame {
+    background-color: white;
+    padding: 5px;
+}
+
+div.ome_viewer_simple {
+    height: 400px;
+}
+
+button.prm_button_small {
+    width: 100px;
+}
