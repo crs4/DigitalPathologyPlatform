@@ -1,0 +1,54 @@
+<div id="qc_header" class="row">
+    <div class="page-header text-center">
+        <h1>Slide {{ qcc.slide_id }} image quality control</h1>
+    </div>
+</div>
+<div id="slide_quality_control" class="row">
+    <div id="viewer_container" class="col-md-9 viewer_frame well">
+        <simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
+    </div>
+    <div id="qc_form_container" class="col-md-3">
+        <div class="well">
+            <h4 class="text-center">Image quality</h4>
+            <form>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="qualityRadios" id="goodQuality"
+                               value="true" ng-model="slideQualityControl.goodImageQuality">
+                        Good quality
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="qualityRadios" id="badQuality"
+                               value="false" ng-model="slideQualityControl.goodImageQuality">
+                        Bad quality
+                    </label>
+                </div>
+                <div id="bad_quality_related" ng-show="slideQualityControl.goodImageQuality === 'false'">
+                    <fieldset class="form-group">
+                        <label for="notAdequacyReasons">Not adequacy reason</label>
+                        <select class="form-control" id="notAdequacyReasons"
+                            ng-model="slideQualityControl.notAdequacyReason">
+                            <option value="{{ r.value }}"
+                                    ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
+                        </select>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" rows="7"
+                                  ng-model="reviewNotes"></textarea>
+                    </fieldset>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary prm_button_small"
+                        ng-click="qcc.submit()"
+                        ng-disabled="!qcc.checkFormSubmission()">
+                        <i class="glyphicon glyphicon-floppy-disk"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

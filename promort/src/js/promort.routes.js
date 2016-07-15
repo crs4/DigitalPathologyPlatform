@@ -27,6 +27,12 @@
                 controllerAs: 'rc',
                 templateUrl: '/static/templates/worklist/review_steps.html'
             })
+            // slide quality control
+            .when('/worklist/:case/:slide/quality_control', {
+                controller: 'QualityControlController',
+                controllerAs: 'qcc',
+                templateUrl: '/static/templates/slide_review/quality_control.html'
+            })
             // no match
             .otherwise('/');
     }
