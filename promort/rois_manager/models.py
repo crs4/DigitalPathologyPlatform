@@ -43,7 +43,7 @@ class CellularFocus(models.Model):
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0-0)
-    tumor_area = models.BooleanField(blank=False)
+    cancerous_region = models.BooleanField(blank=False)
 
     class Meta:
         unique_together = ('label', 'core')
