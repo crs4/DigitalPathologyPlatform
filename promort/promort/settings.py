@@ -167,6 +167,13 @@ REST_FRAMEWORK = {
 SESSION_COOKIE_NAME = 'promort_sessionid'
 
 
+# email settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = ''
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = None
+
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
     'reviewer_1': {
