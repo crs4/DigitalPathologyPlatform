@@ -1,4 +1,5 @@
-<nav id="index_navbar" class="navbar navbar-default" role="navigation" ng-controller="NavbarController as vm">
+<nav id="index_navbar" class="navbar navbar-default"
+     role="navigation" ng-controller="NavbarController as vm">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">ProMort web application</a>
@@ -13,10 +14,20 @@
                         </p>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" ng-click="vm.logout()">Logout</a>
+                        <a id="nav_send_report" href="#" role="button" class="btn btn-default navbar-btn"
+                           ng-dialog="/static/templates/user_report/report_dialog.html"
+                           ng-dialog-controller="UserReportController as urc">
+                            <i class="glyphicon glyphicon-envelope"></i>
+                            <span>Send Report</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="nav_logout" href="#" role="button" class="btn btn-default navbar-btn"
+                           ng-click="vm.logout()">Logout</a>
                     </li>
                 {% else %}
-                    <li><a href="/login">Login</a></li>
+                    <li><a href="/login" role="button" id="nav_login"
+                           class="btn btn-default navbar-btn">Login</a></li>
                 {% endif %}
             </ul>
         </div>
