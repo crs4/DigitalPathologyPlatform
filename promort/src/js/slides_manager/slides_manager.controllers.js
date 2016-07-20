@@ -99,7 +99,7 @@
     }
 
     SimpleViewerController.$inject = ['$scope', '$routeParams',
-        '$rootScope', 'SimpleViewerService', 'Authentication'];
+        '$rootScope', 'SimpleViewerService'];
 
     function SimpleViewerController($scope, $routeParams, $rootScope, 
                                     SimpleViewerService) {
