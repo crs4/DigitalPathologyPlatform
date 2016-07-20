@@ -8,7 +8,8 @@
             'promort.authentication',
             'promort.layout',
             'promort.worklist',
-            'promort.slides_manager'
+            'promort.slides_manager',
+            'promort.user_report'
         ])
         .run(run);
 

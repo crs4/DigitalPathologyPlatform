@@ -1,3 +1,5 @@
+from django.core.mail import send_mail
+
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -28,3 +30,28 @@ def get_slide_qc_not_adequacy_reasons(request):
         } for ch in SlideQualityControl.NOT_ADEQUACY_REASONS_CHOICES
     ]
     return Response(not_adequacy_reasons_map, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def send_user_report(request):
+    message = """
+------------------
+USER: %s
+------------------
+PAGE: %s
+------------------
+BROWSER: %s
+------------------
+MESSAGE: %s
+------------------
+""" % (request.user.username, request.data.get('page_url'),
+       request.data.get('browser'), request.data.get('message'))
+
+    send_mail(
+        subject=''.join([prs.REPORT_SUBJECT_PREFIX, request.data.get('subject')]),
+        message=message,
+        from_email=prs.EMAIL_HOST_USER,
+        recipient_list=prs.REPORT_RECIPIENTS
+    )
+    return Response(status=status.HTTP_204_NO_CONTENT)
