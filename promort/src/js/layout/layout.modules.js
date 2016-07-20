@@ -7,5 +7,5 @@
         ]);
     
     angular
-        .module('promort.layout.controllers', []);
+        .module('promort.layout.controllers', ['ngDialog']);
 })();
