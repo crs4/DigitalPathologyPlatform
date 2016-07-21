@@ -10,26 +10,26 @@
     <div id="qc_form_container" class="col-md-3">
         <div class="well">
             <h4 class="text-center">Image quality</h4>
-            <form>
+            <form role="form" ng-submit="qcc.submit()">
                 <div class="radio">
                     <label>
                         <input type="radio" name="qualityRadios" id="goodQuality"
-                               value="true" ng-model="slideQualityControl.goodImageQuality">
+                               value="true" ng-model="qcc.slideQualityControl.goodImageQuality">
                         Good quality
                     </label>
                 </div>
                 <div class="radio">
                     <label>
                         <input type="radio" name="qualityRadios" id="badQuality"
-                               value="false" ng-model="slideQualityControl.goodImageQuality">
+                               value="false" ng-model="qcc.slideQualityControl.goodImageQuality">
                         Bad quality
                     </label>
                 </div>
-                <div id="bad_quality_related" ng-show="slideQualityControl.goodImageQuality === 'false'">
+                <div id="bad_quality_related" ng-show="qcc.slideQualityControl.goodImageQuality === 'false'">
                     <fieldset class="form-group">
                         <label for="notAdequacyReasons">Not adequacy reason</label>
                         <select class="form-control" id="notAdequacyReasons"
-                            ng-model="slideQualityControl.notAdequacyReason">
+                                ng-model="qcc.slideQualityControl.notAdequacyReason">
                             <option value="{{ r.value }}"
                                     ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
                         </select>
@@ -37,13 +37,12 @@
                     <fieldset class="form-group">
                         <label for="notes">Notes</label>
                         <textarea class="form-control" id="notes" rows="7"
-                                  ng-model="reviewNotes"></textarea>
+                                  ng-model="qcc.reviewNotes"></textarea>
                     </fieldset>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary prm_button_small"
-                        ng-click="qcc.submit()"
-                        ng-disabled="!qcc.checkFormSubmission()">
+                            ng-disabled="!qcc.checkFormSubmission()">
                         <i class="glyphicon glyphicon-floppy-disk"></i>
                         <span>Save</span>
                     </button>

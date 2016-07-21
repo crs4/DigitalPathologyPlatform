@@ -18,8 +18,8 @@
         vm.checkFormSubmission = checkFormSubmission;
         vm.submit = submit;
 
-        $scope.slideQualityControl = {};
-        $scope.reviewNotes = '';
+        vm.slideQualityControl = {};
+        vm.reviewNotes = '';
 
         activate();
 
@@ -51,13 +51,13 @@
         }
 
         function checkFormSubmission() {
-            if ($scope.slideQualityControl.goodImageQuality &&
-                $scope.slideQualityControl.goodImageQuality === 'true') {
+            if (vm.slideQualityControl.goodImageQuality &&
+                vm.slideQualityControl.goodImageQuality === 'true') {
                 return true;
             }
-            if ($scope.slideQualityControl.goodImageQuality &&
-                $scope.slideQualityControl.goodImageQuality === 'false' &&
-                $scope.slideQualityControl.notAdequacyReason) {
+            if (vm.slideQualityControl.goodImageQuality &&
+                vm.slideQualityControl.goodImageQuality === 'false' &&
+                vm.slideQualityControl.notAdequacyReason) {
                 return true;
             }
             return false;
@@ -66,17 +66,17 @@
         function submit() {
             QualityControlService.create(
                 vm.slide_id,
-                $.parseJSON($scope.slideQualityControl.goodImageQuality),
-                $scope.slideQualityControl.notAdequacyReason
+                $.parseJSON(vm.slideQualityControl.goodImageQuality),
+                vm.slideQualityControl.notAdequacyReason
             ).then(qualityControlCreationSuccessFn, qualityControlCreationErrorFn);
 
             function qualityControlCreationSuccessFn(response) {
-                if($scope.slideQualityControl.goodImageQuality === 'true') {
+                if(vm.slideQualityControl.goodImageQuality === 'true') {
                     console.log('redirect to ROIs review page');
                 } else {
                     // close the review because image quality is bad
                     ReviewStepsService.closeReviewStep(vm.case_id, 'REVIEW_1',
-                        vm.slide_id, $scope.reviewNotes)
+                        vm.slide_id, vm.reviewNotes)
                         .then(closeReviewSuccessFn, closeReviewErrorFn);
 
                     //noinspection JSAnnotator
