@@ -9,6 +9,8 @@ module.exports = function(grunt) {
         "promort/src/js/authentication/authentication.module.js",
         "promort/src/js/authentication/authentication.services.js",
         "promort/src/js/authentication/authentication.controllers.js",
+        "promort/src/js/window_manager/window_manager.module.js",
+        "promort/src/js/window_manager/window_manager.controllers.js",
         "promort/src/js/layout/layout.modules.js",
         "promort/src/js/layout/layout.controllers.js",
         "promort/src/js/worklist/worklist.module.js",
