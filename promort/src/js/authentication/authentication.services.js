@@ -11,9 +11,9 @@
         var Authentication = {
             login: login,
             logout: logout,
-            getAuthenticatedAccount: getAuthenticatedAccount,
+            checkUser: checkUser,
             isAuthenticated: isAuthenticated,
-            setAuthenticatedAccount: setAuthenticatedAccount,
+            setAuthenticationCookie: setAuthenticationCookie,
             unauthenticate: unauthenticate
         };
 
@@ -25,7 +25,7 @@
             }).then(loginSuccessFn, loginErrorFn);
             
             function loginSuccessFn(data, status, header, config) {
-                Authentication.setAuthenticatedAccount(data.data);
+                Authentication.setAuthenticationCookie();
                 
                 window.location = '/worklist';
             }
@@ -51,23 +51,30 @@
             }
         }
 
-        function getAuthenticatedAccount() {
-            if (!$cookies.get('authenticatedAccount')) {
-                return ;
+        function checkUser() {
+            return $http.get('api/auth/check/')
+                .then(checkSuccessFn, checkErrorFn);
+
+            function checkSuccessFn(data) {
+                console.log('Active session found on backed');
+                Authentication.setAuthenticationCookie();
             }
-            return $cookies.get('authenticatedAccount');
+
+            function checkErrorFn(data) {
+                console.log('No active session found on backend');
+            }
         }
 
         function isAuthenticated() {
-            return !!$cookies.get('authenticatedAccount');
+            return !!$cookies.get('promortUserAuthenticated');
         }
 
-        function setAuthenticatedAccount(account) {
-            $cookies.putObject('authenticatedAccount', account);
+        function setAuthenticationCookie() {
+            $cookies.putObject('promortUserAuthenticated', true);
         }
 
         function unauthenticate() {
-            $cookies.remove('authenticatedAccount');
+            $cookies.remove('promortUserAuthenticated');
         }
     }
 })();
