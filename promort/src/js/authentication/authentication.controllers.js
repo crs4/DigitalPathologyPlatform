@@ -3,7 +3,8 @@
     
     angular
         .module('promort.authentication.controllers')
-        .controller('LoginController', LoginController);
+        .controller('LoginController', LoginController)
+        .controller('AuthenticationController', AuthenticationController);
     
     LoginController.$inject = ['$location', '$scope', 'Authentication'];
     
@@ -22,6 +23,18 @@
         
         function login() {
             Authentication.login(vm.username, vm.password);
+        }
+    }
+
+    AuthenticationController.$inject = ['$scope', 'Authentication'];
+
+    function AuthenticationController($scope, Authentication) {
+        var vm = this;
+
+        vm.isAuthenticated = isAuthenticated;
+
+        function isAuthenticated() {
+            return Authentication.isAuthenticated();
         }
     }
 })();

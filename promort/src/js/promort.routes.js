@@ -33,6 +33,12 @@
                 controllerAs: 'qcc',
                 templateUrl: '/static/templates/slide_review/quality_control.html'
             })
+            // homepage
+            .when('/', {
+                controller: 'AuthenticationController',
+                controllerAs: 'ac',
+                templateUrl: '/static/templates/index/index.html'
+            })
             // no match
             .otherwise('/');
     }
