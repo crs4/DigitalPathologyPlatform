@@ -18,9 +18,8 @@
                 </small>
             </h2>
         </div>
-        <div class="col-md-12 text-center">
-            <a href="/worklist" role="button" ng-show="ac.isAuthenticated()"
-               class="btn btn-primary btn-lg">Go to worklist</a>
+        <div class="col-md-12 text-center" ng-show="ac.isAuthenticated()">
+            <a href="/worklist" role="button" class="btn btn-primary btn-lg">Go to worklist</a>
         </div>
     </div>
 </div>

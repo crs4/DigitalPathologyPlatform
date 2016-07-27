@@ -39,7 +39,13 @@
                 controllerAs: 'ac',
                 templateUrl: '/static/templates/index/index.html'
             })
+            // page not found
+            .when('/404', {
+                controller: 'AuthenticationController',
+                controllerAs: 'ac',
+                templateUrl: '/static/templates/404/not_found.html'
+            })
             // no match
-            .otherwise('/');
+            .otherwise('/404');
     }
 })();
