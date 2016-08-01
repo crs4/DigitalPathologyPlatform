@@ -5,9 +5,9 @@
         .module('promort.user_report.controllers')
         .controller('UserReportController', UserReportController);
 
-    UserReportController.$inject = ['$scope', 'UserReportService'];
+    UserReportController.$inject = ['$scope', 'ngDialog', 'UserReportService'];
 
-    function UserReportController($scope, UserReportService) {
+    function UserReportController($scope, ngDialog, UserReportService) {
         var vm = this;
         vm.sendReport = sendReport;
 
@@ -15,13 +15,21 @@
 
 
         function sendReport() {
+            $scope.closeThisDialog();
+            var dialog = ngDialog.open({
+                template: '/static/templates/user_report/report_sending.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
             UserReportService.send(vm.report.subject, vm.report.message,
                 window.location.href, navigator.userAgent)
                 .then(sendUserReportSuccessFn, sendUserReportErrorFn);
 
             function sendUserReportSuccessFn(response) {
                 vm.report = {};
-                $scope.closeThisDialog();
+                dialog.close();
             }
 
             function sendUserReportErrorFn(response) {

@@ -21,3 +21,17 @@ button.prm_button_small {
     padding: 7px;
     margin-left: 10px;
 }
+
+@keyframes fullrotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+.rotating_spinner {
+    display: inline-block;
+    animation: fullrotation 1s linear infinite;
+}
