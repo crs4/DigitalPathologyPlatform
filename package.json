@@ -1,0 +1,25 @@
+{
+  "name": "promort-js",
+  "version": "0.1.0",
+  "description": "ProMort web application",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crs4/ProMort"
+  },
+  "keywords": [
+    "ProMort",
+    "digital pathologyy"
+  ],
+  "author": "Luca Lianas @lucalianas",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/crs4/ProMort/issues"
+  },
+  "homepage": "https://github.com/crs4/ProMort",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.10.0"
+  }
+}
