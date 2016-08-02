@@ -26,6 +26,41 @@ i.prm-warning-icon {
     color: red;
 }
 
+.prm-no-margin-top {
+    margin-top: 0;
+}
+
+.prm-tree-well {
+    background-color: white;
+    padding-top:19px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.prm-form-header {
+    padding-bottom: 1px;
+    margin: 10px 0 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.prm-control-row {
+    margin-top:30px;
+    text-align: center;
+}
+
+.prm-control-btn {
+    width: 80px;
+    height: 35px;
+}
+
+.prm-control-btn-lg {
+    width: 200px;
+    height: 35px;
+    margin-bottom:15px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;
