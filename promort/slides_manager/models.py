@@ -31,7 +31,8 @@ class Slide(models.Model):
 
 class SlideQualityControl(models.Model):
     NOT_ADEQUACY_REASONS_CHOICES = (
-        ('POOR_IMG', 'Poor image quality'),
+        ('BAD_TILES', 'Bad tiles stitching'),
+        ('BAD_FOCUS', 'Non uniform focus'),
         ('DMG_SMP', 'Damaged samples'),
         ('OTHER', 'Other (see notes)')
     )
@@ -40,7 +41,7 @@ class SlideQualityControl(models.Model):
                                  related_name='quality_control_passed')
     adequate_slide = models.BooleanField(blank=False)
     not_adequacy_reason = models.CharField(
-        max_length=8, choices=NOT_ADEQUACY_REASONS_CHOICES,
+        max_length=10, choices=NOT_ADEQUACY_REASONS_CHOICES,
         blank=True, null=True, default=None
     )
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT,
