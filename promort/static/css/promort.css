@@ -1,4 +1,4 @@
-div.valign {
+div.prm-valign {
     display: inline-block;
     vertical-align: middle;
     float: none;
@@ -13,7 +13,7 @@ div.ome_viewer_simple {
     height: 400px;
 }
 
-button.prm_button_small {
+button.prm-btn-sm {
     width: 100px;
 }
 
