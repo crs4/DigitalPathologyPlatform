@@ -6,6 +6,7 @@
             'promort.config',
             'promort.routes',
             'promort.authentication',
+            'promort.window_manager',
             'promort.layout',
             'promort.worklist',
             'promort.slides_manager',

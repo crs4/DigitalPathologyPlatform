@@ -21,3 +21,26 @@ button.prm_button_small {
     padding: 7px;
     margin-left: 10px;
 }
+
+i.prm-warning-icon {
+    color: red;
+}
+
+/* Hidden placeholder*/
+select option[disabled]:first-child {
+    display: none;
+}
+
+@keyframes fullrotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.prm-rotating-spinner {
+    display: inline-block;
+    animation: fullrotation 1s linear infinite;
+}

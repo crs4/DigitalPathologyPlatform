@@ -2,7 +2,7 @@
      role="navigation" ng-controller="NavbarController as vm">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">ProMort web application</a>
+            <a class="navbar-brand" href="#">ProMort Image Management System -- <small>version {{ view.promort_version }}</small></a>
         </div>
 
         <div class="collapse navbar-collapse" id="promort-nav">
@@ -10,6 +10,7 @@
                 {% if user.is_authenticated %}
                     <li>
                         <p class="navbar-text">
+                            <i class="icon-user"></i>
                             Welcome {{ user.get_full_name }}
                         </p>
                     </li>
@@ -17,17 +18,25 @@
                         <a id="nav_send_report" href="#" role="button" class="btn btn-default navbar-btn"
                            ng-dialog="/static/templates/user_report/report_dialog.html"
                            ng-dialog-controller="UserReportController as urc">
-                            <i class="glyphicon glyphicon-envelope"></i>
-                            <span>Send Report</span>
+                            <i class="icon-mail"></i>
+                            <span>Send Feedback</span>
                         </a>
                     </li>
                     <li>
                         <a id="nav_logout" href="#" role="button" class="btn btn-default navbar-btn"
-                           ng-click="vm.logout()">Logout</a>
+                           ng-click="vm.logout()">
+                            <i class="icon-signout"></i>
+                            <span>Logout</span>
+                        </a>
                     </li>
                 {% else %}
-                    <li><a href="/login" role="button" id="nav_login"
-                           class="btn btn-default navbar-btn">Login</a></li>
+                    <li>
+                        <a href="/login" role="button" id="nav_login"
+                           class="btn btn-default navbar-btn">
+                            <i class="icon-signin"></i>
+                            <span>Login</span>
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </div>

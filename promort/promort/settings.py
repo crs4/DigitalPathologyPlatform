@@ -177,6 +177,8 @@ REPORT_SUBJECT_PREFIX = '[ProMort]'
 REPORT_RECIPIENTS = ['']
 
 # CUSTOM SETTINGS
+PROMORT_VERSION = '0.1.0_alpha-1'
+
 DEFAULT_GROUPS = {
     'reviewer_1': {
         'name': 'REVIEWER_1',

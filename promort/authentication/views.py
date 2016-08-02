@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group
 from rest_framework import status, views, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.exceptions import NotFound
 
 from serializers import UserSerializer, GroupSerializer, GroupDetailsSerializer
 
@@ -17,6 +16,13 @@ from promort.settings import DEFAULT_GROUPS
 
 import logging
 logger = logging.getLogger('promort')
+
+
+class CheckUserView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, format=None):
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LoginView(views.APIView):
