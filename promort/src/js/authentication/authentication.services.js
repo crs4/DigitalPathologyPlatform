@@ -5,9 +5,9 @@
         .module('promort.authentication.services')
         .factory('Authentication', Authentication);
 
-    Authentication.$inject = ['$cookies', '$http'];
+    Authentication.$inject = ['$cookies', '$http', 'ngDialog'];
 
-    function Authentication($cookies, $http) {
+    function Authentication($cookies, $http, ngDialog) {
         var Authentication = {
             login: login,
             logout: logout,
@@ -32,6 +32,10 @@
             
             function loginErrorFn(data, status, headers, config) {
                 console.error('Unable to complete login request');
+
+                ngDialog.open({
+                    template: '/static/templates/authentication/authentication_error.html'
+                });
             }
         }
         

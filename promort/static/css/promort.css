@@ -22,6 +22,10 @@ button.prm_button_small {
     margin-left: 10px;
 }
 
+i.prm-warning-icon {
+    color: red;
+}
+
 @keyframes fullrotation {
     from {
         transform: rotate(0deg);
