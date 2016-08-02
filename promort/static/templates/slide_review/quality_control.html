@@ -30,6 +30,7 @@
                         <label for="notAdequacyReasons">Not adequacy reason</label>
                         <select class="form-control" id="notAdequacyReasons"
                                 ng-model="qcc.slideQualityControl.notAdequacyReason">
+                            <option value="" disabled selected> -- Specify a reason</option>
                             <option value="{{ r.value }}"
                                     ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
                         </select>
