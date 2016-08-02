@@ -2,7 +2,7 @@
      role="navigation" ng-controller="NavbarController as vm">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">ProMort Image Management System</a>
+            <a class="navbar-brand" href="#">ProMort Image Management System -- <small>version {{ view.promort_version }}</small></a>
         </div>
 
         <div class="collapse navbar-collapse" id="promort-nav">
@@ -30,11 +30,13 @@
                         </a>
                     </li>
                 {% else %}
-                    <li><a href="/login" role="button" id="nav_login"
+                    <li>
+                        <a href="/login" role="button" id="nav_login"
                            class="btn btn-default navbar-btn">
-                        <i class="icon-signin"></i>
-                        <span>Login</span>
-                    </a></li>
+                            <i class="icon-signin"></i>
+                            <span>Login</span>
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
