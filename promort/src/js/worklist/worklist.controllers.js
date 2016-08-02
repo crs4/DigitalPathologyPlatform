@@ -46,11 +46,15 @@
         }
         
         function getReviewLink(review) {
-            if (vm.checkPendingReviews()) {
-                if (!vm.reviewInProgress(review)) {
-                    return '';
-                }
-            }
+            // ========================================
+            // disabled until all the steps for the
+            // review workflow are completed
+            // ========================================
+            // if (vm.checkPendingReviews()) {
+            //     if (!vm.reviewInProgress(review)) {
+            //         return '';
+            //     }
+            // }
             return 'worklist/' + review.case;
         }
         
