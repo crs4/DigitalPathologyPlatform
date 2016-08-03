@@ -97,6 +97,16 @@ i.prm-warning-icon {
     margin: 0;
 }
 
+.prm-rotate-90{
+    display: inline-block;
+    transform: rotate(90deg);
+}
+
+.prm-caret{
+    margin-left: 3px;
+    font-size: 13px;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;
