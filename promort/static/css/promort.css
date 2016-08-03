@@ -17,9 +17,10 @@ button.prm_button_small {
     width: 100px;
 }
 
-#nav_send_report, #nav_logout, #nav_login {
+#nav_worklist, #nav_send_report, #nav_logout, #nav_login {
     padding: 7px;
     margin-left: 10px;
+    width: 100px;
 }
 
 i.prm-warning-icon {
