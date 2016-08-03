@@ -15,11 +15,17 @@
                         </p>
                     </li>
                     <li>
+                        <a id="nav_worklist" href="worklist" role="button" class="btn btn-default navbar-btn">
+                            <i class="icon-list"></i>
+                            <span>Worklist</span>
+                        </a>
+                    </li>
+                    <li>
                         <a id="nav_send_report" href="#" role="button" class="btn btn-default navbar-btn"
                            ng-dialog="/static/templates/user_report/report_dialog.html"
                            ng-dialog-controller="UserReportController as urc">
                             <i class="icon-mail"></i>
-                            <span>Send Feedback</span>
+                            <span>Feedback</span>
                         </a>
                     </li>
                     <li>
@@ -31,8 +37,7 @@
                     </li>
                 {% else %}
                     <li>
-                        <a href="/login" role="button" id="nav_login"
-                           class="btn btn-default navbar-btn">
+                        <a href="/login" role="button" id="nav_login" class="btn btn-default navbar-btn">
                             <i class="icon-signin"></i>
                             <span>Login</span>
                         </a>
