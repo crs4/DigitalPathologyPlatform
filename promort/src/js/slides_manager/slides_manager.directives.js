@@ -20,7 +20,7 @@
                     var bottom_border = parseInt($vcont.css('marginBottom')) +
                             parseInt($vcont.css('marginTop')) +
                             parseInt($vcont.css('paddingTop')) +
-                            parseInt($vcont.css('paddingBottom')) + 20;
+                            parseInt($vcont.css('paddingBottom')) + 50;
                     console.log(bottom_border);
 
                     var available_v_space = $(window).height() - (used_v_space + bottom_border);
