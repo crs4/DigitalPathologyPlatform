@@ -107,6 +107,14 @@ i.prm-warning-icon {
     font-size: 13px;
 }
 
+.prm-legend {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+    font-variant: small-caps;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;
