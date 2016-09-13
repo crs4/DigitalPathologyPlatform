@@ -1,3 +1,8 @@
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -22,6 +27,12 @@ class SliceSerializer(serializers.ModelSerializer):
     def get_cores_count(self, obj):
         return obj.cores.count()
 
+    def validate_roi_json(self, value):
+        try:
+            json.loads(value)
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
 
 class CoreSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -39,8 +50,14 @@ class CoreSerializer(serializers.ModelSerializer):
     def get_cellular_focuses_count(self, obj):
         return obj.cellular_focuses.count()
 
+    def validate_roi_json(self, value):
+        try:
+            json.loads(value)
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
-class CelluarFocusSerializer(serializers.ModelSerializer):
+
+class CellularFocusSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
@@ -52,13 +69,19 @@ class CelluarFocusSerializer(serializers.ModelSerializer):
                   'length', 'area', 'cancerous_region')
         read_only_fields = ('id', 'creation_date',)
 
+    def validate_roi_json(self, value):
+        try:
+            json.loads(value)
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
 
 class CoreDetailsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
     )
-    cellular_focuses = CelluarFocusSerializer(many=True, read_only=True)
+    cellular_focuses = CellularFocusSerializer(many=True, read_only=True)
 
     class Meta:
         model = Core
@@ -66,19 +89,31 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
                   'roi_json', 'length', 'area', 'cellular_focuses')
         read_only_fields = ('id', 'creation_date')
 
+    def validate_roi_json(self, value):
+        try:
+            json.loads(value)
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
 
 class SliceDetailsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
     )
-    cores = CoreDetailsSerializer(many=True, read_only=True)
+    cores = CoreSerializer(many=True, read_only=True)
 
     class Meta:
         model = Slice
         fields = ('id', 'label', 'slide', 'author', 'creation_date',
                   'roi_json', 'total_cores', 'positive_cores', 'cores')
         read_only_fields = ('id', 'creation_date')
+
+    def validate_roi_json(self, value):
+        try:
+            json.loads(value)
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
 
 class SlideDetailsSerializer(serializers.ModelSerializer):
