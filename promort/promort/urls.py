@@ -55,8 +55,8 @@ urlpatterns = [
     url(r'api/slides/(?P<pk>[\w\-.]+)/slices/$', SliceList.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
-    url(r'api/cores/(?P<pk>[0-9]+/$)/$', CoreDetail.as_view()),
-    url(r'api/cores/(?P<pk>[0-9]+/$)/regions/$', CellularFocusList.as_view()),
+    url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
+    url(r'api/cores/(?P<pk>[0-9]+)/regions/$', CellularFocusList.as_view()),
     url(r'api/regions/(?P<pk>[0-9]+)/$', CellularFocusDetail.as_view()),
 
     # reviews and review steps
