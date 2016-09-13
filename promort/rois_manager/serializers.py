@@ -30,6 +30,7 @@ class SliceSerializer(serializers.ModelSerializer):
     def validate_roi_json(self, value):
         try:
             json.loads(value)
+            return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
@@ -53,6 +54,7 @@ class CoreSerializer(serializers.ModelSerializer):
     def validate_roi_json(self, value):
         try:
             json.loads(value)
+            return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
@@ -72,6 +74,7 @@ class CellularFocusSerializer(serializers.ModelSerializer):
     def validate_roi_json(self, value):
         try:
             json.loads(value)
+            return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
