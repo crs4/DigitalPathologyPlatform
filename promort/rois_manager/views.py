@@ -9,7 +9,7 @@ from rest_framework.exceptions import MethodNotAllowed
 
 from django.db import IntegrityError
 
-from view_templates.views import GenericDetailView
+from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 
 from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, CellularFocus
@@ -20,13 +20,10 @@ import logging
 logger = logging.getLogger('promort')
 
 
-class SliceList(GenericDetailView):
+class SliceList(GenericReadOnlyDetailView):
     model = Slide
     model_serializer = SlideDetailsSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
-    def delete(self, request, pk, format=None):
-        raise MethodNotAllowed('DELETE')
 
     def post(self, request, pk, format=None):
         slice_data = request.data
@@ -56,13 +53,10 @@ class SliceDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class CoreList(GenericDetailView):
+class CoreList(GenericReadOnlyDetailView):
     model = Slice
     model_serializer = SliceDetailsSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
-    def delete(self, request, pk, format=None):
-        raise MethodNotAllowed('DELETE')
 
     def post(self, request, pk, format=None):
         core_data = request.data
@@ -92,13 +86,10 @@ class CoreDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class CellularFocusList(GenericDetailView):
+class CellularFocusList(GenericReadOnlyDetailView):
     model = Core
     model_serializer = CoreDetailsSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
-    def delete(self, request, pk, format=None):
-        raise MethodNotAllowed('DELETE')
 
     def post(self, request, pk, format=None):
         cellular_focus_data = request.data

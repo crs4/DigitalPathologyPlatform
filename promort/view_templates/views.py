@@ -36,7 +36,7 @@ class GenericListView(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class GenericDetailView(APIView):
+class GenericReadOnlyDetailView(APIView):
     model = None
     model_serializer = None
 
@@ -53,6 +53,9 @@ class GenericDetailView(APIView):
         serializer = self.model_serializer(obj)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
+
+
+class GenericDetailView(GenericReadOnlyDetailView):
 
     def delete(self, request, pk, format=None):
         logger.debug('Deleting object with PK %r -- Object class %r', pk, self.model)
