@@ -61,7 +61,7 @@ class GenericDetailView(APIView):
             obj.delete()
         except IntegrityError:
             return Response({
-                'status':'ERROR',
+                'status': 'ERROR',
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
