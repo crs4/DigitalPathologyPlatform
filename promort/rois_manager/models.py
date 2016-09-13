@@ -9,7 +9,7 @@ class Slice(models.Model):
                               blank=False, related_name='slices')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
-    creation_data = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
     positive_cores = models.IntegerField(blank=False, default=0)
