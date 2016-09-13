@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from rois_manager.models import Slice, Core, CellularFocus
+from slides_manager.models import Slide
 
 
 class SliceSerializer(serializers.ModelSerializer):
@@ -78,3 +79,18 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'slide', 'author', 'creation_date',
                   'roi_json', 'total_cores', 'positive_cores', 'cores')
         read_only_fields = ('id', 'creation_date')
+
+
+class SlideDetailsSerializer(serializers.ModelSerializer):
+    quality_control_passed = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='adequate_slide'
+    )
+
+    slices = SliceSerializer(many=True)
+
+    class Meta:
+        model = Slide
+        fields = ('id', 'case', 'import_date', 'omero_id', 'image_type',
+                  'quality_control_passed', 'image_microns_per_pixel', 'slices')
+        read_only_fields = fields
