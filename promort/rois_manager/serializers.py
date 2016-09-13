@@ -92,12 +92,6 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
                   'roi_json', 'length', 'area', 'cellular_focuses')
         read_only_fields = ('id', 'creation_date')
 
-    def validate_roi_json(self, value):
-        try:
-            json.loads(value)
-        except ValueError:
-            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
-
 
 class SliceDetailsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -111,12 +105,6 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'slide', 'author', 'creation_date',
                   'roi_json', 'total_cores', 'positive_cores', 'cores')
         read_only_fields = ('id', 'creation_date')
-
-    def validate_roi_json(self, value):
-        try:
-            json.loads(value)
-        except ValueError:
-            raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
 
 class SlideDetailsSerializer(serializers.ModelSerializer):
