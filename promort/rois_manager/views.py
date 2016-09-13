@@ -30,6 +30,7 @@ class SliceList(GenericDetailView):
 
     def post(self, request, pk, format=None):
         slice_data = request.data
+        slice_data['author'] = request.user.username
         slice_data['slide'] = pk
 
         logger.debug('Serializing data %r -- Object class %r', slice_data, Slice)
@@ -65,6 +66,7 @@ class CoreList(GenericDetailView):
 
     def post(self, request, pk, format=None):
         core_data = request.data
+        core_data['author'] = request.user.username
         core_data['slice'] = pk
 
         logger.debug('Serializing data %r -- Object class %r', core_data, Core)
@@ -100,6 +102,7 @@ class CellularFocusList(GenericDetailView):
 
     def post(self, request, pk, format=None):
         cellular_focus_data = request.data
+        cellular_focus_data['author'] = request.user.username
         cellular_focus_data['core'] = pk
 
         logger.debug('Serializing data %r -- Object class %r', cellular_focus_data, CellularFocus)
