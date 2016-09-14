@@ -67,7 +67,7 @@ class CellularFocusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CellularFocus
-        fields = ('id', 'label', 'core', 'author', 'creation_date', 'roi_json'
+        fields = ('id', 'label', 'core', 'author', 'creation_date', 'roi_json',
                   'length', 'area', 'cancerous_region')
         read_only_fields = ('id', 'creation_date',)
 
