@@ -27,6 +27,8 @@ from reviews_manager.views import ReviewsList, ReviewsDetail,\
     ReviewDetail, ReviewStepDetail
 from worklist_manager.views import UserWorkList, UserWorkListReview,\
     WorkListAdmin
+from rois_manager.views import SliceList, SliceDetail, CoreList, \
+    CoreDetail, FocusRegionList, FocusRegionDetail
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -48,6 +50,14 @@ urlpatterns = [
     # slide quality control
     url(r'api/slides/(?P<slide>[\w\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
+
+    # ROIs
+    url(r'api/slides/(?P<pk>[\w\-.]+)/slices/$', SliceList.as_view()),
+    url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
+    url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
+    url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
+    url(r'api/cores/(?P<pk>[0-9]+)/focus_regions/$', FocusRegionList.as_view()),
+    url(r'api/focus_regions/(?P<pk>[0-9]+)/$', FocusRegionDetail.as_view()),
 
     # reviews and review steps
     url(r'api/reviews/$', ReviewsList.as_view()),

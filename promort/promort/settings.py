@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'slides_manager',
     'reviews_manager',
     'worklist_manager',
+    'rois_manager',
 )
 
 MIDDLEWARE_CLASSES = (
