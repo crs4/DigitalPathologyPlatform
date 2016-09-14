@@ -20,7 +20,7 @@ class Slice(models.Model):
 
 class Core(models.Model):
     label = models.CharField(max_length=10, blank=False)
-    slice = models.ForeignKey(Slice, on_delete=models.PROTECT,
+    slice = models.ForeignKey(Slice, on_delete=models.CASCADE,
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
@@ -35,7 +35,7 @@ class Core(models.Model):
 
 class CellularFocus(models.Model):
     label = models.CharField(max_length=10, blank=False)
-    core = models.ForeignKey(Core, on_delete=models.PROTECT,
+    core = models.ForeignKey(Core, on_delete=models.CASCADE,
                              blank=False, related_name='cellular_focuses')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
