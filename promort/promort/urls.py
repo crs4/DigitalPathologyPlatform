@@ -28,7 +28,7 @@ from reviews_manager.views import ReviewsList, ReviewsDetail,\
 from worklist_manager.views import UserWorkList, UserWorkListReview,\
     WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
-    CoreDetail, CellularFocusList, CellularFocusDetail
+    CoreDetail, FocusRegionList, FocusRegionDetail
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -56,8 +56,8 @@ urlpatterns = [
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
     url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
-    url(r'api/cores/(?P<pk>[0-9]+)/regions/$', CellularFocusList.as_view()),
-    url(r'api/regions/(?P<pk>[0-9]+)/$', CellularFocusDetail.as_view()),
+    url(r'api/cores/(?P<pk>[0-9]+)/focus_regions/$', FocusRegionList.as_view()),
+    url(r'api/focus_regions/(?P<pk>[0-9]+)/$', FocusRegionDetail.as_view()),
 
     # reviews and review steps
     url(r'api/reviews/$', ReviewsList.as_view()),

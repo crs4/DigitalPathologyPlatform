@@ -5,16 +5,15 @@ except ImportError:
 
 from rest_framework import permissions, status
 from rest_framework.response import Response
-from rest_framework.exceptions import MethodNotAllowed
 
 from django.db import IntegrityError
 
 from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 
 from slides_manager.models import Slide
-from rois_manager.models import Slice, Core, CellularFocus
+from rois_manager.models import Slice, Core, FocusRegion
 from rois_manager.serializers import SlideDetailsSerializer, SliceSerializer, \
-    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, CellularFocusSerializer
+    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -86,27 +85,27 @@ class CoreDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class CellularFocusList(GenericReadOnlyDetailView):
+class FocusRegionList(GenericReadOnlyDetailView):
     model = Core
     model_serializer = CoreDetailsSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, pk, format=None):
-        cellular_focus_data = request.data
-        cellular_focus_data['author'] = request.user.username
-        cellular_focus_data['core'] = pk
+        focus_region_data = request.data
+        focus_region_data['author'] = request.user.username
+        focus_region_data['core'] = pk
 
-        logger.debug('Serializing data %r -- Object class %r', cellular_focus_data, CellularFocus)
+        logger.debug('Serializing data %r -- Object class %r', focus_region_data, FocusRegion)
 
-        serializer = CellularFocusSerializer(data=cellular_focus_data)
+        serializer = FocusRegionSerializer(data=focus_region_data)
         if serializer.is_valid():
             try:
                 serializer.save()
-            except IntegrityError:
+            except IntegrityError, ie:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated cellular focus label %s for core %s' %
-                               (cellular_focus_data['label'], pk)
+                    'message': 'duplicated focus region label %s for core %s' %
+                               (focus_region_data['label'], pk)
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
@@ -114,7 +113,7 @@ class CellularFocusList(GenericReadOnlyDetailView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class CellularFocusDetail(GenericDetailView):
-    model = CellularFocus
-    model_serializer = CellularFocusSerializer
+class FocusRegionDetail(GenericDetailView):
+    model = FocusRegion
+    model_serializer = FocusRegionSerializer
     permission_classes = (permissions.IsAuthenticated,)

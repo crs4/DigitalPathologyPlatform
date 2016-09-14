@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from rois_manager.models import Slice, Core, CellularFocus
+from rois_manager.models import Slice, Core, FocusRegion
 from slides_manager.models import Slide
 
 
@@ -40,16 +40,16 @@ class CoreSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
-    cellular_focuses_count = serializers.SerializerMethodField()
+    focus_regions_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'cellular_focuses_count')
-        read_only_fields = ('id', 'creation_date', 'cellular_focuses_count')
+                  'length', 'area', 'focus_regions_count')
+        read_only_fields = ('id', 'creation_date', 'focus_regions_count')
 
-    def get_cellular_focuses_count(self, obj):
-        return obj.cellular_focuses.count()
+    def get_focus_regions_count(self, obj):
+        return obj.focus_regions.count()
 
     def validate_roi_json(self, value):
         try:
@@ -59,14 +59,14 @@ class CoreSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
 
 
-class CellularFocusSerializer(serializers.ModelSerializer):
+class FocusRegionSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
     )
 
     class Meta:
-        model = CellularFocus
+        model = FocusRegion
         fields = ('id', 'label', 'core', 'author', 'creation_date', 'roi_json',
                   'length', 'area', 'cancerous_region')
         read_only_fields = ('id', 'creation_date',)
@@ -84,12 +84,12 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
-    cellular_focuses = CellularFocusSerializer(many=True, read_only=True)
+    focus_regions = FocusRegionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date',
-                  'roi_json', 'length', 'area', 'cellular_focuses')
+                  'roi_json', 'length', 'area', 'focus_regions')
         read_only_fields = ('id', 'creation_date')
 
 

@@ -33,10 +33,10 @@ class Core(models.Model):
         unique_together = ('label', 'slice')
 
 
-class CellularFocus(models.Model):
+class FocusRegion(models.Model):
     label = models.CharField(max_length=10, blank=False)
     core = models.ForeignKey(Core, on_delete=models.CASCADE,
-                             blank=False, related_name='cellular_focuses')
+                             blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
     creation_date = models.DateTimeField(auto_now_add=True)
