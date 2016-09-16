@@ -22,7 +22,12 @@ module.exports = function(grunt) {
         "promort/src/js/slides_manager/slides_manager.directives.js",
         "promort/src/js/user_report/user_report.module.js",
         "promort/src/js/user_report/user_report.services.js",
-        "promort/src/js/user_report/user_report.controllers.js"
+        "promort/src/js/user_report/user_report.controllers.js",
+        "promort/src/js/rois_manager/rois_manager.module.js",
+        "promort/src/js/rois_manager/rois_manager.services.js",
+        "promort/src/js/rois_manager/rois_manager.controllers.js",
+        "promort/src/js/rois_manager/rois_manager.directives.js"
+
     ];
 
     grunt.initConfig({

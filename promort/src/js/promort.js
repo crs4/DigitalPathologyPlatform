@@ -10,7 +10,8 @@
             'promort.layout',
             'promort.worklist',
             'promort.slides_manager',
-            'promort.user_report'
+            'promort.user_report',
+            'promort.rois_manager'
         ])
         .run(run);
 
