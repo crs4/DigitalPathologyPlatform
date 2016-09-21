@@ -2,9 +2,9 @@
     'use strict';
 
     angular
-        .module('promort.slides_manager.directives')
+        .module('promort.viewer.directives')
         .directive('simpleViewer', simpleViewer);
-    
+
     function simpleViewer() {
         var directive = {
             replace: true,
@@ -69,7 +69,7 @@
                 });
             }
         };
-        
+
         return directive;
     }
 })();

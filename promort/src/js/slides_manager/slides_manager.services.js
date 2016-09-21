@@ -3,8 +3,7 @@
     
     angular
         .module('promort.slides_manager.services')
-        .factory('QualityControlService', QualityControlService)
-        .factory('SimpleViewerService', SimpleViewerService);
+        .factory('QualityControlService', QualityControlService);
 
     QualityControlService.$inject = ['$http'];
 
@@ -34,25 +33,6 @@
             }
             console.log(params);
             return $http.post('api/slides/' + slide_id + '/quality_control/', params);
-        }
-    }
-
-    SimpleViewerService.$inject = ['$http'];
-
-    function SimpleViewerService($http) {
-        var SimpleViewerService = {
-            getOMEBaseURLs: getOMEBaseURLs,
-            getSlideInfo: getSlideInfo
-        };
-        
-        return SimpleViewerService;
-
-        function getOMEBaseURLs() {
-            return $http.get('api/utils/omeseadragon_base_urls/');
-        }
-
-        function getSlideInfo(slide_id) {
-            return $http.get('api/slides/' + slide_id + '/');
         }
     }
 })();
