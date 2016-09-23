@@ -33,6 +33,10 @@
                 controllerAs: 'qcc',
                 templateUrl: '/static/templates/slide_review/quality_control.html'
             })
+            // ROIs manager
+            .when('/worklist/:case/:slide/rois_manager', {
+                templateUrl: '/static/templates/rois_manager/manager.html'
+            })
             // homepage
             .when('/', {
                 controller: 'AuthenticationController',
