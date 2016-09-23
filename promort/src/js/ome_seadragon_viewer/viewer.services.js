@@ -3,7 +3,8 @@
 
     angular
         .module('promort.viewer.services')
-        .factory('ViewerService', ViewerService);
+        .factory('ViewerService', ViewerService)
+        .factory('AnnotationsViewerService', AnnotationsViewerService);
 
     ViewerService.$inject = ['$http'];
 
@@ -21,6 +22,50 @@
 
         function getSlideInfo(slide_id) {
             return $http.get('api/slides/' + slide_id + '/');
+        }
+    }
+
+    function AnnotationsViewerService() {
+        var AnnotationsViewerService = {
+            registerComponents: registerComponents,
+            checkComponents: checkComponents,
+            drawShape: drawShape,
+            saveTemporaryShape: saveTemporaryShape,
+            deleteShape: deleteShape,
+            clear: clear,
+            deleteShapes: deleteShapes
+        };
+
+        return AnnotationsViewerService;
+
+        function registerComponents(viewer_manager, rois_manager) {
+            this.viewerManager = viewer_manager;
+            this.roisManager = rois_manager;
+        }
+
+        function checkComponents() {
+            console.log('Viewer Manager: ' + this.viewerManager);
+            console.log('ROIs Manager: ' + this.roisManager);
+        }
+
+        function drawShape(shape_json) {
+
+        }
+
+        function saveTemporaryShape() {
+
+        }
+
+        function deleteShape(shape_id) {
+
+        }
+
+        function clear() {
+
+        }
+
+        function deleteShapes(shapes_id) {
+
         }
     }
 })();
