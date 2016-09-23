@@ -3,7 +3,8 @@
 
     angular
         .module('promort.viewer.directives')
-        .directive('simpleViewer', simpleViewer);
+        .directive('simpleViewer', simpleViewer)
+        .directive('annotationsViewer', annotationsViewer);
 
     function simpleViewer() {
         var directive = {
@@ -58,7 +59,7 @@
                     var scalebar_config = {
                         'xOffset': 10,
                         'yOffset': 10,
-                        'barThickness' :5,
+                        'barThickness': 5,
                         'color': '#777',
                         'fontColor': '#000',
                         'backgroundColor': 'rgba(255, 255, 255, 0.5)'
@@ -69,7 +70,59 @@
                 });
             }
         };
+        return directive;
+    }
 
+    function annotationsViewer() {
+        var directive = {
+            replace: true,
+            controller: 'AnnotationsViewerController',
+            controllerAs: 'avc',
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/rois_viewer.html',
+            link: function(scope, element, attrs) {
+                scope.$on('viewer.controller_initialized', function() {
+                    console.log('ome_seadragon viewer with annotations - INITIALIZING');
+
+                    var viewer_config = {
+                        'showNavigator': true,
+                        'showFullPageContrl': false
+                    };
+                    var ome_seadragon_viewer = new ViewerController(
+                        'viewer',
+                        scope.avc.getStaticFilesURL(),
+                        scope.avc.getDZIURL(),
+                        viewer_config
+                    );
+                    ome_seadragon_viewer.buildViewer();
+
+                    var annotations_canvas = undefined;
+
+                    ome_seadragon_viewer.viewer.addHandler('open', function() {
+                        ome_seadragon_viewer.setMinDZILevel(8);
+
+                        annotations_canvas = new AnnotationsController('rois_canvas');
+                        annotations_canvas.buildAnnotationsCanvas(ome_seadragon_viewer);
+                        ome_seadragon_viewer.addAnnotationsController(annotations_canvas, true);
+
+                        console.log('Registering components');
+                        scope.avc.registerComponents(ome_seadragon_viewer, annotations_canvas);
+                    });
+
+                    var scalebar_config = {
+                        'xOffset': 10,
+                        'yOffset': 10,
+                        'barThickness': 5,
+                        'color': '#777',
+                        'fontColor': '#000',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.5)'
+                    };
+                    ome_seadragon_viewer.enableScalebar(
+                        scope.avc.getSlideMicronsPerPixel(), scalebar_config
+                    );
+                });
+            }
+        };
         return directive;
     }
 })();
