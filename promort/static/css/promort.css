@@ -13,6 +13,19 @@ div.ome_viewer_simple {
     height: 400px;
 }
 
+div.annotated_viewer_container {
+    position: relative;
+}
+
+.annotated_viewer_element {
+    position: absolute;
+}
+
+.static_viewer_element {
+    width: 635px;
+    height: 600px;
+}
+
 button.prm-btn-sm {
     width: 100px;
 }
