@@ -101,12 +101,19 @@
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
                         ome_seadragon_viewer.setMinDZILevel(8);
 
-                        annotations_canvas = new AnnotationsController('rois_canvas');
+                        var annotations_canvas = new AnnotationsController('rois_canvas');
                         annotations_canvas.buildAnnotationsCanvas(ome_seadragon_viewer);
                         ome_seadragon_viewer.addAnnotationsController(annotations_canvas, true);
 
+                        var tools_manager = new AnnotationsEventsController(annotations_canvas);
+                        // initialize polygon, freehand drawing and measuring tools
+                        tools_manager.initializePolygonDrawingTool();
+                        tools_manager.initializeFreehandDrawingTool();
+                        tools_manager.initializeMeasuringTool();
+
                         console.log('Registering components');
-                        scope.avc.registerComponents(ome_seadragon_viewer, annotations_canvas);
+                        scope.avc.registerComponents(ome_seadragon_viewer,
+                            annotations_canvas, tools_manager);
                     });
 
                     var scalebar_config = {

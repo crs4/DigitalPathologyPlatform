@@ -126,8 +126,9 @@
             return vm.slide_details.image_microns_per_pixel;
         }
 
-        function registerComponents(viewer_manager, annotations_manager) {
-            AnnotationsViewerService.registerComponents(viewer_manager, annotations_manager);
+        function registerComponents(viewer_manager, annotations_manager, tools_manager) {
+            AnnotationsViewerService.registerComponents(viewer_manager,
+                annotations_manager, tools_manager);
             console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
         }

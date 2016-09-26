@@ -38,14 +38,16 @@
 
         return AnnotationsViewerService;
 
-        function registerComponents(viewer_manager, rois_manager) {
+        function registerComponents(viewer_manager, rois_manager, tools_manager) {
             this.viewerManager = viewer_manager;
             this.roisManager = rois_manager;
+            this.toolsManager = tools_manager;
         }
 
         function checkComponents() {
             console.log('Viewer Manager: ' + this.viewerManager);
             console.log('ROIs Manager: ' + this.roisManager);
+            console.log('Tools Manager: ' + this.toolsManager);
         }
 
         function drawShape(shape_json) {
