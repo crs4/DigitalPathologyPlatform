@@ -30,7 +30,8 @@
             registerComponents: registerComponents,
             checkComponents: checkComponents,
             drawShape: drawShape,
-            saveTemporaryShape: saveTemporaryShape,
+            saveTemporaryPolygon: saveTemporaryPolygon,
+            saveTemporaryFreeHandDrawing: saveTemporaryFreeHandDrawing,
             deleteShape: deleteShape,
             clear: clear,
             deleteShapes: deleteShapes
@@ -54,7 +55,11 @@
 
         }
 
-        function saveTemporaryShape() {
+        function saveTemporaryPolygon() {
+
+        }
+
+        function saveTemporaryFreeHandDrawing() {
 
         }
 
