@@ -9,9 +9,10 @@
                 <i class="icon-plus"></i> New item <i class="icon-play prm-rotate-90 prm-caret"></i>
             </button>
             <ul class="dropdown-menu">
-                <li><a href="#">New slice</a></li>
-                <li><a href="#">New core</a></li>
-                <li><a href="#">New cellular region</a></li>
+                <li><a href="#" ng-click="rmc.activateNewSliceMode()">New slice</a></li>
+                <li><a href="#" ng-click="rmc.activateNewCoreMode()">New core</a></li>
+                <li><a href="#"
+                       ng-click="rmc.activateNewFocusRegionMode()">New cellular region</a></li>
             </ul>
         </div>
         <button class="btn btn-danger">
@@ -37,6 +38,10 @@
             <div class="well">
 
                 <!-- form_templates -->
+                <new-slice-creation ng-show="rmc.newSliceModeActive()"></new-slice-creation>
+                <new-core-creation ng-show="rmc.newCoreModeActive()"></new-core-creation>
+                <new-focus-region-creation
+                        ng-show="rmc.newFocusRegionModeActive()"></new-focus-region-creation>
 
             </div>
         </div>
