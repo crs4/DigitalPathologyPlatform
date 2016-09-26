@@ -35,6 +35,8 @@
             })
             // ROIs manager
             .when('/worklist/:case/:slide/rois_manager', {
+                controller: 'ROIsManagerController',
+                controllerAs: 'rmc',
                 templateUrl: '/static/templates/rois_manager/manager.html'
             })
             // homepage
