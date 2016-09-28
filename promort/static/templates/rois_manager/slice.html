@@ -1,45 +1,53 @@
 <div>
-    <div class="prm-form-header">
+    <div class="prm-form-header" ng-hide="rmCtrl.isReadOnly()">
         <h4 class="text-right">NEW SLICE</h4>
     </div>
-    <div class="prm-form-header">
+    <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
+        <!-- TODO: put real slice label here -->
         <h4 class="text-right">SLICE 1</h4>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
+          rmCtrl.isFreehandToolActive() || rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Draw slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()">
                 <i class="icon-vector"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newFreehand()">
                 <i class="icon-vector_pen"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.isPolygonToolActive()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Polygon tool</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
+                    ng-click="rmCtrl.pausePolygonTool()">
                 <i class="icon-pause"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-show="rmCtrl.isPolygonToolPaused()"
+                    ng-click="rmCtrl.unpausePolygonTool()">
                 <i class="icon-play"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()">
                 <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()">
+                <i class="icon-cross_mark"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape()">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn">
@@ -47,12 +55,12 @@
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.isFreehandToolActive()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Freehand tool</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
@@ -66,9 +74,4 @@
             <input class="form-control" id="spinner" type="number">
         </div>
     </div>
-
-    <script type="text/javascript">
-        $("#spinner").TouchSpin();
-    </script>
-
 </div>

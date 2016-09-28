@@ -30,8 +30,8 @@
             registerComponents: registerComponents,
             checkComponents: checkComponents,
             drawShape: drawShape,
+            startPolygonsTool: startPolygonsTool,
             saveTemporaryPolygon: saveTemporaryPolygon,
-            saveTemporaryFreeHandDrawing: saveTemporaryFreeHandDrawing,
             deleteShape: deleteShape,
             clear: clear,
             deleteShapes: deleteShapes
@@ -55,12 +55,13 @@
 
         }
 
-        function saveTemporaryPolygon() {
-
+        function startPolygonsTool() {
+            console.log(this.toolsManager);
+            console.log('Starting polygons tool');
         }
 
-        function saveTemporaryFreeHandDrawing() {
-
+        function saveTemporaryPolygon() {
+            console.log('Saving temporary polygon');
         }
 
         function deleteShape(shape_id) {

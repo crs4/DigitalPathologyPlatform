@@ -1,13 +1,13 @@
 <div>
-    <div class="form-group row prm-control-row">
+    <div class="form-group row prm-control-row" ng-hide="rmCtrl.isReadOnly()">
         <button class="btn btn-warning prm-control-btn">
             <i class="icon-reply"></i> Abort
         </button>
-        <button class="btn btn-primary prm-control-btn">
+        <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.click()">
             <i class="icon-cloud_upload"></i> Save
         </button>
     </div>
-    <div class="form-group row prm-control-row">
+    <div class="form-group row prm-control-row" ng-show="rmCtrl.isReadOnly()">
         <button class="btn btn-danger prm-control-btn">
             <i class="icon-trash_can"></i> Delete
         </button>

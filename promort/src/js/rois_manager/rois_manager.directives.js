@@ -3,33 +3,72 @@
 
     angular
         .module('promort.rois_manager.directives')
-        .directive('newSliceCreation', newSliceCreation)
-        .directive('newCoreCreation', newCoreCreation)
-        .directive('newFocusRegionCreation', newFocusRegionCreation);
+        .directive('sliceData', sliceData)
+        .directive('sliceButtons', sliceButtons)
+        .directive('coreData', coreData)
+        .directive('coreButtons', coreButtons)
+        .directive('focusRegionData', focusRegionData)
+        .directive('focusRegionButtons', focusRegionButtons);
 
-    function newSliceCreation() {
+    function sliceData() {
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/slice.html'
+            templateUrl: '/static/templates/rois_manager/slice.html',
+            controller: 'NewSliceController',
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $("#spinner").TouchSpin();
+            }
         };
         return directive;
     }
 
-    function newCoreCreation() {
+    function sliceButtons() {
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/core.html'
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
         };
         return directive;
     }
 
-    function newFocusRegionCreation() {
+    function coreData() {
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/region.html'
+            templateUrl: '/static/templates/rois_manager/core.html',
+            controller: 'NewCoreController',
+            controllerAs: 'rmCtrl'
+        };
+        return directive;
+    }
+
+    function coreButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
+        };
+        return directive;
+    }
+
+    function focusRegionData() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/focus_region.html',
+            controller: 'NewFocusRegionController',
+            controllerAs: 'rmCtrl'
+        };
+        return directive;
+    }
+
+    function focusRegionButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
         };
         return directive;
     }

@@ -36,13 +36,18 @@
         </div>
         <div id="promort_form" class="col-sm-3">
             <div class="well">
-
-                <!-- form_templates -->
-                <new-slice-creation ng-show="rmc.newSliceModeActive()"></new-slice-creation>
-                <new-core-creation ng-show="rmc.newCoreModeActive()"></new-core-creation>
-                <new-focus-region-creation
-                        ng-show="rmc.newFocusRegionModeActive()"></new-focus-region-creation>
-
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.newSliceModeActive()">
+                    <slice-data></slice-data>
+                    <slice-buttons></slice-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.newCoreModeActive()">
+                    <core-data></core-data>
+                    <core-buttons></core-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.newFocusRegionModeActive()">
+                    <focus-region-data></focus-region-data>
+                    <focus-region-buttons></focus-region-buttons>
+                </div>
             </div>
         </div>
     </div>

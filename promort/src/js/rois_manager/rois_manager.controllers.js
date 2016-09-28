@@ -3,7 +3,11 @@
 
     angular
         .module('promort.rois_manager.controllers')
-        .controller('ROIsManagerController', ROIsManagerController);
+        .controller('ROIsManagerController', ROIsManagerController)
+        .controller('NewScopeController', NewScopeController)
+        .controller('NewSliceController', NewSliceController)
+        .controller('NewCoreController', NewCoreController)
+        .controller('NewFocusRegionController', NewFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams'];
 
@@ -73,6 +77,125 @@
 
         function newFocusRegionModeActive() {
             return vm.ui_active_modes['new_focus_region'];
+        }
+    }
+
+    NewScopeController.$inject = ['$scope'];
+
+    function NewScopeController($scope) {
+        var vm = this;
+        vm.$scope = {};
+
+        activate();
+
+        function activate() {
+            console.log('Activated NewScopeController');
+        }
+    }
+
+    NewSliceController.$inject = ['AnnotationsViewerService'];
+
+    function NewSliceController(AnnotationsViewerService) {
+        var vm = this;
+        vm.read_only_mode = false;
+        vm.active_tool = undefined;
+        vm.polygon_tool_paused = false;
+        vm.shape = undefined;
+
+        vm.POLYGON_TOOL = 'polygon_drawing_tool';
+        vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+
+        vm.newPolygon = newPolygon;
+        vm.newFreehand = newFreehand;
+        vm.click = click;
+        vm.setReadOnlyMode = setReadOnlyMode;
+        vm.isReadOnly = isReadOnly;
+        vm.isPolygonToolActive = isPolygonToolActive;
+        vm.isPolygonToolPaused = isPolygonToolPaused;
+        vm.isFreehandToolActive = isFreehandToolActive;
+        vm.shapeExists = shapeExists;
+        vm.pausePolygonTool = pausePolygonTool;
+        vm.unpausePolygonTool = unpausePolygonTool;
+        vm.confirmPolygon = confirmPolygon;
+        vm.abortTool = abortTool;
+        vm.deleteShape = deleteShape;
+
+        function newPolygon() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.active_tool = vm.POLYGON_TOOL
+        }
+
+        function newFreehand() {
+            vm.active_tool = vm.FREEHAND_TOOL;
+        }
+
+        function setReadOnlyMode() {
+            vm.read_only_mode = true;
+        }
+
+        function isReadOnly() {
+            return vm.read_only_mode;
+        }
+
+        function isPolygonToolActive() {
+            return vm.active_tool === vm.POLYGON_TOOL;
+        }
+
+        function isPolygonToolPaused() {
+            return vm.polygon_tool_paused;
+        }
+
+        function isFreehandToolActive() {
+            return vm.active_tool === vm.FREEHAND_TOOL;
+        }
+
+        function shapeExists() {
+            return vm.shape != undefined;
+        }
+
+        function pausePolygonTool() {
+            vm.polygon_tool_paused = true;
+        }
+
+        function unpausePolygonTool() {
+            vm.polygon_tool_paused = false;
+        }
+
+        function confirmPolygon() {
+            // TODO: get shape's JSON from ome_seadragon viewer
+            vm.shape = '';
+            vm.active_tool = undefined;
+        }
+
+        function abortTool() {
+            vm.active_tool = undefined;
+        }
+
+        function deleteShape() {
+            vm.shape = undefined;
+        }
+
+        // TODO: change into a proper save function for the whole slide object
+        function click() {
+            console.log('Clicked on NEW SLICE CONTROLLER button');
+        }
+    }
+
+    function NewCoreController() {
+        var vm = this;
+        vm.click = click;
+
+        function click() {
+            console.log('Clicked on NEW CORE CONTROLLER button');
+        }
+    }
+
+    function NewFocusRegionController() {
+        var vm = this;
+        vm.click = click;
+
+        function click() {
+            console.log('Cliecked on NEW FOCUS REGION CONTROLLER button');
         }
     }
 })();
