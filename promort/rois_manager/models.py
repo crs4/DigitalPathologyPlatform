@@ -42,7 +42,7 @@ class FocusRegion(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
-    area = models.FloatField(blank=False, default=0-0)
+    area = models.FloatField(blank=False, default=0.0)
     cancerous_region = models.BooleanField(blank=False)
 
     class Meta:
