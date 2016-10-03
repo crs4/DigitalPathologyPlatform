@@ -30,11 +30,16 @@
             registerComponents: registerComponents,
             checkComponents: checkComponents,
             drawShape: drawShape,
+            extendPolygonConfig: extendPolygonConfig,
             startPolygonsTool: startPolygonsTool,
+            pausePolygonTool: pausePolygonTool,
             saveTemporaryPolygon: saveTemporaryPolygon,
+            clearTemporaryPolygon: clearTemporaryPolygon,
             deleteShape: deleteShape,
             clear: clear,
-            deleteShapes: deleteShapes
+            deleteShapes: deleteShapes,
+            getCanvasLabel: getCanvasLabel,
+            getShapeJSON: getShapeJSON
         };
 
         return AnnotationsViewerService;
@@ -55,25 +60,45 @@
 
         }
 
-        function startPolygonsTool() {
-            console.log(this.toolsManager);
-            console.log('Starting polygons tool');
+        function extendPolygonConfig(polygon_config) {
+            this.roisManager.extendPolygonConfig(polygon_config);
         }
 
-        function saveTemporaryPolygon() {
+        function startPolygonsTool() {
+            this.toolsManager.activateTool(AnnotationsEventsController.POLYGON_DRAWING_TOOL);
+        }
+
+        function pausePolygonTool() {
+            this.roisManager.disableMouseEvents();
+        }
+
+        function saveTemporaryPolygon(label_prefix) {
             console.log('Saving temporary polygon');
+            this.roisManager.saveTemporaryPolygon(label_prefix);
+        }
+
+        function clearTemporaryPolygon() {
+            this.roisManager.clearTemporaryPolygon();
         }
 
         function deleteShape(shape_id) {
-
+            this.roisManager.deleteShape(shape_id);
         }
 
         function clear() {
-
+            this.roisManager.clear();
         }
 
         function deleteShapes(shapes_id) {
+            this.roisManager.deleteShapes(shapes_id);
+        }
 
+        function getCanvasLabel() {
+            return this.roisManager.canvas_id;
+        }
+
+        function getShapeJSON(shape_id) {
+            return this.roisManager.getShapeJSON(shape_id);
         }
     }
 })();
