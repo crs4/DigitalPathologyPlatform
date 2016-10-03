@@ -3,7 +3,8 @@
         <button class="btn btn-warning prm-control-btn">
             <i class="icon-reply"></i> Abort
         </button>
-        <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.click()">
+        <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.save()"
+                ng-disabled="!rmCtrl.formValid()">
             <i class="icon-cloud_upload"></i> Save
         </button>
     </div>
