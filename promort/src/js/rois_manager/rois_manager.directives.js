@@ -18,7 +18,12 @@
             controller: 'NewSliceController',
             controllerAs: 'rmCtrl',
             link: function(scope, element, attrs) {
-                $("#spinner").TouchSpin();
+                $("#spinner").TouchSpin({
+                    min: 0,
+                    step: 1,
+                    booster: false,
+                    mousewheel: false
+                });
             }
         };
         return directive;
