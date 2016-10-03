@@ -86,7 +86,8 @@
 
                     var viewer_config = {
                         'showNavigator': true,
-                        'showFullPageContrl': false
+                        'showFullPageControl': false,
+                        'animationTime': 0.01
                     };
                     var ome_seadragon_viewer = new ViewerController(
                         'viewer',
