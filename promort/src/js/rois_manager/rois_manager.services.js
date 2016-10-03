@@ -22,12 +22,11 @@
             return $http.get('/api/slides/' + slide_id + '/slices/');
         }
 
-        function createSlice(slide_id, slice_label, roi_json, total_cores, positive_cores) {
+        function createSlice(slide_id, slice_label, roi_json, total_cores) {
             var params = {
                 label: slice_label,
                 roi_json: JSON.stringify(roi_json),
-                total_cores: total_cores,
-                positive_cores: positive_cores
+                total_cores: total_cores
             };
             return $http.post('/api/slides/' + slide_id + '/slices/', params);
         }
