@@ -93,21 +93,27 @@
         }
     }
 
-    NewSliceController.$inject = ['AnnotationsViewerService'];
+    NewSliceController.$inject = ['$routeParams', '$rootScope',
+        'AnnotationsViewerService', 'SlidesManagerService'];
 
-    function NewSliceController(AnnotationsViewerService) {
+    function NewSliceController($routeParams, $rootScope,
+                                AnnotationsViewerService, SlidesManagerService) {
         var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.shape = undefined;
+        vm.totalCores = 0;
+
         vm.read_only_mode = false;
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
-        vm.shape = undefined;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
 
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
-        vm.click = click;
+        vm.save = save;
         vm.setReadOnlyMode = setReadOnlyMode;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
@@ -119,8 +125,17 @@
         vm.confirmPolygon = confirmPolygon;
         vm.abortTool = abortTool;
         vm.deleteShape = deleteShape;
+        vm.formValid = formValid;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+        }
 
         function newPolygon() {
+            console.log('Start polygon drawing tool');
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL
         }
@@ -154,48 +169,96 @@
         }
 
         function pausePolygonTool() {
+            AnnotationsViewerService.pausePolygonTool();
             vm.polygon_tool_paused = true;
         }
 
         function unpausePolygonTool() {
+            AnnotationsViewerService.startPolygonsTool();
             vm.polygon_tool_paused = false;
         }
 
         function confirmPolygon() {
-            // TODO: get shape's JSON from ome_seadragon viewer
-            vm.shape = '';
-            vm.active_tool = undefined;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('polygon_saved',
+                function(event, polygon_label) {
+                    console.log('Polygon saved!');
+                    vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                    vm.abortTool();
+                    $canvas.unbind('polygon_saved');
+                }
+            );
+            AnnotationsViewerService.saveTemporaryPolygon('slice');
         }
 
         function abortTool() {
+            if (vm.active_tool === vm.POLYGON_TOOL) {
+                AnnotationsViewerService.clearTemporaryPolygon();
+                AnnotationsViewerService.pausePolygonTool();
+            }
             vm.active_tool = undefined;
         }
 
         function deleteShape() {
+            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
             vm.shape = undefined;
         }
 
-        // TODO: change into a proper save function for the whole slide object
-        function click() {
-            console.log('Clicked on NEW SLICE CONTROLLER button');
+        function formValid() {
+            if (typeof(vm.shape) !== 'undefined') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function save() {
+            console.log(vm.slide_id, vm.shape.shape_id,
+                vm.shape, vm.totalCores);
+            SlidesManagerService.createSlice(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores)
+                .then(createSliceSuccessFn, createSliceErrorFn);
+
+            function createSliceSuccessFn(response) {
+                var slice_info = {
+                    'id': response.data.id,
+                    'label': response.data.label
+                };
+                $rootScope.$broadcast('slice.saved', slice_info);
+            }
+
+            function createSliceErrorFn(response) {
+                console.error('Unable to save slice!!!');
+                console.error(response.data);
+            }
         }
     }
 
     function NewCoreController() {
         var vm = this;
-        vm.click = click;
+        vm.save = save;
+        vm.formValid = formValid;
 
-        function click() {
+        function save() {
             console.log('Clicked on NEW CORE CONTROLLER button');
+        }
+
+        function formValid() {
+            return false;
         }
     }
 
     function NewFocusRegionController() {
         var vm = this;
-        vm.click = click;
+        vm.save = save;
+        vm.formValid = formValid;
 
-        function click() {
+        function save() {
             console.log('Cliecked on NEW FOCUS REGION CONTROLLER button');
+        }
+
+        function formValid() {
+            return false;
         }
     }
 })();
