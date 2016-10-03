@@ -108,8 +108,9 @@
 
                         var tools_manager = new AnnotationsEventsController(annotations_canvas);
                         // initialize polygon, freehand drawing and measuring tools
-                        tools_manager.initializePolygonDrawingTool();
-                        tools_manager.initializeFreehandDrawingTool();
+                        var shape_config = {'fill_alpha': 0.01, 'stroke_width': 40};
+                        tools_manager.initializePolygonDrawingTool(shape_config);
+                        tools_manager.initializeFreehandDrawingTool(shape_config);
                         tools_manager.initializeMeasuringTool();
 
                         console.log('Registering components');
