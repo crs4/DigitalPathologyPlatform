@@ -12,7 +12,6 @@ class Slice(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
-    positive_cores = models.IntegerField(blank=False, default=0)
 
     class Meta:
         unique_together = ('label', 'slide')

@@ -17,15 +17,23 @@ class SliceSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     cores_count = serializers.SerializerMethodField()
+    positive_cores_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Slice
         fields = ('id', 'label', 'slide', 'author', 'creation_date', 'roi_json',
-                  'total_cores', 'positive_cores', 'cores_count')
-        read_only_fields = ('id', 'creation_date', 'cores_count')
+                  'total_cores', 'positive_cores_count', 'cores_count')
+        read_only_fields = ('id', 'creation_date', 'positive_cores_count', 'cores_count')
 
     def get_cores_count(self, obj):
         return obj.cores.count()
+
+    def get_positive_cores_count(self, obj):
+        positive_cores_counter = 0
+        for core in obj.cores.all():
+            if core.positive:
+                positive_cores_counter += 1
+        return positive_cores_counter
 
     def validate_roi_json(self, value):
         try:
@@ -41,15 +49,22 @@ class CoreSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     focus_regions_count = serializers.SerializerMethodField()
+    positive = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'focus_regions_count')
-        read_only_fields = ('id', 'creation_date', 'focus_regions_count')
+                  'length', 'area', 'positive', 'focus_regions_count')
+        read_only_fields = ('id', 'creation_date', 'positive', 'focus_regions_count')
 
     def get_focus_regions_count(self, obj):
         return obj.focus_regions.count()
+
+    def get_positive(self, obj):
+        for fr in obj.focus_regions.all():
+            if fr.cancerous_region:
+                return True
+        return False
 
     def validate_roi_json(self, value):
         try:
@@ -85,12 +100,19 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     focus_regions = FocusRegionSerializer(many=True, read_only=True)
+    positive = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date',
-                  'roi_json', 'length', 'area', 'focus_regions')
-        read_only_fields = ('id', 'creation_date')
+                  'roi_json', 'length', 'area', 'positive', 'focus_regions')
+        read_only_fields = ('id', 'creation_date', 'positive')
+
+    def get_positive(self, obj):
+        for fr in obj.focus_regions.all():
+            if fr.cancerous_region:
+                return True
+        return False
 
 
 class SliceDetailsSerializer(serializers.ModelSerializer):
@@ -99,12 +121,20 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     cores = CoreSerializer(many=True, read_only=True)
+    positive_cores_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Slice
         fields = ('id', 'label', 'slide', 'author', 'creation_date',
-                  'roi_json', 'total_cores', 'positive_cores', 'cores')
-        read_only_fields = ('id', 'creation_date')
+                  'roi_json', 'total_cores', 'positive_cores_count', 'cores')
+        read_only_fields = ('id', 'creation_date', 'positive_cores_count')
+
+    def get_positives_cores_count(self, obj):
+        positive_cores_counter = 0
+        for core in obj.cores.all():
+            if core.positive:
+                positive_cores_counter += 1
+        return positive_cores_counter
 
 
 class SlideDetailsSerializer(serializers.ModelSerializer):
