@@ -30,7 +30,7 @@
 
             function qualityControlSuccessFn(response) {
                 // move to the ROIs review page
-                $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois');
+                $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
             }
 
             function qualityControlErrorFn(response) {
