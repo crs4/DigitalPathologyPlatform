@@ -41,7 +41,8 @@
             clear: clear,
             deleteShapes: deleteShapes,
             getCanvasLabel: getCanvasLabel,
-            getShapeJSON: getShapeJSON
+            getShapeJSON: getShapeJSON,
+            focusOnShape: focusOnShape
         };
 
         return AnnotationsViewerService;
@@ -109,6 +110,10 @@
 
         function getShapeJSON(shape_id) {
             return this.roisManager.getShapeJSON(shape_id);
+        }
+
+        function focusOnShape(shape_id) {
+            this.viewerManager.jumpToShape(shape_id, true);
         }
     }
 })();

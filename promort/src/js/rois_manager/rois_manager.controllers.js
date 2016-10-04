@@ -124,6 +124,7 @@
         vm.unpausePolygonTool = unpausePolygonTool;
         vm.confirmPolygon = confirmPolygon;
         vm.abortTool = abortTool;
+        vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
         vm.formValid = formValid;
 
@@ -218,6 +219,10 @@
         function deleteShape() {
             AnnotationsViewerService.deleteShape(vm.shape.shape_id);
             vm.shape = undefined;
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
         }
 
         function formValid() {
