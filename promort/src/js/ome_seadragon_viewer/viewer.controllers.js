@@ -131,6 +131,7 @@
                 annotations_manager, tools_manager);
             console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
+            $rootScope.$broadcast('viewerctrl.components.registered');
         }
     }
 })();

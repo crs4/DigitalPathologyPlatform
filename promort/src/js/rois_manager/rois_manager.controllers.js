@@ -9,11 +9,13 @@
         .controller('NewCoreController', NewCoreController)
         .controller('NewFocusRegionController', NewFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope'];
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope',
+        'SlidesManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope) {
+    function ROIsManagerController($scope, $routeParams, $rootScope,
+                                   SlidesManagerService, AnnotationsViewerService) {
         var vm = this;
-        vm.slide = undefined;
+        vm.slide_id = undefined;
         vm.case_id = undefined;
 
         vm.ui_active_modes = {
@@ -39,7 +41,33 @@
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
 
-            // TODO: draw existing ROIs
+            // draw existing ROIs as soon as viewer's components are registered
+            $rootScope.$on('viewerctrl.components.registered',
+                function() {
+                    console.log('Retrieving existing slices');
+                    SlidesManagerService.getSlices(vm.slide_id).then(getSlicesSuccessFn, getSlicesErrorFn);
+
+                    function getSlicesSuccessFn(response) {
+                        function drawSlice(slice_data) {
+                            console.log(slice_data);
+                            AnnotationsViewerService.drawShape($.parseJSON(slice_data.roi_json));
+                            // TODO: add a $rootScope.$broadcast to declare the slice
+                            var slice_info = {
+                                'id': slice_data.id,
+                                'label': slice_data.label
+                            };
+                            $rootScope.$broadcast('slice.new', slice_info);
+                        }
+
+                        response.data.slices.forEach(drawSlice);
+                    }
+
+                    function getSlicesErrorFn(response) {
+                        console.error('Unable to load slices for slide ' + vm.slide_id);
+                        console.error(response.data);
+                    }
+                }
+            );
 
             // shut down creation forms when specific events occur
             $rootScope.$on('tool.destroyed',
@@ -273,7 +301,7 @@
                     'id': response.data.id,
                     'label': response.data.label
                 };
-                $rootScope.$broadcast('slice.saved', slice_info);
+                $rootScope.$broadcast('slice.new', slice_info);
             }
 
             function createSliceErrorFn(response) {

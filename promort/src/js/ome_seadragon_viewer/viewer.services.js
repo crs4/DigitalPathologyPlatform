@@ -60,7 +60,7 @@
         }
 
         function drawShape(shape_json) {
-
+            this.roisManager.drawShapeFromJSON(shape_json);
         }
 
         function extendPolygonConfig(polygon_config) {

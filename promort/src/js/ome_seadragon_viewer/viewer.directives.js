@@ -97,8 +97,6 @@
                     );
                     ome_seadragon_viewer.buildViewer();
 
-                    var annotations_canvas = undefined;
-
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
                         ome_seadragon_viewer.setMinDZILevel(8);
 
