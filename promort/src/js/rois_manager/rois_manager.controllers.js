@@ -124,6 +124,7 @@
         vm.unpausePolygonTool = unpausePolygonTool;
         vm.confirmPolygon = confirmPolygon;
         vm.abortTool = abortTool;
+        vm.clear = clear;
         vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
         vm.formValid = formValid;
@@ -208,11 +209,20 @@
             AnnotationsViewerService.saveTemporaryPolygon('slice');
         }
 
+        function clear() {
+            if (typeof this.shape !== 'undefined') {
+                AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                this.shape = undefined;
+            }
+            this.totalCores = 0;
+        }
+
         function abortTool() {
+            console.log('Aborting tool');
             if (vm.active_tool === vm.POLYGON_TOOL) {
                 AnnotationsViewerService.clearTemporaryPolygon();
-                AnnotationsViewerService.pausePolygonTool();
             }
+            AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
         }
 
