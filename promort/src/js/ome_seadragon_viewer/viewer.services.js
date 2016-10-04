@@ -32,7 +32,7 @@
             drawShape: drawShape,
             extendPolygonConfig: extendPolygonConfig,
             startPolygonsTool: startPolygonsTool,
-            pausePolygonTool: pausePolygonTool,
+            disableActiveTool: disableActiveTool,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             deleteShape: deleteShape,
@@ -68,7 +68,7 @@
             this.toolsManager.activateTool(AnnotationsEventsController.POLYGON_DRAWING_TOOL);
         }
 
-        function pausePolygonTool() {
+        function disableActiveTool() {
             this.roisManager.disableMouseEvents();
         }
 
