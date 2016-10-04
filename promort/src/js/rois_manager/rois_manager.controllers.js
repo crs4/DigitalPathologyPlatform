@@ -9,9 +9,9 @@
         .controller('NewCoreController', NewCoreController)
         .controller('NewFocusRegionController', NewFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams'];
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope'];
 
-    function ROIsManagerController($scope, $routeParams) {
+    function ROIsManagerController($scope, $routeParams, $rootScope) {
         var vm = this;
         vm.slide = undefined;
         vm.case_id = undefined;
@@ -40,6 +40,18 @@
             vm.case_id = $routeParams.case;
 
             // TODO: draw existing ROIs
+
+            // shut down creation forms when specific events occur
+            $rootScope.$on('tool.destroyed',
+                function() {
+                    vm.allModesOff();
+                }
+            );
+            $rootScope.$on('slice.saved',
+                function(){
+                    vm.allModesOff();
+                }
+            );
         }
 
         function allModesOff() {
