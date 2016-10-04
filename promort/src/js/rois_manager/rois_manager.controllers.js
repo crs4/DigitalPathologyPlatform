@@ -141,6 +141,21 @@
         }
 
         function newFreehand() {
+            console.log('Start freehabd drawing tool');
+            AnnotationsViewerService.setFreehandToolLabelPrefix('slice');
+            AnnotationsViewerService.startFreehandDrawingTool();
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label) {
+                    console.log('Freehand drawing saved');
+                    vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                    // calling the click event of the button will also refresh page and apply
+                    // proper angular.js controller rules
+                    $("#freehand_abort").click();
+                    $canvas.unbind('freehand_polygon_saved');
+                }
+            );
             vm.active_tool = vm.FREEHAND_TOOL;
         }
 

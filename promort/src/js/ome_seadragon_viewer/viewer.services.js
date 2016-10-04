@@ -35,6 +35,8 @@
             disableActiveTool: disableActiveTool,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
+            startFreehandDrawingTool: startFreehandDrawingTool,
+            setFreehandToolLabelPrefix: setFreehandToolLabelPrefix,
             deleteShape: deleteShape,
             clear: clear,
             deleteShapes: deleteShapes,
@@ -79,6 +81,14 @@
 
         function clearTemporaryPolygon() {
             this.roisManager.clearTemporaryPolygon();
+        }
+
+        function startFreehandDrawingTool() {
+            this.toolsManager.activateTool(AnnotationsEventsController.FREEHAND_DRAWING_TOOL);
+        }
+
+        function setFreehandToolLabelPrefix(label_prefix) {
+            this.roisManager.setFreehandPathLabelPrefix(label_prefix);
         }
 
         function deleteShape(shape_id) {
