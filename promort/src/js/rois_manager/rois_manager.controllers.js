@@ -128,6 +128,7 @@
         vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
         vm.formValid = formValid;
+        vm.destroy = destroy;
 
         activate();
 
@@ -226,6 +227,12 @@
             vm.active_tool = undefined;
         }
 
+        function destroy() {
+            vm.clear();
+            vm.abortTool();
+            $rootScope.$broadcast('tool.destroyed');
+        }
+
         function deleteShape() {
             AnnotationsViewerService.deleteShape(vm.shape.shape_id);
             vm.shape = undefined;
@@ -264,10 +271,13 @@
         }
     }
 
-    function NewCoreController() {
+    NewCoreController.$inject = ['$rootScope'];
+
+    function NewCoreController($rootScope) {
         var vm = this;
         vm.save = save;
         vm.formValid = formValid;
+        vm.destroy = destroy;
 
         function save() {
             console.log('Clicked on NEW CORE CONTROLLER button');
@@ -276,12 +286,19 @@
         function formValid() {
             return false;
         }
+
+        function destroy() {
+            $rootScope.$broadcast('tool.destroyed');
+        }
     }
 
-    function NewFocusRegionController() {
+    NewFocusRegionController.$inject = ['$rootScope'];
+
+    function NewFocusRegionController($rootScope) {
         var vm = this;
         vm.save = save;
         vm.formValid = formValid;
+        vm.destroy = destroy;
 
         function save() {
             console.log('Cliecked on NEW FOCUS REGION CONTROLLER button');
@@ -289,6 +306,10 @@
 
         function formValid() {
             return false;
+        }
+
+        function destroy() {
+            $rootScope.$broadcast('tool.destroyed');
         }
     }
 })();

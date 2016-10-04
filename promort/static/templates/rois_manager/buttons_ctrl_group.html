@@ -1,6 +1,6 @@
 <div>
     <div class="form-group row prm-control-row" ng-hide="rmCtrl.isReadOnly()">
-        <button class="btn btn-warning prm-control-btn">
+        <button class="btn btn-warning prm-control-btn" ng-click="rmCtrl.destroy()">
             <i class="icon-reply"></i> Abort
         </button>
         <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.save()"
