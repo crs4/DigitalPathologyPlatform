@@ -3,8 +3,18 @@
 
     angular
         .module('promort.viewer.directives')
+        .directive('viewerNavigationPanel', viewerNavigationPanel)
         .directive('simpleViewer', simpleViewer)
         .directive('annotationsViewer', annotationsViewer);
+
+    function viewerNavigationPanel() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/navigation_panel.html'
+        };
+        return directive;
+    }
 
     function simpleViewer() {
         var directive = {

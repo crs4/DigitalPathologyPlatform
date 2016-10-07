@@ -26,6 +26,12 @@ div.annotated_viewer_container {
     height: 600px;
 }
 
+.prm-viewer-navi {
+    width: 120px;
+    height: 120px;
+    background: white;
+}
+
 button.prm-btn-sm {
     width: 100px;
 }
