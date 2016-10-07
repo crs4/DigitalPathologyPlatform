@@ -49,9 +49,16 @@
                 $('#badQuality').click(setViewerHeight);
 
                 scope.$on('viewer.controller_initialized', function() {
+                    // clean navigator div
+                    $('#navi').empty();
+
                     var viewer_config = {
                         'showNavigator': true,
-                        'showFullPageControl': false
+                        'showFullPageControl': false,
+                        'navigatorId': 'navi',
+                        'zoomInButton': 'navi_zoom_in',
+                        'zoomOutButton': 'navi_zoom_out',
+                        'homeButton': 'navi_home'
                     };
 
                     var ome_seadragon_viewer = new ViewerController(
@@ -92,12 +99,17 @@
             templateUrl: '/static/templates/viewer/rois_viewer.html',
             link: function(scope, element, attrs) {
                 scope.$on('viewer.controller_initialized', function() {
-                    console.log('ome_seadragon viewer with annotations - INITIALIZING');
-
+                    // clean navigator div
+                    $('#navi').empty();
+                    
                     var viewer_config = {
                         'showNavigator': true,
                         'showFullPageControl': false,
-                        'animationTime': 0.01
+                        'animationTime': 0.01,
+                        'navigatorId': 'navi',
+                        'zoomInButton': 'navi_zoom_in',
+                        'zoomOutButton': 'navi_zoom_out',
+                        'homeButton': 'navi_home'
                     };
                     var ome_seadragon_viewer = new ViewerController(
                         'viewer',
