@@ -42,16 +42,14 @@
             vm.case_id = $routeParams.case;
 
             // draw existing ROIs as soon as viewer's components are registered
-            $rootScope.$on('viewerctrl.components.registered',
+            $scope.$on('viewerctrl.components.registered',
                 function() {
                     console.log('Retrieving existing slices');
                     SlidesManagerService.getSlices(vm.slide_id).then(getSlicesSuccessFn, getSlicesErrorFn);
 
                     function getSlicesSuccessFn(response) {
                         function drawSlice(slice_data) {
-                            console.log(slice_data);
                             AnnotationsViewerService.drawShape($.parseJSON(slice_data.roi_json));
-                            // TODO: add a $rootScope.$broadcast to declare the slice
                             var slice_info = {
                                 'id': slice_data.id,
                                 'label': slice_data.label
@@ -70,12 +68,12 @@
             );
 
             // shut down creation forms when specific events occur
-            $rootScope.$on('tool.destroyed',
+            $scope.$on('tool.destroyed',
                 function() {
                     vm.allModesOff();
                 }
             );
-            $rootScope.$on('slice.saved',
+            $scope.$on('slice.new',
                 function(){
                     vm.allModesOff();
                 }
@@ -227,7 +225,7 @@
         }
 
         function pausePolygonTool() {
-            AnnotationsViewerService.pausePolygonTool();
+            AnnotationsViewerService.disableActiveTool();
             vm.polygon_tool_paused = true;
         }
 
