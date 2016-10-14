@@ -131,10 +131,10 @@
         }
     }
 
-    NewSliceController.$inject = ['$routeParams', '$rootScope',
+    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope',
         'AnnotationsViewerService', 'SlidesManagerService'];
 
-    function NewSliceController($routeParams, $rootScope,
+    function NewSliceController($scope, $routeParams, $rootScope,
                                 AnnotationsViewerService, SlidesManagerService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -193,8 +193,9 @@
                     vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                     // calling the click event of the button will also refresh page and apply
                     // proper angular.js controller rules
-                    $("#freehand_abort").click();
+                    vm.abortTool();
                     $canvas.unbind('freehand_polygon_saved');
+                    $scope.$apply();
                 }
             );
             vm.active_tool = vm.FREEHAND_TOOL;

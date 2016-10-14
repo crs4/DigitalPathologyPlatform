@@ -60,7 +60,8 @@
             <label>Freehand tool</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button id="freehand_abort" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()">
+            <button id="slice_freehand_abort" class="btn btn-default prm-icon-btn"
+                    ng-click="rmCtrl.abortTool()">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
@@ -70,7 +71,6 @@
             <label>Number of cores</label>
         </div>
         <div class="prm-row-elem">
-            <!-- TODO: check for required attribute -->
             <input class="form-control" id="spinner" type="number"
                    ng-model="rmCtrl.totalCores">
         </div>
