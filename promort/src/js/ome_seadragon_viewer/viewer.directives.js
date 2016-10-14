@@ -101,7 +101,7 @@
                 scope.$on('viewer.controller_initialized', function() {
                     // clean navigator div
                     $('#navi').empty();
-                    
+
                     var viewer_config = {
                         'showNavigator': true,
                         'showFullPageControl': false,
@@ -118,6 +118,18 @@
                         viewer_config
                     );
                     ome_seadragon_viewer.buildViewer();
+
+                    var scalebar_config = {
+                        'xOffset': 10,
+                        'yOffset': 10,
+                        'barThickness': 5,
+                        'color': '#777',
+                        'fontColor': '#000',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.5)'
+                    };
+                    ome_seadragon_viewer.enableScalebar(
+                        scope.avc.getSlideMicronsPerPixel(), scalebar_config
+                    );
 
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
                         ome_seadragon_viewer.setMinDZILevel(8);
@@ -136,18 +148,6 @@
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
                             annotations_canvas, tools_manager);
-
-                        var scalebar_config = {
-                            'xOffset': 10,
-                            'yOffset': 10,
-                            'barThickness': 5,
-                            'color': '#777',
-                            'fontColor': '#000',
-                            'backgroundColor': 'rgba(255, 255, 255, 0.5)'
-                        };
-                        ome_seadragon_viewer.enableScalebar(
-                            scope.avc.getSlideMicronsPerPixel(), scalebar_config
-                        );
                     });
                 });
             }
