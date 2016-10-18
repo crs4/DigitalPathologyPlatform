@@ -10,10 +10,11 @@
         .controller('NewFocusRegionController', NewFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope',
-        'SlidesManagerService', 'AnnotationsViewerService'];
+        'SlidesManagerService', 'SlicesManagerService', 'AnnotationsViewerService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope,
-                                   SlidesManagerService, AnnotationsViewerService) {
+                                   SlidesManagerService, SlicesManagerService,
+                                   AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -41,6 +42,9 @@
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
 
+            $rootScope.slices = [];
+            $rootScope.cores = [];
+
             // draw existing ROIs as soon as viewer's components are registered
             $scope.$on('viewerctrl.components.registered',
                 function() {
@@ -55,13 +59,34 @@
                                 'label': slice_data.label
                             };
                             $rootScope.$broadcast('slice.new', slice_info);
+                            // load cores
+                            SlicesManagerService.getCores(slice_data.id)
+                                .then(getCoresSuccessFn, getCoresErrorFn);
                         }
-
                         response.data.slices.forEach(drawSlice);
                     }
 
                     function getSlicesErrorFn(response) {
                         console.error('Unable to load slices for slide ' + vm.slide_id);
+                        console.error(response.data);
+                    }
+
+                    function getCoresSuccessFn(response) {
+                        function drawCore(core_data) {
+                            console.log('Drawing core ' + core_data.label);
+                            AnnotationsViewerService.drawShape($.parseJSON(core_data.roi_json));
+                            var core_info = {
+                                'id': core_data.id,
+                                'label': core_data.label,
+                                'slice': core_data.slice
+                            };
+                            $rootScope.$broadcast('core.new', core_info);
+                        }
+                        response.data.cores.forEach(drawCore);
+                    }
+
+                    function getCoresErrorFn(response) {
+                        console.error('Unable to load cores');
                         console.error(response.data);
                     }
                 }
@@ -74,14 +99,21 @@
                 }
             );
             $scope.$on('slice.new',
-                function(){
+                function(event, slice_info){
+                    $rootScope.slices.push(slice_info);
+                    vm.allModesOff();
+                }
+            );
+
+            $scope.$on('core.new',
+                function(event, core_info) {
+                    $rootScope.cores.push(core_info);
                     vm.allModesOff();
                 }
             );
         }
 
         function allModesOff() {
-            console.log('Resetting UI modes');
             for (var mode in vm.ui_active_modes) {
                 vm.ui_active_modes[mode] = false;
             }
@@ -90,7 +122,6 @@
         function activateNewSliceMode() {
             vm.allModesOff();
             vm.ui_active_modes['new_slice'] = true;
-            console.log('NEW SLICE MODE --- activated');
         }
 
         function newSliceModeActive() {
@@ -100,7 +131,6 @@
         function activateNewCoreMode() {
             vm.allModesOff();
             vm.ui_active_modes['new_core'] = true;
-            console.log('NEW CORE MODE --- activated');
         }
 
         function newCoreModeActive() {
@@ -110,7 +140,6 @@
         function activateNewFocusRegionMode() {
             vm.allModesOff();
             vm.ui_active_modes['new_focus_region'] = true;
-            console.log('NEW FOCUS REGION MODE --- activated');
         }
 
         function newFocusRegionModeActive() {
@@ -123,12 +152,6 @@
     function NewScopeController($scope) {
         var vm = this;
         vm.$scope = {};
-
-        activate();
-
-        function activate() {
-            console.log('Activated NewScopeController');
-        }
     }
 
     NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope',
@@ -250,11 +273,8 @@
         }
 
         function clear() {
-            if (typeof this.shape !== 'undefined') {
-                AnnotationsViewerService.deleteShape(vm.shape.shape_id);
-                this.shape = undefined;
-            }
-            this.totalCores = 0;
+            vm.deleteShape();
+            vm.totalCores = 0;
         }
 
         function abortTool() {
@@ -273,8 +293,10 @@
         }
 
         function deleteShape() {
-            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
-            vm.shape = undefined;
+            if (typeof this.shape !== 'undefined') {
+                AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                vm.shape = undefined;
+            }
         }
 
         function focusOnShape() {
@@ -282,11 +304,7 @@
         }
 
         function formValid() {
-            if (typeof(vm.shape) !== 'undefined') {
-                return true;
-            } else {
-                return false;
-            }
+            return (typeof(vm.shape) !== 'undefined');
         }
 
         function save() {
@@ -310,37 +328,281 @@
         }
     }
 
-    NewCoreController.$inject = ['$rootScope'];
+    NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope',
+        'AnnotationsViewerService', 'SlicesManagerService'];
 
-    function NewCoreController($rootScope) {
+    function NewCoreController($scope, $routeParams, $rootScope,
+                               AnnotationsViewerService, SlicesManagerService) {
         var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.parentSlice = undefined;
+        vm.shape = undefined;
+        vm.coreLength = undefined;
+        vm.coreArea = undefined;
+
+        vm.read_only_mode = false;
+        vm.active_tool = undefined;
+        vm.polygon_tool_paused = false;
+
+        vm.POLYGON_TOOL = 'polygon_drawing_tool';
+        vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+        vm.RULER_TOOL = 'ruler_tool';
+
+        vm.newPolygon = newPolygon;
+        vm.newFreehand = newFreehand;
+        vm._updateCoreData = _updateCoreData;
+        vm.initializeRuler = initializeRuler;
+        vm.startRuler = startRuler;
         vm.save = save;
+        vm.setReadOnlyMode = setReadOnlyMode;
+        vm.isReadOnly = isReadOnly;
+        vm.isPolygonToolActive = isPolygonToolActive;
+        vm.isPolygonToolPaused = isPolygonToolPaused;
+        vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isRulerToolActive = isRulerToolActive;
+        vm.shapeExists = shapeExists;
+        vm.coreLengthExists = coreLengthExists;
+        vm.pausePolygonTool = pausePolygonTool;
+        vm.unpausePolygonTool = unpausePolygonTool;
+        vm.confirmPolygon = confirmPolygon;
+        vm.stopRuler = stopRuler;
+        vm.abortTool = abortTool;
+        vm.clear = clear;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteShape = deleteShape;
+        vm.deleteRuler = deleteRuler;
         vm.formValid = formValid;
         vm.destroy = destroy;
 
-        function save() {
-            console.log('Clicked on NEW CORE CONTROLLER button');
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    vm.initializeRuler();
+                }
+            );
         }
 
-        function formValid() {
-            return false;
+        function newPolygon() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.active_tool = vm.POLYGON_TOOL;
+        }
+
+        function newFreehand() {
+            AnnotationsViewerService.setFreehandToolLabelPrefix('core');
+            AnnotationsViewerService.startFreehandDrawingTool();
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label) {
+                    // check if new core is contained inside an existing slide
+                    var slices = $rootScope.slices;
+                    for (var s in slices) {
+                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            console.log('FREEHAND SAVED ' + vm.shape);
+                            vm._updateCoreData(polygon_label, slices[s]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        console.error('CORE IS NOT INSIDE A SLIDE');
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                    }
+                    vm.abortTool();
+                    $canvas.unbind('freehand_polygon_saved');
+                    $scope.$apply();
+                }
+            );
+            vm.active_tool = vm.FREEHAND_TOOL;
+        }
+
+        function _updateCoreData(polygon_label, parent_slice) {
+            vm.parentSlice = parent_slice;
+            vm.coreArea = getAreaInSquareMillimiters(AnnotationsViewerService.getShapeArea(polygon_label), 3);
+        }
+
+        function initializeRuler() {
+            AnnotationsViewerService.createRulerBindings('core_ruler_on', 'core_ruler_off',
+                'core_ruler_output');
+        }
+
+        function startRuler() {
+            vm.active_tool = vm.RULER_TOOL;
+            var $ruler_out = $('#core_ruler_output');
+            $ruler_out.on('ruler_cleared',
+                function(event, ruler_saved) {
+                    console.log('ruler_cleared trigger, ruler_saved value is ' + ruler_saved);
+                    if (ruler_saved) {
+                        console.log($ruler_out.data());
+                        vm.coreLength = getLengthInMillimiters($ruler_out.data('measure'), 3);
+                        console.log(vm.coreLength);
+                        $ruler_out.unbind('ruler_clered');
+                    }
+                    $scope.$apply();
+                }
+            );
+        }
+
+        function setReadOnlyMode() {
+            vm.read_only_mode = true;
+        }
+
+        function isReadOnly() {
+            return vm.read_only_mode;
+        }
+
+        function isPolygonToolActive() {
+            return vm.active_tool === vm.POLYGON_TOOL;
+        }
+
+        function isFreehandToolActive() {
+            return vm.active_tool === vm.FREEHAND_TOOL;
+        }
+
+        function isRulerToolActive() {
+            return vm.active_tool === vm.RULER_TOOL;
+        }
+
+        function isPolygonToolPaused() {
+            return vm.polygon_tool_paused;
+        }
+
+        function shapeExists() {
+            return vm.shape !== undefined;
+        }
+
+        function coreLengthExists() {
+            return vm.coreLength !== undefined;
+        }
+
+        function pausePolygonTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.polygon_tool_paused = true;
+        }
+
+        function unpausePolygonTool() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.polygon_tool_paused = false;
+        }
+
+        function confirmPolygon() {
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('polygon_saved',
+                function(event, polygon_label) {
+                    var slices = $rootScope.slices;
+                    for (var s in slices) {
+                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            vm._updateCoreData(polygon_label, slices[s]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        console.error('CORE IS NOT INSIDE A SLIDE');
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                    }
+                    vm.abortTool();
+                    $canvas.unbind('polygon_saved');
+                }
+            );
+            AnnotationsViewerService.saveTemporaryPolygon('core');
+        }
+
+        function stopRuler() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+        }
+
+        function clear() {
+            if (typeof vm.shape !== 'undefined') {
+                vm.deleteShape();
+            }
+            if (typeof  vm.coreLength !== 'undefined') {
+                vm.deleteRuler();
+            }
+        }
+
+        function abortTool() {
+            if (vm.active_tool === vm.POLYGON_TOOL) {
+                AnnotationsViewerService.clearTemporaryPolygon();
+            }
+            if (vm.active_tool === vm.RULER_TOOL) {
+                vm.deleteRuler();
+            }
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
         }
 
         function destroy() {
+            vm.clear();
+            vm.abortTool();
             $rootScope.$broadcast('tool.destroyed');
+        }
+
+        function deleteShape() {
+            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+            vm.shape = undefined;
+            vm.coreArea = undefined;
+            vm.coreLength = undefined;
+            vm.parentSlice = undefined;
+        }
+
+        function deleteRuler() {
+            var $ruler_out = $('#core_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
+            $ruler_out.removeData('ruler_json')
+                .removeData('measure');
+            vm.coreLength = undefined;
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+        }
+
+        function formValid() {
+            // if shape exists, we also have the parent slice and the shape area, we only need to check
+            // for coreLength to decide if the form is valid
+            return ((typeof vm.shape !== 'undefined') && (typeof vm.coreLength !== 'undefined'));
+        }
+
+        function save() {
+            SlicesManagerService.createCore(vm.parentSlice.id, vm.shape.shape_id, vm.shape,
+                vm.coreLength, vm.coreArea)
+                .then(createCoreSuccessFn, createCoreErrorFn);
+
+            function createCoreSuccessFn(response) {
+                var core_info = {
+                    'id': response.data.id,
+                    'label': response.data.label,
+                    'slice': response.data.slice
+                };
+                $rootScope.$broadcast('core.new', core_info);
+            }
+
+            function createCoreErrorFn(response) {
+                console.error('Unable to save core!!!');
+                console.error(response.data);
+            }
         }
     }
 
-    NewFocusRegionController.$inject = ['$rootScope'];
+    NewFocusRegionController.$inject = ['$scope', '$rootScope'];
 
-    function NewFocusRegionController($rootScope) {
+    function NewFocusRegionController($scope, $rootScope) {
         var vm = this;
         vm.save = save;
         vm.formValid = formValid;
         vm.destroy = destroy;
 
         function save() {
-            console.log('Cliecked on NEW FOCUS REGION CONTROLLER button');
+            console.log('Clicked on NEW FOCUS REGION CONTROLLER button');
         }
 
         function formValid() {
@@ -348,6 +610,7 @@
         }
 
         function destroy() {
+            console.log('Clicked on NEW FOCUS REGION CONTROLLER button');
             $rootScope.$broadcast('tool.destroyed');
         }
     }

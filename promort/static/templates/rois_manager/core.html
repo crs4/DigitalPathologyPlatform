@@ -1,102 +1,128 @@
 <div>
-    <div class="prm-form-header">
+    <div class="prm-form-header" ng-hide="rmCtrl.isReadOnly()">
         <h4 class="text-right">NEW CORE</h4>
     </div>
-    <div class="prm-form-header">
+    <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
+        <!-- TODO: put real core label here -->
         <h4 class="text-right">CORE 1</h4>
     </div>
-    <div class="form-group row">
+    <div class="form-group row"
+         ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
+          rmCtrl.isFreehandToolActive() || rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Draw core</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()">
                 <i class="icon-vector"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newFreehand()">
                 <i class="icon-vector_pen"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.isPolygonToolActive()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Polygon tool</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
+                    ng-click="rmCtrl.pausePolygonTool()">
                 <i class="icon-pause"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-show="rmCtrl.isPolygonToolPaused()"
+                    ng-click="rmCtrl.unpausePolygonTool()">
                 <i class="icon-play"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()">
                 <i class="icon-check"></i>
             </button>
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-sm-6 prm-valign prm-label-elem">
-            <label>Core</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
-                <i class="icon-trash_can"></i>
-            </button>
-            <button class="btn btn-default prm-icon-btn">
-                <i class="icon-eye"></i>
-            </button>
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-sm-6 prm-valign prm-label-elem">
-            <label>Freehand tool</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Core</label>
+        </div><!--
+     --><div class="col-sm-6 prm-valign prm-form-elem">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape()">
+                <i class="icon-trash_can"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()">
+                <i class="icon-eye"></i>
+            </button>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.isFreehandToolActive()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Freehand tool</label>
+        </div><!--
+     --><div class="col-sm-6 prm-valign prm-form-elem">
+            <button id="core_freehand_abort" class="btn btn-default prm-icon-btn"
+                    ng-click="rmCtrl.abortTool()">
+                <i class="icon-cross_mark"></i>
+            </button>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Parent slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <input class="form-control prm-text-input" type="text" readonly placeholder="Slice x">
+            <input class="form-control prm-text-input" type="text" readonly
+                   ng-model="rmCtrl.parentSlice.label">
         </div>
     </div>
-    <div id="acquire_measure" class="form-group row">
-        <div class="col-sm-6 prm-valign prm-label-elem">
-            <label>Core length</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn">
-                <i class="icon-measure"></i>
-            </button>
-        </div>
-    </div>
-    <div id="show_measure" class="form-group row">
-        <div class="prm-label-elem">
-            <label>Core length</label>
-        </div>
-        <div class="input-group prm-row-elem">
-            <!-- TODO: add required attribute -->
-            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
-            <div class="input-group-addon prm-addon">mm</div>
-            <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn">
-                    <i class="icon-trash_can"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="prm-label-elem">
             <label>Core area</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
+                   ng-model="rmCtrl.coreArea">
             <div class="input-group-addon prm-addon">mm&sup2</div>
+        </div>
+    </div>
+    <div id="acquire_measure" class="form-group row"
+         ng-hide="rmCtrl.coreLengthExists() || rmCtrl.isRulerToolActive() || !rmCtrl.shapeExists()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Core length</label>
+        </div><!--
+     --><div class="col-sm-6 prm-valign prm-form-elem">
+            <button id="core_ruler_on" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.startRuler()">
+                <i class="icon-measure"></i>
+            </button>
+        </div>
+    </div>
+    <div id="show_measure" class="form-group row"
+         ng-show="rmCtrl.isRulerToolActive() || rmCtrl.coreLengthExists()">
+        <div class="prm-label-elem">
+            <label>Core length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input id="core_ruler_output" class="form-control prm-text-input" type="number"
+                   readonly placeholder="0.00" ng-model="rmCtrl.coreLength">
+            <div class="input-group-addon prm-addon">mm</div>
+            <div class="input-group-btn">
+                <button id="core_ruler_abort" class="btn btn-default prm-icon-btn"
+                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.abortTool()">
+                    <i class="icon-cross_mark"></i>
+                </button>
+            </div>
+            <div class="input-group-btn">
+                <button id="core_ruler_off" class="btn btn-default prm-icon-btn"
+                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.stopRuler()">
+                    <i class="icon-check"></i>
+                </button>
+            </div>
+            <div class="input-group-btn">
+                <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isRulerToolActive()"
+                        ng-click="rmCtrl.deleteRuler()">
+                    <i class="icon-trash_can"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
