@@ -44,6 +44,7 @@
             getShapeJSON: getShapeJSON,
             getShapeArea: getShapeArea,
             focusOnShape: focusOnShape,
+            checkContainment: checkContainment,
         };
 
         return AnnotationsViewerService;
@@ -119,6 +120,15 @@
 
         function focusOnShape(shape_id) {
             this.viewerManager.jumpToShape(shape_id, true);
+        }
+
+        function checkContainment(container_label, contained_label) {
+            console.log('Getting shape ' + container_label);
+            var container = this.roisManager.getShape(container_label);
+            console.log(container);
+            var contained = this.roisManager.getShape(contained_label);
+            console.log('Shape is contained in ' + container_label +'? : ' + container.containsShape(contained));
+            return container.containsShape(contained);
         }
     }
 })();
