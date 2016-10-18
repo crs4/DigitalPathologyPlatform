@@ -6,6 +6,7 @@ module.exports = function(grunt) {
         "promort/src/js/promort.js",
         "promort/src/js/promort.config.js",
         "promort/src/js/promort.routes.js",
+        "promort/src/js/utils/utils.js",
         "promort/src/js/authentication/authentication.module.js",
         "promort/src/js/authentication/authentication.services.js",
         "promort/src/js/authentication/authentication.controllers.js",
