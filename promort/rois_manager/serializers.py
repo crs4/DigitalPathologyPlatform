@@ -30,9 +30,11 @@ class SliceSerializer(serializers.ModelSerializer):
 
     def get_positive_cores_count(self, obj):
         positive_cores_counter = 0
-        for core in obj.cores.all():
-            if core.positive:
-                positive_cores_counter += 1
+        cores = CoreSerializer(data=obj.cores.all(), many=True)
+        if cores.is_valid():
+            for core in cores.validated_data:
+                if core.positive:
+                    positive_cores_counter += 1
         return positive_cores_counter
 
     def validate_roi_json(self, value):
@@ -129,11 +131,13 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
                   'roi_json', 'total_cores', 'positive_cores_count', 'cores')
         read_only_fields = ('id', 'creation_date', 'positive_cores_count')
 
-    def get_positives_cores_count(self, obj):
+    def get_positive_cores_count(self, obj):
         positive_cores_counter = 0
-        for core in obj.cores.all():
-            if core.positive:
-                positive_cores_counter += 1
+        cores = CoreSerializer(data=obj.cores.all(), many=True)
+        if cores.is_valid():
+            for core in cores.validated_data:
+                if core.positive:
+                    positive_cores_counter += 1
         return positive_cores_counter
 
 
