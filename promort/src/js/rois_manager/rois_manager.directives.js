@@ -33,7 +33,9 @@
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'NewSliceController',
+            controllerAs: 'rmCtrl'
         };
         return directive;
     }
@@ -53,7 +55,9 @@
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'NewCoreController',
+            controllerAs: 'rmCtrl'
         };
         return directive;
     }
@@ -73,7 +77,9 @@
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html'
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'NewFocusRegionController',
+            controllerAs: 'rmCtrl'
         };
         return directive;
     }
