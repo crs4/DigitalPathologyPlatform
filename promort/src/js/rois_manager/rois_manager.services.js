@@ -5,7 +5,7 @@
         .module('promort.rois_manager.services')
         .factory('SlidesManagerService', SlidesManagerService)
         .factory('SlicesManagerService', SlicesManagerService)
-        .factory('CoresManagerServoce', CoresManagerService)
+        .factory('CoresManagerService', CoresManagerService)
         .factory('FocusRegionsManagerService', FocusRegionsManagerService);
 
     SlidesManagerService.$inject = ['$http'];
