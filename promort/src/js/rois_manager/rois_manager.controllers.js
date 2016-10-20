@@ -44,6 +44,7 @@
 
             $rootScope.slices = [];
             $rootScope.cores = [];
+            $rootScope.focus_regions = [];
 
             // draw existing ROIs as soon as viewer's components are registered
             $scope.$on('viewerctrl.components.registered',
@@ -108,6 +109,13 @@
             $scope.$on('core.new',
                 function(event, core_info) {
                     $rootScope.cores.push(core_info);
+                    vm.allModesOff();
+                }
+            );
+
+            $scope.$on('focus_region.new',
+                function(event, focus_region_info) {
+                    $rootScope.focus_regions.push(focus_region_info);
                     vm.allModesOff();
                 }
             );
@@ -432,7 +440,6 @@
         }
 
         function startRuler() {
-            vm.active_tool = vm.RULER_TOOL;
             var $ruler_out = $('#core_ruler_output');
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
@@ -446,6 +453,7 @@
                     $scope.$apply();
                 }
             );
+            vm.active_tool = vm.RULER_TOOL;
         }
 
         function setReadOnlyMode() {
@@ -593,25 +601,266 @@
         }
     }
 
-    NewFocusRegionController.$inject = ['$scope', '$rootScope'];
+    NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams',
+        'AnnotationsViewerService', 'CoresManagerService'];
 
-    function NewFocusRegionController($scope, $rootScope) {
+    function NewFocusRegionController($scope, $rootScope, $routeParams, AnnotationsViewerService,
+                                      CoresManagerService) {
         var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.parentCore = undefined;
+        vm.shape = undefined;
+        vm.regionLength = undefined;
+        vm.regionArea = undefined;
+        vm.coreCoverage = undefined;
+        vm.isTumor = false;
+
+        vm.read_only_mode = false;
+        vm.active_tool = undefined;
+        vm.polygon_tool_paused = false;
+
+        vm.POLYGON_TOOL = 'polygon_drawing_tool';
+        vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+        vm.RULER_TOOL = 'ruler_tool';
+
+        vm.newPolygon = newPolygon;
+        vm.newFreehand = newFreehand;
+        vm._updateFocusRegionData = _updateFocusRegionData;
+        vm.initializeRuler = initializeRuler;
+        vm.startRuler = startRuler;
         vm.save = save;
+        vm.setReadOnlyMode = setReadOnlyMode;
+        vm.isReadOnly = isReadOnly;
+        vm.isPolygonToolActive = isPolygonToolActive;
+        vm.isPolygonToolPaused = isPolygonToolPaused;
+        vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isRulerToolActive = isRulerToolActive;
+        vm.shapeExists = shapeExists;
+        vm.regionLengthExists = regionLengthExists;
+        vm.pausePolygonTool = pausePolygonTool;
+        vm.unpausePolygonTool = unpausePolygonTool;
+        vm.confirmPolygon = confirmPolygon;
+        vm.stopRuler = stopRuler;
+        vm.abortTool = abortTool;
+        vm.clear = clear;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteShape = deleteShape;
+        vm.deleteRuler = deleteRuler;
         vm.formValid = formValid;
         vm.destroy = destroy;
 
-        function save() {
-            console.log('Clicked on NEW FOCUS REGION CONTROLLER button');
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    vm.initializeRuler();
+                }
+            );
         }
 
-        function formValid() {
-            return false;
+        function newPolygon() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.active_tool = vm.POLYGON_TOOL;
+        }
+
+        function newFreehand() {
+            AnnotationsViewerService.setFreehandToolLabelPrefix('focus_region');
+            AnnotationsViewerService.startFreehandDrawingTool();
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label){
+                    var cores = $rootScope.cores;
+                    for (var c in cores) {
+                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            vm._updateFocusRegionData(polygon_label, cores[c]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                    }
+                    vm.abortTool();
+                    $canvas.unbind('freehand_polygon_saved');
+                    $scope.$apply();
+                }
+            );
+            vm.active_tool = vm.FREEHAND_TOOL;
+        }
+
+        function _updateFocusRegionData(polygon_label, parent_core) {
+            vm.parentCore = parent_core;
+            vm.regionArea = getAreaInSquareMillimiters(AnnotationsViewerService.getShapeArea(polygon_label), 3);
+            vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parentCore.label, polygon_label);
+        }
+
+        function initializeRuler() {
+            AnnotationsViewerService.createRulerBindings('focus_region_ruler_on', 'focus_region_ruler_off',
+                'focus_region_ruler_output');
+        }
+
+        function startRuler() {
+            var $ruler_out = $('#focus_region_ruler_output');
+            $ruler_out.on('ruler_cleared',
+                function(event, ruler_saved) {
+                    if (ruler_saved) {
+                        vm.regionLength = getLengthInMillimiters($ruler_out.data('measure'), 3);
+                        $ruler_out.unbind('ruler_cleared');
+                    }
+                    $scope.$apply();
+                }
+            );
+            vm.active_tool = vm.RULER_TOOL;
+        }
+
+        function setReadOnlyMode() {
+            vm.read_only_mode = true;
+        }
+
+        function isReadOnly() {
+            return vm.read_only_mode;
+        }
+
+        function isPolygonToolActive() {
+            return vm.active_tool === vm.POLYGON_TOOL;
+        }
+
+        function isFreehandToolActive() {
+            return vm.active_tool === vm.FREEHAND_TOOL;
+        }
+
+        function isRulerToolActive() {
+            return vm.active_tool === vm.RULER_TOOL;
+        }
+
+        function isPolygonToolPaused() {
+            return vm.polygon_tool_paused;
+        }
+
+        function shapeExists() {
+            return vm.shape !== undefined;
+        }
+
+        function regionLengthExists() {
+            return vm.regionLength !== undefined;
+        }
+
+        function pausePolygonTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.polygon_tool_paused = true;
+        }
+
+        function unpausePolygonTool() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.polygon_tool_paused = false;
+        }
+
+        function confirmPolygon() {
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('polygon_saved',
+                function(event, polygon_label) {
+                    var cores = $rootScope.cores;
+                    for (var c in cores) {
+                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            vm._updateFocusRegionData(polygon_label, cores[c]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                    }
+                    vm.abortTool();
+                    $canvas.unbind('polygon_saved');
+                }
+            );
+            AnnotationsViewerService.saveTemporaryPolygon('focus_region');
+        }
+
+        function stopRuler() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+        }
+
+        function clear() {
+            if (typeof vm.shape !== 'undefined') {
+                vm.deleteShape();
+            }
+            if (typeof  vm.coreLength !== 'undefined') {
+                vm.deleteRuler();
+            }
+        }
+
+        function abortTool() {
+            if (vm.active_tool === vm.POLYGON_TOOL) {
+                AnnotationsViewerService.clearTemporaryPolygon();
+            }
+            if (vm.active_tool === vm.RULER_TOOL) {
+                vm.deleteRuler();
+            }
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
         }
 
         function destroy() {
-            console.log('Clicked on NEW FOCUS REGION CONTROLLER button');
+            vm.clear();
+            vm.abortTool();
             $rootScope.$broadcast('tool.destroyed');
+        }
+
+        function deleteShape() {
+            console.log('deleting shape ' + vm.shape.shape_id);
+            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+            vm.shape = undefined;
+            vm.regionArea = undefined;
+            vm.regionLength = undefined;
+            vm.parentCore = undefined;
+            vm.coreCoverage = undefined;
+        }
+
+        function deleteRuler() {
+            var $ruler_out = $('#focus_region_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
+            $ruler_out.removeData('ruler_json')
+                .removeData('measure');
+            vm.regionLength = undefined;
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+        }
+
+        function save() {
+            CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
+                vm.regionLength, vm.regionArea, vm.isTumor)
+                .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
+
+            function createFocusRegionSuccessFn(response) {
+                var focus_region_info = {
+                    'id': response.data.id,
+                    'label': response.data.label,
+                    'core': response.data.core
+                };
+                $rootScope.$broadcast('focus_region.new', focus_region_info);
+            }
+
+            function createFocusRegionErrorFn(response) {
+                console.error('Unable to save focus region!!!');
+                console.error(response.data);
+            }
+        }
+
+        function formValid() {
+            return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
         }
     }
 })();
