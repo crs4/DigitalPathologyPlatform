@@ -60,8 +60,7 @@
             <label>Freehand tool</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button id="core_freehand_abort" class="btn btn-default prm-icon-btn"
-                    ng-click="rmCtrl.abortTool()">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
@@ -85,7 +84,7 @@
             <div class="input-group-addon prm-addon">mm&sup2</div>
         </div>
     </div>
-    <div id="acquire_measure" class="form-group row"
+    <div id="acquire_core_measure" class="form-group row"
          ng-hide="rmCtrl.coreLengthExists() || rmCtrl.isRulerToolActive() || !rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Core length</label>
@@ -96,7 +95,7 @@
             </button>
         </div>
     </div>
-    <div id="show_measure" class="form-group row"
+    <div id="show_core_measure" class="form-group row"
          ng-show="rmCtrl.isRulerToolActive() || rmCtrl.coreLengthExists()">
         <div class="prm-label-elem">
             <label>Core length</label>
