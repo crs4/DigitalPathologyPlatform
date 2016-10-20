@@ -46,7 +46,8 @@
             focusOnShape: focusOnShape,
             checkContainment: checkContainment,
             createRulerBindings: createRulerBindings,
-            clearRuler: clearRuler
+            clearRuler: clearRuler,
+            getAreaCoverage: getAreaCoverage
         };
 
         return AnnotationsViewerService;
@@ -125,11 +126,8 @@
         }
 
         function checkContainment(container_label, contained_label) {
-            console.log('Getting shape ' + container_label);
             var container = this.roisManager.getShape(container_label);
-            console.log(container);
             var contained = this.roisManager.getShape(contained_label);
-            console.log('Shape is contained in ' + container_label +'? : ' + container.containsShape(contained));
             return container.containsShape(contained);
         }
 
@@ -139,6 +137,13 @@
 
         function clearRuler() {
             this.roisManager.clearRuler(true);
+        }
+
+        function getAreaCoverage(shape_1_label, shape_2_label) {
+            console.log("### " + shape_1_label, shape_2_label + " ###");
+            var shape_1 = this.roisManager.getShape(shape_1_label);
+            var shape_2 = this.roisManager.getShape(shape_2_label);
+            return Number(shape_1.getCoveragePercentage(shape_2).toFixed(2));
         }
     }
 })();
