@@ -33,7 +33,7 @@ class Core(models.Model):
 
 
 class FocusRegion(models.Model):
-    label = models.CharField(max_length=10, blank=False)
+    label = models.CharField(max_length=20, blank=False)
     core = models.ForeignKey(Core, on_delete=models.CASCADE,
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
