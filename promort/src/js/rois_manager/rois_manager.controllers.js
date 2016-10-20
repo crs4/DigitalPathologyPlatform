@@ -10,11 +10,12 @@
         .controller('NewFocusRegionController', NewFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope',
-        'SlidesManagerService', 'SlicesManagerService', 'AnnotationsViewerService'];
+        'SlidesManagerService', 'SlicesManagerService', 'CoresManagerService',
+        'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope,
-                                   SlidesManagerService, SlicesManagerService,
-                                   AnnotationsViewerService) {
+    function ROIsManagerController($scope, $routeParams, $rootScope, SlidesManagerService,
+                                   SlicesManagerService, CoresManagerService,
+                                   FocusRegionsManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -82,12 +83,34 @@
                                 'slice': core_data.slice
                             };
                             $rootScope.$broadcast('core.new', core_info);
+                            // load focus regions
+                            CoresManagerService.getFocusRegions(core_data.id)
+                                .then(getFocusRegionsSuccessFn, getFocusRegionsErrorFn)
                         }
                         response.data.cores.forEach(drawCore);
                     }
 
                     function getCoresErrorFn(response) {
                         console.error('Unable to load cores');
+                        console.error(response.data);
+                    }
+
+                    function getFocusRegionsSuccessFn(response) {
+                        function drawFocusRegion(focus_region_data) {
+                            console.log('Drawing focus regions ' + focus_region_data.label);
+                            AnnotationsViewerService.drawShape($.parseJSON(focus_region_data.roi_json));
+                            var focus_region_info = {
+                                'id': focus_region_data.id,
+                                'label': focus_region_data.label,
+                                'core': focus_region_data.core
+                            };
+                            $rootScope.$broadcast('focus_region.new', focus_region_info);
+                        }
+                        response.data.focus_regions.forEach(drawFocusRegion);
+                    }
+
+                    function getFocusRegionsErrorFn(response) {
+                        console.error('Unable to load focus regions');
                         console.error(response.data);
                     }
                 }
