@@ -52,9 +52,31 @@ i.prm-warning-icon {
 
 .prm-tree-well {
     background-color: white;
-    padding-top:19px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-top:10px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.prm-tree-item {
+    margin: 0;
+    border: 0;
+    padding: 5px 0 5px 5px;
+}
+
+.prm-tree-item a:visited,
+.prm-tree-item a:link,
+.prm-tree-item a:active {
+    color: darkgray;
+    text-decoration: none;
+}
+
+.prm-tree-item a:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.prm-tree-item-neg-margin {
+    margin-bottom: -25px !important;
 }
 
 .prm-form-header {

@@ -20,6 +20,10 @@
         vm.slide_id = undefined;
         vm.case_id = undefined;
 
+        vm.slices_map = undefined;
+        vm.cores_map = undefined;
+        vm.focus_regions_map = undefined;
+
         vm.ui_active_modes = {
             'new_slice': false,
             'new_core': false,
@@ -29,6 +33,8 @@
             'show_focus_region': false
         };
 
+        vm._createListItem = _createListItem;
+        vm._createNewSubtree = _createNewSubtree;
         vm.allModesOff = allModesOff;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
@@ -36,12 +42,22 @@
         vm.newCoreModeActive = newCoreModeActive;
         vm.activateNewFocusRegionMode = activateNewFocusRegionMode;
         vm.newFocusRegionModeActive = newFocusRegionModeActive;
+        vm._registerSlice = _registerSlice;
+        vm._registerCore = _registerCore;
+        vm._registerFocusRegion = _registerFocusRegion;
+        vm._getSliceLabel = _getSliceLabel;
+        vm._getCoreLabel = _getCoreLabel;
+        vm._getFocusRegionLabel = _getFocusRegionLabel;
 
         activate();
 
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
+            vm.slices_map = {};
+            vm.cores_map = {};
+            vm.focus_regions_map = {};
 
             $rootScope.slices = [];
             $rootScope.cores = [];
@@ -53,17 +69,30 @@
                     vm.allModesOff();
                 }
             );
+
             $scope.$on('slice.new',
                 function(event, slice_info){
-                    $rootScope.slices.push(slice_info);
+                    vm._registerSlice(slice_info);
                     vm.allModesOff();
+                    // add new item to ROIs tree
+                    var $tree = $("#rois_tree");
+                    var $new_slice_item = $(vm._createListItem(slice_info.label, true));
+                    var new_slice_subtree = vm._createNewSubtree(slice_info.label);
+                    $new_slice_item.append(new_slice_subtree);
+                    $tree.append($new_slice_item);
                 }
             );
 
             $scope.$on('core.new',
                 function(event, core_info) {
-                    $rootScope.cores.push(core_info);
+                    vm._registerCore(core_info);
                     vm.allModesOff();
+                    // add new item to ROIs tree
+                    var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
+                    var $new_core_item = $(vm._createListItem(core_info.label, true));
+                    var new_Core_subtree = vm._createNewSubtree(core_info.label);
+                    $new_core_item.append(new_Core_subtree);
+                    $tree.append($new_core_item);
                 }
             );
 
@@ -71,8 +100,57 @@
                 function(event, focus_region_info) {
                     $rootScope.focus_regions.push(focus_region_info);
                     vm.allModesOff();
+                    // add new item to ROIs tree
+                    var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
+                    var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false));
+                    $tree.append($new_focus_region_item);
                 }
             );
+        }
+
+        function _registerSlice(slice_info) {
+            $rootScope.slices.push(slice_info);
+            vm.slices_map[slice_info.id] = slice_info.label;
+        }
+
+        function _getSliceLabel(slice_id) {
+            return vm.slices_map[slice_id];
+        }
+
+        function _registerCore(core_info) {
+            $rootScope.cores.push(core_info);
+            vm.cores_map[core_info.id] = core_info.label;
+        }
+
+        function _getCoreLabel(core_id) {
+            return vm.cores_map[core_id];
+        }
+
+        function _registerFocusRegion(focus_region_info) {
+            $rootScope.focus_regions.push(focus_region_info);
+            vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
+        }
+
+        function _getFocusRegionLabel(focus_region_id) {
+            return vm.focus_regions_map[focus_region_id];
+        }
+
+        function _createListItem(label, set_neg_margin_cls) {
+            var html = '<li id="';
+            html += label;
+            html += '_list" class="list-group-item prm-tree-item ';
+            if (set_neg_margin_cls) {
+                html += 'prm-tree-item-neg-margin';
+            }
+            html += '"><a href="#"><i class="icon-isight"></i> ';
+            html += label;
+            html += '</a></li>';
+            return html;
+        }
+
+        function _createNewSubtree(roi_label) {
+            var html = '<ul id="' + roi_label +'_tree" class="list-group"></ul>';
+            return html;
         }
 
         function allModesOff() {
