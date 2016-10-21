@@ -66,10 +66,12 @@
     }
 
     AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope',
-        'ViewerService', 'AnnotationsViewerService'];
+        'ViewerService', 'AnnotationsViewerService', 'SlidesManagerService',
+        'SlicesManagerService', 'CoresManagerService'];
 
-    function AnnotationsViewerController($scope, $routeParams, $rootScope,
-                                         ViewerService, AnnotationsViewerService) {
+    function AnnotationsViewerController($scope, $routeParams, $rootScope, ViewerService,
+                                         AnnotationsViewerService, SlidesManagerService,
+                                         SlicesManagerService, CoresManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_details = undefined;
@@ -112,6 +114,75 @@
             function OMEBaseURLErrorFn(response) {
                 console.error(response.error);
             }
+
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    console.log('AnnotationsViewerController');
+                    console.log('Retrieving existing slices');
+                    SlidesManagerService.getSlices(vm.slide_id).then(getSlicesSuccessFn, getSlicesErrorFn);
+
+                    function getSlicesSuccessFn(response) {
+                        function drawSlice(slice_data) {
+                            AnnotationsViewerService.drawShape($.parseJSON(slice_data.roi_json));
+                            var slice_info = {
+                                'id': slice_data.id,
+                                'label': slice_data.label
+                            };
+                            $rootScope.$broadcast('slice.new', slice_info);
+                            // load cores
+                            SlicesManagerService.getCores(slice_data.id)
+                                .then(getCoresSuccessFn, getCoresErrorFn);
+                        }
+                        response.data.slices.forEach(drawSlice);
+                    }
+
+                    function getSlicesErrorFn(response) {
+                        console.error('Unable to load slices for slide ' + vm.slide_id);
+                        console.error(response.data);
+                    }
+
+                    function getCoresSuccessFn(response) {
+                        function drawCore(core_data) {
+                            console.log('Drawing core ' + core_data.label);
+                            AnnotationsViewerService.drawShape($.parseJSON(core_data.roi_json));
+                            var core_info = {
+                                'id': core_data.id,
+                                'label': core_data.label,
+                                'slice': core_data.slice
+                            };
+                            $rootScope.$broadcast('core.new', core_info);
+                            // load focus regions
+                            CoresManagerService.getFocusRegions(core_data.id)
+                                .then(getFocusRegionsSuccessFn, getFocusRegionsErrorFn)
+                        }
+                        response.data.cores.forEach(drawCore);
+                    }
+
+                    function getCoresErrorFn(response) {
+                        console.error('Unable to load cores');
+                        console.error(response.data);
+                    }
+
+                    function getFocusRegionsSuccessFn(response) {
+                        function drawFocusRegion(focus_region_data) {
+                            console.log('Drawing focus regions ' + focus_region_data.label);
+                            AnnotationsViewerService.drawShape($.parseJSON(focus_region_data.roi_json));
+                            var focus_region_info = {
+                                'id': focus_region_data.id,
+                                'label': focus_region_data.label,
+                                'core': focus_region_data.core
+                            };
+                            $rootScope.$broadcast('focus_region.new', focus_region_info);
+                        }
+                        response.data.focus_regions.forEach(drawFocusRegion);
+                    }
+
+                    function getFocusRegionsErrorFn(response) {
+                        console.error('Unable to load focus regions');
+                        console.error(response.data);
+                    }
+                }
+            );
         }
 
         function getDZIURL() {
