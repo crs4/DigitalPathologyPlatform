@@ -234,8 +234,8 @@
             AnnotationsViewerService.saveTemporaryPolygon('slice');
         }
 
-        function clear() {
-            vm.deleteShape();
+        function clear(destroy_shape) {
+            vm.deleteShape(destroy_shape);
             vm.totalCores = 0;
         }
 
@@ -249,14 +249,16 @@
         }
 
         function destroy() {
-            vm.clear();
+            vm.clear(true);
             vm.abortTool();
             $rootScope.$broadcast('tool.destroyed');
         }
 
-        function deleteShape() {
-            if (typeof this.shape !== 'undefined') {
-                AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+        function deleteShape(destroy_shape) {
+            if (typeof vm.shape !== 'undefined') {
+                if (destroy_shape === true) {
+                    AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                }
                 vm.shape = undefined;
             }
         }
@@ -266,12 +268,11 @@
         }
 
         function formValid() {
-            return (typeof(vm.shape) !== 'undefined');
+            return (typeof vm.shape !== 'undefined');
         }
 
         function save() {
-            console.log(vm.slide_id, vm.shape.shape_id,
-                vm.shape, vm.totalCores);
+            console.log(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores);
             SlidesManagerService.createSlice(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
@@ -280,6 +281,7 @@
                     'id': response.data.id,
                     'label': response.data.label
                 };
+                vm.clear(false);
                 $rootScope.$broadcast('slice.new', slice_info);
             }
 
@@ -481,13 +483,9 @@
             vm.active_tool = undefined;
         }
 
-        function clear() {
-            if (typeof vm.shape !== 'undefined') {
-                vm.deleteShape();
-            }
-            if (typeof  vm.coreLength !== 'undefined') {
-                vm.deleteRuler();
-            }
+        function clear(destroy_shape) {
+            vm.deleteShape(destroy_shape);
+            vm.deleteRuler();
         }
 
         function abortTool() {
@@ -502,26 +500,32 @@
         }
 
         function destroy() {
-            vm.clear();
+            vm.clear(true);
             vm.abortTool();
             $rootScope.$broadcast('tool.destroyed');
         }
 
-        function deleteShape() {
-            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
-            vm.shape = undefined;
-            vm.coreArea = undefined;
-            vm.coreLength = undefined;
-            vm.parentSlice = undefined;
+        function deleteShape(destroy_shape) {
+            if (typeof vm.shape !== 'undefined') {
+                if (destroy_shape === true) {
+                    AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                }
+                vm.shape = undefined;
+                vm.coreArea = undefined;
+                vm.coreLength = undefined;
+                vm.parentSlice = undefined;
+            }
         }
 
         function deleteRuler() {
-            var $ruler_out = $('#core_ruler_output');
-            $ruler_out.unbind('ruler_cleared');
-            AnnotationsViewerService.clearRuler();
-            $ruler_out.removeData('ruler_json')
-                .removeData('measure');
-            vm.coreLength = undefined;
+            if (typeof vm.coreLength !== 'undefined') {
+                var $ruler_out = $('#core_ruler_output');
+                $ruler_out.unbind('ruler_cleared');
+                AnnotationsViewerService.clearRuler();
+                $ruler_out.removeData('ruler_json')
+                    .removeData('measure');
+                vm.coreLength = undefined;
+            }
         }
 
         function focusOnShape() {
@@ -545,6 +549,7 @@
                     'label': response.data.label,
                     'slice': response.data.slice
                 };
+                vm.clear(false);
                 $rootScope.$broadcast('core.new', core_info);
             }
 
@@ -744,13 +749,9 @@
             vm.active_tool = undefined;
         }
 
-        function clear() {
-            if (typeof vm.shape !== 'undefined') {
-                vm.deleteShape();
-            }
-            if (typeof  vm.coreLength !== 'undefined') {
-                vm.deleteRuler();
-            }
+        function clear(destroy_shape) {
+            vm.deleteShape(destroy_shape);
+            vm.deleteRuler();
         }
 
         function abortTool() {
@@ -765,28 +766,34 @@
         }
 
         function destroy() {
-            vm.clear();
+            vm.clear(true);
             vm.abortTool();
+            vm.isTumor = false;
             $rootScope.$broadcast('tool.destroyed');
         }
 
-        function deleteShape() {
-            console.log('deleting shape ' + vm.shape.shape_id);
-            AnnotationsViewerService.deleteShape(vm.shape.shape_id);
-            vm.shape = undefined;
-            vm.regionArea = undefined;
-            vm.regionLength = undefined;
-            vm.parentCore = undefined;
-            vm.coreCoverage = undefined;
+        function deleteShape(destroy_shape) {
+            if (typeof vm.shape !== 'undefined') {
+                if (destroy_shape === true) {
+                    AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                }
+                vm.shape = undefined;
+                vm.regionArea = undefined;
+                vm.regionLength = undefined;
+                vm.parentCore = undefined;
+                vm.coreCoverage = undefined;
+            }
         }
 
         function deleteRuler() {
-            var $ruler_out = $('#focus_region_ruler_output');
-            $ruler_out.unbind('ruler_cleared');
-            AnnotationsViewerService.clearRuler();
-            $ruler_out.removeData('ruler_json')
-                .removeData('measure');
-            vm.regionLength = undefined;
+            if (typeof vm.regionLength !== 'undefined') {
+                var $ruler_out = $('#focus_region_ruler_output');
+                $ruler_out.unbind('ruler_cleared');
+                AnnotationsViewerService.clearRuler();
+                $ruler_out.removeData('ruler_json')
+                    .removeData('measure');
+                vm.regionLength = undefined;
+            }
         }
 
         function focusOnShape() {
@@ -804,6 +811,7 @@
                     'label': response.data.label,
                     'core': response.data.core
                 };
+                vm.clear(false);
                 $rootScope.$broadcast('focus_region.new', focus_region_info);
             }
 
