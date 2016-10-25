@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 import promort.settings as prs
-from slides_manager.models import SlideQualityControl
+from slides_manager.models import Slide, SlideQualityControl
 
 import logging
 logger = logging.getLogger('promort')
@@ -19,6 +19,17 @@ def get_ome_seadragon_base_url(request):
         'static_files_url': prs.OME_SEADRAGON_STATIC_FILES_URL
     }, status=status.HTTP_200_OK)
 
+
+@api_view()
+@permission_classes([permissions.IsAuthenticated])
+def get_slide_stainings(request):
+    staining_map = [
+        {
+            'value': st[0],
+            'text': st[1]
+        } for st in Slide.STAINING
+    ]
+    return Response(staining_map, status=status.HTTP_200_OK)
 
 @api_view()
 @permission_classes([permissions.IsAuthenticated])

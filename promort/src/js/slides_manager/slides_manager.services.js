@@ -3,7 +3,35 @@
     
     angular
         .module('promort.slides_manager.services')
+        .factory('SlideService', SlideService)
         .factory('QualityControlService', QualityControlService);
+
+    SlideService.$inject = ['$http'];
+
+    function SlideService($http) {
+        var SlideService = {
+            get: get,
+            fetchStainings: fetchStainings,
+            updateSliceStaining: updateSliceStaining
+        };
+
+        return SlideService;
+
+        function get(slide_id) {
+            return $http.get('api/slides/' + slide_id + '/');
+        }
+
+        function fetchStainings() {
+            return $http.get('api/utils/slide_stainings/');
+        }
+
+        function updateSliceStaining(slide_id, staining) {
+            var params = {
+                staining: staining
+            };
+            return $http.put('api/slides/' + slide_id + '/', params);
+        }
+    }
 
     QualityControlService.$inject = ['$http'];
 

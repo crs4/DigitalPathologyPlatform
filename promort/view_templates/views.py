@@ -57,6 +57,18 @@ class GenericReadOnlyDetailView(APIView):
 
 class GenericDetailView(GenericReadOnlyDetailView):
 
+    def put(self, request, pk, format=None):
+        logger.debug('Updating object with PK %r -- Object class %r -- Update data %r', pk,
+                     self.model, request.data)
+        obj = self.get_object(pk)
+        serializer = self.model_serializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_200_OK)
+        return Response(serializer.data,
+                        status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk, format=None):
         logger.debug('Deleting object with PK %r -- Object class %r', pk, self.model)
         obj = self.get_object(pk)
