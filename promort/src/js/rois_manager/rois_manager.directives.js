@@ -3,14 +3,14 @@
 
     angular
         .module('promort.rois_manager.directives')
-        .directive('sliceData', sliceData)
-        .directive('sliceButtons', sliceButtons)
-        .directive('coreData', coreData)
-        .directive('coreButtons', coreButtons)
-        .directive('focusRegionData', focusRegionData)
-        .directive('focusRegionButtons', focusRegionButtons);
+        .directive('newSliceForm', newSliceForm)
+        .directive('newSliceButtons', newSliceButtons)
+        .directive('newCoreForm', newCoreForm)
+        .directive('newCoreButtons', newCoreButtons)
+        .directive('newFocusRegionForm', newFocusRegionForm)
+        .directive('newFocusRegionButtons', newFocusRegionButtons);
 
-    function sliceData() {
+    function newSliceForm() {
         var directive = {
             replace: true,
             restrict: 'E',
@@ -29,7 +29,7 @@
         return directive;
     }
 
-    function sliceButtons() {
+    function newSliceButtons() {
         var directive = {
             replace: true,
             restrict: 'E',
@@ -40,7 +40,7 @@
         return directive;
     }
 
-    function coreData() {
+    function newCoreForm() {
         var directive = {
             replace: true,
             restrict: 'E',
@@ -51,7 +51,7 @@
         return directive;
     }
 
-    function coreButtons() {
+    function newCoreButtons() {
         var directive = {
             replace: true,
             restrict: 'E',
@@ -62,7 +62,7 @@
         return directive;
     }
 
-    function focusRegionData() {
+    function newFocusRegionForm() {
         var directive = {
             replace: true,
             restrict: 'E',
@@ -73,7 +73,7 @@
         return directive;
     }
 
-    function focusRegionButtons() {
+    function newFocusRegionButtons() {
         var directive = {
             replace: true,
             restrict: 'E',
