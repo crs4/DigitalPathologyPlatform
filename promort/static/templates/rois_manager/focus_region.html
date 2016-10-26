@@ -3,7 +3,7 @@
         <h4 class="text-right">NEW FOCUS REGION</h4>
     </div>
     <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
-        <h4 class="text-right">REGION 1</h4>
+        <h4 class="text-right">{{ rmCtrl.label }}</h4>
     </div>
     <div class="form-group row"
          ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
@@ -46,7 +46,8 @@
             <label>Focus region</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
+                ng-hide="rmCtrl.isReadOnly()">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()">
@@ -65,7 +66,7 @@
         </div>
 
     </div>
-    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
+    <div class="form-group row" ng-show="rmCtrl.shapeExists() && !rmCtrl.isReadOnly">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Parent core</label>
         </div><!--
@@ -97,7 +98,8 @@
         </div>
     </div>
     <div id="acquire_region_measure" class="form-group row"
-         ng-hide="rmCtrl.regionLengthExists() || rmCtrl.isRulerToolActive() || !rmCtrl.shapeExists()">
+         ng-hide="rmCtrl.regionLengthExists() || rmCtrl.isRulerToolActive()
+            || !rmCtrl.shapeExists() || rmCtrl.isReadOnly()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Focus region length</label>
         </div><!--
@@ -139,7 +141,8 @@
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox" ng-model="rmCtrl.isTumor">Tumor Area
+                <input type="checkbox" ng-model="rmCtrl.isTumor"
+                       ng-disabled="rmCtrl.isReadOnly()">Tumor Area
             </label>
         </div>
     </div>

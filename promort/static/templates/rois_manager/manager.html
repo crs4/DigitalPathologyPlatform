@@ -41,13 +41,25 @@
                     <new-slice-form></new-slice-form>
                     <new-slice-buttons></new-slice-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.showSliceModeActive()">
+                    <show-slice-details></show-slice-details>
+                    <show-slice-buttons></show-slice-buttons>
+                </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newCoreModeActive()">
                     <new-core-form></new-core-form>
-                    <new-core-button></new-core-button>
+                    <new-core-buttons></new-core-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.showCoreModeActive()">
+                    <show-core-details></show-core-details>
+                    <show-core-buttons></show-core-buttons>
                 </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newFocusRegionModeActive()">
                     <new-focus-region-form></new-focus-region-form>
                     <new-focus-region-buttons></new-focus-region-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.showFocusRegionModeActive()">
+                    <show-focus-region-details></show-focus-region-details>
+                    <show-focus-region-buttons></show-focus-region-buttons>
                 </div>
             </div>
         </div>

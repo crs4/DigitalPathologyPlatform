@@ -6,14 +6,17 @@
         .controller('ROIsManagerController', ROIsManagerController)
         .controller('NewScopeController', NewScopeController)
         .controller('NewSliceController', NewSliceController)
+        .controller('ShowSliceController', ShowSliceController)
         .controller('NewCoreController', NewCoreController)
-        .controller('NewFocusRegionController', NewFocusRegionController);
+        .controller('ShowCoreController', ShowCoreController)
+        .controller('NewFocusRegionController', NewFocusRegionController)
+        .controller('ShowFocusRegionController', ShowFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope',
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile',
         'SlidesManagerService', 'SlicesManagerService', 'CoresManagerService',
         'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, SlidesManagerService,
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, SlidesManagerService,
                                    SlicesManagerService, CoresManagerService,
                                    FocusRegionsManagerService, AnnotationsViewerService) {
         var vm = this;
@@ -36,12 +39,19 @@
         vm._createListItem = _createListItem;
         vm._createNewSubtree = _createNewSubtree;
         vm.allModesOff = allModesOff;
+        vm.showROI = showROI;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
+        vm.activateShowSliceMode = activateShowSliceMode;
+        vm.showSliceModeActive = showSliceModeActive;
         vm.activateNewCoreMode = activateNewCoreMode;
         vm.newCoreModeActive = newCoreModeActive;
+        vm.activateShowCoreMode = activateShowCoreMode;
+        vm.showCoreModeActive = showCoreModeActive;
         vm.activateNewFocusRegionMode = activateNewFocusRegionMode;
         vm.newFocusRegionModeActive = newFocusRegionModeActive;
+        vm.activateShowFocusRegionMode = activateShowFocusRegionMode;
+        vm.showFocusRegionModeActive = showFocusRegionModeActive;
         vm._registerSlice = _registerSlice;
         vm._registerCore = _registerCore;
         vm._registerFocusRegion = _registerFocusRegion;
@@ -77,6 +87,9 @@
                     // add new item to ROIs tree
                     var $tree = $("#rois_tree");
                     var $new_slice_item = $(vm._createListItem(slice_info.label, true));
+                    var $anchor = $new_slice_item.find('a');
+                    $anchor.attr('ng-click', 'rmc.showROI("slice", ' + slice_info.id + ')');
+                    $compile($anchor)($scope);
                     var new_slice_subtree = vm._createNewSubtree(slice_info.label);
                     $new_slice_item.append(new_slice_subtree);
                     $tree.append($new_slice_item);
@@ -90,6 +103,9 @@
                     // add new item to ROIs tree
                     var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
                     var $new_core_item = $(vm._createListItem(core_info.label, true));
+                    var $anchor = $new_core_item.find('a');
+                    $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')');
+                    $compile($anchor)($scope);
                     var new_Core_subtree = vm._createNewSubtree(core_info.label);
                     $new_core_item.append(new_Core_subtree);
                     $tree.append($new_core_item);
@@ -98,11 +114,16 @@
 
             $scope.$on('focus_region.new',
                 function(event, focus_region_info) {
+                    vm._registerFocusRegion(focus_region_info);
                     $rootScope.focus_regions.push(focus_region_info);
                     vm.allModesOff();
                     // add new item to ROIs tree
                     var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
                     var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false));
+                    var $anchor = $new_focus_region_item.find('a');
+                    $anchor.attr('ng-click', 'rmc.showROI("focus_region", ' + focus_region_info.id + ', "' +
+                        vm._getCoreLabel(focus_region_info.core) + '")');
+                    $compile($anchor)($scope);
                     $tree.append($new_focus_region_item);
                 }
             );
@@ -159,6 +180,25 @@
             }
         }
 
+        function showROI(roi_type, roi_id, parent_roi) {
+            console.log('showROI method');
+            switch (roi_type) {
+                case 'slice':
+                    activateShowSliceMode(roi_id);
+                    AnnotationsViewerService.focusOnShape(vm._getSliceLabel(roi_id));
+                    break;
+                case 'core':
+                    activateShowCoreMode(roi_id);
+                    AnnotationsViewerService.focusOnShape(vm._getCoreLabel(roi_id));
+                    break;
+                case 'focus_region':
+                    activateShowFocusRegionMode(roi_id, parent_roi);
+                    console.log(vm.focus_regions_map);
+                    AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
+                    break;
+            }
+        }
+
         function activateNewSliceMode() {
             vm.allModesOff();
             vm.ui_active_modes['new_slice'] = true;
@@ -166,6 +206,17 @@
 
         function newSliceModeActive() {
             return vm.ui_active_modes['new_slice'];
+        }
+
+        function activateShowSliceMode(slice_id) {
+            console.log('Show slice ' + slice_id);
+            vm.allModesOff();
+            $rootScope.$broadcast('slice.show', slice_id);
+            vm.ui_active_modes['show_slice'] = true;
+        }
+
+        function showSliceModeActive() {
+            return vm.ui_active_modes['show_slice'];
         }
 
         function activateNewCoreMode() {
@@ -177,6 +228,16 @@
             return vm.ui_active_modes['new_core'];
         }
 
+        function activateShowCoreMode(core_id) {
+            vm.allModesOff();
+            $rootScope.$broadcast('core.show', core_id);
+            vm.ui_active_modes['show_core'] = true;
+        }
+
+        function showCoreModeActive() {
+            return vm.ui_active_modes['show_core'];
+        }
+
         function activateNewFocusRegionMode() {
             vm.allModesOff();
             vm.ui_active_modes['new_focus_region'] = true;
@@ -184,6 +245,16 @@
 
         function newFocusRegionModeActive() {
             return vm.ui_active_modes['new_focus_region'];
+        }
+
+        function activateShowFocusRegionMode(focus_region_id, parent_core_id) {
+            vm.allModesOff();
+            $rootScope.$broadcast('focus_region.show', focus_region_id, parent_core_id);
+            vm.ui_active_modes['show_focus_region'] = true;
+        }
+
+        function showFocusRegionModeActive() {
+            return vm.ui_active_modes['show_focus_region'];
         }
     }
 
@@ -205,7 +276,6 @@
         vm.shape = undefined;
         vm.totalCores = 0;
 
-        vm.read_only_mode = false;
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
@@ -215,7 +285,6 @@
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm.save = save;
-        vm.setReadOnlyMode = setReadOnlyMode;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
@@ -264,12 +333,8 @@
             vm.active_tool = vm.FREEHAND_TOOL;
         }
 
-        function setReadOnlyMode() {
-            vm.read_only_mode = true;
-        }
-
         function isReadOnly() {
-            return vm.read_only_mode;
+            return false;
         }
 
         function isPolygonToolActive() {
@@ -370,6 +435,64 @@
         }
     }
 
+    ShowSliceController.$inject = ['$scope', '$routeParams', 'SlicesManagerService',
+        'AnnotationsViewerService'];
+
+    function ShowSliceController($scope, $routeParams, SlicesManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.totalCores = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.shapeExists = shapeExists;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteShape = deleteShape;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+
+            $scope.$on('slice.show',
+                function(event, slice_id) {
+                    SlicesManagerService.get(slice_id)
+                        .then(getSliceSuccessFn, getSliceErrorFn);
+                }
+            );
+
+            function getSliceSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.totalCores = response.data.total_cores;
+            }
+
+            function getSliceErrorFn(response) {
+                console.error('Unable to load slice data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function shapeExists() {
+            return (typeof vm.shape_id !== 'undefined');
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function deleteShape() {
+            console.log('DELETE.... Just kidding!');
+        }
+    }
+
     NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope',
         'AnnotationsViewerService', 'SlicesManagerService'];
 
@@ -383,7 +506,6 @@
         vm.coreLength = undefined;
         vm.coreArea = undefined;
 
-        vm.read_only_mode = false;
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
@@ -397,7 +519,6 @@
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
         vm.save = save;
-        vm.setReadOnlyMode = setReadOnlyMode;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
@@ -490,12 +611,8 @@
             vm.active_tool = vm.RULER_TOOL;
         }
 
-        function setReadOnlyMode() {
-            vm.read_only_mode = true;
-        }
-
         function isReadOnly() {
-            return vm.read_only_mode;
+            return false;
         }
 
         function isPolygonToolActive() {
@@ -638,6 +755,66 @@
         }
     }
 
+    ShowCoreController.$inject = ['$scope', '$routeParams', 'CoresManagerService',
+        'AnnotationsViewerService'];
+
+    function ShowCoreController($scope, $routeParams, CoresManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.coreArea = undefined;
+        vm.coreLength = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.shapeExists = shapeExists;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteShape = deleteShape;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+
+            $scope.$on('core.show',
+                function(event, core_id) {
+                    CoresManagerService.get(core_id)
+                        .then(getCoreSuccessFn, getCoreErrorFn);
+                }
+            );
+
+            function getCoreSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.coreArea = response.data.area;
+                vm.coreLength = response.data.length;
+            }
+
+            function getCoreErrorFn(response) {
+                console.error('Unable to load core data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function shapeExists() {
+            return (typeof vm.shape_id !== 'undefined');
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function deleteShape() {
+            console.log('DELETE.... Just kidding!');
+        }
+    }
+
     NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams',
         'AnnotationsViewerService', 'CoresManagerService'];
 
@@ -653,7 +830,6 @@
         vm.coreCoverage = undefined;
         vm.isTumor = false;
 
-        vm.read_only_mode = false;
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
@@ -667,7 +843,6 @@
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
         vm.save = save;
-        vm.setReadOnlyMode = setReadOnlyMode;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
@@ -756,12 +931,8 @@
             vm.active_tool = vm.RULER_TOOL;
         }
 
-        function setReadOnlyMode() {
-            vm.read_only_mode = true;
-        }
-
         function isReadOnly() {
-            return vm.read_only_mode;
+            return false;
         }
 
         function isPolygonToolActive() {
@@ -901,6 +1072,72 @@
 
         function formValid() {
             return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
+        }
+    }
+
+    ShowFocusRegionController.$inject = ['$scope', '$routeParams', 'FocusRegionsManagerService',
+        'AnnotationsViewerService'];
+
+    function ShowFocusRegionController($scope, $routeParams, FocusRegionManagerService,
+                                       AnnotationsViewerService) {
+        var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.parent_shape_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.regionArea = undefined;
+        vm.regionLength = undefined;
+        vm.coreCoverage = undefined;
+        vm.isTumor = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.shapeExists = shapeExists;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteShape = deleteShape;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = $routeParams.slide;
+            vm.case_id = $routeParams.case;
+
+            $scope.$on('focus_region.show',
+                function (event, focus_region_id, parent_shape_id) {
+                    vm.parent_shape_id = parent_shape_id;
+                    FocusRegionManagerService.get(focus_region_id).then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
+                }
+            );
+
+            function getFocusRegionSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.regionArea = response.data.area;
+                vm.regionLength = response.data.length;
+                vm.isTumor = response.data.cancerous_region;
+                vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
+            }
+
+            function getFocusRegionErrorFn(response) {
+                console.error('Unable to load focus region data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function shapeExists() {
+            return (typeof vm.shape_id !== 'undefined');
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function deleteShape() {
+            console.log('DELETE.... Just kidding!');
         }
     }
 })();

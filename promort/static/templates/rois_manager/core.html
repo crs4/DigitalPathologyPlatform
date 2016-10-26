@@ -4,7 +4,7 @@
     </div>
     <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
         <!-- TODO: put real core label here -->
-        <h4 class="text-right">CORE 1</h4>
+        <h4 class="text-right">{{ rmCtrl.label }}</h4>
     </div>
     <div class="form-group row"
          ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
@@ -47,7 +47,8 @@
             <label>Core</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
+                ng-hide="rmCtrl.isReadOnly()">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()">
@@ -65,7 +66,7 @@
             </button>
         </div>
     </div>
-    <div class="form-group row" ng-show="rmCtrl.shapeExists()">
+    <div class="form-group row" ng-show="rmCtrl.shapeExists() && !rmCtrl.isReadOnly()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Parent slice</label>
         </div><!--
@@ -85,7 +86,8 @@
         </div>
     </div>
     <div id="acquire_core_measure" class="form-group row"
-         ng-hide="rmCtrl.coreLengthExists() || rmCtrl.isRulerToolActive() || !rmCtrl.shapeExists()">
+         ng-hide="rmCtrl.coreLengthExists() || rmCtrl.isRulerToolActive()
+            || !rmCtrl.shapeExists() || rmCtrl.isReadOnly()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Core length</label>
         </div><!--
@@ -96,7 +98,7 @@
         </div>
     </div>
     <div id="show_core_measure" class="form-group row"
-         ng-show="rmCtrl.isRulerToolActive() || rmCtrl.coreLengthExists()">
+         ng-show="rmCtrl.isRulerToolActive() || rmCtrl.coreLengthExists() || rmCtrl.isReadOnly()">
         <div class="prm-label-elem">
             <label>Core length</label>
         </div>
@@ -117,7 +119,8 @@
                 </button>
             </div>
             <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isRulerToolActive()"
+                <button class="btn btn-default prm-icon-btn"
+                        ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-click="rmCtrl.deleteRuler()">
                     <i class="icon-trash_can"></i>
                 </button>

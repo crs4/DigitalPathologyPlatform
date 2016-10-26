@@ -4,7 +4,7 @@
     </div>
     <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
         <!-- TODO: put real slice label here -->
-        <h4 class="text-right">SLICE 1</h4>
+        <h4 class="text-right">{{ rmCtrl.label }}</h4>
     </div>
     <div class="form-group row"
          ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
@@ -47,7 +47,8 @@
             <label>Slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
+                    ng-hide="rmCtrl.isReadOnly()">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()">
@@ -70,9 +71,12 @@
         <div class="prm-label-elem">
             <label>Number of cores</label>
         </div>
-        <div class="prm-row-elem">
+        <div class="prm-row-elem" ng-hide="rmCtrl.isReadOnly()">
             <input class="form-control" id="spinner" type="number"
                    ng-model="rmCtrl.totalCores">
+        </div>
+        <div class="prm-row-elem" ng-show="rmCtrl.isReadOnly()">
+            <input class="form-control prm-text-input" type="number" readonly ng-model="rmCtrl.totalCores">
         </div>
     </div>
 </div>
