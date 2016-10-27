@@ -12,13 +12,9 @@
         .controller('NewFocusRegionController', NewFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile',
-        'SlidesManagerService', 'SlicesManagerService', 'CoresManagerService',
-        'FocusRegionsManagerService', 'AnnotationsViewerService'];
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, SlidesManagerService,
-                                   SlicesManagerService, CoresManagerService,
-                                   FocusRegionsManagerService, AnnotationsViewerService) {
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -56,11 +52,16 @@
         vm.activateShowFocusRegionMode = activateShowFocusRegionMode;
         vm.showFocusRegionModeActive = showFocusRegionModeActive;
         vm._registerSlice = _registerSlice;
+        vm._unregisterSlice = _unregisterSlice;
         vm._registerCore = _registerCore;
+        vm._unregisterCore = _unregisterCore;
         vm._registerFocusRegion = _registerFocusRegion;
+        vm._unregisterFocusRegion = _unregisterFocusRegion;
         vm._getSliceLabel = _getSliceLabel;
         vm._getCoreLabel = _getCoreLabel;
         vm._getFocusRegionLabel = _getFocusRegionLabel;
+        vm._getSliceCores = _getSliceCores;
+        vm._getCoreFocusRegions = _getCoreFocusRegions;
 
         activate();
 
@@ -84,7 +85,7 @@
             );
 
             $scope.$on('slice.new',
-                function(event, slice_info){
+                function(event, slice_info) {
                     vm._registerSlice(slice_info);
                     vm.allModesOff();
                     // add new item to ROIs tree
@@ -99,6 +100,22 @@
                 }
             );
 
+            $scope.$on('slice.deleted',
+                function(event, slice_id) {
+                    console.log('SLICE ' + slice_id + ' DELETED');
+                    var cores = _getSliceCores(slice_id);
+                    cores.forEach(
+                        function(item, index) {
+                            $rootScope.$broadcast('core.deleted', item.id);
+                        }
+                    );
+                    AnnotationsViewerService.deleteShape(vm._getSliceLabel(slice_id));
+                    $("#" + vm._getSliceLabel(slice_id) + "_list").remove();
+                    vm._unregisterSlice(slice_id);
+                    vm.allModesOff();
+                }
+            );
+
             $scope.$on('core.new',
                 function(event, core_info) {
                     vm._registerCore(core_info);
@@ -109,16 +126,32 @@
                     var $anchor = $new_core_item.find('a');
                     $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')');
                     $compile($anchor)($scope);
-                    var new_Core_subtree = vm._createNewSubtree(core_info.label);
-                    $new_core_item.append(new_Core_subtree);
+                    var new_core_subtree = vm._createNewSubtree(core_info.label);
+                    $new_core_item.append(new_core_subtree);
                     $tree.append($new_core_item);
+                }
+            );
+
+            $scope.$on('core.deleted',
+                function(event, core_id) {
+                    console.log('CORE ' + core_id + ' DELETED');
+                    var focus_regions = _getCoreFocusRegions(core_id);
+                    focus_regions.forEach(
+                        function(item, index) {
+                            console.log('Broadcasting delete evento for focus region ' + item.id);
+                            $rootScope.$broadcast('focus_region.deleted', item.id);
+                        }
+                    );
+                    AnnotationsViewerService.deleteShape(vm._getCoreLabel(core_id));
+                    $("#" + vm._getCoreLabel(core_id) + "_list").remove();
+                    vm._unregisterCore(core_id);
+                    vm.allModesOff();
                 }
             );
 
             $scope.$on('focus_region.new',
                 function(event, focus_region_info) {
                     vm._registerFocusRegion(focus_region_info);
-                    $rootScope.focus_regions.push(focus_region_info);
                     vm.allModesOff();
                     // add new item to ROIs tree
                     var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
@@ -130,11 +163,30 @@
                     $tree.append($new_focus_region_item);
                 }
             );
+
+            $scope.$on('focus_region.deleted',
+                function(event, focus_region_id) {
+                    console.log('FOCUS REGION ' + focus_region_id + ' DELETED');
+                    AnnotationsViewerService.deleteShape(vm._getFocusRegionLabel(focus_region_id));
+                    $("#" + vm._getFocusRegionLabel(focus_region_id) + "_list").remove();
+                    vm._unregisterFocusRegion(focus_region_id);
+                    vm.allModesOff();
+                }
+            )
         }
 
         function _registerSlice(slice_info) {
             $rootScope.slices.push(slice_info);
             vm.slices_map[slice_info.id] = slice_info.label;
+        }
+
+        function _unregisterSlice(slice_id) {
+            delete vm.slices_map[slice_id];
+            $rootScope.slices = $.grep($rootScope.slices,
+                function(value) {
+                    return value.id !== slice_id;
+                }
+            );
         }
 
         function _getSliceLabel(slice_id) {
@@ -146,6 +198,15 @@
             vm.cores_map[core_info.id] = core_info.label;
         }
 
+        function _unregisterCore(core_id) {
+            delete vm.cores_map[core_id];
+            $rootScope.cores = $.grep($rootScope.cores,
+                function(value) {
+                    return value.id !== core_id;
+                }
+            );
+        }
+
         function _getCoreLabel(core_id) {
             return vm.cores_map[core_id];
         }
@@ -153,6 +214,15 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
+        }
+
+        function _unregisterFocusRegion(focus_region_id) {
+            delete vm.focus_regions_map[focus_region_id];
+            $rootScope.focus_regions = $.grep($rootScope.focus_regions,
+                function(value) {
+                    return value.id !== focus_region_id;
+                }
+            );
         }
 
         function _getFocusRegionLabel(focus_region_id) {
@@ -170,6 +240,23 @@
             html += label;
             html += '</a></li>';
             return html;
+        }
+
+        function _getSliceCores(slice_id) {
+            return $.grep($rootScope.cores,
+                function(value) {
+                    return value.slice === slice_id;
+                }
+            )
+        }
+
+        function _getCoreFocusRegions(core_id) {
+            console.log($rootScope.focus_regions);
+            return $.grep($rootScope.focus_regions,
+                function(value) {
+                    return value.core === core_id;
+                }
+            )
         }
 
         function _createNewSubtree(roi_label) {
@@ -453,13 +540,11 @@
         }
     }
 
-    ShowSliceController.$inject = ['$scope', '$routeParams', 'SlicesManagerService',
-        'AnnotationsViewerService'];
+    ShowSliceController.$inject = ['$scope', '$rootScope', 'SlicesManagerService', 'AnnotationsViewerService'];
 
-    function ShowSliceController($scope, $routeParams, SlicesManagerService, AnnotationsViewerService) {
+    function ShowSliceController($scope, $rootScope, SlicesManagerService, AnnotationsViewerService) {
         var vm = this;
-        vm.slide_id = undefined;
-        vm.case_id = undefined;
+        vm.slice_id = undefined;
         vm.label = undefined;
         vm.shape_id = undefined;
         vm.totalCores = undefined;
@@ -472,11 +557,9 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-
             $scope.$on('slice.show',
                 function(event, slice_id) {
+                    vm.slice_id = slice_id;
                     SlicesManagerService.get(slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
                 }
@@ -507,7 +590,22 @@
         }
 
         function deleteShape() {
-            console.log('DELETE.... Just kidding!');
+            // TODO: add Yes/No dialog
+            SlicesManagerService.cascadeDelete(vm.slice_id)
+                .then(deleteSliceSuccessFn, deleteSliceErrorFn);
+
+            function deleteSliceSuccessFn(response) {
+                $rootScope.$broadcast('slice.deleted', vm.slice_id);
+                vm.slice_id = undefined;
+                vm.label = undefined;
+                vm.shape_id = undefined;
+                vm.totalCores = undefined;
+            }
+
+            function deleteSliceErrorFn(response) {
+                console.error('unable to delete slice');
+                console.error(response);
+            }
         }
     }
 
@@ -773,13 +871,11 @@
         }
     }
 
-    ShowCoreController.$inject = ['$scope', '$routeParams', 'CoresManagerService',
-        'AnnotationsViewerService'];
+    ShowCoreController.$inject = ['$scope', '$rootScope', 'CoresManagerService', 'AnnotationsViewerService'];
 
-    function ShowCoreController($scope, $routeParams, CoresManagerService, AnnotationsViewerService) {
+    function ShowCoreController($scope, $rootScope, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
-        vm.slide_id = undefined;
-        vm.case_id = undefined;
+        vm.core_id = undefined;
         vm.label = undefined;
         vm.shape_id = undefined;
         vm.coreArea = undefined;
@@ -793,11 +889,9 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-
             $scope.$on('core.show',
                 function(event, core_id) {
+                    vm.core_id = core_id;
                     CoresManagerService.get(core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
                 }
@@ -829,7 +923,22 @@
         }
 
         function deleteShape() {
-            console.log('DELETE.... Just kidding!');
+            CoresManagerService.cascadeDelete(vm.core_id)
+                .then(deleteCoreSuccessFn, deleteCoreErrorFn);
+
+            function deleteCoreSuccessFn(response) {
+                $rootScope.$broadcast('core.deleted', vm.core_id);
+                vm.core_id = undefined;
+                vm.label = undefined;
+                vm.shape_id = undefined;
+                vm.coreArea = undefined;
+                vm.coreLength = undefined;
+            }
+
+            function deleteCoreErrorFn(response) {
+                console.error('Unable to delete core');
+                console.error(response);
+            }
         }
     }
 
@@ -1093,14 +1202,11 @@
         }
     }
 
-    ShowFocusRegionController.$inject = ['$scope', '$routeParams', 'FocusRegionsManagerService',
-        'AnnotationsViewerService'];
+    ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
-    function ShowFocusRegionController($scope, $routeParams, FocusRegionManagerService,
-                                       AnnotationsViewerService) {
+    function ShowFocusRegionController($scope, $rootScope, FocusRegionsManagerService, AnnotationsViewerService) {
         var vm = this;
-        vm.slide_id = undefined;
-        vm.case_id = undefined;
+        vm.focus_region_id = undefined;
         vm.parent_shape_id = undefined;
         vm.label = undefined;
         vm.shape_id = undefined;
@@ -1117,13 +1223,12 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-
             $scope.$on('focus_region.show',
                 function (event, focus_region_id, parent_shape_id) {
+                    vm.focus_region_id = focus_region_id;
                     vm.parent_shape_id = parent_shape_id;
-                    FocusRegionManagerService.get(focus_region_id).then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
+                    FocusRegionsManagerService.get(focus_region_id)
+                        .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
                 }
             );
 
@@ -1155,7 +1260,25 @@
         }
 
         function deleteShape() {
-            console.log('DELETE.... Just kidding!');
+            FocusRegionsManagerService.cascadeDelete(vm.focus_region_id)
+                .then(deleteFocusRegionSuccessFn, deleteFocusRegionErrorFn);
+
+            function deleteFocusRegionSuccessFn(response) {
+                $rootScope.$broadcast('focus_region.deleted', vm.focus_region_id);
+                vm.focus_region_id = undefined;
+                vm.parent_shape_id = undefined;
+                vm.label = undefined;
+                vm.shape_id = undefined;
+                vm.regionArea = undefined;
+                vm.regionLength = undefined;
+                vm.coreCoverage = undefined;
+                vm.isTumor = undefined;
+            }
+
+            function deleteFocusRegionErrorFn(response) {
+                console.error('Unable to delete focus region');
+                console.error(response);
+            }
         }
     }
 })();
