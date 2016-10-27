@@ -35,9 +35,12 @@
             'show_core': false,
             'show_focus_region': false
         };
+        vm.roisTreeLocked = false;
 
         vm._createListItem = _createListItem;
         vm._createNewSubtree = _createNewSubtree;
+        vm._lockRoisTree = _lockRoisTree;
+        vm._unlockRoisTree = _unlockRoisTree;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
         vm.activateNewSliceMode = activateNewSliceMode;
@@ -159,11 +162,11 @@
         function _createListItem(label, set_neg_margin_cls) {
             var html = '<li id="';
             html += label;
-            html += '_list" class="list-group-item prm-tree-item ';
+            html += '_list" class="list-group-item prm-tree-item';
             if (set_neg_margin_cls) {
-                html += 'prm-tree-item-neg-margin';
+                html += ' prm-tree-item-neg-margin';
             }
-            html += '"><a href="#"><i class="icon-isight"></i> ';
+            html += '"><a class="prm-tree-el" href="#"><i class="icon-isight"></i> ';
             html += label;
             html += '</a></li>';
             return html;
@@ -174,33 +177,46 @@
             return html;
         }
 
+        function _lockRoisTree() {
+            vm.roisTreeLocked = true;
+            $(".prm-tree-el").addClass("prm-tree-el-disabled");
+        }
+
+        function _unlockRoisTree() {
+            vm.roisTreeLocked = false;
+            $(".prm-tree-el").removeClass("prm-tree-el-disabled");
+        }
+
         function allModesOff() {
             for (var mode in vm.ui_active_modes) {
                 vm.ui_active_modes[mode] = false;
             }
+            vm._unlockRoisTree();
         }
 
         function showROI(roi_type, roi_id, parent_roi) {
-            console.log('showROI method');
-            switch (roi_type) {
-                case 'slice':
-                    activateShowSliceMode(roi_id);
-                    AnnotationsViewerService.focusOnShape(vm._getSliceLabel(roi_id));
-                    break;
-                case 'core':
-                    activateShowCoreMode(roi_id);
-                    AnnotationsViewerService.focusOnShape(vm._getCoreLabel(roi_id));
-                    break;
-                case 'focus_region':
-                    activateShowFocusRegionMode(roi_id, parent_roi);
-                    console.log(vm.focus_regions_map);
-                    AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
-                    break;
+            if (!vm.roisTreeLocked) {
+                switch (roi_type) {
+                    case 'slice':
+                        activateShowSliceMode(roi_id);
+                        AnnotationsViewerService.focusOnShape(vm._getSliceLabel(roi_id));
+                        break;
+                    case 'core':
+                        activateShowCoreMode(roi_id);
+                        AnnotationsViewerService.focusOnShape(vm._getCoreLabel(roi_id));
+                        break;
+                    case 'focus_region':
+                        activateShowFocusRegionMode(roi_id, parent_roi);
+                        console.log(vm.focus_regions_map);
+                        AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
+                        break;
+                }
             }
         }
 
         function activateNewSliceMode() {
             vm.allModesOff();
+            vm._lockRoisTree();
             vm.ui_active_modes['new_slice'] = true;
         }
 
@@ -221,6 +237,7 @@
 
         function activateNewCoreMode() {
             vm.allModesOff();
+            vm._lockRoisTree();
             vm.ui_active_modes['new_core'] = true;
         }
 
@@ -240,6 +257,7 @@
 
         function activateNewFocusRegionMode() {
             vm.allModesOff();
+            vm._lockRoisTree();
             vm.ui_active_modes['new_focus_region'] = true;
         }
 

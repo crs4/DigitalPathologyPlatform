@@ -79,6 +79,15 @@ i.prm-warning-icon {
     margin-bottom: -25px !important;
 }
 
+.prm-tree-el-disabled {
+    cursor: no-drop;
+    color: darkgray;
+}
+
+.prm-tree-el-disabled:hover {
+    color: darkgray !important;
+}
+
 .prm-form-header {
     padding-bottom: 1px;
     margin: 10px 0 20px;
