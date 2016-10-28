@@ -12,9 +12,11 @@
         .controller('NewFocusRegionController', NewFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', 'AnnotationsViewerService'];
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile',
+        'SlidesManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, AnnotationsViewerService) {
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile,
+                                   SlidesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -39,6 +41,7 @@
         vm._unlockRoisTree = _unlockRoisTree;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
+        vm.clearROIs = clearROIs;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
         vm.activateShowSliceMode = activateShowSliceMode;
@@ -298,6 +301,32 @@
                         AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
                         break;
                 }
+            }
+        }
+
+        function clearROIs() {
+            SlidesManagerService.clearROIs(vm.slide_id)
+                .then(clearROIsSuccessFn, clearROIsErrorFn);
+
+            function clearROIsSuccessFn(response) {
+                AnnotationsViewerService.clear();
+
+                vm.slices_map = {};
+                vm.cores_map = {};
+                vm.focus_regions_map = {};
+
+                $rootScope.slices = [];
+                $rootScope.cores = [];
+                $rootScope.focus_regions = [];
+
+                $("#rois_tree").children().remove();
+
+                vm.allModesOff();
+            }
+
+            function clearROIsErrorFn(response) {
+                console.error('Clear ROIs failed');
+                console.error(response);
             }
         }
 

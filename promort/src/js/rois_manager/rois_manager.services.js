@@ -13,7 +13,8 @@
     function SlidesManagerService($http) {
         var SlidesManagerService = {
             getSlices: getSlices,
-            createSlice: createSlice
+            createSlice: createSlice,
+            clearROIs: clearROIs
         };
 
         return SlidesManagerService;
@@ -29,6 +30,10 @@
                 total_cores: total_cores
             };
             return $http.post('/api/slides/' + slide_id + '/slices/', params);
+        }
+
+        function clearROIs(slide_id) {
+            return $http.delete('/api/slides/' + slide_id + '/rois_list/');
         }
     }
 
