@@ -154,3 +154,15 @@ class SlideDetailsSerializer(serializers.ModelSerializer):
         fields = ('id', 'case', 'import_date', 'omero_id', 'image_type',
                   'quality_control_passed', 'image_microns_per_pixel', 'slices')
         read_only_fields = fields
+
+
+class CoreROIsTreeSerializer(CoreDetailsSerializer):
+    focus_regions = FocusRegionSerializer(many=True, read_only=True)
+
+
+class SliceROIsTreeSerializer(SliceDetailsSerializer):
+    cores = CoreROIsTreeSerializer(many=True, read_only=True)
+
+
+class SlideROIsTreeSerializer(SlideDetailsSerializer):
+    slices = SliceROIsTreeSerializer(many=True, read_only=True)
