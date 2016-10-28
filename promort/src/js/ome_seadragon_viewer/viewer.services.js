@@ -30,6 +30,8 @@
             registerComponents: registerComponents,
             checkComponents: checkComponents,
             drawShape: drawShape,
+            selectShape: selectShape,
+            deselectShape: deselectShape,
             extendPolygonConfig: extendPolygonConfig,
             startPolygonsTool: startPolygonsTool,
             disableActiveTool: disableActiveTool,
@@ -66,6 +68,14 @@
 
         function drawShape(shape_json) {
             this.roisManager.drawShapeFromJSON(shape_json);
+        }
+
+        function selectShape(shape_id) {
+            this.roisManager.selectShape(shape_id, true, true);
+        }
+
+        function deselectShape(shape_id) {
+            this.roisManager.deselectShape(shape_id, true);
         }
 
         function extendPolygonConfig(polygon_config) {

@@ -41,6 +41,8 @@
         vm._unlockRoisTree = _unlockRoisTree;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
+        vm.selectROI = selectROI;
+        vm.deselectROI = deselectROI;
         vm.clearROIs = clearROIs;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
@@ -95,7 +97,9 @@
                     var $tree = $("#rois_tree");
                     var $new_slice_item = $(vm._createListItem(slice_info.label, true));
                     var $anchor = $new_slice_item.find('a');
-                    $anchor.attr('ng-click', 'rmc.showROI("slice", ' + slice_info.id + ')');
+                    $anchor.attr('ng-click', 'rmc.showROI("slice", ' + slice_info.id + ')')
+                        .attr('ng-mouseenter', 'rmc.selectROI("slice", ' + slice_info.id +')')
+                        .attr('ng-mouseleave', 'rmc.deselectROI("slice", ' + slice_info.id +')');
                     $compile($anchor)($scope);
                     var new_slice_subtree = vm._createNewSubtree(slice_info.label);
                     $new_slice_item.append(new_slice_subtree);
@@ -127,7 +131,9 @@
                     var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
                     var $new_core_item = $(vm._createListItem(core_info.label, true));
                     var $anchor = $new_core_item.find('a');
-                    $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')');
+                    $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')')
+                        .attr('ng-mouseenter', 'rmc.selectROI("core", ' + core_info.id + ')')
+                        .attr('ng-mouseleave', 'rmc.deselectROI("core", ' + core_info.id + ')');
                     $compile($anchor)($scope);
                     var new_core_subtree = vm._createNewSubtree(core_info.label);
                     $new_core_item.append(new_core_subtree);
@@ -161,7 +167,9 @@
                     var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false));
                     var $anchor = $new_focus_region_item.find('a');
                     $anchor.attr('ng-click', 'rmc.showROI("focus_region", ' + focus_region_info.id + ', "' +
-                        vm._getCoreLabel(focus_region_info.core) + '")');
+                        vm._getCoreLabel(focus_region_info.core) + '")')
+                        .attr('ng-mouseenter', 'rmc.selectROI("focus_region", ' + focus_region_info.id + ')')
+                        .attr('ng-mouseleave', 'rmc.deselectROI("focus_region", ' + focus_region_info.id + ')');
                     $compile($anchor)($scope);
                     $tree.append($new_focus_region_item);
                 }
@@ -297,8 +305,39 @@
                         break;
                     case 'focus_region':
                         activateShowFocusRegionMode(roi_id, parent_roi);
-                        console.log(vm.focus_regions_map);
                         AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
+                        break;
+                }
+            }
+        }
+
+        function selectROI(roi_type, roi_id) {
+            if (!vm.roisTreeLocked) {
+                switch (roi_type) {
+                    case 'slice':
+                        AnnotationsViewerService.selectShape(vm._getSliceLabel(roi_id));
+                        break;
+                    case 'core':
+                        AnnotationsViewerService.selectShape(vm._getCoreLabel(roi_id));
+                        break;
+                    case 'focus_region':
+                        AnnotationsViewerService.selectShape(vm._getFocusRegionLabel(roi_id));
+                        break;
+                }
+            }
+        }
+
+        function deselectROI(roi_type, roi_id) {
+            if (!vm.roisTreeLocked) {
+                switch (roi_type) {
+                    case 'slice':
+                        AnnotationsViewerService.deselectShape(vm._getSliceLabel(roi_id));
+                        break;
+                    case 'core':
+                        AnnotationsViewerService.deselectShape(vm._getCoreLabel(roi_id));
+                        break;
+                    case 'focus_region':
+                        AnnotationsViewerService.deselectShape(vm._getFocusRegionLabel(roi_id));
                         break;
                 }
             }
