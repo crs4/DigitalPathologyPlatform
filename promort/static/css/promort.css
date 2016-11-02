@@ -43,11 +43,19 @@ button.prm-btn-sm {
 }
 
 i.prm-warning-icon {
-    color: red;
+    color: #d9534f;
+}
+
+h3.prm-dialog-container {
+    margin-top: 5px; !important;
 }
 
 .prm-no-margin-top {
     margin-top: 0;
+}
+
+.prm-ngdialog-buttons {
+    padding-top: 20px;
 }
 
 .prm-tree-well {

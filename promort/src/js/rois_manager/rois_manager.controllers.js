@@ -13,9 +13,9 @@
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile',
-        'SlidesManagerService', 'AnnotationsViewerService'];
+        'ngDialog', 'SlidesManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, $compile,
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, ngDialog,
                                    SlidesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -344,28 +344,40 @@
         }
 
         function clearROIs() {
-            SlidesManagerService.clearROIs(vm.slide_id)
-                .then(clearROIsSuccessFn, clearROIsErrorFn);
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/clear_rois_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
 
-            function clearROIsSuccessFn(response) {
-                AnnotationsViewerService.clear();
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    SlidesManagerService.clearROIs(vm.slide_id)
+                        .then(clearROIsSuccessFn, clearROIsErrorFn);
+                }
 
-                vm.slices_map = {};
-                vm.cores_map = {};
-                vm.focus_regions_map = {};
+                function clearROIsSuccessFn(response) {
+                    AnnotationsViewerService.clear();
 
-                $rootScope.slices = [];
-                $rootScope.cores = [];
-                $rootScope.focus_regions = [];
+                    vm.slices_map = {};
+                    vm.cores_map = {};
+                    vm.focus_regions_map = {};
 
-                $("#rois_tree").children().remove();
+                    $rootScope.slices = [];
+                    $rootScope.cores = [];
+                    $rootScope.focus_regions = [];
 
-                vm.allModesOff();
-            }
+                    $("#rois_tree").children().remove();
 
-            function clearROIsErrorFn(response) {
-                console.error('Clear ROIs failed');
-                console.error(response);
+                    vm.allModesOff();
+                }
+
+                function clearROIsErrorFn(response) {
+                    console.error('Clear ROIs failed');
+                    console.error(response);
+                }
             }
         }
 
