@@ -14,6 +14,7 @@
         var SlidesManagerService = {
             getSlices: getSlices,
             createSlice: createSlice,
+            getROIs: getROIs,
             clearROIs: clearROIs
         };
 
@@ -30,6 +31,10 @@
                 total_cores: total_cores
             };
             return $http.post('/api/slides/' + slide_id + '/slices/', params);
+        }
+
+        function getROIs(slide_id) {
+            return $http.get('/api/slides/' + slide_id + '/rois_list/');
         }
 
         function clearROIs(slide_id) {

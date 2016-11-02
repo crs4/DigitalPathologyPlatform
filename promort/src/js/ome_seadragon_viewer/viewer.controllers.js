@@ -117,69 +117,43 @@
 
             $scope.$on('viewerctrl.components.registered',
                 function() {
-                    console.log('AnnotationsViewerController');
-                    console.log('Retrieving existing slices');
-                    SlidesManagerService.getSlices(vm.slide_id).then(getSlicesSuccessFn, getSlicesErrorFn);
+                    SlidesManagerService.getROIs(vm.slide_id).then(getROIsSuccessFn, getROIsErrorFn);
 
-                    function getSlicesSuccessFn(response) {
-                        function drawSlice(slice_data) {
-                            AnnotationsViewerService.drawShape($.parseJSON(slice_data.roi_json));
+                    function getROIsSuccessFn(response) {
+                        for (var sl in response.data.slices) {
+                            var slice = response.data.slices[sl];
+                            AnnotationsViewerService.drawShape($.parseJSON(slice.roi_json));
                             var slice_info = {
-                                'id': slice_data.id,
-                                'label': slice_data.label
+                                'id': slice.id,
+                                'label': slice.label
                             };
                             $rootScope.$broadcast('slice.new', slice_info);
-                            // load cores
-                            SlicesManagerService.getCores(slice_data.id)
-                                .then(getCoresSuccessFn, getCoresErrorFn);
+                            for (var cr in slice.cores) {
+                                var core = slice.cores[cr];
+                                AnnotationsViewerService.drawShape($.parseJSON(core.roi_json));
+                                var core_info = {
+                                    'id': core.id,
+                                    'label': core.label,
+                                    'slice': core.slice
+                                };
+                                $rootScope.$broadcast('core.new', core_info);
+                                for (var fr in core.focus_regions) {
+                                    var focus_region = core.focus_regions[fr];
+                                    AnnotationsViewerService.drawShape($.parseJSON(focus_region.roi_json));
+                                    var focus_region_info = {
+                                        'id': focus_region.id,
+                                        'label': focus_region.label,
+                                        'core': focus_region.core
+                                    };
+                                    $rootScope.$broadcast('focus_region.new', focus_region_info);
+                                }
+                            }
                         }
-                        response.data.slices.forEach(drawSlice);
                     }
 
-                    function getSlicesErrorFn(response) {
-                        console.error('Unable to load slices for slide ' + vm.slide_id);
-                        console.error(response.data);
-                    }
-
-                    function getCoresSuccessFn(response) {
-                        function drawCore(core_data) {
-                            console.log('Drawing core ' + core_data.label);
-                            AnnotationsViewerService.drawShape($.parseJSON(core_data.roi_json));
-                            var core_info = {
-                                'id': core_data.id,
-                                'label': core_data.label,
-                                'slice': core_data.slice
-                            };
-                            $rootScope.$broadcast('core.new', core_info);
-                            // load focus regions
-                            CoresManagerService.getFocusRegions(core_data.id)
-                                .then(getFocusRegionsSuccessFn, getFocusRegionsErrorFn)
-                        }
-                        response.data.cores.forEach(drawCore);
-                    }
-
-                    function getCoresErrorFn(response) {
-                        console.error('Unable to load cores');
-                        console.error(response.data);
-                    }
-
-                    function getFocusRegionsSuccessFn(response) {
-                        function drawFocusRegion(focus_region_data) {
-                            console.log('Drawing focus regions ' + focus_region_data.label);
-                            AnnotationsViewerService.drawShape($.parseJSON(focus_region_data.roi_json));
-                            var focus_region_info = {
-                                'id': focus_region_data.id,
-                                'label': focus_region_data.label,
-                                'core': focus_region_data.core
-                            };
-                            $rootScope.$broadcast('focus_region.new', focus_region_info);
-                        }
-                        response.data.focus_regions.forEach(drawFocusRegion);
-                    }
-
-                    function getFocusRegionsErrorFn(response) {
-                        console.error('Unable to load focus regions');
-                        console.error(response.data);
+                    function getROIsErrorFn(response) {
+                        console.error('Unable to load ROIs for slide ' + vm.slide_id);
+                        console.error(response);
                     }
                 }
             );
