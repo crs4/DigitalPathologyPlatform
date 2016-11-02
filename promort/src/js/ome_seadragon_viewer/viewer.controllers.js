@@ -65,13 +65,11 @@
         }
     }
 
-    AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope',
-        'ViewerService', 'AnnotationsViewerService', 'SlidesManagerService',
-        'SlicesManagerService', 'CoresManagerService'];
+    AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'ViewerService', 'AnnotationsViewerService', 'SlidesManagerService'];
 
-    function AnnotationsViewerController($scope, $routeParams, $rootScope, ViewerService,
-                                         AnnotationsViewerService, SlidesManagerService,
-                                         SlicesManagerService, CoresManagerService) {
+    function AnnotationsViewerController($scope, $routeParams, $rootScope, ngDialog, ViewerService,
+                                         AnnotationsViewerService, SlidesManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_details = undefined;
@@ -117,6 +115,14 @@
 
             $scope.$on('viewerctrl.components.registered',
                 function() {
+                    var dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/rois_loading.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+
                     SlidesManagerService.getROIs(vm.slide_id).then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
@@ -149,11 +155,13 @@
                                 }
                             }
                         }
+                        dialog.close();
                     }
 
                     function getROIsErrorFn(response) {
                         console.error('Unable to load ROIs for slide ' + vm.slide_id);
                         console.error(response);
+                        dialog.close();
                     }
                 }
             );
