@@ -620,9 +620,11 @@
         }
     }
 
-    ShowSliceController.$inject = ['$scope', '$rootScope', 'SlicesManagerService', 'AnnotationsViewerService'];
+    ShowSliceController.$inject = ['$scope', '$rootScope', 'ngDialog',
+        'SlicesManagerService', 'AnnotationsViewerService'];
 
-    function ShowSliceController($scope, $rootScope, SlicesManagerService, AnnotationsViewerService) {
+    function ShowSliceController($scope, $rootScope, ngDialog,
+                                 SlicesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slice_id = undefined;
         vm.label = undefined;
@@ -670,9 +672,21 @@
         }
 
         function deleteShape() {
-            // TODO: add Yes/No dialog
-            SlicesManagerService.cascadeDelete(vm.slice_id)
-                .then(deleteSliceSuccessFn, deleteSliceErrorFn);
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_roi_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    SlicesManagerService.cascadeDelete(vm.slice_id)
+                        .then(deleteSliceSuccessFn, deleteSliceErrorFn);
+                }
+            }
 
             function deleteSliceSuccessFn(response) {
                 $rootScope.$broadcast('slice.deleted', vm.slice_id);
@@ -951,9 +965,11 @@
         }
     }
 
-    ShowCoreController.$inject = ['$scope', '$rootScope', 'CoresManagerService', 'AnnotationsViewerService'];
+    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog',
+        'CoresManagerService', 'AnnotationsViewerService'];
 
-    function ShowCoreController($scope, $rootScope, CoresManagerService, AnnotationsViewerService) {
+    function ShowCoreController($scope, $rootScope, ngDialog,
+                                CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.label = undefined;
@@ -1003,8 +1019,21 @@
         }
 
         function deleteShape() {
-            CoresManagerService.cascadeDelete(vm.core_id)
-                .then(deleteCoreSuccessFn, deleteCoreErrorFn);
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_roi_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    CoresManagerService.cascadeDelete(vm.core_id)
+                        .then(deleteCoreSuccessFn, deleteCoreErrorFn)
+                }
+            }
 
             function deleteCoreSuccessFn(response) {
                 $rootScope.$broadcast('core.deleted', vm.core_id);
@@ -1282,9 +1311,11 @@
         }
     }
 
-    ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'FocusRegionsManagerService', 'AnnotationsViewerService'];
+    ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'ngDialog',
+        'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
-    function ShowFocusRegionController($scope, $rootScope, FocusRegionsManagerService, AnnotationsViewerService) {
+    function ShowFocusRegionController($scope, $rootScope, ngDialog,
+                                       FocusRegionsManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.parent_shape_id = undefined;
@@ -1340,8 +1371,21 @@
         }
 
         function deleteShape() {
-            FocusRegionsManagerService.cascadeDelete(vm.focus_region_id)
-                .then(deleteFocusRegionSuccessFn, deleteFocusRegionErrorFn);
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_roi_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    FocusRegionsManagerService.cascadeDelete(vm.focus_region_id)
+                        .then(deleteFocusRegionSuccessFn, deleteFocusRegionErrorFn);
+                }
+            }
 
             function deleteFocusRegionSuccessFn(response) {
                 $rootScope.$broadcast('focus_region.deleted', vm.focus_region_id);
