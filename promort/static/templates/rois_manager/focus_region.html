@@ -110,7 +110,7 @@
         </div>
     </div>
     <div id="show_region_measure" class="form-group row"
-         ng-show="rmCtrl.isRulerToolActive() || rmCtrl.regionLengthExists()">
+         ng-show="rmCtrl.isRulerToolActive() || rmCtrl.regionLengthExists() || rmCtrl.isReadOnly()">
         <div class="prm-label-elem">
             <label>Focus region length</label>
         </div>
@@ -131,7 +131,8 @@
                 </button>
             </div>
             <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isRulerToolActive()"
+                <button class="btn btn-default prm-icon-btn"
+                        ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-click="rmCtrl.deleteRuler()">
                     <i class="icon-trash_can"></i>
                 </button>
