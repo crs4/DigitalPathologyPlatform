@@ -33,6 +33,8 @@
             selectShape: selectShape,
             deselectShape: deselectShape,
             extendPolygonConfig: extendPolygonConfig,
+            extendPathConfig: extendPathConfig,
+            extendRulerConfig: extendRulerConfig,
             startPolygonsTool: startPolygonsTool,
             disableActiveTool: disableActiveTool,
             saveTemporaryPolygon: saveTemporaryPolygon,
@@ -80,6 +82,14 @@
 
         function extendPolygonConfig(polygon_config) {
             this.roisManager.extendPolygonConfig(polygon_config);
+        }
+
+        function extendPathConfig(path_config) {
+            this.roisManager.extendPathConfig(path_config);
+        }
+
+        function extendRulerConfig(ruler_config) {
+            this.roisManager.extendRulerConfig(ruler_config);
         }
 
         function startPolygonsTool() {
@@ -150,7 +160,6 @@
         }
 
         function getAreaCoverage(shape_1_label, shape_2_label) {
-            console.log("### " + shape_1_label, shape_2_label + " ###");
             var shape_1 = this.roisManager.getShape(shape_1_label);
             var shape_2 = this.roisManager.getShape(shape_2_label);
             return Number(shape_1.getCoveragePercentage(shape_2).toFixed(2));

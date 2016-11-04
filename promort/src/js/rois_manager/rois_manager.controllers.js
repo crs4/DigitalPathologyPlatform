@@ -67,6 +67,9 @@
         vm._getFocusRegionLabel = _getFocusRegionLabel;
         vm._getSliceCores = _getSliceCores;
         vm._getCoreFocusRegions = _getCoreFocusRegions;
+        vm.getSlicesCount = getSlicesCount;
+        vm.getCoresCount = getCoresCount;
+        vm.getFocusRegionsCount = getFocusRegionsCount;
 
         activate();
 
@@ -352,7 +355,15 @@
                 closeByDocument: false
             }).then(confirmFn);
 
+            var dialog = undefined;
             function confirmFn(confirm_value) {
+                dialog = ngDialog.open({
+                        'template': '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
                 if (confirm_value) {
                     SlidesManagerService.clearROIs(vm.slide_id)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
@@ -372,11 +383,14 @@
                     $("#rois_tree").children().remove();
 
                     vm.allModesOff();
+
+                    dialog.close();
                 }
 
                 function clearROIsErrorFn(response) {
                     console.error('Clear ROIs failed');
                     console.error(response);
+                    $scope.closeThisDialog();
                 }
             }
         }
@@ -441,6 +455,18 @@
         function showFocusRegionModeActive() {
             return vm.ui_active_modes['show_focus_region'];
         }
+
+        function getSlicesCount() {
+            return $rootScope.slices.length;
+        }
+
+        function getCoresCount() {
+            return $rootScope.cores.length;
+        }
+
+        function getFocusRegionsCount() {
+            return $rootScope.focus_regions.length;
+        }
     }
 
     NewScopeController.$inject = ['$scope'];
@@ -450,10 +476,10 @@
         vm.$scope = {};
     }
 
-    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope',
+    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'AnnotationsViewerService', 'SlidesManagerService'];
 
-    function NewSliceController($scope, $routeParams, $rootScope,
+    function NewSliceController($scope, $routeParams, $rootScope, ngDialog,
                                 AnnotationsViewerService, SlidesManagerService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -466,6 +492,11 @@
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+
+        vm.shape_config = {
+            'stroke_color': '#000000',
+            'stroke_width': 40
+        };
 
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
@@ -494,6 +525,7 @@
 
         function newPolygon() {
             console.log('Start polygon drawing tool');
+            AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL
         }
@@ -501,6 +533,7 @@
         function newFreehand() {
             console.log('Start freehabd drawing tool');
             AnnotationsViewerService.setFreehandToolLabelPrefix('slice');
+            AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $('#' + canvas_label);
@@ -600,7 +633,13 @@
         }
 
         function save() {
-            console.log(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores);
+            var dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
             SlidesManagerService.createSlice(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
@@ -611,11 +650,13 @@
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('slice.new', slice_info);
+                dialog.close();
             }
 
             function createSliceErrorFn(response) {
                 console.error('Unable to save slice!!!');
                 console.error(response.data);
+                $scope.closeThisDialog();
             }
         }
     }
@@ -641,6 +682,7 @@
         function activate() {
             $scope.$on('slice.show',
                 function(event, slice_id) {
+                    console.log('Show slice ' + slice_id);
                     vm.slice_id = slice_id;
                     SlicesManagerService.get(slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
@@ -680,9 +722,16 @@
                 closeByDocument: false
             }).then(confirmFn);
 
-
+            var dialog = undefined;
             function confirmFn(confirm_value) {
                 if (confirm_value) {
+                    dialog = ngDialog.open({
+                        'template': '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
                     SlicesManagerService.cascadeDelete(vm.slice_id)
                         .then(deleteSliceSuccessFn, deleteSliceErrorFn);
                 }
@@ -694,19 +743,21 @@
                 vm.label = undefined;
                 vm.shape_id = undefined;
                 vm.totalCores = undefined;
+                dialog.close();
             }
 
             function deleteSliceErrorFn(response) {
                 console.error('unable to delete slice');
                 console.error(response);
+                $scope.closeThisDialog();
             }
         }
     }
 
-    NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope',
+    NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'AnnotationsViewerService', 'SlicesManagerService'];
 
-    function NewCoreController($scope, $routeParams, $rootScope,
+    function NewCoreController($scope, $routeParams, $rootScope, ngDialog,
                                AnnotationsViewerService, SlicesManagerService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -722,6 +773,11 @@
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
         vm.RULER_TOOL = 'ruler_tool';
+
+        vm.shape_config = {
+            'stroke_color': '#0000ff',
+            'stroke_width': 30
+        };
 
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
@@ -761,12 +817,14 @@
         }
 
         function newPolygon() {
+            AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
         }
 
         function newFreehand() {
             AnnotationsViewerService.setFreehandToolLabelPrefix('core');
+            AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
@@ -806,6 +864,7 @@
 
         function startRuler() {
             var $ruler_out = $('#core_ruler_output');
+            AnnotationsViewerService.extendRulerConfig(vm.shape_config);
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
                     console.log('ruler_cleared trigger, ruler_saved value is ' + ruler_saved);
@@ -944,6 +1003,13 @@
         }
 
         function save() {
+            var dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
             SlicesManagerService.createCore(vm.parentSlice.id, vm.shape.shape_id, vm.shape,
                 vm.coreLength, vm.coreArea)
                 .then(createCoreSuccessFn, createCoreErrorFn);
@@ -956,11 +1022,13 @@
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('core.new', core_info);
+                dialog.close();
             }
 
             function createCoreErrorFn(response) {
                 console.error('Unable to save core!!!');
                 console.error(response.data);
+                $scope.closeThisDialog();
             }
         }
     }
@@ -987,6 +1055,7 @@
         function activate() {
             $scope.$on('core.show',
                 function(event, core_id) {
+                    console.log('Show core ' + core_id);
                     vm.core_id = core_id;
                     CoresManagerService.get(core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
@@ -1027,9 +1096,16 @@
                 closeByDocument: false
             }).then(confirmFn);
 
-
+            var dialog = undefined;
             function confirmFn(confirm_value) {
                 if (confirm_value) {
+                    dialog = ngDialog.open({
+                        'template': '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
                     CoresManagerService.cascadeDelete(vm.core_id)
                         .then(deleteCoreSuccessFn, deleteCoreErrorFn)
                 }
@@ -1042,20 +1118,22 @@
                 vm.shape_id = undefined;
                 vm.coreArea = undefined;
                 vm.coreLength = undefined;
+                dialog.close();
             }
 
             function deleteCoreErrorFn(response) {
                 console.error('Unable to delete core');
                 console.error(response);
+                $scope.closeThisDialog();
             }
         }
     }
 
-    NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams',
+    NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
         'AnnotationsViewerService', 'CoresManagerService'];
 
-    function NewFocusRegionController($scope, $rootScope, $routeParams, AnnotationsViewerService,
-                                      CoresManagerService) {
+    function NewFocusRegionController($scope, $rootScope, $routeParams, ngDialog,
+                                      AnnotationsViewerService, CoresManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -1073,6 +1151,12 @@
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
         vm.RULER_TOOL = 'ruler_tool';
 
+        vm.shape_config = {
+            'stroke_color': '#00ff00',
+            'stroke_width': 20
+        };
+
+        vm._updateShapeConfig = _updateShapeConfig;
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm._updateFocusRegionData = _updateFocusRegionData;
@@ -1110,13 +1194,25 @@
             );
         }
 
+        function _updateShapeConfig() {
+            if (vm.isTumor) {
+                vm.shape_config.stroke_color = '#ff0000';
+            } else {
+                vm.shape_config.stroke_color = '#32fc46';
+            }
+        }
+
         function newPolygon() {
+            vm._updateShapeConfig();
+            AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
         }
 
         function newFreehand() {
             AnnotationsViewerService.setFreehandToolLabelPrefix('focus_region');
+            vm._updateShapeConfig();
+            AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
@@ -1155,6 +1251,8 @@
 
         function startRuler() {
             var $ruler_out = $('#focus_region_ruler_output');
+            vm._updateShapeConfig();
+            AnnotationsViewerService.extendRulerConfig(vm.shape_config);
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
                     if (ruler_saved) {
@@ -1237,6 +1335,7 @@
         function clear(destroy_shape) {
             vm.deleteShape(destroy_shape);
             vm.deleteRuler();
+            vm.isTumor = false;
         }
 
         function abortTool() {
@@ -1286,6 +1385,13 @@
         }
 
         function save() {
+            var dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
             CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
                 vm.regionLength, vm.regionArea, vm.isTumor)
                 .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
@@ -1298,11 +1404,13 @@
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('focus_region.new', focus_region_info);
+                dialog.close();
             }
 
             function createFocusRegionErrorFn(response) {
                 console.error('Unable to save focus region!!!');
                 console.error(response.data);
+                $scope.closeThisDialog();
             }
         }
 
@@ -1336,6 +1444,7 @@
         function activate() {
             $scope.$on('focus_region.show',
                 function (event, focus_region_id, parent_shape_id) {
+                    console.log('Show focus region ' + focus_region_id);
                     vm.focus_region_id = focus_region_id;
                     vm.parent_shape_id = parent_shape_id;
                     FocusRegionsManagerService.get(focus_region_id)
@@ -1379,9 +1488,16 @@
                 closeByDocument: false
             }).then(confirmFn);
 
-
+            var dialog = undefined;
             function confirmFn(confirm_value) {
                 if (confirm_value) {
+                    dialog = ngDialog.open({
+                        'template': '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
                     FocusRegionsManagerService.cascadeDelete(vm.focus_region_id)
                         .then(deleteFocusRegionSuccessFn, deleteFocusRegionErrorFn);
                 }
@@ -1396,12 +1512,14 @@
                 vm.regionArea = undefined;
                 vm.regionLength = undefined;
                 vm.coreCoverage = undefined;
-                vm.isTumor = undefined;
+                vm.isTumor = false;
+                dialog.close();
             }
 
             function deleteFocusRegionErrorFn(response) {
                 console.error('Unable to delete focus region');
                 console.error(response);
+                $scope.closeThisDialog();
             }
         }
     }
