@@ -1157,6 +1157,7 @@
         };
 
         vm._updateShapeConfig = _updateShapeConfig;
+        vm.switchShapeColor = switchShapeColor;
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm._updateFocusRegionData = _updateFocusRegionData;
@@ -1199,6 +1200,13 @@
                 vm.shape_config.stroke_color = '#ff0000';
             } else {
                 vm.shape_config.stroke_color = '#32fc46';
+            }
+        }
+
+        function switchShapeColor() {
+            if (typeof vm.shape !== 'undefined') {
+                vm._updateShapeConfig();
+                AnnotationsViewerService.setShapeStrokeColor(vm.shape.shape_id, vm.shape_config.stroke_color);
             }
         }
 

@@ -51,7 +51,8 @@
             checkContainment: checkContainment,
             createRulerBindings: createRulerBindings,
             clearRuler: clearRuler,
-            getAreaCoverage: getAreaCoverage
+            getAreaCoverage: getAreaCoverage,
+            setShapeStrokeColor: setShapeStrokeColor
         };
 
         return AnnotationsViewerService;
@@ -163,6 +164,11 @@
             var shape_1 = this.roisManager.getShape(shape_1_label);
             var shape_2 = this.roisManager.getShape(shape_2_label);
             return Number(shape_1.getCoveragePercentage(shape_2).toFixed(2));
+        }
+
+        function setShapeStrokeColor(shape_id, color, alpha) {
+            var shape = this.roisManager.getShape(shape_id);
+            shape.setStrokeColor(color, alpha);
         }
     }
 })();
