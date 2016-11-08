@@ -1207,6 +1207,7 @@
             if (typeof vm.shape !== 'undefined') {
                 vm._updateShapeConfig();
                 AnnotationsViewerService.setShapeStrokeColor(vm.shape.shape_id, vm.shape_config.stroke_color);
+                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape.shape_id);
             }
         }
 
