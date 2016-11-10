@@ -13,6 +13,25 @@ div.ome_viewer_simple {
     height: 400px;
 }
 
+div.annotated_viewer_container {
+    position: relative;
+}
+
+.annotated_viewer_element {
+    position: absolute;
+}
+
+.static_viewer_element {
+    width: 635px;
+    height: 600px;
+}
+
+.prm-viewer-navi {
+    width: 120px;
+    height: 120px;
+    background: white;
+}
+
 button.prm-btn-sm {
     width: 100px;
 }
@@ -24,18 +43,57 @@ button.prm-btn-sm {
 }
 
 i.prm-warning-icon {
-    color: red;
+    color: #d9534f;
+}
+
+h3.prm-dialog-container {
+    margin-top: 5px; !important;
 }
 
 .prm-no-margin-top {
     margin-top: 0;
 }
 
+.prm-ngdialog-buttons {
+    padding-top: 20px;
+}
+
 .prm-tree-well {
     background-color: white;
-    padding-top:19px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-top:10px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.prm-tree-item {
+    margin: 0;
+    border: 0;
+    padding: 5px 0 5px 5px;
+}
+
+.prm-tree-item a:visited,
+.prm-tree-item a:link,
+.prm-tree-item a:active {
+    color: darkgray;
+    text-decoration: none;
+}
+
+.prm-tree-item a:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.prm-tree-item-neg-margin {
+    margin-bottom: -25px !important;
+}
+
+.prm-tree-el-disabled {
+    cursor: no-drop;
+    color: darkgray;
+}
+
+.prm-tree-el-disabled:hover {
+    color: darkgray !important;
 }
 
 .prm-form-header {

@@ -12,7 +12,6 @@ class Slice(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
-    positive_cores = models.IntegerField(blank=False, default=0)
 
     class Meta:
         unique_together = ('label', 'slide')
@@ -34,7 +33,7 @@ class Core(models.Model):
 
 
 class FocusRegion(models.Model):
-    label = models.CharField(max_length=10, blank=False)
+    label = models.CharField(max_length=20, blank=False)
     core = models.ForeignKey(Core, on_delete=models.CASCADE,
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
@@ -42,7 +41,7 @@ class FocusRegion(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
-    area = models.FloatField(blank=False, default=0-0)
+    area = models.FloatField(blank=False, default=0.0)
     cancerous_region = models.BooleanField(blank=False)
 
     class Meta:

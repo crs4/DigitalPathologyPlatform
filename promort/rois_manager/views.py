@@ -3,8 +3,10 @@ try:
 except ImportError:
     import json
 
+from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from django.db import IntegrityError
 
@@ -13,10 +15,31 @@ from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
 from rois_manager.serializers import SlideDetailsSerializer, SliceSerializer, \
-    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer
+    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer,\
+    SlideROIsTreeSerializer
 
 import logging
 logger = logging.getLogger('promort')
+
+
+class ROIsTreeList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk, format=None):
+        try:
+            logger.info('Searching for slide with ID %s' % pk)
+            obj = Slide.objects.get(pk=pk)
+        except Slide.DoesNotExist:
+            raise NotFound('There is no Slide with ID %s' % pk)
+        serializer = SlideROIsTreeSerializer(obj)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)
+
+    def delete(self, request, pk, format=None):
+        slices = Slice.objects.filter(slide=pk)
+        for s in slices:
+            s.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SliceList(GenericReadOnlyDetailView):

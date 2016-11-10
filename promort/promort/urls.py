@@ -28,7 +28,7 @@ from reviews_manager.views import ReviewsList, ReviewsDetail,\
 from worklist_manager.views import UserWorkList, UserWorkListReview,\
     WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
-    CoreDetail, FocusRegionList, FocusRegionDetail
+    CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -52,6 +52,7 @@ urlpatterns = [
         SlideQualityControlDetail.as_view()),
 
     # ROIs
+    url(r'api/slides/(?P<pk>[\w\-.]+)/rois_list/$', ROIsTreeList.as_view()),
     url(r'api/slides/(?P<pk>[\w\-.]+)/slices/$', SliceList.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
@@ -74,6 +75,7 @@ urlpatterns = [
 
     # utils
     url(r'api/utils/omeseadragon_base_urls/$', promort_utils.get_ome_seadragon_base_url),
+    url(r'api/utils/slide_stainings/$', promort_utils.get_slide_stainings),
     url(r'api/utils/slide_not_adequacy_reasons/$', promort_utils.get_slide_qc_not_adequacy_reasons),
     url(r'api/utils/send_report/$', promort_utils.send_user_report),
 

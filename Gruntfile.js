@@ -6,6 +6,7 @@ module.exports = function(grunt) {
         "promort/src/js/promort.js",
         "promort/src/js/promort.config.js",
         "promort/src/js/promort.routes.js",
+        "promort/src/js/utils/utils.js",
         "promort/src/js/authentication/authentication.module.js",
         "promort/src/js/authentication/authentication.services.js",
         "promort/src/js/authentication/authentication.controllers.js",
@@ -20,9 +21,18 @@ module.exports = function(grunt) {
         "promort/src/js/slides_manager/slides_manager.services.js",
         "promort/src/js/slides_manager/slides_manager.controllers.js",
         "promort/src/js/slides_manager/slides_manager.directives.js",
+        "promort/src/js/ome_seadragon_viewer/viewer.module.js",
+        "promort/src/js/ome_seadragon_viewer/viewer.services.js",
+        "promort/src/js/ome_seadragon_viewer/viewer.controllers.js",
+        "promort/src/js/ome_seadragon_viewer/viewer.directives.js",
         "promort/src/js/user_report/user_report.module.js",
         "promort/src/js/user_report/user_report.services.js",
-        "promort/src/js/user_report/user_report.controllers.js"
+        "promort/src/js/user_report/user_report.controllers.js",
+        "promort/src/js/rois_manager/rois_manager.module.js",
+        "promort/src/js/rois_manager/rois_manager.services.js",
+        "promort/src/js/rois_manager/rois_manager.controllers.js",
+        "promort/src/js/rois_manager/rois_manager.directives.js"
+
     ];
 
     grunt.initConfig({
