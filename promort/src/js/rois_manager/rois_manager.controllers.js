@@ -355,16 +355,16 @@
                 closeByDocument: false
             }).then(confirmFn);
 
-            var dialog = undefined;
             function confirmFn(confirm_value) {
-                dialog = ngDialog.open({
+                if (confirm_value) {
+                    var dialog = ngDialog.open({
                         'template': '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,
                         closeByDocument: false
                     });
-                if (confirm_value) {
+
                     SlidesManagerService.clearROIs(vm.slide_id)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
                 }
@@ -390,7 +390,7 @@
                 function clearROIsErrorFn(response) {
                     console.error('Clear ROIs failed');
                     console.error(response);
-                    $scope.closeThisDialog();
+                    dialog.close();
                 }
             }
         }
