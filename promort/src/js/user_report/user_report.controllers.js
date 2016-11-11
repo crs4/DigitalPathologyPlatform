@@ -34,7 +34,10 @@
 
             function sendUserReportErrorFn(response) {
                 console.error('Error sending report!');
-                $scope.closeThisDialog();
+                dialog.close();
+                ngDialog.open({
+                    template: '/static/templates/dialogs/error_dialog.html'
+                })
             }
         }
     }
