@@ -982,10 +982,10 @@
         }
 
         function deleteRuler() {
+            var $ruler_out = $('#core_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
             if (typeof vm.coreLength !== 'undefined') {
-                var $ruler_out = $('#core_ruler_output');
-                $ruler_out.unbind('ruler_cleared');
-                AnnotationsViewerService.clearRuler();
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.coreLength = undefined;
@@ -1379,10 +1379,10 @@
         }
 
         function deleteRuler() {
+            var $ruler_out = $('#focus_region_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
             if (typeof vm.regionLength !== 'undefined') {
-                var $ruler_out = $('#focus_region_ruler_output');
-                $ruler_out.unbind('ruler_cleared');
-                AnnotationsViewerService.clearRuler();
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.regionLength = undefined;
