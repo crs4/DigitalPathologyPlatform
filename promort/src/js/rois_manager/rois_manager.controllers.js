@@ -841,8 +841,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('CORE IS NOT INSIDE A SLIDE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_core.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('freehand_polygon_saved');
@@ -932,8 +934,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('CORE IS NOT INSIDE A SLIDE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_core.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('polygon_saved');
@@ -1236,8 +1240,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_focus_region.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('freehand_polygon_saved');
@@ -1326,8 +1332,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_focus_region.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('polygon_saved');
