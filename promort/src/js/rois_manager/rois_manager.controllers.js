@@ -56,6 +56,7 @@
         vm.newFocusRegionModeActive = newFocusRegionModeActive;
         vm.activateShowFocusRegionMode = activateShowFocusRegionMode;
         vm.showFocusRegionModeActive = showFocusRegionModeActive;
+        vm.newItemCreationModeActive = newItemCreationModeActive;
         vm._registerSlice = _registerSlice;
         vm._unregisterSlice = _unregisterSlice;
         vm._registerCore = _registerCore;
@@ -454,6 +455,14 @@
 
         function showFocusRegionModeActive() {
             return vm.ui_active_modes['show_focus_region'];
+        }
+
+        function newItemCreationModeActive() {
+            return (
+                vm.ui_active_modes['new_slice']
+                || vm.ui_active_modes['new_core']
+                || vm.ui_active_modes['new_focus_region']
+            );
         }
 
         function getSlicesCount() {

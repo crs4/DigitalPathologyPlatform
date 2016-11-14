@@ -5,7 +5,8 @@
         </div><!--
      --><div class="col-sm-3 prm-valign text-center">
         <div class="btn-group dropdown">
-            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                    ng-disabled="rmc.newItemCreationModeActive()">
                 <i class="icon-plus"></i> New item <i class="icon-play prm-rotate-90 prm-caret"></i>
             </button>
             <ul class="dropdown-menu">
@@ -17,7 +18,7 @@
             </ul>
         </div>
         <button class="btn btn-danger" ng-click="rmc.clearROIs()"
-                ng-disabled="rmc.getSlicesCount() == 0">
+                ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
             <i class="icon-trash_can"></i> Clear ROIs
         </button>
     </div>
