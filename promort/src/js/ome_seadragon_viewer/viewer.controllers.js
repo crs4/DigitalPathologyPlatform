@@ -6,9 +6,10 @@
         .controller('SimpleViewerController', SimpleViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController);
 
-    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', 'ViewerService'];
+    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope',
+        '$location', 'ViewerService'];
 
-    function SimpleViewerController($scope, $routeParams, $rootScope, ViewerService) {
+    function SimpleViewerController($scope, $routeParams, $rootScope, $location, ViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_details = undefined;
@@ -44,6 +45,7 @@
 
                 function SlideInfoErrorFn(response) {
                     console.error(response.error);
+                    $location.url('404');
                 }
             }
 
@@ -65,10 +67,10 @@
         }
     }
 
-    AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+    AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ngDialog',
         'ViewerService', 'AnnotationsViewerService', 'SlidesManagerService'];
 
-    function AnnotationsViewerController($scope, $routeParams, $rootScope, ngDialog, ViewerService,
+    function AnnotationsViewerController($scope, $routeParams, $rootScope, $location, ngDialog, ViewerService,
                                          AnnotationsViewerService, SlidesManagerService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -106,6 +108,7 @@
 
                 function SlideInfoErrorFn(response) {
                     console.error(response.error);
+                    $location.url('404');
                 }
             }
 
