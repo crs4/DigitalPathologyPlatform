@@ -3,21 +3,25 @@
     
     angular
         .module('promort.slides_manager.controllers')
-        .controller('QualityControlController', QualityControlController)
-        .controller('SimpleViewerController', SimpleViewerController);
+        .controller('QualityControlController', QualityControlController);
 
     QualityControlController.$inject = ['$scope', '$routeParams', '$location',
-        'QualityControlService', 'ReviewStepsService'];
+        'SlideService', 'QualityControlService', 'ReviewStepsService'];
 
-    function QualityControlController($scope, $routeParams, $location,
+    function QualityControlController($scope, $routeParams, $location, SlideService,
                                       QualityControlService, ReviewStepsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.stainings = undefined;
         vm.not_adequacy_reasons = undefined;
-        vm.checkFormSubmission = checkFormSubmission;
-        vm.submit = submit;
+        vm.checkStainingFormSubmission = checkStainingFormSubmission;
+        vm.checkQCFormSubmission = checkQCFormSubmission;
+        vm.submitStaining = submitStaining;
+        vm.submitQualityControl = submitQualityControl;
 
+        vm.slideStainingSubmitted = false;
+        vm.slideStaining = undefined;
         vm.slideQualityControl = {};
         vm.reviewNotes = '';
 
@@ -26,31 +30,52 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
-            QualityControlService.get(vm.slide_id)
-                .then(qualityControlSuccessFn, qualityControlErrorFn);
+            SlideService.get(vm.slide_id)
+                .then(getSlideSuccessFn, getSlideErrorFn);
 
-            function qualityControlSuccessFn(response) {
-                // move to the ROIs review page
-                $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois');
-            }
-
-            function qualityControlErrorFn(response) {
-                if (response.status === 404) {
+            function getSlideSuccessFn(response) {
+                if (response.data.quality_control === null) {
                     // initialize not_adequacy_reason
                     QualityControlService.fetchNotAdequacyReasons()
                         .then(fetchNotAdequacyReasonSuccessFn);
-
                     //noinspection JSAnnotator
                     function fetchNotAdequacyReasonSuccessFn(response) {
                         vm.not_adequacy_reasons = response.data;
                     }
+                    //initialize staining
+                    SlideService.fetchStainings()
+                        .then(fetchStainingSuccessFn);
+                    //noinspection JSAnnotator
+                    function fetchStainingSuccessFn(response) {
+                        vm.stainings = response.data;
+                    }
+                    if (response.data.staining !== null) {
+                        vm.slideStaining = response.data.staining;
+                        vm.slideStainingSubmitted = true;
+                    }
                 } else {
-                    console.error(response.error);
+                    if (response.data.quality_control.adequate_slide) {
+                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
+                    } else {
+                        $location.url('worklist/' + vm.case_id);
+                    }
                 }
+            }
+
+            function getSlideErrorFn(response) {
+                console.error('Cannot load slide info');
+                console.error(response);
             }
         }
 
-        function checkFormSubmission() {
+        function checkStainingFormSubmission() {
+            return !(typeof vm.slideStaining === 'undefined');
+        }
+
+        function checkQCFormSubmission() {
+            if (!vm.slideStainingSubmitted) {
+                return false;
+            }
             if (vm.slideQualityControl.goodImageQuality &&
                 vm.slideQualityControl.goodImageQuality === 'true') {
                 return true;
@@ -63,7 +88,23 @@
             return false;
         }
 
-        function submit() {
+        function submitStaining() {
+            SlideService.updateSliceStaining(
+                vm.slide_id,
+                vm.slideStaining
+            ).then(slideStainingUpdateSuccessFn, slideStainingUpdateErrorFn);
+
+            function slideStainingUpdateSuccessFn(response) {
+                vm.slideStainingSubmitted = true;
+            }
+
+            function slideStainingUpdateErrorFn(response) {
+                console.error('Unable to update slide staining');
+                console.error(response);
+            }
+        }
+
+        function submitQualityControl() {
             QualityControlService.create(
                 vm.slide_id,
                 $.parseJSON(vm.slideQualityControl.goodImageQuality),
@@ -72,7 +113,7 @@
 
             function qualityControlCreationSuccessFn(response) {
                 if(vm.slideQualityControl.goodImageQuality === 'true') {
-                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois');
+                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
                 } else {
                     // close the review because image quality is bad
                     ReviewStepsService.closeReviewStep(vm.case_id, 'REVIEW_1',
@@ -93,69 +134,8 @@
             }
 
             function qualityControlCreationErrorFn(response) {
-                console.error(response.error);
+                console.error(response);
             }
-        }
-    }
-
-    SimpleViewerController.$inject = ['$scope', '$routeParams',
-        '$rootScope', 'SimpleViewerService'];
-
-    function SimpleViewerController($scope, $routeParams, $rootScope, 
-                                    SimpleViewerService) {
-        var vm = this;
-        vm.slide_id = undefined;
-        vm.slide_details = undefined;
-        vm.dzi_url = undefined;
-        vm.static_files_url = undefined;
-        vm.getDZIURL = getDZIURL;
-        vm.getStaticFilesURL = getStaticFilesURL;
-        vm.getSlideMicronsPerPixel = getSlideMicronsPerPixel;
-
-        activate();
-
-        function activate() {
-            vm.slide_id = $routeParams.slide;
-            SimpleViewerService.getOMEBaseURLs()
-                .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
-
-            function OMEBaseURLSuccessFn(response) {
-                var base_url = response.data.base_url;
-                vm.static_files_url = response.data.static_files_url + '/ome_seadragon/img/openseadragon/';
-
-                SimpleViewerService.getSlideInfo(vm.slide_id)
-                    .then(SlideInfoSuccessFn, SlideInfoErrorFn);
-
-                function SlideInfoSuccessFn(response) {
-                    vm.slide_details = response.data;
-                    if (vm.slide_details.image_type === 'MIRAX') {
-                        vm.dzi_url = base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
-                    } else {
-                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.id + '.dzi';
-                    }
-                    $rootScope.$broadcast('viewer.controller_initialized');
-                }
-
-                function SlideInfoErrorFn(response) {
-                    console.error(response.error);
-                }
-            }
-
-            function OMEBaseURLErrorFn(response) {
-                console.error(response.error);
-            }
-        }
-
-        function getDZIURL() {
-            return vm.dzi_url;
-        }
-        
-        function getStaticFilesURL() {
-            return vm.static_files_url;
-        }
-
-        function getSlideMicronsPerPixel() {
-            return vm.slide_details.image_microns_per_pixel;
         }
     }
 })();

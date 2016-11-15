@@ -36,7 +36,7 @@ class GenericListView(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class GenericDetailView(APIView):
+class GenericReadOnlyDetailView(APIView):
     model = None
     model_serializer = None
 
@@ -54,6 +54,21 @@ class GenericDetailView(APIView):
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
+
+class GenericDetailView(GenericReadOnlyDetailView):
+
+    def put(self, request, pk, format=None):
+        logger.debug('Updating object with PK %r -- Object class %r -- Update data %r', pk,
+                     self.model, request.data)
+        obj = self.get_object(pk)
+        serializer = self.model_serializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_200_OK)
+        return Response(serializer.data,
+                        status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk, format=None):
         logger.debug('Deleting object with PK %r -- Object class %r', pk, self.model)
         obj = self.get_object(pk)
@@ -61,7 +76,7 @@ class GenericDetailView(APIView):
             obj.delete()
         except IntegrityError:
             return Response({
-                'status':'ERROR',
+                'status': 'ERROR',
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)

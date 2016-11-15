@@ -26,7 +26,7 @@ class UserWorkList(APIView):
             return Review.objects.filter(
                 reviewer=User.objects.get(username=username),
                 completion_date=None
-            )
+            ).order_by('case')
         except Review.DoesNotExist:
             return []
 
@@ -45,7 +45,7 @@ class UserWorkListReview(APIView):
                 reviewer=User.objects.get(username=username),
                 case=Case.objects.get(id=case_id)
             )
-            return ReviewStep.objects.filter(review=review)
+            return ReviewStep.objects.filter(review=review).order_by('slide')
         except Review.DoesNotExist:
             raise NotFound('No review assigned to user %s for case %s' % (username, case_id))
         except ReviewStep.DoesNotExist:

@@ -17,7 +17,7 @@
         function sendReport() {
             $scope.closeThisDialog();
             var dialog = ngDialog.open({
-                template: '/static/templates/user_report/report_sending.html',
+                template: '/static/templates/dialogs/report_sending.html',
                 showClose: false,
                 closeByEscape: false,
                 closeByNavigation: false,
@@ -34,7 +34,10 @@
 
             function sendUserReportErrorFn(response) {
                 console.error('Error sending report!');
-                $scope.closeThisDialog();
+                dialog.close();
+                ngDialog.open({
+                    template: '/static/templates/dialogs/error_dialog.html'
+                })
             }
         }
     }

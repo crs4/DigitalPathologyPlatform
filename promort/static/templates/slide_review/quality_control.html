@@ -1,7 +1,7 @@
 <!-- TODO: use Cecilia's class to set margin top 0 for this element -->
 <div id="qc_header" class="row page-header" style="margin-top: 0;">
     <div class="col-md-9 text-left valign">
-        <h1>Slide {{ qcc.slide_id }} image quality control</h1>
+        <h1>Slide {{ qcc.slide_id }}  - Preliminary review</h1>
     </div><!--
  --><div class="col-md-3 text-right valign">
         <a ng-href="worklist/{{ qcc.case_id }}" class="btn btn-default" role="button">
@@ -15,9 +15,31 @@
         <simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
     </div>
     <div id="qc_form_container" class="col-md-3">
+        <viewer-navigation-panel></viewer-navigation-panel>
+        <div class="well">
+            <h4 class="text-center">Slide classification</h4>
+            <form novalidate role="form" ng-submit="qcc.submitStaining()">
+                <fieldset class="form-group">
+                    <label for="staining">Staining</label>
+                    <select class="form-control" id="staining" ng-model="qcc.slideStaining"
+                            ng-disabled="qcc.slideStainingSubmitted">
+                        <option value="" disabled selected> -- Specify staining</option>
+                        <option value="{{ s.value }}"
+                                ng-repeat="s in qcc.stainings">{{ s.text }}</option>
+                    </select>
+                </fieldset>
+                <div class="text-center" ng-hide="qcc.slideStainingSubmitted">
+                    <button type="submit" class="btn btn-primary prm-btn-sm"
+                            ng-disabled="!qcc.checkStainingFormSubmission()">
+                        <i class="icon-cloud_upload"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
         <div class="well">
             <h4 class="text-center">Image quality</h4>
-            <form novalidate role="form" ng-submit="qcc.submit()">
+            <form novalidate role="form" ng-submit="qcc.submitQualityControl()">
                 <div class="radio">
                     <label>
                         <input type="radio" name="qualityRadios" id="goodQuality"
@@ -49,8 +71,8 @@
                     </fieldset>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-primary prm_button_small"
-                            ng-disabled="!qcc.checkFormSubmission()">
+                    <button type="submit" class="btn btn-primary prm-btn-sm"
+                            ng-disabled="!qcc.checkQCFormSubmission()">
                         <i class="icon-cloud_upload"></i>
                         <span>Save</span>
                     </button>

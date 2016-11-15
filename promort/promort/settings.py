@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'slides_manager',
     'reviews_manager',
     'worklist_manager',
+    'rois_manager',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -177,7 +178,7 @@ REPORT_SUBJECT_PREFIX = '[ProMort]'
 REPORT_RECIPIENTS = ['']
 
 # CUSTOM SETTINGS
-PROMORT_VERSION = '0.1.0_alpha-1'
+PROMORT_VERSION = '0.1.0_alpha-2'
 
 DEFAULT_GROUPS = {
     'reviewer_1': {
