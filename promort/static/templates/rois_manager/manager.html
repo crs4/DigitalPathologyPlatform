@@ -1,7 +1,7 @@
 <div>
     <div class="col-sm-12 row page-header prm-no-margin-top">
         <div class="col-sm-9 text-left prm-valign">
-            <h3>ROIs MANAGER TEMPLATE</h3>
+            <h3>Slide {{ rmc.slide_id }}  - ROIs editing</h3>
         </div><!--
      --><div class="col-sm-3 prm-valign text-center">
         <div class="btn-group dropdown">
@@ -28,7 +28,7 @@
             <viewer-navigation-panel></viewer-navigation-panel>
             <div id="navigation" class="well panel-group prm-tree-well">
                 <div class="prm-form-header">
-                    <h4 class="text-left">ROIs</h4>
+                    <h4 class="text-left">ROIs list</h4>
                 </div>
                 <ul id="rois_tree" class="list-group">
                     <!--  rois_tree -->
@@ -71,8 +71,10 @@
         <a href="worklist/{{ rmc.case_id }}" role="button" class="btn btn-default prm-control-btn-lg">
             <i class="icon-arrow_big_left"></i> Back to slides
         </a>
+        <!--
         <a href="#" role="button" class="btn btn-default prm-control-btn-lg">
             Go to review <i class="icon-arrow_big_right"></i>
         </a>
+        -->
     </div>
 </div>
