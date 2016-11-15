@@ -54,7 +54,11 @@
                         vm.slideStainingSubmitted = true;
                     }
                 } else {
-                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
+                    if (response.data.quality_control.adequate_slide) {
+                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
+                    } else {
+                        $location.url('worklist/' + vm.case_id);
+                    }
                 }
             }
 
@@ -62,34 +66,6 @@
                 console.error('Cannot load slide info');
                 console.error(response);
             }
-/*            QualityControlService.get(vm.slide_id)
-                .then(qualityControlSuccessFn, qualityControlErrorFn);
-
-            function qualityControlSuccessFn(response) {
-                // move to the ROIs review page
-                $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
-            }
-
-            function qualityControlErrorFn(response) {
-                if (response.status === 404) {
-                    // initialize not_adequacy_reason
-                    QualityControlService.fetchNotAdequacyReasons()
-                        .then(fetchNotAdequacyReasonSuccessFn);
-                    //noinspection JSAnnotator
-                    function fetchNotAdequacyReasonSuccessFn(response) {
-                        vm.not_adequacy_reasons = response.data;
-                    }
-                    //initialize staining
-                    SlideStainingService.fetchStainings()
-                        .then(fetchStainingSuccessFn);
-                    //noinspection JSAnnotator
-                    function fetchStainingSuccessFn(response) {
-                        vm.stainings = response.data;
-                    }
-                } else {
-                    console.error(response.error);
-                }
-            }*/
         }
 
         function checkStainingFormSubmission() {

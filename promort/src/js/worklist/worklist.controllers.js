@@ -22,12 +22,12 @@
         function activate() {
             WorkListService.get().then(workListSuccessFn, workListErrorFn);
             
-            function workListSuccessFn(data, status, headers, config) {
-                vm.pendingReviews = data.data;
+            function workListSuccessFn(response) {
+                vm.pendingReviews = response.data;
             }
             
-            function workListErrorFn(data, status, headers, config) {
-                console.error(data.error);
+            function workListErrorFn(response) {
+                console.error(response.error);
             }
         }
 
@@ -67,9 +67,9 @@
         }
     }
     
-    ReviewController.$inject = ['$scope', '$routeParams', 'ReviewStepsService'];
+    ReviewController.$inject = ['$scope', '$routeParams', '$location', 'ReviewStepsService'];
 
-    function ReviewController($scope, $routeParams, ReviewStepsService) {
+    function ReviewController($scope, $routeParams, $location, ReviewStepsService) {
         var vm = this;
         vm.reviewSteps = [];
         vm.case_id = undefined;
@@ -87,12 +87,13 @@
             ReviewStepsService.get(vm.case_id)
                 .then(ReviewStepsSuccessFn, ReviewStepsErrorFn);
 
-            function ReviewStepsSuccessFn(data, status, headers, config) {
-                vm.reviewSteps = data.data;
+            function ReviewStepsSuccessFn(response) {
+                vm.reviewSteps = response.data;
             }
 
-            function ReviewStepsErrorFn(data, status, headers, config) {
-                console.error(data.error);
+            function ReviewStepsErrorFn(response) {
+                console.error(response.error);
+                $location.url('404');
             }
         }
 

@@ -12,11 +12,11 @@
         .controller('NewFocusRegionController', NewFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile',
-        'ngDialog', 'SlidesManagerService', 'AnnotationsViewerService'];
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
+        'ngDialog', 'SlideService', 'SlidesManagerService', 'AnnotationsViewerService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, ngDialog,
-                                   SlidesManagerService, AnnotationsViewerService) {
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
+                                   SlideService, SlidesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -56,6 +56,7 @@
         vm.newFocusRegionModeActive = newFocusRegionModeActive;
         vm.activateShowFocusRegionMode = activateShowFocusRegionMode;
         vm.showFocusRegionModeActive = showFocusRegionModeActive;
+        vm.newItemCreationModeActive = newItemCreationModeActive;
         vm._registerSlice = _registerSlice;
         vm._unregisterSlice = _unregisterSlice;
         vm._registerCore = _registerCore;
@@ -85,108 +86,124 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            // shut down creation forms when specific events occur
-            $scope.$on('tool.destroyed',
-                function() {
-                    vm.allModesOff();
-                }
-            );
+            SlideService.get(vm.slide_id)
+                .then(getSlideSuccessFn, getSlideErrorFn);
 
-            $scope.$on('slice.new',
-                function(event, slice_info) {
-                    vm._registerSlice(slice_info);
-                    vm.allModesOff();
-                    // add new item to ROIs tree
-                    var $tree = $("#rois_tree");
-                    var $new_slice_item = $(vm._createListItem(slice_info.label, true));
-                    var $anchor = $new_slice_item.find('a');
-                    $anchor.attr('ng-click', 'rmc.showROI("slice", ' + slice_info.id + ')')
-                        .attr('ng-mouseenter', 'rmc.selectROI("slice", ' + slice_info.id +')')
-                        .attr('ng-mouseleave', 'rmc.deselectROI("slice", ' + slice_info.id +')');
-                    $compile($anchor)($scope);
-                    var new_slice_subtree = vm._createNewSubtree(slice_info.label);
-                    $new_slice_item.append(new_slice_subtree);
-                    $tree.append($new_slice_item);
-                }
-            );
+            function getSlideSuccessFn(response) {
+                if (response.data.quality_control !== null &&
+                    response.data.quality_control.adequate_slide) {
 
-            $scope.$on('slice.deleted',
-                function(event, slice_id) {
-                    console.log('SLICE ' + slice_id + ' DELETED');
-                    var cores = _getSliceCores(slice_id);
-                    cores.forEach(
-                        function(item, index) {
-                            $rootScope.$broadcast('core.deleted', item.id);
+                    // shut down creation forms when specific events occur
+                    $scope.$on('tool.destroyed',
+                        function () {
+                            vm.allModesOff();
                         }
                     );
-                    AnnotationsViewerService.deleteShape(vm._getSliceLabel(slice_id));
-                    $("#" + vm._getSliceLabel(slice_id) + "_list").remove();
-                    vm._unregisterSlice(slice_id);
-                    vm.allModesOff();
-                }
-            );
 
-            $scope.$on('core.new',
-                function(event, core_info) {
-                    vm._registerCore(core_info);
-                    vm.allModesOff();
-                    // add new item to ROIs tree
-                    var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
-                    var $new_core_item = $(vm._createListItem(core_info.label, true));
-                    var $anchor = $new_core_item.find('a');
-                    $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')')
-                        .attr('ng-mouseenter', 'rmc.selectROI("core", ' + core_info.id + ')')
-                        .attr('ng-mouseleave', 'rmc.deselectROI("core", ' + core_info.id + ')');
-                    $compile($anchor)($scope);
-                    var new_core_subtree = vm._createNewSubtree(core_info.label);
-                    $new_core_item.append(new_core_subtree);
-                    $tree.append($new_core_item);
-                }
-            );
-
-            $scope.$on('core.deleted',
-                function(event, core_id) {
-                    console.log('CORE ' + core_id + ' DELETED');
-                    var focus_regions = _getCoreFocusRegions(core_id);
-                    focus_regions.forEach(
-                        function(item, index) {
-                            console.log('Broadcasting delete evento for focus region ' + item.id);
-                            $rootScope.$broadcast('focus_region.deleted', item.id);
+                    $scope.$on('slice.new',
+                        function (event, slice_info) {
+                            vm._registerSlice(slice_info);
+                            vm.allModesOff();
+                            // add new item to ROIs tree
+                            var $tree = $("#rois_tree");
+                            var $new_slice_item = $(vm._createListItem(slice_info.label, true));
+                            var $anchor = $new_slice_item.find('a');
+                            $anchor.attr('ng-click', 'rmc.showROI("slice", ' + slice_info.id + ')')
+                                .attr('ng-mouseenter', 'rmc.selectROI("slice", ' + slice_info.id + ')')
+                                .attr('ng-mouseleave', 'rmc.deselectROI("slice", ' + slice_info.id + ')');
+                            $compile($anchor)($scope);
+                            var new_slice_subtree = vm._createNewSubtree(slice_info.label);
+                            $new_slice_item.append(new_slice_subtree);
+                            $tree.append($new_slice_item);
                         }
                     );
-                    AnnotationsViewerService.deleteShape(vm._getCoreLabel(core_id));
-                    $("#" + vm._getCoreLabel(core_id) + "_list").remove();
-                    vm._unregisterCore(core_id);
-                    vm.allModesOff();
-                }
-            );
 
-            $scope.$on('focus_region.new',
-                function(event, focus_region_info) {
-                    vm._registerFocusRegion(focus_region_info);
-                    vm.allModesOff();
-                    // add new item to ROIs tree
-                    var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
-                    var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false));
-                    var $anchor = $new_focus_region_item.find('a');
-                    $anchor.attr('ng-click', 'rmc.showROI("focus_region", ' + focus_region_info.id + ', "' +
-                        vm._getCoreLabel(focus_region_info.core) + '")')
-                        .attr('ng-mouseenter', 'rmc.selectROI("focus_region", ' + focus_region_info.id + ')')
-                        .attr('ng-mouseleave', 'rmc.deselectROI("focus_region", ' + focus_region_info.id + ')');
-                    $compile($anchor)($scope);
-                    $tree.append($new_focus_region_item);
-                }
-            );
+                    $scope.$on('slice.deleted',
+                        function (event, slice_id) {
+                            console.log('SLICE ' + slice_id + ' DELETED');
+                            var cores = _getSliceCores(slice_id);
+                            cores.forEach(
+                                function (item, index) {
+                                    $rootScope.$broadcast('core.deleted', item.id);
+                                }
+                            );
+                            AnnotationsViewerService.deleteShape(vm._getSliceLabel(slice_id));
+                            $("#" + vm._getSliceLabel(slice_id) + "_list").remove();
+                            vm._unregisterSlice(slice_id);
+                            vm.allModesOff();
+                        }
+                    );
 
-            $scope.$on('focus_region.deleted',
-                function(event, focus_region_id) {
-                    console.log('FOCUS REGION ' + focus_region_id + ' DELETED');
-                    AnnotationsViewerService.deleteShape(vm._getFocusRegionLabel(focus_region_id));
-                    $("#" + vm._getFocusRegionLabel(focus_region_id) + "_list").remove();
-                    vm._unregisterFocusRegion(focus_region_id);
-                    vm.allModesOff();
+                    $scope.$on('core.new',
+                        function (event, core_info) {
+                            vm._registerCore(core_info);
+                            vm.allModesOff();
+                            // add new item to ROIs tree
+                            var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
+                            var $new_core_item = $(vm._createListItem(core_info.label, true));
+                            var $anchor = $new_core_item.find('a');
+                            $anchor.attr('ng-click', 'rmc.showROI("core", ' + core_info.id + ')')
+                                .attr('ng-mouseenter', 'rmc.selectROI("core", ' + core_info.id + ')')
+                                .attr('ng-mouseleave', 'rmc.deselectROI("core", ' + core_info.id + ')');
+                            $compile($anchor)($scope);
+                            var new_core_subtree = vm._createNewSubtree(core_info.label);
+                            $new_core_item.append(new_core_subtree);
+                            $tree.append($new_core_item);
+                        }
+                    );
+
+                    $scope.$on('core.deleted',
+                        function (event, core_id) {
+                            console.log('CORE ' + core_id + ' DELETED');
+                            var focus_regions = _getCoreFocusRegions(core_id);
+                            focus_regions.forEach(
+                                function (item, index) {
+                                    console.log('Broadcasting delete evento for focus region ' + item.id);
+                                    $rootScope.$broadcast('focus_region.deleted', item.id);
+                                }
+                            );
+                            AnnotationsViewerService.deleteShape(vm._getCoreLabel(core_id));
+                            $("#" + vm._getCoreLabel(core_id) + "_list").remove();
+                            vm._unregisterCore(core_id);
+                            vm.allModesOff();
+                        }
+                    );
+
+                    $scope.$on('focus_region.new',
+                        function (event, focus_region_info) {
+                            vm._registerFocusRegion(focus_region_info);
+                            vm.allModesOff();
+                            // add new item to ROIs tree
+                            var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
+                            var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false));
+                            var $anchor = $new_focus_region_item.find('a');
+                            $anchor.attr('ng-click', 'rmc.showROI("focus_region", ' + focus_region_info.id + ', "' +
+                                vm._getCoreLabel(focus_region_info.core) + '")')
+                                .attr('ng-mouseenter', 'rmc.selectROI("focus_region", ' + focus_region_info.id + ')')
+                                .attr('ng-mouseleave', 'rmc.deselectROI("focus_region", ' + focus_region_info.id + ')');
+                            $compile($anchor)($scope);
+                            $tree.append($new_focus_region_item);
+                        }
+                    );
+
+                    $scope.$on('focus_region.deleted',
+                        function (event, focus_region_id) {
+                            console.log('FOCUS REGION ' + focus_region_id + ' DELETED');
+                            AnnotationsViewerService.deleteShape(vm._getFocusRegionLabel(focus_region_id));
+                            $("#" + vm._getFocusRegionLabel(focus_region_id) + "_list").remove();
+                            vm._unregisterFocusRegion(focus_region_id);
+                            vm.allModesOff();
+                        }
+                    )
+                } else {
+                    $location.url('worklist');
                 }
-            )
+            }
+
+            function getSlideErrorFn(response) {
+                console.error('Cannot load slide info');
+                console.error(response);
+            }
         }
 
         function _registerSlice(slice_info) {
@@ -355,16 +372,16 @@
                 closeByDocument: false
             }).then(confirmFn);
 
-            var dialog = undefined;
             function confirmFn(confirm_value) {
-                dialog = ngDialog.open({
+                if (confirm_value) {
+                    var dialog = ngDialog.open({
                         'template': '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,
                         closeByDocument: false
                     });
-                if (confirm_value) {
+
                     SlidesManagerService.clearROIs(vm.slide_id)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
                 }
@@ -390,7 +407,7 @@
                 function clearROIsErrorFn(response) {
                     console.error('Clear ROIs failed');
                     console.error(response);
-                    $scope.closeThisDialog();
+                    dialog.close();
                 }
             }
         }
@@ -454,6 +471,14 @@
 
         function showFocusRegionModeActive() {
             return vm.ui_active_modes['show_focus_region'];
+        }
+
+        function newItemCreationModeActive() {
+            return (
+                vm.ui_active_modes['new_slice']
+                || vm.ui_active_modes['new_core']
+                || vm.ui_active_modes['new_focus_region']
+            );
         }
 
         function getSlicesCount() {
@@ -607,6 +632,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
@@ -841,8 +867,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('CORE IS NOT INSIDE A SLIDE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_core.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('freehand_polygon_saved');
@@ -932,8 +960,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('CORE IS NOT INSIDE A SLIDE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_core.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('polygon_saved');
@@ -961,6 +991,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
@@ -982,10 +1013,10 @@
         }
 
         function deleteRuler() {
+            var $ruler_out = $('#core_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
             if (typeof vm.coreLength !== 'undefined') {
-                var $ruler_out = $('#core_ruler_output');
-                $ruler_out.unbind('ruler_cleared');
-                AnnotationsViewerService.clearRuler();
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.coreLength = undefined;
@@ -1236,8 +1267,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_focus_region.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('freehand_polygon_saved');
@@ -1326,8 +1359,10 @@
                         }
                     }
                     if (typeof vm.shape === 'undefined') {
-                        console.error('FOCUS REGION IS NOT INSIDE A CORE');
                         AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            'template': '/static/templates/dialogs/invalid_focus_region.html'
+                        });
                     }
                     vm.abortTool();
                     $canvas.unbind('polygon_saved');
@@ -1356,6 +1391,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
@@ -1379,10 +1415,10 @@
         }
 
         function deleteRuler() {
+            var $ruler_out = $('#focus_region_ruler_output');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
             if (typeof vm.regionLength !== 'undefined') {
-                var $ruler_out = $('#focus_region_ruler_output');
-                $ruler_out.unbind('ruler_cleared');
-                AnnotationsViewerService.clearRuler();
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.regionLength = undefined;
