@@ -632,6 +632,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
@@ -990,6 +991,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
@@ -1389,6 +1391,7 @@
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
         }
 
         function destroy() {
