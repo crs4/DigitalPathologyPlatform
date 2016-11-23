@@ -56,7 +56,7 @@ class CoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'positive', 'focus_regions_count')
+                  'length', 'area', 'tumor_length', 'positive', 'focus_regions_count')
         read_only_fields = ('id', 'creation_date', 'positive', 'focus_regions_count')
 
     def get_focus_regions_count(self, obj):
@@ -107,7 +107,7 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date',
-                  'roi_json', 'length', 'area', 'positive', 'focus_regions')
+                  'roi_json', 'length', 'area', 'tumor_length', 'positive', 'focus_regions')
         read_only_fields = ('id', 'creation_date', 'positive')
 
     def get_positive(self, obj):

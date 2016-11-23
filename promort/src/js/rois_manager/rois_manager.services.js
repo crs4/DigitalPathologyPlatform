@@ -66,12 +66,13 @@
             return $http.get('/api/slices/' + slice_id + '/cores/');
         }
 
-        function createCore(slice_id, core_label, roi_json, length, area) {
+        function createCore(slice_id, core_label, roi_json, length, area, tumor_length) {
             var params = {
                 label: core_label,
                 roi_json: JSON.stringify(roi_json),
                 length: length,
-                area: area
+                area: area,
+                tumor_length: tumor_length
             };
             return $http.post('/api/slices/' + slice_id + '/cores/', params);
         }
