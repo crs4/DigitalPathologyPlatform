@@ -52,12 +52,15 @@
             return $http.get('api/utils/slide_not_adequacy_reasons/');
         }
 
-        function create(slide_id, adequacy, not_adequancy_reason) {
+        function create(slide_id, adequacy, not_adequancy_reason, notes) {
             var params = {
                 adequate_slide: adequacy
             };
             if (not_adequancy_reason) {
                 params.not_adequacy_reason = not_adequancy_reason;
+            }
+            if (notes) {
+                params.notes = notes;
             }
             console.log(params);
             return $http.post('api/slides/' + slide_id + '/quality_control/', params);

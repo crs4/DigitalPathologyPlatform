@@ -45,7 +45,7 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
         model = SlideQualityControl
 
         fields = ('slide', 'adequate_slide', 'not_adequacy_reason',
-                  'reviewer', 'acquisition_date')
+                  'reviewer', 'acquisition_date', 'notes')
         read_only_fields = ('acquisition_date',)
 
 

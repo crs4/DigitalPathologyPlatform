@@ -109,7 +109,8 @@
             QualityControlService.create(
                 vm.slide_id,
                 $.parseJSON(vm.slideQualityControl.goodImageQuality),
-                vm.slideQualityControl.notAdequacyReason
+                vm.slideQualityControl.notAdequacyReason,
+                vm.slideQualityControl.notes
             ).then(qualityControlCreationSuccessFn, qualityControlCreationErrorFn);
 
             function qualityControlCreationSuccessFn(response) {
@@ -118,7 +119,7 @@
                 } else {
                     // close the review because image quality is bad
                     ReviewStepsService.closeReviewStep(vm.case_id, 'REVIEW_1',
-                        vm.slide_id, vm.reviewNotes)
+                        vm.slide_id, 'Slide didn\'t pass quality control phase')
                         .then(closeReviewSuccessFn, closeReviewErrorFn);
 
                     //noinspection JSAnnotator

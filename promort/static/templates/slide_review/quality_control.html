@@ -64,12 +64,12 @@
                                         ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
                             </select>
                         </fieldset>
-                        <fieldset class="form-group">
-                            <label for="notes">Notes</label>
-                            <textarea class="form-control" id="notes" rows="7"
-                                      ng-model="qcc.reviewNotes"></textarea>
-                        </fieldset>
                     </div>
+                    <fieldset class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" rows="5"
+                                  ng-model="qcc.slideQualityControl.notes"></textarea>
+                    </fieldset>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary prm-btn-sm"
                                 ng-disabled="!qcc.checkQCFormSubmission()">

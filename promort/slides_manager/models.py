@@ -52,6 +52,7 @@ class SlideQualityControl(models.Model):
         max_length=10, choices=NOT_ADEQUACY_REASONS_CHOICES,
         blank=True, null=True, default=None
     )
+    notes = models.TextField(blank=True, null=True)
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT,
                                  blank=False)
     acquisition_date = models.DateTimeField(auto_now_add=True)
