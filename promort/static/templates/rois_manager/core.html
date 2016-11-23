@@ -127,4 +127,46 @@
             </div>
         </div>
     </div>
+    <div id="acquire_tumor_measure" class="form-group row"
+         ng-hide="rmCtrl.tumorLengthExists() || rmCtrl.isTumorRulerToolActive()
+            || !rmCtrl.shapeExists() || rmCtrl.isReadOnly()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Tumor length</label>
+        </div><!--
+     --><div class="col-sm-6 prm-valign prm-form-elem">
+            <button id="tumor_ruler_on" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.startTumorRuler()">
+                <i class="icon-measure"></i>
+            </button>
+        </div>
+    </div>
+    <div id="show_tumor_measure" class="form-group row"
+         ng-show="rmCtrl.isTumorRulerToolActive() || rmCtrl.tumorLengthExists() || rmCtrl.isReadOnly()">
+        <div class="prm-label-elem">
+            <label>Tumor length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input id="tumor_ruler_output" class="form-control prm-text-input" type="number"
+                   readonly placeholder="0.00" ng-model="rmCtrl.tumorLength">
+            <div class="input-group-addon prm-addon">mm</div>
+            <div class="input-group-btn">
+                <button id="tumor_ruler_abort" class="btn btn-default prm-icon-btn"
+                        ng-show="rmCtrl.isTumorRulerToolActive()" ng-click="rmCtrl.abortTool()">
+                    <i class="icon-cross_mark"></i>
+                </button>
+            </div>
+            <div class="input-group-btn">
+                <button id="tumor_ruler_off" class="btn btn-default prm-icon-btn"
+                        ng-show="rmCtrl.isTumorRulerToolActive()" ng-click="rmCtrl.stopTumorRuler()">
+                    <i class="icon-check"></i>
+                </button>
+            </div>
+            <div class="input-group-btn">
+                <button class="btn btn-default prm-icon-btn"
+                        ng-hide="rmCtrl.isTumorRulerToolActive() || rmCtrl.isReadOnly()"
+                        ng-click="rmCtrl.deleteTumorRuler()">
+                    <i class="icon-trash_can"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

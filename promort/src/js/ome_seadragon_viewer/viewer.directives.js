@@ -25,28 +25,17 @@
             templateUrl: '/static/templates/viewer/simple_viewer.html',
             link: function(scope, element, attrs) {
                 function setViewerHeight() {
-                    // set viewer's height to maximize page's vertical space
-                    var used_v_space = $('#index_navbar').height() + $('#qc_header').height();
-                    var $vcont = $('#viewer_container');
-                    var bottom_border = parseInt($vcont.css('marginBottom')) +
-                            parseInt($vcont.css('marginTop')) +
-                            parseInt($vcont.css('paddingTop')) +
-                            parseInt($vcont.css('paddingBottom')) + 50;
-                    console.log(bottom_border);
+                    var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
+                        + $("#index_navbar").height() + 100;
 
-                    var available_v_space = $(window).height() - (used_v_space + bottom_border);
-                    var $qfc = $('#qc_form_container');
-                    if (available_v_space < $qfc.height()) {
-                        available_v_space = $qfc.height();
-                    }
+                    var available_v_space = $(window).height() - used_v_space;
 
                     $('#simple_viewer').height(available_v_space);
                 }
 
                 setViewerHeight();
                 $(window).resize(setViewerHeight);
-                $('#goodQuality').click(setViewerHeight);
-                $('#badQuality').click(setViewerHeight);
+                $(window).bind('resize_simple_viewer', setViewerHeight);
 
                 scope.$on('viewer.controller_initialized', function() {
                     // clean navigator div
@@ -98,6 +87,20 @@
             restrict: 'E',
             templateUrl: '/static/templates/viewer/rois_viewer.html',
             link: function(scope, element, attrs) {
+                function setViewerHeight() {
+                    var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
+                        + $("#index_navbar").height() + 100;
+
+                    var available_v_space = $(window).height() - used_v_space;
+
+                    $("#rois_viewer").height(available_v_space);
+                    $("#rois_viewer_containter").height(available_v_space);
+                }
+
+                setViewerHeight();
+                $(window).resize(setViewerHeight);
+                $(window).bind('resize_annotated_viewer', setViewerHeight);
+
                 scope.$on('viewer.controller_initialized', function() {
                     // clean navigator div
                     $('#navi').empty();
@@ -112,7 +115,7 @@
                         'homeButton': 'navi_home'
                     };
                     var ome_seadragon_viewer = new ViewerController(
-                        'viewer',
+                        'rois_viewer',
                         scope.avc.getStaticFilesURL(),
                         scope.avc.getDZIURL(),
                         viewer_config

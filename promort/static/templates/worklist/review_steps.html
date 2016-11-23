@@ -1,28 +1,30 @@
-<div id="worklist-panel" class="row">
-    <div class="col-md-8 col-md-offset-2">
-        <div class="page-header text-center">
-            <h1>SLIDES - Review steps for case {{ rc.case_id }}</h1>
-        </div>
-        <div id="worklist-details" ng-repeat="step in rc.reviewSteps">
-            <div class="well row">
-                <div class="col-md-9 prm-valign">
-                    <div>
-                        <p><strong>Slide ID:</strong> {{ step.slide }}</p>
-                    </div>
-                </div><!--
+<div class="container">
+    <div id="worklist-panel" class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header text-center">
+                <h1>SLIDES - Review steps for case {{ rc.case_id }}</h1>
+            </div>
+            <div id="worklist-details" ng-repeat="step in rc.reviewSteps">
+                <div class="well row">
+                    <div class="col-md-9 prm-valign">
+                        <div>
+                            <p><strong>Slide ID:</strong> {{ step.slide }}</p>
+                        </div>
+                    </div><!--
                    Removing blank spaces between DIVs, this will make valign work
-             --><div class="col-md-3 text-right prm-valign">
-                    <div>
-                        <a class="btn btn-success"
-                            ng-href="{{ rc.getReviewStepLink(step) }}"
-                            ng-show="rc.reviewStepPending(step)"
-                            ng-click="rc.startReviewStep(step)">Start slide review</a>
-                        <a class="btn btn-warning"
-                            ng-show="rc.reviewStepInProgress(step)"
-                            ng-href="{{ rc.getReviewStepLink(step) }}">Continue slide review</a>
-                        <a class="btn btn-default"
-                            ng-show="rc.reviewStepCompleted(step)"
-                            href="#" disabled="true">Slide review completed</a>
+                   --><div class="col-md-3 text-right prm-valign">
+                        <div>
+                            <a class="btn btn-success"
+                               ng-href="{{ rc.getReviewStepLink(step) }}"
+                               ng-show="rc.reviewStepPending(step)"
+                               ng-click="rc.startReviewStep(step)">Start slide review</a>
+                            <a class="btn btn-warning"
+                               ng-show="rc.reviewStepInProgress(step)"
+                               ng-href="{{ rc.getReviewStepLink(step) }}">Continue slide review</a>
+                            <a class="btn btn-default"
+                               ng-show="rc.reviewStepCompleted(step)"
+                               href="#" disabled="true">Slide review completed</a>
+                        </div>
                     </div>
                 </div>
             </div>
