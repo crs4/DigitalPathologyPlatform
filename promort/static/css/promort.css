@@ -6,7 +6,6 @@ div.prm-valign {
 
 div.viewer_frame {
     background-color: white;
-    padding: 5px;
 }
 
 div.ome_viewer_simple {
@@ -15,15 +14,16 @@ div.ome_viewer_simple {
 
 div.annotated_viewer_container {
     position: relative;
+    padding: 0;
 }
 
 .annotated_viewer_element {
+    width: 100%;
+    height: 1px;
     position: absolute;
-}
-
-.static_viewer_element {
-    width: 635px;
-    height: 600px;
+    padding: inherit;
+    margin: inherit;
+    border: inherit;
 }
 
 .prm-viewer-navi {

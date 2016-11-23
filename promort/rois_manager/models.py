@@ -27,6 +27,7 @@ class Core(models.Model):
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0.0)
+    tumor_length = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ('label', 'slice')

@@ -1,28 +1,30 @@
-<div id="worklist-panel" class="row">
-    <div class="col-md-8 col-md-offset-2">
-        <div class="page-header text-center">
-            <h1>WORKLIST - Pending reviews</h1>
-        </div>
-        <div id="worklist-details" ng-repeat="review in wlc.pendingReviews">
-            <div class="well row">
-                <div class="col-md-9 prm-valign">
-                    <div>
-                        <p><strong>Case ID:</strong> {{ review.case }}</p>
-                        <p><strong>Review Type:</strong> {{ review.type }}</p>
-                        <p><strong>Slides count:</strong> {{ review.steps_count | number:0 }}</p>
-                    </div>
-                </div><!--
+<div class="container">
+    <div id="worklist-panel" class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header text-center">
+                <h1>WORKLIST - Pending reviews</h1>
+            </div>
+            <div id="worklist-details" ng-repeat="review in wlc.pendingReviews">
+                <div class="well row">
+                    <div class="col-md-9 prm-valign">
+                        <div>
+                            <p><strong>Case ID:</strong> {{ review.case }}</p>
+                            <p><strong>Review Type:</strong> {{ review.type }}</p>
+                            <p><strong>Slides count:</strong> {{ review.steps_count | number:0 }}</p>
+                        </div>
+                    </div><!--
                   Removing blank spaces between DIVs, this will make valign work
-             --><div class="col-md-3 text-right prm-valign">
-                    <div>
-                        <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
-                           ng-href="{{ wlc.getReviewLink(review) }}"
-                           ng-click="wlc.openReview(review)">
-                           <!-- disabled until all the steps for the review workflow are completed -->
-                           <!-- ng-disabled="wlc.checkPendingReviews()"> -->
-                           Start Review</a>
-                        <a class="btn btn-warning" ng-show="wlc.reviewInProgress(review)"
-                           ng-href="worklist/{{ review.case }}">Continue Review</a>
+                  --><div class="col-md-3 text-right prm-valign">
+                        <div>
+                            <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
+                               ng-href="{{ wlc.getReviewLink(review) }}"
+                               ng-click="wlc.openReview(review)">
+                                <!-- disabled until all the steps for the review workflow are completed -->
+                                <!-- ng-disabled="wlc.checkPendingReviews()"> -->
+                                Start Review</a>
+                            <a class="btn btn-warning" ng-show="wlc.reviewInProgress(review)"
+                               ng-href="worklist/{{ review.case }}">Continue Review</a>
+                        </div>
                     </div>
                 </div>
             </div>
