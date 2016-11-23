@@ -1,25 +1,28 @@
-<div class="row">
-    <div class="jumbotron text-center">
-        <h1>ProMort Image Management System</h1>
-    </div>
-    <div class="container">
-        <div class="col-md-8 col-md-offset-2 well">
-            <h2>
-                <small>
-                    The goal of the <strong>ProMort</strong> project is to conduct a large scale epidemiological
-                    study of patients that have been diagnosed with a benign form of prostatic cancer but nevertheless
-                    died before expected.
-                </small>
-            </h2>
-            <h2>
-                <small>
-                    The specific goal of the <strong>ProMort Image Management System</strong> is to create a
-                    collection of fully annotated images related to biopsies slides.
-                </small>
-            </h2>
+<div class="container">
+    <div class="row">
+        <div class="jumbotron text-center">
+            <h1>ProMort Image Management System</h1>
         </div>
-        <div class="col-md-12 text-center" ng-show="ac.isAuthenticated()">
-            <a href="/worklist" role="button" class="btn btn-primary btn-lg">Go to worklist</a>
+        <div class="container">
+            <div class="col-md-8 col-md-offset-2 well">
+                <h2>
+                    <small>
+                        The goal of the <strong>ProMort</strong> project is to conduct a large scale epidemiological
+                        study of patients that have been diagnosed with a benign form of prostatic cancer but
+                        nevertheless
+                        died before expected.
+                    </small>
+                </h2>
+                <h2>
+                    <small>
+                        The specific goal of the <strong>ProMort Image Management System</strong> is to create a
+                        collection of fully annotated images related to biopsies slides.
+                    </small>
+                </h2>
+            </div>
+            <div class="col-md-12 text-center" ng-show="ac.isAuthenticated()">
+                <a href="/worklist" role="button" class="btn btn-primary btn-lg">Go to worklist</a>
+            </div>
         </div>
     </div>
 </div>

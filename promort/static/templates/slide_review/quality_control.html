@@ -1,83 +1,84 @@
-<!-- TODO: use Cecilia's class to set margin top 0 for this element -->
-<div id="qc_header" class="row page-header" style="margin-top: 0;">
-    <div class="col-md-9 text-left valign">
-        <h1>Slide {{ qcc.slide_id }}  - Preliminary review</h1>
-    </div><!--
- --><div class="col-md-3 text-right valign">
-        <a ng-href="worklist/{{ qcc.case_id }}" class="btn btn-default" role="button">
-            <i class="icon-list"></i>
-            Back to slides
-        </a>
-    </div>
-</div>
-<div id="slide_quality_control" class="row">
-    <div id="viewer_container" class="col-md-9 viewer_frame well">
-        <simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
-    </div>
-    <div id="qc_form_container" class="col-md-3">
-        <viewer-navigation-panel></viewer-navigation-panel>
-        <div class="well">
-            <h4 class="text-center">Slide classification</h4>
-            <form novalidate role="form" ng-submit="qcc.submitStaining()">
-                <fieldset class="form-group">
-                    <label for="staining">Staining</label>
-                    <select class="form-control" id="staining" ng-model="qcc.slideStaining"
-                            ng-disabled="qcc.slideStainingSubmitted">
-                        <option value="" disabled selected> -- Specify staining</option>
-                        <option value="{{ s.value }}"
-                                ng-repeat="s in qcc.stainings">{{ s.text }}</option>
-                    </select>
-                </fieldset>
-                <div class="text-center" ng-hide="qcc.slideStainingSubmitted">
-                    <button type="submit" class="btn btn-primary prm-btn-sm"
-                            ng-disabled="!qcc.checkStainingFormSubmission()">
-                        <i class="icon-cloud_upload"></i>
-                        <span>Save</span>
-                    </button>
-                </div>
-            </form>
+<div class="container_fluid">
+    <div id="pg_header" class="row col-md-10 col-md-offset-1 page-header prm-no-margin-top">
+        <div class="col-sm-8 text-left prm-valign">
+            <h1>Slide {{ qcc.slide_id }} - Preliminary review</h1>
+        </div><!--
+        --><div class="col-sm-4 text-right prm-valign">
+            <a ng-href="worklist/{{ qcc.case_id }}" class="btn btn-default" role="button">
+                <i class="icon-list"></i>
+                Back to slides
+            </a>
         </div>
-        <div class="well">
-            <h4 class="text-center">Image quality</h4>
-            <form novalidate role="form" ng-submit="qcc.submitQualityControl()">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="qualityRadios" id="goodQuality"
-                               value="true" ng-model="qcc.slideQualityControl.goodImageQuality">
-                        Good quality
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="qualityRadios" id="badQuality"
-                               value="false" ng-model="qcc.slideQualityControl.goodImageQuality">
-                        Bad quality
-                    </label>
-                </div>
-                <div id="bad_quality_related" ng-show="qcc.slideQualityControl.goodImageQuality === 'false'">
+    </div>
+    <div id="pg_body" class="row col-md-10 col-md-offset-1">
+        <div id="viewer_container" class="col-md-9 viewer_frame well">
+            <simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
+        </div>
+        <div id="qc_form_container" class="col-md-3">
+            <viewer-navigation-panel></viewer-navigation-panel>
+            <div class="well">
+                <h4 class="text-center">Slide classification</h4>
+                <form novalidate role="form" ng-submit="qcc.submitStaining()">
                     <fieldset class="form-group">
-                        <label for="notAdequacyReasons">Not adequacy reason</label>
-                        <select class="form-control" id="notAdequacyReasons"
-                                ng-model="qcc.slideQualityControl.notAdequacyReason">
-                            <option value="" disabled selected> -- Specify a reason</option>
-                            <option value="{{ r.value }}"
-                                    ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
+                        <label for="staining">Staining</label>
+                        <select class="form-control" id="staining" ng-model="qcc.slideStaining"
+                                ng-disabled="qcc.slideStainingSubmitted">
+                            <option value="" disabled selected> -- Specify staining</option>
+                            <option value="{{ s.value }}"
+                                    ng-repeat="s in qcc.stainings">{{ s.text }}</option>
                         </select>
                     </fieldset>
-                    <fieldset class="form-group">
-                        <label for="notes">Notes</label>
-                        <textarea class="form-control" id="notes" rows="7"
-                                  ng-model="qcc.reviewNotes"></textarea>
-                    </fieldset>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary prm-btn-sm"
-                            ng-disabled="!qcc.checkQCFormSubmission()">
-                        <i class="icon-cloud_upload"></i>
-                        <span>Save</span>
-                    </button>
-                </div>
-            </form>
+                    <div class="text-center" ng-hide="qcc.slideStainingSubmitted">
+                        <button type="submit" class="btn btn-primary prm-btn-sm"
+                                ng-disabled="!qcc.checkStainingFormSubmission()">
+                            <i class="icon-cloud_upload"></i>
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="well">
+                <h4 class="text-center">Image quality</h4>
+                <form novalidate role="form" ng-submit="qcc.submitQualityControl()">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="qualityRadios" id="goodQuality"
+                                   value="true" ng-model="qcc.slideQualityControl.goodImageQuality">
+                            Good quality
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="qualityRadios" id="badQuality"
+                                   value="false" ng-model="qcc.slideQualityControl.goodImageQuality">
+                            Bad quality
+                        </label>
+                    </div>
+                    <div id="bad_quality_related" ng-show="qcc.slideQualityControl.goodImageQuality === 'false'">
+                        <fieldset class="form-group">
+                            <label for="notAdequacyReasons">Not adequacy reason</label>
+                            <select class="form-control" id="notAdequacyReasons"
+                                    ng-model="qcc.slideQualityControl.notAdequacyReason">
+                                <option value="" disabled selected> -- Specify a reason</option>
+                                <option value="{{ r.value }}"
+                                        ng-repeat="r in qcc.not_adequacy_reasons">{{ r.text }}</option>
+                            </select>
+                        </fieldset>
+                        <fieldset class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea class="form-control" id="notes" rows="7"
+                                      ng-model="qcc.reviewNotes"></textarea>
+                        </fieldset>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary prm-btn-sm"
+                                ng-disabled="!qcc.checkQCFormSubmission()">
+                            <i class="icon-cloud_upload"></i>
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

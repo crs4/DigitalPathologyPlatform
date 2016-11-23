@@ -30,6 +30,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
             SlideService.get(vm.slide_id)
                 .then(getSlideSuccessFn, getSlideErrorFn);
 
