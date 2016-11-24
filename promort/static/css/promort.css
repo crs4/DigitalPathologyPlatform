@@ -12,7 +12,7 @@ div.prm-ome_viewer_simple {
     height: 400px;
 }
 
-div.annotated_viewer_container {
+div.prm-annotated_viewer_container {
     position: relative;
     padding: 0;
 }
