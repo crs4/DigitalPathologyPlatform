@@ -174,6 +174,11 @@ h3.prm-dialog-container {
     font-variant: small-caps;
 }
 
+.prm-lateral_margin{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;
