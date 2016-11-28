@@ -798,6 +798,14 @@
                 console.error('Unable to load slice data');
                 console.error(response);
             }
+
+            $('[data-toggle=slice-focus-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
         }
 
         function isReadOnly() {
@@ -1381,6 +1389,14 @@
                 console.error('Unable to load core data');
                 console.error(response);
             }
+
+            $('[data-toggle=core-focus-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
         }
 
         function isReadOnly() {
