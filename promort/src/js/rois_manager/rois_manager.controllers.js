@@ -547,6 +547,14 @@
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
 
+            $('[data-toggle=slice-polygon-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
             $('[data-toggle=slice-freehand-tp]').hover(
                 function() {
                     $(this).tooltip('show');
@@ -555,7 +563,55 @@
                 }
             );
 
-            $('[data-toggle=slice-polygon-tp]').hover(
+            $('[data-toggle=slice-polygon-pause-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-polygon-unpause-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-polygon-confirm-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-polygon-abort-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-delete-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-focus-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-freehand-abort-tp]').hover(
                 function() {
                     $(this).tooltip('show');
                 }, function () {
