@@ -861,10 +861,27 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
             $scope.$on('viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
                     vm.initializeTumorRuler();
+                }
+            );
+
+            $('[data-toggle=core-freehand-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-polygon-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
                 }
             );
         }
