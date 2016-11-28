@@ -869,6 +869,14 @@
                 }
             );
 
+            $('[data-toggle=core-polygon-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
             $('[data-toggle=core-freehand-tp]').hover(
                 function () {
                     $(this).tooltip('show');
@@ -877,7 +885,119 @@
                 }
             );
 
-            $('[data-toggle=core-polygon-tp]').hover(
+            $('[data-toggle=core-polygon-pause-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-polygon-unpause-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-polygon-confirm-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-polygon-abort-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-delete-shape-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-focus-shape-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-freehand-abort-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-ruler-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-ruler-abort-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-ruler-stop-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-ruler-delete-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-tumor-ruler-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-tumor-ruler-abort-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-tumor-ruler-stop-tp]').hover(
+                function () {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=core-tumor-ruler-delete-tp]').hover(
                 function () {
                     $(this).tooltip('show');
                 }, function () {
