@@ -13,12 +13,10 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()"
-					data-toggle="focus_region-polygon-tp" data-placement="bottom"
 					title="Draw the shape using the polygon drawing tool">
                 <i class="icon-vector"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newFreehand()"
-					data-toggle="focus_region-freehand-tp" data-placement="bottom"
 					title="Draw the shape using the freehand drawing tool">
                 <i class="icon-vector_pen"></i>
             </button>
@@ -31,23 +29,19 @@
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
                     ng-click="rmCtrl.pausePolygonTool()"
-					data-toggle="focus_region-polygon-pause-tp" data-placement="bottom"
 					title="Put the tool on pause">
                 <i class="icon-pause"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-show="rmCtrl.isPolygonToolPaused()"
                     ng-click="rmCtrl.unpausePolygonTool()"
-					data-toggle="focus_region-polygon-unpause-tp" data-placement="bottom"
 					title="Resume the tool">
                 <i class="icon-play"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()"
-					data-toggle="focus_region-polygon-confirm-tp" data-placement="bottom"
 					title="Accept the shape">
                 <i class="icon-check"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
-					data-toggle="focus_region-polygon-abort-tp" data-placement="bottom"
 					title="Delete the shape">
                 <i class="icon-cross_mark"></i>
             </button>
@@ -60,12 +54,10 @@
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
                 ng-hide="rmCtrl.isReadOnly()"
-					data-toggle="focus_region-delete-shape-tp" data-placement="bottom"
 					title="Delete the shape">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()"
-					data-toggle="focus_region-focus-shape-tp" data-placement="bottom"
 					title="Adapt the viewer to show the shape at the maximum size">
                 <i class="icon-eye"></i>
             </button>
@@ -77,7 +69,6 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
-					data-toggle="focus_region-freehand-abort-tp" data-placement="bottom"
 					title="Delete the shape">
                 <i class="icon-cross_mark"></i>
             </button>
@@ -123,7 +114,6 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button id="focus_region_ruler_on" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.startRuler()"
-					data-toggle="focus_region-ruler-tp" data-placement="bottom"
 					title="Use the ruler tool to measure the focus region length">
                 <i class="icon-measure"></i>
             </button>
@@ -141,7 +131,6 @@
             <div class="input-group-btn">
                 <button id="focus_region_ruler_abort" class="btn btn-default prm-icon-btn"
                         ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.abortTool()"
-						data-toggle="focus_region-ruler-abort-tp" data-placement="bottom"
 					    title="Delete the measure">
                     <i class="icon-cross_mark"></i>
                 </button>
@@ -149,7 +138,6 @@
             <div class="input-group-btn">
                 <button id="focus_region_ruler_off" class="btn btn-default prm-icon-btn"
                         ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.stopRuler()"
-						data-toggle="focus_region-ruler-stop-tp" data-placement="bottom"
 					    title="Confirm the measure">
                     <i class="icon-check"></i>
                 </button>
@@ -158,7 +146,6 @@
                 <button class="btn btn-default prm-icon-btn"
                         ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-click="rmCtrl.deleteRuler()"
-						data-toggle="focus_region-ruler-delete-tp" data-placement="bottom"
 					    title="Delete the measure">
                     <i class="icon-trash_can"></i>
                 </button>
