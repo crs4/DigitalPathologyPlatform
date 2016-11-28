@@ -546,6 +546,22 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
+            $('[data-toggle=slice-freehand-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=slice-polygon-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
         }
 
         function newPolygon() {

@@ -13,10 +13,15 @@
             <label>Draw slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()">
-                <i class="icon-vector"></i>
-            </button>
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newFreehand()">
+			<button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()"
+					data-toggle="slice-polygon-tp" data-placement="bottom"
+					title="Draw the shape using the polygon drawing tool">
+				<i class="icon-vector"></i>
+			</button>
+            <button class="btn btn-default prm-icon-btn"
+					ng-click="rmCtrl.newFreehand()"
+					data-toggle="slice-freehand-tp" data-placement="bottom"
+					title="Draw the shape using the freehand drawing tool">
                 <i class="icon-vector_pen"></i>
             </button>
         </div>
