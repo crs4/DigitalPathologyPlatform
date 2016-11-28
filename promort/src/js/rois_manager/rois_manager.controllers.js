@@ -1518,6 +1518,110 @@
                     vm.initializeRuler();
                 }
             );
+
+           $('[data-toggle=focus_region-polygon-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-freehand-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-polygon-pause-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-polygon-unpause-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-polygon-confirm-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-polygon-abort-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-delete-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-focus-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-freehand-abort-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-ruler-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-ruler-abort-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-ruler-stop-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
+
+            $('[data-toggle=focus_region-ruler-delete-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
         }
 
         function _updateShapeConfig() {
@@ -1804,6 +1908,14 @@
                 console.error('Unable to load focus region data');
                 console.error(response);
             }
+
+            $('[data-toggle=focus_region-focus-shape-tp]').hover(
+                function() {
+                    $(this).tooltip('show');
+                }, function () {
+                    $(this).tooltip('hide');
+                }
+            );
         }
 
         function isReadOnly() {
