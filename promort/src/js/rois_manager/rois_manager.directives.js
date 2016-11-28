@@ -52,7 +52,7 @@
             restricted: 'E',
             templateUrl: '/static/templates/rois_manager/slice.html',
             controller: 'ShowSliceController',
-            constrollerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl'
         };
         return directive;
     }
