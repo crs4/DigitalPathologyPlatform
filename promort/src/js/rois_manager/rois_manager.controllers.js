@@ -512,6 +512,8 @@
         vm.shape = undefined;
         vm.totalCores = 0;
 
+        vm.tmp_shape_exists = false;
+
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
@@ -530,6 +532,7 @@
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
+        vm.temporaryShapeExists = temporaryShapeExists;
         vm.shapeExists = shapeExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
@@ -552,7 +555,16 @@
             console.log('Start polygon drawing tool');
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
-            vm.active_tool = vm.POLYGON_TOOL
+            vm.active_tool = vm.POLYGON_TOOL;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('polygon_created',
+                function() {
+                    vm.tmp_shape_exists = true;
+                    $canvas.unbind('polygon_created');
+                    $scope.$apply();
+                }
+            );
         }
 
         function newFreehand() {
@@ -590,6 +602,10 @@
 
         function isFreehandToolActive() {
             return vm.active_tool === vm.FREEHAND_TOOL;
+        }
+
+        function temporaryShapeExists() {
+            return vm.tmp_shape_exists;
         }
 
         function shapeExists() {
@@ -633,6 +649,7 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
+            vm.tmp_shape_exists = false;
         }
 
         function destroy() {
@@ -795,6 +812,9 @@
         vm.coreArea = undefined;
         vm.tumorLength = undefined;
 
+        vm.tmp_shape_exists = false;
+        vm.tmp_ruler_exists  =false;
+
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
@@ -822,7 +842,9 @@
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isRulerToolActive = isRulerToolActive;
         vm.isTumorRulerToolActive = isTumorRulerToolActive;
+        vm.temporaryShapeExists = temporaryShapeExists;
         vm.shapeExists = shapeExists;
+        vm.temporaryRulerExists = temporaryRulerExists;
         vm.coreLengthExists = coreLengthExists;
         vm.tumorLengthExists = tumorLengthExists;
         vm.pausePolygonTool = pausePolygonTool;
@@ -858,6 +880,15 @@
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('polygon_created',
+                function() {
+                    vm.tmp_shape_exists = true;
+                    $canvas.unbind('polygon_created');
+                    $scope.$apply();
+                }
+            );
         }
 
         function newFreehand() {
@@ -910,6 +941,15 @@
         function startRuler() {
             var $ruler_out = $('#core_ruler_output');
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $ruler_out.on('ruler_created',
+                function() {
+                    if (vm.isRulerToolActive()) {
+                        vm.tmp_ruler_exists = true;
+                        $ruler_out.unbind('ruler_created');
+                        $scope.$apply();
+                    }
+                }
+            );
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
                     console.log('ruler_cleared trigger, ruler_saved value is ' + ruler_saved);
@@ -928,6 +968,15 @@
         function startTumorRuler() {
             var $tumor_ruler_out = $("#tumor_ruler_output");
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $tumor_ruler_out.on('ruler_created',
+                function() {
+                    if (vm.isTumorRulerToolActive()) {
+                        vm.tmp_ruler_exists = true;
+                        $tumor_ruler_out.unbind('ruler_created');
+                        $scope.$apply();
+                    }
+                }
+            );
             $tumor_ruler_out.on('ruler_cleared',
                 function(event, ruler_saved){
                     if (ruler_saved) {
@@ -964,8 +1013,16 @@
             return vm.polygon_tool_paused;
         }
 
+        function temporaryShapeExists() {
+            return vm.tmp_shape_exists;
+        }
+
         function shapeExists() {
             return vm.shape !== undefined;
+        }
+
+        function temporaryRulerExists() {
+            return vm.tmp_ruler_exists;
         }
 
         function coreLengthExists() {
@@ -1015,11 +1072,13 @@
         function stopRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
         }
 
         function stopTumorRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
         }
 
         function clear(destroy_shape) {
@@ -1041,6 +1100,8 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
+            vm.tmp_shape_exists = false;
+            vm.tmp_ruler_exists = false;
         }
 
         function destroy() {
@@ -1088,6 +1149,7 @@
                     .removeData('measure');
                 vm.tumorLength = undefined;
             }
+            vm.tmp_ruler_exists = false;
         }
 
         function focusOnShape() {
@@ -1095,6 +1157,10 @@
         }
 
         function formValid() {
+            // if tumor ruler tool is active, "Save" button should be disabled
+            if (vm.isTumorRulerToolActive()) {
+                return false;
+            }
             // if shape exists, we also have the parent slice and the shape area, we only need to check
             // for coreLength to decide if the form is valid
             return ((typeof vm.shape !== 'undefined') && (typeof vm.coreLength !== 'undefined'));
@@ -1248,6 +1314,9 @@
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
 
+        vm.tmp_shape_exists = false;
+        vm.tmp_ruler_exists = false;
+
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
         vm.RULER_TOOL = 'ruler_tool';
@@ -1270,7 +1339,9 @@
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isRulerToolActive = isRulerToolActive;
+        vm.temporaryShapeExists = temporaryShapeExists;
         vm.shapeExists = shapeExists;
+        vm.temporaryRulerExists = temporaryRulerExists;
         vm.regionLengthExists = regionLengthExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
@@ -1317,6 +1388,15 @@
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('polygon_created',
+                function() {
+                    vm.tmp_shape_exists = true;
+                    $canvas.unbind('polygon_created');
+                    $scope.$apply();
+                }
+            );
         }
 
         function newFreehand() {
@@ -1365,6 +1445,13 @@
             var $ruler_out = $('#focus_region_ruler_output');
             vm._updateShapeConfig();
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $ruler_out.on('ruler_created',
+                function() {
+                    vm.tmp_ruler_exists = true;
+                    $ruler_out.unbind('ruler_created');
+                    $scope.$apply();
+                }
+            );
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
                     if (ruler_saved) {
@@ -1397,8 +1484,16 @@
             return vm.polygon_tool_paused;
         }
 
+        function temporaryShapeExists() {
+            return vm.tmp_shape_exists;
+        }
+
         function shapeExists() {
             return vm.shape !== undefined;
+        }
+
+        function temporaryRulerExists() {
+            return vm.tmp_ruler_exists;
         }
 
         function regionLengthExists() {
@@ -1462,6 +1557,8 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
+            vm.tmp_shape_exists = false;
+            vm.tmp_ruler_exists = false;
         }
 
         function destroy() {
