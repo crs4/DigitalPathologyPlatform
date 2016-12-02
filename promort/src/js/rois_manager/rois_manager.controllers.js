@@ -812,6 +812,23 @@
         vm.coreArea = undefined;
         vm.tumorLength = undefined;
 
+        vm.scaledCoreLength = undefined;
+        vm.coreLengthScaleFactor = undefined;
+        vm.scaledTumorLength = undefined;
+        vm.tumorLengthScaleFactor = undefined;
+        vm.scaledCoreArea = undefined;
+        vm.coreAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
         vm.tmp_shape_exists = false;
         vm.tmp_ruler_exists  =false;
 
@@ -861,12 +878,19 @@
         vm.deleteTumorRuler = deleteTumorRuler;
         vm.formValid = formValid;
         vm.destroy = destroy;
+        vm.updateTumorLength = updateTumorLength;
+        vm.updateCoreLength = updateCoreLength;
+        vm.updateCoreArea = updateCoreArea;
 
         activate();
 
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
+            vm.coreLengthScaleFactor = vm.lengthUOM[0];
+            vm.tumorLengthScaleFactor = vm.lengthUOM[0];
+            vm.coreAreaScaleFactor = vm.areaUOM[0];
 
             $scope.$on('viewerctrl.components.registered',
                 function() {
@@ -925,7 +949,8 @@
 
         function _updateCoreData(polygon_label, parent_slice) {
             vm.parentSlice = parent_slice;
-            vm.coreArea = getAreaInSquareMillimiters(AnnotationsViewerService.getShapeArea(polygon_label), 3);
+            vm.coreArea = AnnotationsViewerService.getShapeArea(polygon_label);
+            vm.updateCoreArea();
         }
 
         function initializeRuler() {
@@ -950,16 +975,19 @@
                     }
                 }
             );
+            $ruler_out.on('ruler_updated',
+                function() {
+                    vm.coreLength = $ruler_out.data('measure');
+                    vm.updateCoreLength();
+                    $scope.$apply();
+                }
+            );
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
-                    console.log('ruler_cleared trigger, ruler_saved value is ' + ruler_saved);
                     if (ruler_saved) {
-                        console.log($ruler_out.data());
-                        vm.coreLength = getLengthInMillimiters($ruler_out.data('measure'), 3);
-                        console.log(vm.coreLength);
                         $ruler_out.unbind('ruler_cleared');
+                        $ruler_out.unbind('ruler_updated');
                     }
-                    $scope.$apply();
                 }
             );
             vm.active_tool = vm.RULER_TOOL;
@@ -977,13 +1005,19 @@
                     }
                 }
             );
+            $tumor_ruler_out.on('ruler_updated',
+                function() {
+                    vm.tumorLength = $tumor_ruler_out.data('measure');
+                    vm.updateTumorLength();
+                    $scope.$apply();
+                }
+            );
             $tumor_ruler_out.on('ruler_cleared',
                 function(event, ruler_saved){
                     if (ruler_saved) {
-                        vm.tumorLength = getLengthInMillimiters($tumor_ruler_out.data('measure'), 3);
                         $tumor_ruler_out.unbind('ruler_cleared');
+                        $tumor_ruler_out.unbind('ruler_updated');
                     }
-                    $scope.$apply();
                 }
             );
             vm.active_tool = vm.TUMOR_RULER_TOOL;
@@ -1022,7 +1056,13 @@
         }
 
         function temporaryRulerExists() {
-            return vm.tmp_ruler_exists;
+            if (vm.active_tool === vm.RULER_TOOL) {
+                return vm.tmp_ruler_exists && vm.coreLength > 0;
+            } else if (vm.active_tool === vm.TUMOR_RULER_TOOL) {
+                return vm.tmp_ruler_exists && vm.tumorLength > 0;
+            } else {
+                return false;
+            }
         }
 
         function coreLengthExists() {
@@ -1118,36 +1158,48 @@
                 }
                 vm.shape = undefined;
                 vm.coreArea = undefined;
+                vm.scaledCoreArea = undefined;
                 vm.coreLength = undefined;
+                vm.scaledCoreLength = undefined;
                 vm.tumorLength = undefined;
+                vm.scaledTumorLength = undefined;
                 vm.parentSlice = undefined;
             }
         }
 
         function _unbindRulers() {
-            $("#core_ruler_output").unbind('ruler_cleared');
-            $("#tumor_ruler_output").unbind('ruler_cleared');
+            $("#core_ruler_output")
+                .unbind('ruler_cleared')
+                .unbind('ruler_updated');
+            $("#tumor_ruler_output")
+                .unbind('ruler_cleared')
+                .unbind('ruler_updated');
         }
 
         function deleteRuler() {
             var $ruler_out = $('#core_ruler_output');
+            $ruler_out.unbind('ruler_updated');
             $ruler_out.unbind('ruler_cleared');
             AnnotationsViewerService.clearRuler();
             if (typeof vm.coreLength !== 'undefined') {
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.coreLength = undefined;
+                vm.scaledCoreLength = undefined;
             }
+            vm.tmp_ruler_exists = false;
         }
 
         function deleteTumorRuler() {
             var $tumor_ruler_out = $("#tumor_ruler_output");
+            $tumor_ruler_out.unbind('ruler_updated');
             $tumor_ruler_out.unbind('ruler_cleared');
             AnnotationsViewerService.clearRuler();
             if (typeof vm.tumorLength !== 'undefined') {
                 $tumor_ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.tumorLength = undefined;
+                vm.scaledTumorLength = undefined;
             }
             vm.tmp_ruler_exists = false;
         }
@@ -1195,6 +1247,24 @@
                 dialog.close();
             }
         }
+
+        function updateCoreLength() {
+            vm.scaledCoreLength = formatDecimalNumber(
+                (vm.coreLength * vm.coreLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateTumorLength() {
+            vm.scaledTumorLength = formatDecimalNumber(
+                (vm.tumorLength * vm.tumorLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateCoreArea() {
+            vm.scaledCoreArea = formatDecimalNumber(
+                (vm.coreArea * vm.coreAreaScaleFactor.id), 3
+            );
+        }
     }
 
     ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog',
@@ -1208,16 +1278,40 @@
         vm.shape_id = undefined;
         vm.coreArea = undefined;
         vm.coreLength = undefined;
-        vm.tumorLength;
+        vm.tumorLength = undefined;
+
+        vm.scaledCoreLength = undefined;
+        vm.coreLengthScaleFactor = undefined;
+        vm.scaledTumorLength = undefined;
+        vm.tumorLengthScaleFactor = undefined;
+        vm.scaledCoreArea = undefined;
+        vm.coreAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
 
         vm.isReadOnly = isReadOnly;
         vm.shapeExists = shapeExists;
         vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
+        vm.updateTumorLength = updateTumorLength;
+        vm.updateCoreLength = updateCoreLength;
+        vm.updateCoreArea = updateCoreArea;
 
         activate();
 
         function activate() {
+            vm.coreLengthScaleFactor = vm.lengthUOM[0];
+            vm.tumorLengthScaleFactor = vm.lengthUOM[0];
+            vm.coreAreaScaleFactor = vm.areaUOM[0];
+
             $scope.$on('core.show',
                 function(event, core_id) {
                     console.log('Show core ' + core_id);
@@ -1231,8 +1325,11 @@
                 vm.label = response.data.label;
                 vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
                 vm.coreArea = response.data.area;
+                vm.updateCoreArea();
                 vm.coreLength = response.data.length;
+                vm.updateCoreLength();
                 vm.tumorLength = response.data.tumor_length;
+                vm.updateTumorLength();
             }
 
             function getCoreErrorFn(response) {
@@ -1283,8 +1380,11 @@
                 vm.label = undefined;
                 vm.shape_id = undefined;
                 vm.coreArea = undefined;
+                vm.scaledCoreArea = undefined;
                 vm.coreLength = undefined;
+                vm.scaledCoreLength = undefined;
                 vm.tumorLength = undefined;
+                vm.scaledTumorLength = undefined;
                 dialog.close();
             }
 
@@ -1293,6 +1393,24 @@
                 console.error(response);
                 dialog.close();
             }
+        }
+
+        function updateCoreLength() {
+            vm.scaledCoreLength = formatDecimalNumber(
+                (vm.coreLength * vm.coreLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateTumorLength() {
+            vm.scaledTumorLength = formatDecimalNumber(
+                (vm.tumorLength * vm.tumorLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateCoreArea() {
+            vm.scaledCoreArea = formatDecimalNumber(
+                (vm.coreArea * vm.coreAreaScaleFactor.id), 3
+            );
         }
     }
 
@@ -1310,6 +1428,21 @@
         vm.regionArea = undefined;
         vm.coreCoverage = undefined;
         vm.isTumor = false;
+
+        vm.scaledRegionLength = undefined;
+        vm.regionLengthScaleFactor = undefined;
+        vm.scaledRegionArea = undefined;
+        vm.regionAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
@@ -1354,12 +1487,18 @@
         vm.deleteRuler = deleteRuler;
         vm.formValid = formValid;
         vm.destroy = destroy;
+        vm.updateRegionLength = updateRegionLength;
+        vm.updateRegionArea = updateRegionArea;
 
         activate();
 
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+
+            vm.regionLengthScaleFactor = vm.lengthUOM[0];
+            vm.regionAreaScaleFactor = vm.areaUOM[0];
+
             $scope.$on('viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
@@ -1432,7 +1571,8 @@
 
         function _updateFocusRegionData(polygon_label, parent_core) {
             vm.parentCore = parent_core;
-            vm.regionArea = getAreaInSquareMillimiters(AnnotationsViewerService.getShapeArea(polygon_label), 3);
+            vm.regionArea = AnnotationsViewerService.getShapeArea(polygon_label);
+            vm.updateRegionArea();
             vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parentCore.label, polygon_label);
         }
 
@@ -1452,13 +1592,19 @@
                     $scope.$apply();
                 }
             );
+            $ruler_out.on('ruler_updated',
+                function() {
+                    vm.regionLength = $ruler_out.data('measure');
+                    vm.updateRegionLength();
+                    $scope.$apply();
+                }
+            );
             $ruler_out.on('ruler_cleared',
                 function(event, ruler_saved) {
                     if (ruler_saved) {
-                        vm.regionLength = getLengthInMillimiters($ruler_out.data('measure'), 3);
+                        $ruler_out.unbind('ruler_updated');
                         $ruler_out.unbind('ruler_cleared');
                     }
-                    $scope.$apply();
                 }
             );
             vm.active_tool = vm.RULER_TOOL;
@@ -1493,7 +1639,7 @@
         }
 
         function temporaryRulerExists() {
-            return vm.tmp_ruler_exists;
+            return vm.tmp_ruler_exists && vm.regionLength > 0;
         }
 
         function regionLengthExists() {
@@ -1575,20 +1721,25 @@
                 }
                 vm.shape = undefined;
                 vm.regionArea = undefined;
+                vm.scaledRegionArea = undefined;
                 vm.regionLength = undefined;
+                vm.scaledRegionLength = undefined;
                 vm.parentCore = undefined;
                 vm.coreCoverage = undefined;
+                vm.isTumor = false;
             }
         }
 
         function deleteRuler() {
             var $ruler_out = $('#focus_region_ruler_output');
+            $ruler_out.unbind('ruler_updated');
             $ruler_out.unbind('ruler_cleared');
             AnnotationsViewerService.clearRuler();
             if (typeof vm.regionLength !== 'undefined') {
                 $ruler_out.removeData('ruler_json')
                     .removeData('measure');
                 vm.regionLength = undefined;
+                vm.scaledRegionLength = undefined;
             }
         }
 
@@ -1629,6 +1780,18 @@
         function formValid() {
             return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
         }
+
+        function updateRegionArea() {
+            vm.scaledRegionArea = formatDecimalNumber(
+                (vm.regionArea * vm.regionAreaScaleFactor.id), 3
+            );
+        }
+
+        function updateRegionLength() {
+            vm.scaledRegionLength = formatDecimalNumber(
+                (vm.regionLength * vm.regionLengthScaleFactor.id), 3
+            );
+        }
     }
 
     ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'ngDialog',
@@ -1646,14 +1809,34 @@
         vm.coreCoverage = undefined;
         vm.isTumor = undefined;
 
+        vm.scaledRegionLength = undefined;
+        vm.regionLengthScaleFactor = undefined;
+        vm.scaledRegionArea = undefined;
+        vm.regionAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
         vm.isReadOnly = isReadOnly;
         vm.shapeExists = shapeExists;
         vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
+        vm.updateRegionArea = updateRegionArea;
+        vm.updateRegionLength = updateRegionLength;
 
         activate();
 
         function activate() {
+            vm.regionAreaScaleFactor = vm.areaUOM[0];
+            vm.regionLengthScaleFactor = vm.lengthUOM[0];
+
             $scope.$on('focus_region.show',
                 function (event, focus_region_id, parent_shape_id) {
                     console.log('Show focus region ' + focus_region_id);
@@ -1668,7 +1851,9 @@
                 vm.label = response.data.label;
                 vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
                 vm.regionArea = response.data.area;
+                vm.updateRegionArea();
                 vm.regionLength = response.data.length;
+                vm.updateRegionLength();
                 vm.isTumor = response.data.cancerous_region;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
             }
@@ -1722,7 +1907,9 @@
                 vm.label = undefined;
                 vm.shape_id = undefined;
                 vm.regionArea = undefined;
+                vm.scaledRegionArea = undefined;
                 vm.regionLength = undefined;
+                vm.scaledRegionLength = undefined;
                 vm.coreCoverage = undefined;
                 vm.isTumor = false;
                 dialog.close();
@@ -1733,6 +1920,18 @@
                 console.error(response);
                 dialog.close();
             }
+        }
+
+        function updateRegionArea() {
+            vm.scaledRegionArea = formatDecimalNumber(
+                (vm.regionArea * vm.regionAreaScaleFactor.id), 3
+            );
+        }
+
+        function updateRegionLength() {
+            vm.scaledRegionLength = formatDecimalNumber(
+                (vm.regionLength * vm.regionLengthScaleFactor.id), 3
+            );
         }
     }
 })();

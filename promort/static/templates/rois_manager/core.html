@@ -89,8 +89,11 @@
         </div>
         <div class="input-group prm-row-elem">
             <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
-                   ng-model="rmCtrl.coreArea">
-            <div class="input-group-addon prm-addon">mm&sup2</div>
+                   ng-model="rmCtrl.scaledCoreArea">
+            <select ng-model="rmCtrl.coreAreaScaleFactor"
+                    ng-options="x.unit_of_measure for x in rmCtrl.areaUOM"
+                    ng-change="rmCtrl.updateCoreArea()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div id="acquire_core_measure" class="form-group row"
@@ -113,28 +116,33 @@
         </div>
         <div class="input-group prm-row-elem">
             <input id="core_ruler_output" class="form-control prm-text-input" type="number"
-                   readonly placeholder="0.00" ng-model="rmCtrl.coreLength">
-            <div class="input-group-addon prm-addon">mm</div>
+                   readonly placeholder="0.00" ng-model="rmCtrl.scaledCoreLength">
+            <select ng-model="rmCtrl.coreLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in rmCtrl.lengthUOM"
+                    ng-change="rmCtrl.updateCoreLength()"
+                    required class="selectpicker"></select>
             <div class="input-group-btn">
-                <button id="core_ruler_abort" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.abortTool()"
-                        title="Discharge measure and abort tool">
-                    <i class="icon-cross_mark"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button id="core_ruler_off" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.stopRuler()"
-                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
-                    <i class="icon-check"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn"
+                <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-disabled="rmCtrl.isTumorRulerToolActive()"
                         ng-click="rmCtrl.deleteRuler()" title="Delete the measure">
                     <i class="icon-trash_can"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.isRulerToolActive()">
+        <div class="input-group prm-row-elem text-right">
+            <div class="input-group-btn">
+                <button id="core_ruler_abort" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.abortTool()"
+                        title="Discharge measure and abort tool">
+                    <i class="icon-cross_mark"></i>
+                </button>
+                <button id="core_ruler_off" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.stopRuler()"
+                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
+                    <i class="icon-check"></i>
                 </button>
             </div>
         </div>
@@ -159,28 +167,33 @@
         </div>
         <div class="input-group prm-row-elem">
             <input id="tumor_ruler_output" class="form-control prm-text-input" type="number"
-                   readonly placeholder="0.00" ng-model="rmCtrl.tumorLength">
-            <div class="input-group-addon prm-addon">mm</div>
+                   readonly placeholder="0.00" ng-model="rmCtrl.scaledTumorLength">
+            <select ng-model="rmCtrl.tumorLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in rmCtrl.lengthUOM"
+                    ng-change="rmCtrl.updateTumorLength()"
+                    required class="selectpicker"></select>
             <div class="input-group-btn">
-                <button id="tumor_ruler_abort" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isTumorRulerToolActive()" ng-click="rmCtrl.abortTool()"
-                        title="Discharge measure and abort tool">
-                    <i class="icon-cross_mark"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button id="tumor_ruler_off" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isTumorRulerToolActive()" ng-click="rmCtrl.stopTumorRuler()"
-                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
-                    <i class="icon-check"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn"
+                <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-hide="rmCtrl.isTumorRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-disabled="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.deleteTumorRuler()"
                         title="Delete the measure">
                     <i class="icon-trash_can"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.isTumorRulerToolActive()">
+        <div class="input-group prm-row-elem text-right">
+            <div class="input-group-btn">
+                <button id="tumor_ruler_abort" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.abortTool()"
+                        title="Discharge measure and abort tool">
+                    <i class="icon-cross_mark"></i>
+                </button>
+                <button id="tumor_ruler_off" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.stopTumorRuler()"
+                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
+                    <i class="icon-check"></i>
                 </button>
             </div>
         </div>

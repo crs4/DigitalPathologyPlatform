@@ -91,8 +91,11 @@
         </div>
         <div class="input-group prm-row-elem">
             <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
-                   ng-model="rmCtrl.regionArea">
-            <div class="input-group-addon prm-addon">mm&sup2</div>
+                   ng-model="rmCtrl.scaledRegionArea">
+            <select ng-model="rmCtrl.regionAreaScaleFactor"
+                    ng-options="x.unit_of_measure for x in rmCtrl.areaUOM"
+                    ng-change="rmCtrl.updateRegionArea()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div class="form-group row" ng-show="rmCtrl.shapeExists()">
@@ -127,28 +130,33 @@
         </div>
         <div class="input-group prm-row-elem">
             <input id="focus_region_ruler_output" class="form-control prm-text-input" type="number"
-                   readonly placeholder="0.00" ng-model="rmCtrl.regionLength">
-            <div class="input-group-addon prm-addon">mm</div>
+                   readonly placeholder="0.00" ng-model="rmCtrl.scaledRegionLength">
+            <select ng-model="rmCtrl.regionLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in rmCtrl.lengthUOM"
+                    ng-change="rmCtrl.updateRegionLength()"
+                    required class="selectpicker"></select>
             <div class="input-group-btn">
-                <button id="focus_region_ruler_abort" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.abortTool()"
-                        title="Discharge measure and abort tool">
-                    <i class="icon-cross_mark"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button id="focus_region_ruler_off" class="btn btn-default prm-icon-btn"
-                        ng-show="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.stopRuler()"
-                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
-                    <i class="icon-check"></i>
-                </button>
-            </div>
-            <div class="input-group-btn">
-                <button class="btn btn-default prm-icon-btn"
+                <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
                         ng-click="rmCtrl.deleteRuler()"
                         title="Delete the measure">
                     <i class="icon-trash_can"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.isRulerToolActive()">
+        <div class="input-group prm-row-elem text-right">
+            <div class="input-group-btn">
+                <button id="focus_region_ruler_abort" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.abortTool()"
+                        title="Discharge measure and abort tool">
+                    <i class="icon-cross_mark"></i>
+                </button>
+                <button id="focus_region_ruler_off" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                        ng-click="rmCtrl.stopRuler()"
+                        ng-disabled="!rmCtrl.temporaryRulerExists()" title="Stop tool and accept measure">
+                    <i class="icon-check"></i>
                 </button>
             </div>
         </div>
