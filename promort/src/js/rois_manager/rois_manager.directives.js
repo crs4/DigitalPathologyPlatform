@@ -52,7 +52,7 @@
             restricted: 'E',
             templateUrl: '/static/templates/rois_manager/slice.html',
             controller: 'ShowSliceController',
-            constrollerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl'
         };
         return directive;
     }
@@ -74,7 +74,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/core.html',
             controller: 'NewCoreController',
-            controllerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
@@ -96,7 +101,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/core.html',
             controller: 'ShowCoreController',
-            controllerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
@@ -118,7 +128,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/focus_region.html',
             controller: 'NewFocusRegionController',
-            controllerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
@@ -140,7 +155,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/focus_region.html',
             controller: 'ShowFocusRegionController',
-            controllerAs: 'rmCtrl'
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }

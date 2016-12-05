@@ -4,20 +4,20 @@ div.prm-valign {
     float: none;
 }
 
-div.viewer_frame {
+div.prm-viewer_frame {
     background-color: white;
 }
 
-div.ome_viewer_simple {
+div.prm-ome_viewer_simple {
     height: 400px;
 }
 
-div.annotated_viewer_container {
+div.prm-annotated_viewer_container {
     position: relative;
     padding: 0;
 }
 
-.annotated_viewer_element {
+.prm-annotated_viewer_element {
     width: 100%;
     height: 1px;
     position: absolute;
@@ -137,6 +137,11 @@ h3.prm-dialog-container {
     height: 30px;
 }
 
+.prm-icon-btn-ruler {
+    margin-left: 4px !important;
+    border-radius: 4px !important;
+}
+
 .prm-text-input {
     padding-left: 5px;
     padding-right: 5px;
@@ -172,6 +177,27 @@ h3.prm-dialog-container {
     margin-bottom: 5px;
     padding-bottom: 3px;
     font-variant: small-caps;
+}
+
+.prm-lateral_margin{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.prm-selectpicker {
+    height: 30px;
+    margin-left: 0 !important;
+    margin-right: 4px;
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-right: 1px solid #ccc !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+.prm-selectpicker:hover {
+    border-color: #adadad !important;
 }
 
 /* Hidden placeholder*/

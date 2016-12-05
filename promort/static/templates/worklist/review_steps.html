@@ -2,17 +2,17 @@
     <div id="worklist-panel" class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header text-center">
-                <h1>SLIDES - Review steps for case {{ rc.case_id }}</h1>
+                <h1>SLIDES LIST - Case {{ rc.case_id }}</h1>
             </div>
             <div id="worklist-details" ng-repeat="step in rc.reviewSteps">
                 <div class="well row">
-                    <div class="col-md-9 prm-valign">
+                    <div class="col-sm-9 col-md-9 prm-valign">
                         <div>
                             <p><strong>Slide ID:</strong> {{ step.slide }}</p>
                         </div>
                     </div><!--
                    Removing blank spaces between DIVs, this will make valign work
-                   --><div class="col-md-3 text-right prm-valign">
+                   --><div class="col-sm-3 col-md-3 text-right prm-valign">
                         <div>
                             <a class="btn btn-success"
                                ng-href="{{ rc.getReviewStepLink(step) }}"

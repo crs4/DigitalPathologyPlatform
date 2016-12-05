@@ -6,7 +6,7 @@
             </div>
             <div id="worklist-details" ng-repeat="review in wlc.pendingReviews">
                 <div class="well row">
-                    <div class="col-md-9 prm-valign">
+                    <div class="col-sm-9 col-md-9 prm-valign">
                         <div>
                             <p><strong>Case ID:</strong> {{ review.case }}</p>
                             <p><strong>Review Type:</strong> {{ review.type }}</p>
@@ -14,7 +14,7 @@
                         </div>
                     </div><!--
                   Removing blank spaces between DIVs, this will make valign work
-                  --><div class="col-md-3 text-right prm-valign">
+                  --><div class="col-sm-3 col-md-3 text-right prm-valign">
                         <div>
                             <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
                                ng-href="{{ wlc.getReviewLink(review) }}"
