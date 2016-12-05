@@ -137,6 +137,11 @@ h3.prm-dialog-container {
     height: 30px;
 }
 
+.prm-icon-btn-ruler {
+    margin-left: 4px !important;
+    border-radius: 4px !important;
+}
+
 .prm-text-input {
     padding-left: 5px;
     padding-right: 5px;
@@ -177,6 +182,22 @@ h3.prm-dialog-container {
 .prm-lateral_margin{
     margin-left: 20px;
     margin-right: 20px;
+}
+
+.prm-selectpicker {
+    height: 30px;
+    margin-left: 0 !important;
+    margin-right: 4px;
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-right: 1px solid #ccc !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+.prm-selectpicker:hover {
+    border-color: #adadad !important;
 }
 
 /* Hidden placeholder*/

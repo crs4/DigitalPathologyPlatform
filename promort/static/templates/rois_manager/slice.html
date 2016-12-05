@@ -13,13 +13,13 @@
             <label>Draw slice</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-			<button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()"
-					title="Draw the shape using the polygon drawing tool">
-				<i class="icon-vector"></i>
-			</button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()"
+                    title="Draw the shape using the polygon drawing tool">
+                <i class="icon-vector"></i>
+            </button>
             <button class="btn btn-default prm-icon-btn"
-					ng-click="rmCtrl.newFreehand()"
-					title="Draw the shape using the freehand drawing tool">
+                    ng-click="rmCtrl.newFreehand()"
+                    title="Draw the shape using the freehand drawing tool">
                 <i class="icon-vector_pen"></i>
             </button>
         </div>
@@ -31,20 +31,20 @@
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
                     ng-click="rmCtrl.pausePolygonTool()"
-					title="Put the tool on pause">
+                    title="Put the tool on pause">
                 <i class="icon-pause"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-show="rmCtrl.isPolygonToolPaused()"
                     ng-click="rmCtrl.unpausePolygonTool()"
-					title="Resume the tool">
-				<i class="icon-play"></i>
+                    title="Resume the tool">
+                <i class="icon-play"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()"
-					title="Accept the shape">
+                    ng-disabled="!rmCtrl.temporaryShapeExists()" title="Accept the shape">
                 <i class="icon-check"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
-					title="Discharge shape and abort tool">
+                    title="Discharge shape and abort tool">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
@@ -56,11 +56,11 @@
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
                     ng-hide="rmCtrl.isReadOnly()"
-					title="Delete the shape">
+                    title="Delete the shape">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()"
-					title="Adapt the viewer to show the shape at the maximum size">
+                    title="Adapt the viewer to show the shape at the maximum size">
                 <i class="icon-eye"></i>
             </button>
         </div>
@@ -72,7 +72,7 @@
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button id="slice_freehand_abort" class="btn btn-default prm-icon-btn"
                     ng-click="rmCtrl.abortTool()"
-					title="Abort tool">
+                    title="Abort tool">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
