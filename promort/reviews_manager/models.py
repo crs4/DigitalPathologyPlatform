@@ -58,3 +58,51 @@ class ReviewStep(models.Model):
 
     def is_completed(self):
         return not (self.completion_date is None)
+
+
+class ROIsAnnotation(models.Model):
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT,
+                                 blank=False)
+    case = models.ForeignKey(Case, on_delete=models.PROTECT,
+                             blank=False)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(blank=True, null=True,
+                                      default=None)
+    completion_date = models.DateTimeField(blank=True, null=True,
+                                           default=None)
+
+    class Meta:
+        unique_together = ('reviewer', 'case')
+
+    def is_started(self):
+        return not(self.start_date is None)
+
+    def is_completed(self):
+        return not(self.completion_date is None)
+
+    def can_be_closed(self):
+        for rs in self.steps.all():
+            if not rs.is_completed():
+                return False
+        return True
+
+
+class ROIsAnnotationStep(models.Model):
+    rois_annotation = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
+                                        blank=False, related_name='steps')
+    slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
+                              blank=False)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(blank=True, null=True,
+                                      default=None)
+    completion_date = models.DateTimeField(blank=True, null=True,
+                                           default=None)
+
+    class Meta:
+        unique_together = ('rois_annotation', 'slide')
+
+    def is_started(self):
+        return not(self.start_date is None)
+
+    def is_completed(self):
+        return not(self.completion_date is None)
