@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, Review, ReviewStep
+from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
+    ClinicalAnnotation, ClinicalAnnotationStep, Review, ReviewStep
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -93,3 +94,45 @@ class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
         fields = ('id', 'reviewer', 'case', 'creation_date', 'start_date',
                   'completion_date', 'steps')
         read_only_fields = ('id', 'creation_date')
+
+
+class ClinicalAnnotationSeriazlier(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    steps_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ClinicalAnnotation
+
+        fields = ('id', 'reviewer', 'case', 'rois_review', 'creation_date',
+                  'start_date', 'completion_date', 'steps_count')
+        read_only_fields = ('id', 'creation_date', 'steps_count')
+
+    def get_steps_count(self, obj):
+        return obj.steps.count()
+
+
+class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClinicalAnnotationStep
+
+        fields = ('id', 'clinical_annotation', 'slide', 'rois_review_step',
+                  'creation_date', 'start_date', 'completion_date')
+        read_only_fields = ('id', 'creation_date')
+
+
+class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    steps = ClinicalAnnotationStepSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ClinicalAnnotation
+
+        fields = ('id', 'reviewer', 'case', 'rois_review', 'creation_date',
+                  'start_date', 'completion_date', 'steps_count')
+        read_only_fields = ('id', 'creation_date', 'steps_count')
