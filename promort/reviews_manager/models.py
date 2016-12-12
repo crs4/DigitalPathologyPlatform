@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 from slides_manager.models import Case, Slide
 
@@ -65,7 +66,7 @@ class ROIsAnnotation(models.Model):
                                  blank=False)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False)
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
@@ -92,7 +93,7 @@ class ROIsAnnotationStep(models.Model):
                                         blank=False, related_name='steps')
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
                               blank=False)
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
@@ -115,7 +116,7 @@ class ClinicalAnnotation(models.Model):
                              blank=False)
     rois_review = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
                                     blank=False)
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
@@ -147,7 +148,7 @@ class ClinicalAnnotationStep(models.Model):
                               blank=False)
     rois_review_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
                                          blank=False)
-    creation_date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
