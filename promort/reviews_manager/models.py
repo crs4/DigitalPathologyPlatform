@@ -152,6 +152,7 @@ class ClinicalAnnotationStep(models.Model):
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
                                            default=None)
+    notes = models.TextField(blank=True, null=True, default=None)
 
     class Meta:
         unique_together = ('rois_review_step', 'clinical_annotation')

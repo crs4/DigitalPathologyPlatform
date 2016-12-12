@@ -96,7 +96,7 @@ class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'creation_date')
 
 
-class ClinicalAnnotationSeriazlier(serializers.ModelSerializer):
+class ClinicalAnnotationSerializer(serializers.ModelSerializer):
     reviewer = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
@@ -119,7 +119,7 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
         model = ClinicalAnnotationStep
 
         fields = ('id', 'clinical_annotation', 'slide', 'rois_review_step',
-                  'creation_date', 'start_date', 'completion_date')
+                  'creation_date', 'start_date', 'completion_date', 'notes')
         read_only_fields = ('id', 'creation_date')
 
 
