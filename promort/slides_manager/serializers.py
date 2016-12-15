@@ -44,9 +44,10 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
     class Meta:
         model = SlideQualityControl
 
-        fields = ('slide', 'adequate_slide', 'not_adequacy_reason',
+        fields = ('slide', 'rois_annotation_step', 'adequate_slide', 'not_adequacy_reason',
                   'reviewer', 'acquisition_date', 'notes')
         read_only_fields = ('acquisition_date',)
+        write_only_fields = ('rois_annotation_step',)
 
 
 class CaseDetailedSerializer(serializers.ModelSerializer):
