@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from slides_manager.models import Slide
+from reviews_manager.models import ROIsAnnotationStep
 
 
 class Slice(models.Model):
@@ -9,12 +10,14 @@ class Slice(models.Model):
                               blank=False, related_name='slices')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
+    annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
+                                        blank=True, null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
 
     class Meta:
-        unique_together = ('label', 'slide')
+        unique_together = ('label', 'slide', 'annotation_step')
 
 
 class Core(models.Model):
@@ -23,6 +26,8 @@ class Core(models.Model):
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
+    annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
+                                        blank=True, null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
@@ -30,7 +35,7 @@ class Core(models.Model):
     tumor_length = models.FloatField(blank=True, null=True)
 
     class Meta:
-        unique_together = ('label', 'slice')
+        unique_together = ('label', 'slice', 'annotation_step')
 
 
 class FocusRegion(models.Model):
@@ -39,6 +44,8 @@ class FocusRegion(models.Model):
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
+    annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
+                                        blank=True, null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
@@ -46,4 +53,4 @@ class FocusRegion(models.Model):
     cancerous_region = models.BooleanField(blank=False)
 
     class Meta:
-        unique_together = ('label', 'core')
+        unique_together = ('label', 'core', 'annotation_step')
