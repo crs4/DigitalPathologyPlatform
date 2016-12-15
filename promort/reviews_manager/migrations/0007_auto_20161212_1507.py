@@ -29,7 +29,7 @@ def reviews_to_rois_annotations(apps, schema_editor):
                 rois_annotations_step.save()
 
 
-def revers_reviews_to_rois_annotations(apps, schema_editor):
+def reverse_reviews_to_rois_annotations(apps, schema_editor):
     ROIsAnnotation = apps.get_model('reviews_manager', 'ROIsAnnotation')
     ROIsAnnotationStep = apps.get_model('reviews_manager', 'ROIsAnnotationStep')
     ROIsAnnotationStep.objects.all().delete()
@@ -80,6 +80,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(reviews_to_rois_annotations, revers_reviews_to_rois_annotations),
+        migrations.RunPython(reviews_to_rois_annotations, reverse_reviews_to_rois_annotations),
         migrations.RunPython(reviews_to_clinical_annotations, reverse_reviews_to_clinical_annotations)
     ]
