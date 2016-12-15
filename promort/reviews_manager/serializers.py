@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
     ClinicalAnnotation, ClinicalAnnotationStep, Review, ReviewStep
+from rois_manager.serializers import SlideROIsTreeSerializer
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -79,6 +80,10 @@ class ROIsAnnotationsStepSerializer(serializers.ModelSerializer):
         fields = ('id', 'rois_annotation', 'slide', 'creation_date',
                   'start_date', 'completion_date')
         read_only_fields = ('id', 'creation_date')
+
+
+class ROIsAnnotationsStepDetailsSerializer(ROIsAnnotationsStepSerializer):
+    slide = SlideROIsTreeSerializer(many=True, read_only=True)
 
 
 class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
