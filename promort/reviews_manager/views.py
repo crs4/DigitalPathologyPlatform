@@ -61,7 +61,7 @@ class ReviewsDetail(APIView):
                         status=status.HTTP_200_OK)
 
 
-class ROIsAnnotationsDetails(APIView):
+class ROIsAnnotationsDetail(APIView):
     permission_classes = (IsReviewManager,)
 
     def _find_rois_annotation(self, case_id):
