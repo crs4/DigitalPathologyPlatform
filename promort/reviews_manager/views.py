@@ -164,13 +164,13 @@ class ROIsAnnotationDetail(APIView):
 
     def _find_rois_annotation(self, case_id, reviewer):
         try:
-            reviewer_obj = User.objects.filter(username=reviewer).first()
+            reviewer_obj = User.objects.get(username=reviewer)
             return ROIsAnnotation.objects.get(case=case_id, reviewer=reviewer_obj)
         except User.DoesNotExist:
             raise NotFound('There is no reviewer with username \'%s\'' % reviewer)
         except ROIsAnnotation.DoesNotExist:
             raise NotFound('No ROIs annotations found assigned to reviewer \'%s\' for case \'%s\'' %
-                           (case_id, reviewer))
+                           (reviewer, case_id))
 
     def get(self, request, case, reviewer, format=None):
         rois_annotation = self._find_rois_annotation(case, reviewer)
@@ -189,7 +189,7 @@ class ROIsAnnotationDetail(APIView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated rois annotation for case %s assigned to reviewer %s' &
+                    'message': 'duplicated rois annotation for case %s assigned to reviewer %s' %
                                (case, reviewer)
                 }, status=HTTP_409_CONFLICT)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
