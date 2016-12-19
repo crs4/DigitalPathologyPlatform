@@ -45,6 +45,15 @@ class ROIsAnnotationsList(GenericListView):
         raise MethodNotAllowed
 
 
+class ClinicalAnnotationsList(GenericListView):
+    model = ClinicalAnnotation
+    model_serializer = ClinicalAnnotationSerializer
+    permission_classes = (IsReviewManager,)
+
+    def post(self, request, format=None):
+        raise MethodNotAllowed
+
+
 class ReviewsDetail(APIView):
     permission_classes = (IsReviewManager,)
 
@@ -75,6 +84,21 @@ class ROIsAnnotationsDetail(APIView):
         serializer = ROIsAnnotationSerializer(rois_annotations, many=True)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
+
+
+class ClinicalAnnotationsDetails(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_clinical_annotation(self, case_id):
+        try:
+            return ClinicalAnnotation.objects.filter(case=case_id)
+        except ClinicalAnnotation.DoesNotExist:
+            raise NotFound('No clinical annotations found for case ID \'%s\'' % case_id)
+
+    def get(self, request, case, format=None):
+        clinical_annotations = self._find_clinical_annotation(case)
+        serializer = ClinicalAnnotationSerializer(clinical_annotations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ReviewDetail(APIView):
@@ -228,6 +252,69 @@ class ROIsAnnotationDetail(APIView):
                 'message': 'unable to complete delete operations, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ClinicalAnnotationDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_clinical_annotation(self, case_id, reviewer, rois_review_id):
+        try:
+            reviewer_obj = User.objects.get(username=reviewer)
+            return ClinicalAnnotation.objects.get(case=case_id, reviewer=reviewer_obj,
+                                                  rois_review=rois_review_id)
+        except User.DoesNotExist:
+            raise NotFound('There is no reviewer with username \'%s\'' % reviewer)
+        except ClinicalAnnotation.DoesNotExist:
+            raise NotFound('No clinical annotation found assigned to reviewer \'%s\' for case \'%s\'' %
+                           (reviewer, case_id))
+
+    def get(self, request, case, reviewer, rois_review, format=None):
+        clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+        serializer = ClinicalAnnotationSerializer(clinical_annotation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, case, reviewer, rois_review, format=None):
+        clinical_annotation_data = {
+            'reviewer': reviewer,
+            'case': case,
+            'rois_review': rois_review
+        }
+        serializer = ClinicalAnnotationSerializer(data=clinical_annotation_data)
+        if serializer.is_valid():
+            try:
+                serializer.save()
+            except IntegrityError:
+                return Response({
+                    'status': 'ERROR',
+                    'message': 'duplicated clinical annotation for case %s assignet to reviewer %s' %
+                               (case, reviewer)
+                }, status=status.HTTP_409_CONFLICT)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, case, reviewer, rois_review, format=None):
+        clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+        action = request.data.get('action')
+        if action is not None:
+            action = action.upper()
+            if action == 'START':
+                clinical_annotation.start_date = datetime.now()
+            elif action == 'FINISH':
+                clinical_annotation.completion_date = datetime.now()
+            else:
+                return Response({
+                    'status': 'ERROR',
+                    'message': '\'%s\' is not a valid action' % action
+                }, status=status.HTTP_400_BAD_REQUEST)
+            clinical_annotation.save()
+            serializer = ClinicalAnnotationSerializer(clinical_annotation)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'status': 'ERROR',
+                'message': 'Missing \'action\' field in request data'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ReviewStepDetail(APIView):
     permission_classes = (IsReviewManager,)
