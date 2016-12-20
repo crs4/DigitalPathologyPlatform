@@ -25,7 +25,7 @@ class ROIsAnnotationSerializer(serializers.ModelSerializer):
         return obj.steps.count()
 
 
-class ROIsAnnotationsStepSerializer(serializers.ModelSerializer):
+class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = ROIsAnnotationStep
 
@@ -34,7 +34,7 @@ class ROIsAnnotationsStepSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'creation_date')
 
 
-class ROIsAnnotationsStepDetailsSerializer(ROIsAnnotationsStepSerializer):
+class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationsStepSerializer):
     slide = SlideROIsTreeSerializer(many=True, read_only=True)
 
 
@@ -43,7 +43,7 @@ class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
-    steps = ROIsAnnotationsStepSerializer(many=True, read_only=True)
+    steps = ROIsAnnotationStepSerializer(many=True, read_only=True)
 
     class Meta:
         model = ROIsAnnotation
