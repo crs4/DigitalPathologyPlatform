@@ -3,6 +3,8 @@ try:
 except ImportError:
     import json
 
+from collections import OrderedDict
+
 from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
@@ -10,9 +12,10 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
-from slides_manager.models import Case
-from reviews_manager.models import Review, ReviewStep
-from reviews_manager.serializers import ReviewSerializer, ReviewStepSerializer
+from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, \
+    ClinicalAnnotation, ClinicalAnnotationStep
+from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
+    ClinicalAnnotationSerializer, ClinicalAnnotationStepSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -22,38 +25,75 @@ class UserWorkList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def _get_pending_reviews(self, username):
+        rois_reviews = []
+        clinical_reviews = []
         try:
-            return Review.objects.filter(
+            rois_reviews = ROIsAnnotation.objects.filter(
                 reviewer=User.objects.get(username=username),
                 completion_date=None
             ).order_by('case')
-        except Review.DoesNotExist:
-            return []
+        except ROIsAnnotation.DoesNotExist:
+            pass
+        try:
+            clinical_reviews = ClinicalAnnotation.objects.filter(
+                reviewer=User.objects.get(username=username),
+                completion_date=None
+            ).order_by('case')
+        except ClinicalAnnotation.DoesNotExist:
+            pass
+        return rois_reviews, clinical_reviews
 
     def get(self, request, format=None):
-        reviews = self._get_pending_reviews(request.user.username)
-        serializer = ReviewSerializer(reviews, many=True)
+        rois_reviews, clinical_reviews = self._get_pending_reviews(request.user.username)
+        rois_serializer = ROIsAnnotationSerializer(rois_reviews, many=True)
+        clinical_serializer = ClinicalAnnotationSerializer(clinical_reviews, many=True)
+        data = OrderedDict()
+        # compose the worklist, keep clinical annotations only if ROIs annotation for the same case
+        # was fully completed (and it was assigned to the current user)
+        for c_ann in clinical_serializer.data:
+            data[c_ann['case']] = c_ann
+        for r_ann in rois_serializer.data:
+            data[r_ann['case']] = r_ann
+        return Response(data.values(), status=status.HTTP_200_OK)
+
+
+class UserWorklistROIsAnnotation(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def _get_rois_annotation_details(self, case_id, username):
+        try:
+            annotation = ROIsAnnotation.objects.get(
+                reviewer=User.objects.get(username=username),
+                case=case_id
+            )
+            return ROIsAnnotationStep.objects.filter(rois_annotation=annotation).order_by('slide')
+        except ROIsAnnotation.DoesNotExist:
+            raise NotFound('no ROIs annotation assigned to user %s for case %s' % (username, case_id))
+
+    def get(self, request, case, format=None):
+        annotation_steps = self._get_rois_annotation_details(case, request.user.username)
+        serializer = ROIsAnnotationStepSerializer(annotation_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserWorkListReview(APIView):
+class UserWorklistClinicalAnnotation(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def _get_review_details(self, case_id, username):
+    def _get_clinical_annotation_details(self, case_id, username, rois_review_id):
         try:
-            review = Review.objects.get(
+            annotation = ClinicalAnnotation.objects.get(
                 reviewer=User.objects.get(username=username),
-                case=Case.objects.get(id=case_id)
+                case=case_id,
+                rois_review=rois_review_id
             )
-            return ReviewStep.objects.filter(review=review).order_by('slide')
-        except Review.DoesNotExist:
-            raise NotFound('No review assigned to user %s for case %s' % (username, case_id))
-        except ReviewStep.DoesNotExist:
-            return []
+            return ClinicalAnnotationStep.objects.filter(clinical_annotation=annotation)
+        except ClinicalAnnotation.DoesNotExist:
+            raise NotFound('no clinical annotation assigned to user %s for case %s and ROIs annotation %s' %
+                           (username, case_id, rois_review_id))
 
-    def get(self, request, case, format=None):
-        review_steps = self._get_review_details(case, request.user.username)
-        serializer = ReviewStepSerializer(review_steps, many=True)
+    def get(self, request, case, rois_review, format=None):
+        annotation_steps = self._get_clinical_annotation_details(case, request.user.username, rois_review)
+        serializer = ClinicalAnnotationStepSerializer(annotation_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -62,8 +102,14 @@ class WorkListAdmin(APIView):
 
     def get(self, request, username, format=None):
         try:
-            reviews = Review.objects.filter(reviewer=username)
-        except Review.DoesNotExist:
-            reviews = []
-        serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            worklist = []
+            user_obj = User.objects.get(username=username)
+            rois_annotations = ROIsAnnotation.objects.filter(reviewer=user_obj)
+            clinical_annotations = (ClinicalAnnotation.objects.filter(reviewer=user_obj))
+            rois_annotations_serializer = ROIsAnnotationSerializer(rois_annotations, many=True)
+            clinical_annotations_serializer = ClinicalAnnotationSerializer(clinical_annotations, many=True)
+            worklist.extend(rois_annotations_serializer.data)
+            worklist.extend(clinical_annotations_serializer.data)
+            return Response(worklist, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            raise NotFound('no user with username %s' % username)
