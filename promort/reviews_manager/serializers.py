@@ -51,7 +51,7 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'creation_date')
 
 
-class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationsStepSerializer):
+class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationStepSerializer):
     slide = SlideROIsTreeSerializer(many=True, read_only=True)
 
 
