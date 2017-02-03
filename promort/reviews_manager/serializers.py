@@ -43,12 +43,23 @@ class ROIsAnnotationSerializer(serializers.ModelSerializer):
 
 
 class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+
     class Meta:
         model = ROIsAnnotationStep
 
-        fields = ('id', 'rois_annotation', 'slide', 'creation_date',
+        fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
                   'start_date', 'completion_date')
-        read_only_fields = ('id', 'creation_date')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed
 
 
 class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationStepSerializer):
@@ -128,12 +139,30 @@ class ClinicalAnnotationSerializer(serializers.ModelSerializer):
 
 
 class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+    can_be_started = serializers.SerializerMethodField()
+
     class Meta:
         model = ClinicalAnnotationStep
 
         fields = ('id', 'clinical_annotation', 'slide', 'rois_review_step',
+                  'started', 'completed', 'can_be_started',
                   'creation_date', 'start_date', 'completion_date', 'notes')
-        read_only_fields = ('id', 'creation_date')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed',
+                            'can_be_started')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started
+
+    @staticmethod
+    def get_complted(obj):
+        return obj.is_completed
+
+    @staticmethod
+    def get_can_be_started(obj):
+        return obj.can_be_started
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
