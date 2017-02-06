@@ -23,7 +23,7 @@
             })
             // review steps template
             .when('/worklist/:case', {
-                controller: 'ReviewController',
+                controller: 'ROIsAnnotationController',
                 controllerAs: 'rc',
                 templateUrl: '/static/templates/worklist/review_steps.html'
             })

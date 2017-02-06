@@ -4,15 +4,17 @@
     angular
         .module('promort.worklist.services')
         .factory('WorkListService', WorkListService)
-        .factory('ReviewStepsService', ReviewStepsService);
+        .factory('ROIsAnnotationStepService', ROIsAnnotationStepService);
 
     WorkListService.$inject = ['$http'];
 
     function WorkListService($http) {
         var WorkListService = {
             get: get,
-            startReview: startReview,
-            closeReview: closeReview
+            startROIsAnnotation: startROIsAnnotation,
+            closeROIsAnnotation: closeROIsAnnotation,
+            startClinicalAnnotation: startClinicalAnnotation,
+            closeClinicalAnnotation: closeClinicalAnnotation
         };
 
         return WorkListService;
@@ -21,54 +23,69 @@
             return $http.get('/api/worklist/');
         }
 
-        function _reviewAction(case_id, review_type, action) {
+        function _ROIsAnnotationAction(case_id, reviewer, action) {
             return $http.put(
-                '/api/reviews/' + case_id + '/' + review_type.toLowerCase() + '/',
+                '/api/rois_annotations/' + case_id + '/' + reviewer + '/',
                 {action: action}
             );
         }
 
-        function startReview(case_id, review_type) {
-            return _reviewAction(case_id, review_type, 'START');
+        function startROIsAnnotation(case_id, reviewer) {
+            return _ROIsAnnotationAction(case_id, reviewer, 'START');
         }
 
-        function closeReview(case_id, review_type) {
-            return _reviewAction(case_id, review_type, 'FINISH');
+        function closeROIsAnnotation(case_id, reviewer) {
+            return _ROIsAnnotationAction(case_id, reviewer, 'FINISH');
+        }
+
+        function _clinicalAnnotationAction(case_id, reviewer, rois_review_id, action) {
+            return $http.put(
+                '/api/clinical_annotation/' + case_id + '/' + reviewer + '/' + rois_review_id + '/',
+                {action: action}
+            )
+        }
+
+        function startClinicalAnnotation(case_id, reviewer, rois_review_id) {
+            return _clinicalAnnotationAction(case_id, reviewer, rois_review_id, 'START');
+        }
+
+        function closeClinicalAnnotation(case_id, reviewer, rois_review_id) {
+            return _clinicalAnnotationAction(case_id, reviewer, rois_review_id, 'FINISH');
         }
     }
 
-    ReviewStepsService.$inject = ['$http'];
+    ROIsAnnotationStepService.$inject = ['$http'];
 
-    function ReviewStepsService($http) {
-        var ReviewStepsService = {
+    function ROIsAnnotationStepService($http) {
+        var ROIsAnnotationStepService = {
             get: get,
-            startReviewStep: startReviewStep,
-            closeReviewStep: closeReviewStep
+            startAnnotationStep: startAnnotationStep,
+            closeAnnotationStep: closeAnnotationStep
         };
 
-        return ReviewStepsService;
+        return ROIsAnnotationStepService;
 
         function get(case_id) {
             return $http.get('/api/worklist/' + case_id + '/');
         }
 
-        function _reviewStepAction(case_id, review_type, slide_id, action, notes) {
+        function _annotationStepAction(case_id, reviewer, slide_id, action, notes) {
             var params = {action: action};
             if (typeof notes !== 'undefined') {
                 params.notes = notes;
             }
             return $http.put(
-                '/api/reviews/' + case_id + '/' + review_type.toLowerCase() + '/' + slide_id + '/',
+                '/api/rois_annotation/' + case_id + '/' + reviewer + '/' + slide_id + '/',
                 params
             );
         }
 
-        function startReviewStep(case_id, review_type, slide_id) {
-            return _reviewStepAction(case_id, review_type, slide_id, 'START');
+        function startAnnotationStep(case_id, reviewer, slide_id) {
+            return _annotationStepAction(case_id, reviewer, slide_id, 'START');
         }
 
-        function closeReviewStep(case_id, review_type, slide_id, notes) {
-            return _reviewStepAction(case_id, review_type, slide_id, 'FINISH', notes);
+        function closeAnnotationStep(case_id, reviewer, slide_id, notes) {
+            return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH', notes);
         }
     }
 })();

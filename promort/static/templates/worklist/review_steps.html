@@ -4,7 +4,7 @@
             <div class="page-header text-center">
                 <h1>SLIDES LIST - Case {{ rc.case_id }}</h1>
             </div>
-            <div id="worklist-details" ng-repeat="step in rc.reviewSteps">
+            <div id="worklist-details" ng-repeat="step in rc.annotationSteps">
                 <div class="well row">
                     <div class="col-sm-9 col-md-9 prm-valign">
                         <div>
@@ -15,14 +15,14 @@
                    --><div class="col-sm-3 col-md-3 text-right prm-valign">
                         <div>
                             <a class="btn btn-success"
-                               ng-href="{{ rc.getReviewStepLink(step) }}"
-                               ng-show="rc.reviewStepPending(step)"
-                               ng-click="rc.startReviewStep(step)">Start slide review</a>
+                               ng-href="{{ rc.getAnnotationStepLink(step) }}"
+                               ng-show="rc.annotationStepPending(step)"
+                               ng-click="rc.startAnnotationStep(step)">Start slide review</a>
                             <a class="btn btn-warning"
-                               ng-show="rc.reviewStepInProgress(step)"
-                               ng-href="{{ rc.getReviewStepLink(step) }}">Continue slide review</a>
+                               ng-show="rc.annotationStepInProgress(step)"
+                               ng-href="{{ rc.getAnnotationStepLink(step) }}">Continue slide review</a>
                             <a class="btn btn-default"
-                               ng-show="rc.reviewStepCompleted(step)"
+                               ng-show="rc.annotationStepCompleted(step)"
                                href="#" disabled="true">Slide review completed</a>
                         </div>
                     </div>

@@ -2,28 +2,54 @@
     <div id="worklist-panel" class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header text-center">
-                <h1>WORKLIST - Pending reviews</h1>
+                <h1>WORKLIST - Pending annotations</h1>
             </div>
-            <div id="worklist-details" ng-repeat="review in wlc.pendingReviews">
+            <div id="worklist-details" ng-repeat="annotation in wlc.pendingAnnotations">
                 <div class="well row">
                     <div class="col-sm-9 col-md-9 prm-valign">
                         <div>
-                            <p><strong>Case ID:</strong> {{ review.case }}</p>
-                            <p><strong>Review Type:</strong> {{ review.type }}</p>
-                            <p><strong>Slides count:</strong> {{ review.steps_count | number:0 }}</p>
+                            <p><strong>Case ID:</strong> {{ annotation.case }}</p>
+                            <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
+                            <p><strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}</p>
                         </div>
                     </div><!--
                   Removing blank spaces between DIVs, this will make valign work
                   --><div class="col-sm-3 col-md-3 text-right prm-valign">
                         <div>
-                            <a class="btn btn-success" ng-hide="wlc.reviewInProgress(review)"
-                               ng-href="{{ wlc.getReviewLink(review) }}"
-                               ng-click="wlc.openReview(review)">
-                                <!-- disabled until all the steps for the review workflow are completed -->
-                                <!-- ng-disabled="wlc.checkPendingReviews()"> -->
-                                Start Review</a>
-                            <a class="btn btn-warning" ng-show="wlc.reviewInProgress(review)"
-                               ng-href="worklist/{{ review.case }}">Continue Review</a>
+                            <!-- ROIs annotation buttons -->
+                            <a class="btn btn-success"
+                               ng-show="wlc.isROIsAnnotation(annotation) && !wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}"
+                               ng-click="wlc.startROIsAnnotation(annotation)">
+                               <!-- disabled until all the steps for the review workflow are completed -->
+                               <!-- ng-disabled="wlc.checkPendingReviews()"> -->
+                                Start ROIs Annotation
+                            </a>
+                            <a class="btn btn-warning"
+                               ng-show="wlc.isROIsAnnotation(annotation) && wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}">
+                                Continue ROIs Annotation
+                            </a>
+                            <!-- Clinical annotation buttons -->
+                            <a class="btn btn-default" href="#" disabled="true"
+                               ng-show="wlc.isClinicalAnnotation(annotation) && !wlc.canStartClinicalAnnotation(annotation)">
+                                Waiting for ROIs Annotation
+                            </a>
+                            <a class="btn btn-success"
+                               ng-show="wlc.isClinicalAnnotation(annotation) && wlc.canStartClinicalAnnotation(annotation)
+                                        && !wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}"
+                               ng-click="wlc.startClinicalAnnotation(annotation)">
+                               <!-- disabled until all the steps for the review workflow are completed -->
+                               <!-- ng-disabled="wlc.checkPendingReviews()"> -->
+                                Start Clinical Annotation
+                            </a>
+                            <a class="btn btn-warning"
+                               ng-show="wlc.isClinicalAnnotation(annotation) && wlc.canStartClinicalAnnotation(annotation)
+                                        && wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}">
+                                Continue Clinical Annotation
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -4,18 +4,24 @@
     angular
         .module('promort.worklist.controllers')
         .controller('WorkListController', WorkListController)
-        .controller('ReviewController', ReviewController);
+        .controller('ROIsAnnotationController', ROIsAnnotationController);
     
-    WorkListController.$inject = ['$scope', 'WorkListService'];
+    WorkListController.$inject = ['$scope', '$rootScope', 'WorkListService'];
     
-    function WorkListController($scope, WorkListService) {
+    function WorkListController($scope, $rootScope, WorkListService) {
         var vm = this;
-        vm.pendingReviews = [];
-        vm.reviewInProgress = reviewInProgress;
-        vm.checkPendingReviews = checkPendingReviews;
-        vm.getReviewLink = getReviewLink;
-        vm.openReview = openReview;
-        vm.closeReview = closeReview;
+        vm.pendingAnnotations = [];
+        vm.annotationInProgress = annotationInProgress;
+        vm.annotationClosed = annotationClosed;
+        vm.checkPendingAnnotations = checkPendingAnnotations;
+        vm.isROIsAnnotation = isROIsAnnotation;
+        vm.isClinicalAnnotation = isClinicalAnnotation;
+        vm.canStartClinicalAnnotation = canStartClinicalAnnotation;
+        vm.getAnnotationLink = getAnnotationLink;
+        vm.startROIsAnnotation = startROIsAnnotation;
+        vm.closeROIsAnnotation = closeROIsAnnotation;
+        vm.startClinicalAnnotation = startClinicalAnnotation;
+        vm.closeClinicalAnnotation = closeClinicalAnnotation;
         
         activate();
         
@@ -23,7 +29,7 @@
             WorkListService.get().then(workListSuccessFn, workListErrorFn);
             
             function workListSuccessFn(response) {
-                vm.pendingReviews = response.data;
+                vm.pendingAnnotations = response.data;
             }
             
             function workListErrorFn(response) {
@@ -31,100 +37,129 @@
             }
         }
 
-        function reviewInProgress(review) {
-            return (review.start_date && !review.completion_date );
+        function annotationInProgress(annotation) {
+            return (annotation.started && !annotation.completed );
         }
 
-        function checkPendingReviews() {
-            for (var i in vm.pendingReviews) {
-                var r = vm.pendingReviews[i];
-                if (r.start_date && !r.completion_date) {
+        function annotationClosed(annotation) {
+            return annotation.completed;
+        }
+
+        function checkPendingAnnotations() {
+            for (var i in vm.pendingAnnotations) {
+                if (vm.annotationInProgress(vm.pendingAnnotations[i])) {
                     return true;
                 }
             }
             return false;
         }
+
+        function isROIsAnnotation(annotation) {
+            return annotation.annotation_type === 'ROIS_ANNOTATION';
+        }
+
+        function isClinicalAnnotation(annotation) {
+            return annotation.annotation_type === 'CLINICAL_ANNOTATION';
+        }
+
+        function canStartClinicalAnnotation(annotation) {
+            if (vm.isClinicalAnnotation(annotation)) {
+                return annotation.can_be_started;
+            }
+        }
         
-        function getReviewLink(review) {
+        function getAnnotationLink(annotation) {
             // ========================================
             // disabled until all the steps for the
-            // review workflow are completed
+            // annotations workflow are completed
             // ========================================
-            // if (vm.checkPendingReviews()) {
-            //     if (!vm.reviewInProgress(review)) {
+            // if (vm.checkPendingAnnotations()) {
+            //     if (!vm.annotationsInProgress(annotation)) {
             //         return '';
             //     }
             // }
-            return 'worklist/' + review.case;
+            if (vm.isROIsAnnotation(annotation)) {
+                return 'worklist/' + annotation.case;
+            } else if (vm.isClinicalAnnotation(annotation)) {
+                return 'worklist/ ' + annotation.case + '/' + annotation.rois_reviews;
+            }
         }
         
-        function openReview(review) {
-            WorkListService.startReview(review.case, review.type);
+        function startROIsAnnotation(annotation) {
+            WorkListService.startROIsAnnotation(annotation.case, $rootScope.current_user);
         }
 
-        function closeReview(review) {
-            WorkListService.closeReview(review.case, review.type);
+        function closeROIsAnnotation(annotation) {
+            WorkListService.closeROIsAnnotation(annotation.case, $rootScope.current_user);
+        }
+
+        function startClinicalAnnotation(annotation) {
+            WorkListService.startClinicalAnnotation(annotation.case, $rootScope.current_user,
+                annotation.rois_review);
+        }
+
+        function closeClinicalAnnotation(annotation) {
+            WorkListService.closeClinicalAnnotation(annotation.case, $rootScope.current_user,
+                annotation.rois_review);
         }
     }
     
-    ReviewController.$inject = ['$scope', '$routeParams', '$location', 'ReviewStepsService'];
+    ROIsAnnotationController.$inject = ['$scope', '$rootScope', '$routeParams',
+        '$location', 'ROIsAnnotationStepService'];
 
-    function ReviewController($scope, $routeParams, $location, ReviewStepsService) {
+    function ROIsAnnotationController($scope, $rootScope, $routeParams, $location,
+                                      ROIsAnnotationStepService) {
         var vm = this;
-        vm.reviewSteps = [];
+        vm.annotationSteps = [];
         vm.case_id = undefined;
-        vm.reviewStepPending = reviewStepPending;
-        vm.reviewStepInProgress = reviewStepInProgress;
-        vm.reviewStepCompleted = reviewStepCompleted;
-        vm.getReviewStepLink = getReviewStepLink;
-        vm.startReviewStep = startReviewStep;
-        vm.closeReviewStep = closeReviewStep;
+        vm.annotationStepPending = annotationStepPending;
+        vm.annotationStepInProgress = annotationStepInProgress;
+        vm.annotationStepCompleted = annotationStepCompleted;
+        vm.getAnnotationStepLink = getAnnotationStepLink;
+        vm.startAnnotationStep = startAnnotationStep;
+        vm.closeAnnotationStep = closeAnnotationStep;
 
         activate();
 
         function activate() {
             vm.case_id = $routeParams.case;
-            ReviewStepsService.get(vm.case_id)
-                .then(ReviewStepsSuccessFn, ReviewStepsErrorFn);
+            ROIsAnnotationStepService.get(vm.case_id)
+                .then(AnnotationStepsSuccessFn, AnnotationStepsErrorFn);
 
-            function ReviewStepsSuccessFn(response) {
-                vm.reviewSteps = response.data;
+            function AnnotationStepsSuccessFn(response) {
+                vm.annotationSteps = response.data;
             }
 
-            function ReviewStepsErrorFn(response) {
+            function AnnotationStepsErrorFn(response) {
                 console.error(response.error);
                 $location.url('404');
             }
         }
 
-        function reviewStepPending(reviewStep) {
-            return (!reviewStep.start_date && !reviewStep.completion_date);
+        function annotationStepPending(annotationStep) {
+            return (!annotationStep.started && !annotationStep.completed);
         }
 
-        function reviewStepInProgress(reviewStep) {
-            return (reviewStep.start_date && !reviewStep.completion_date);
+        function annotationStepInProgress(annotationStep) {
+            return (annotationStep.started && !annotationStep.completed);
         }
 
-        function reviewStepCompleted(reviewStep) {
-            return (reviewStep.start_date && reviewStep.completion_date);
+        function annotationStepCompleted(annotationStep) {
+            return annotationStep.completed;
         }
 
-        function getReviewStepLink(reviewStep) {
-            if (reviewStep.review_type === 'REVIEW_1') {
-                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/quality_control';
-            } else {
-                return 'worklist/' + vm.case_id + '/' + reviewStep.slide + '/annotations';
-            }
+        function getAnnotationStepLink(annotationStep) {
+            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/quality_control';
         }
 
-        function startReviewStep(reviewStep) {
-            ReviewStepsService.startReviewStep(vm.case_id, reviewStep.review_type,
-                reviewStep.slide);
+        function startAnnotationStep(annotationStep) {
+            ROIsAnnotationStepService.startAnnotationStep(vm.case_id, $rootScope.current_user,
+                annotationStep.slide);
         }
 
-        function closeReviewStep(reviewStep) {
-            ReviewStepsService.closeReviewStep(vm.case_id, reviewStep.review_type,
-                reviewStep.slide);
+        function closeAnnotationStep(annotationStep) {
+            ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, $rootScope.current_user,
+                annotationStep.slide);
         }
     }
 })();
