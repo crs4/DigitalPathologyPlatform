@@ -5,9 +5,9 @@
         .module('promort.authentication.services')
         .factory('Authentication', Authentication);
 
-    Authentication.$inject = ['$cookies', '$http', 'ngDialog'];
+    Authentication.$inject = ['$cookies', '$http', '$rootScope', 'ngDialog'];
 
-    function Authentication($cookies, $http, ngDialog) {
+    function Authentication($cookies, $http, $rootScope, ngDialog) {
         var Authentication = {
             login: login,
             logout: logout,
@@ -26,6 +26,7 @@
             
             function loginSuccessFn(data, status, header, config) {
                 Authentication.setAuthenticationCookie();
+                $rootScope.current_user = username;
                 
                 window.location = '/worklist';
             }
@@ -46,6 +47,7 @@
             
             function logoutSuccessFn(data, status, headers, config) {
                 Authentication.unauthenticate();
+                delete($rootScope.current_user);
                 
                 window.location = '/';
             }
