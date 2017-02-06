@@ -55,11 +55,11 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_started(obj):
-        return obj.is_started
+        return obj.is_started()
 
     @staticmethod
     def get_completed(obj):
-        return obj.is_completed
+        return obj.is_completed()
 
 
 class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationStepSerializer):
@@ -154,11 +154,11 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_started(obj):
-        return obj.is_started
+        return obj.is_started()
 
     @staticmethod
     def get_complted(obj):
-        return obj.is_completed
+        return obj.is_completed()
 
     @staticmethod
     def get_can_be_started(obj):
