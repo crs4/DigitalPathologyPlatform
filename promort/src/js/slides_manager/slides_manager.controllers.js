@@ -5,14 +5,15 @@
         .module('promort.slides_manager.controllers')
         .controller('QualityControlController', QualityControlController);
 
-    QualityControlController.$inject = ['$scope', '$routeParams', '$location',
-        'SlideService', 'QualityControlService', 'ReviewStepsService'];
+    QualityControlController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
+        'QualityControlService', 'ROIsAnnotationStepService'];
 
-    function QualityControlController($scope, $routeParams, $location, SlideService,
-                                      QualityControlService, ReviewStepsService) {
+    function QualityControlController($scope, $routeParams, $location, Authentication, QualityControlService,
+                                      ROIsAnnotationStepService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.annotation_step_id = undefined;
         vm.stainings = undefined;
         vm.not_adequacy_reasons = undefined;
         vm.checkStainingFormSubmission = checkStainingFormSubmission;
@@ -30,12 +31,13 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.annotation_step_id = $routeParams.annotation_step;
 
-            SlideService.get(vm.slide_id)
+            ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
                 .then(getSlideSuccessFn, getSlideErrorFn);
 
             function getSlideSuccessFn(response) {
-                if (response.data.quality_control === null) {
+                if (response.data.slide_quality_control === null) {
                     // initialize not_adequacy_reason
                     QualityControlService.fetchNotAdequacyReasons()
                         .then(fetchNotAdequacyReasonSuccessFn);
@@ -55,8 +57,9 @@
                         vm.slideStainingSubmitted = true;
                     }
                 } else {
-                    if (response.data.quality_control.adequate_slide) {
-                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
+                    if (response.data.slide_quality_control.adequate_slide) {
+                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
+                            vm.annotation_step_id + '/rois_manager');
                     } else {
                         $location.url('worklist/' + vm.case_id);
                     }
@@ -107,6 +110,8 @@
 
         function submitQualityControl() {
             QualityControlService.create(
+                vm.case_id,
+                Authentication.getCurrentUser(),
                 vm.slide_id,
                 $.parseJSON(vm.slideQualityControl.goodImageQuality),
                 vm.slideQualityControl.notAdequacyReason,
@@ -118,7 +123,7 @@
                     $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
                 } else {
                     // close the review because image quality is bad
-                    ReviewStepsService.closeReviewStep(vm.case_id, 'REVIEW_1',
+                    ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
                         vm.slide_id, 'Slide didn\'t pass quality control phase')
                         .then(closeReviewSuccessFn, closeReviewErrorFn);
 
