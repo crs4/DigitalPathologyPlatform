@@ -17,17 +17,12 @@ class CaseSerializer(serializers.ModelSerializer):
 
 
 class SlideSerializer(serializers.ModelSerializer):
-    quality_control_passed = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='adequate_slide'
-    )
 
     class Meta:
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'quality_control_passed',
-                  'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel', 'staining')
         read_only_fields = ('import_date',)
 
 

@@ -47,7 +47,7 @@ class SlideQualityControl(models.Model):
         ('OTHER', 'Other (see notes)')
     )
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
-                              blank=False, unique=False, related_name='quality_control_passed')
+                              blank=False, unique=False)
     rois_annotation_step = models.OneToOneField(ROIsAnnotationStep, on_delete=models.PROTECT,
                                                 blank=False, unique=True,
                                                 related_name='slide_quality_control')
