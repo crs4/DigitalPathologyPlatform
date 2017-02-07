@@ -6,9 +6,9 @@
         .controller('WorkListController', WorkListController)
         .controller('ROIsAnnotationController', ROIsAnnotationController);
     
-    WorkListController.$inject = ['$scope', '$rootScope', 'WorkListService'];
+    WorkListController.$inject = ['$scope', 'Authentication', 'WorkListService'];
     
-    function WorkListController($scope, $rootScope, WorkListService) {
+    function WorkListController($scope, Authentication, WorkListService) {
         var vm = this;
         vm.pendingAnnotations = [];
         vm.annotationInProgress = annotationInProgress;
@@ -86,28 +86,28 @@
         }
         
         function startROIsAnnotation(annotation) {
-            WorkListService.startROIsAnnotation(annotation.case, $rootScope.current_user);
+            WorkListService.startROIsAnnotation(annotation.case, Authentication.getCurrentUser());
         }
 
         function closeROIsAnnotation(annotation) {
-            WorkListService.closeROIsAnnotation(annotation.case, $rootScope.current_user);
+            WorkListService.closeROIsAnnotation(annotation.case, Authentication.getCurrentUser());
         }
 
         function startClinicalAnnotation(annotation) {
-            WorkListService.startClinicalAnnotation(annotation.case, $rootScope.current_user,
+            WorkListService.startClinicalAnnotation(annotation.case, Authentication.getCurrentUser(),
                 annotation.rois_review);
         }
 
         function closeClinicalAnnotation(annotation) {
-            WorkListService.closeClinicalAnnotation(annotation.case, $rootScope.current_user,
+            WorkListService.closeClinicalAnnotation(annotation.case, Authentication.getCurrentUser(),
                 annotation.rois_review);
         }
     }
     
-    ROIsAnnotationController.$inject = ['$scope', '$rootScope', '$routeParams',
-        '$location', 'ROIsAnnotationStepService'];
+    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location',
+        'Authentication', 'ROIsAnnotationStepService'];
 
-    function ROIsAnnotationController($scope, $rootScope, $routeParams, $location,
+    function ROIsAnnotationController($scope, $routeParams, $location, Authentication,
                                       ROIsAnnotationStepService) {
         var vm = this;
         vm.annotationSteps = [];
@@ -117,7 +117,6 @@
         vm.annotationStepCompleted = annotationStepCompleted;
         vm.getAnnotationStepLink = getAnnotationStepLink;
         vm.startAnnotationStep = startAnnotationStep;
-        vm.closeAnnotationStep = closeAnnotationStep;
 
         activate();
 
@@ -149,16 +148,12 @@
         }
 
         function getAnnotationStepLink(annotationStep) {
-            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/quality_control';
+            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' +
+                annotationStep.id + '/quality_control';
         }
 
         function startAnnotationStep(annotationStep) {
-            ROIsAnnotationStepService.startAnnotationStep(vm.case_id, $rootScope.current_user,
-                annotationStep.slide);
-        }
-
-        function closeAnnotationStep(annotationStep) {
-            ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, $rootScope.current_user,
+            ROIsAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
                 annotationStep.slide);
         }
     }
