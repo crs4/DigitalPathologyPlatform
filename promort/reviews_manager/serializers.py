@@ -5,6 +5,7 @@ from rest_framework import serializers
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
     ClinicalAnnotation, ClinicalAnnotationStep
 from rois_manager.serializers import SlideROIsTreeSerializer
+from slides_manager.serializers import SlideSerializer, SlideQualityControlSerializer
 
 
 class ROIsAnnotationSerializer(serializers.ModelSerializer):
@@ -45,12 +46,13 @@ class ROIsAnnotationSerializer(serializers.ModelSerializer):
 class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
+    slide_quality_control = SlideQualityControlSerializer(read_only=True)
 
     class Meta:
         model = ROIsAnnotationStep
 
         fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
-                  'start_date', 'completion_date')
+                  'start_date', 'completion_date', 'slide_quality_control')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
     @staticmethod
@@ -63,6 +65,10 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
 
 
 class ROIsAnnotationStepDetailsSerializer(ROIsAnnotationStepSerializer):
+    slide = SlideSerializer(read_only=True)
+
+
+class ROIsAnnotationStepFullSerializer(ROIsAnnotationStepDetailsSerializer):
     slide = SlideROIsTreeSerializer(many=True, read_only=True)
 
 

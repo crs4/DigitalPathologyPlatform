@@ -18,8 +18,8 @@ from view_templates.views import GenericListView
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, ClinicalAnnotation, \
     ClinicalAnnotationStep
 from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
-    ROIsAnnotationDetailsSerializer, ClinicalAnnotationSerializer, ClinicalAnnotationStepSerializer, \
-    ClinicalAnnotationDetailsSerializer
+    ROIsAnnotationDetailsSerializer, ROIsAnnotationStepDetailsSerializer, ClinicalAnnotationSerializer, \
+    ClinicalAnnotationStepSerializer, ClinicalAnnotationDetailsSerializer
 from reviews_manager.permissions import IsReviewManager
 
 import logging
@@ -242,7 +242,7 @@ class ROIsAnnotationStepDetail(APIView):
 
     def get(self, request, case, reviewer, slide, format=None):
         annotation_step = self._find_rois_annotation_step(case, reviewer, slide)
-        serializer = ROIsAnnotationStepSerializer(annotation_step)
+        serializer = ROIsAnnotationStepDetailsSerializer(annotation_step)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, case, reviewer, slide, format=None):
