@@ -5,16 +5,18 @@
         .module('promort.authentication.services')
         .factory('Authentication', Authentication);
 
-    Authentication.$inject = ['$cookies', '$http', '$rootScope', 'ngDialog'];
+    Authentication.$inject = ['$cookies', '$http', 'ngDialog'];
 
-    function Authentication($cookies, $http, $rootScope, ngDialog) {
+    function Authentication($cookies, $http, ngDialog) {
+
         var Authentication = {
             login: login,
             logout: logout,
             checkUser: checkUser,
             isAuthenticated: isAuthenticated,
             setAuthenticationCookie: setAuthenticationCookie,
-            unauthenticate: unauthenticate
+            unauthenticate: unauthenticate,
+            getCurrentUser: getCurrentUser
         };
 
         return Authentication;
@@ -25,9 +27,8 @@
             }).then(loginSuccessFn, loginErrorFn);
             
             function loginSuccessFn(data, status, header, config) {
-                Authentication.setAuthenticationCookie();
-                $rootScope.current_user = username;
-                
+                Authentication.setAuthenticationCookie(username);
+
                 window.location = '/worklist';
             }
             
@@ -47,8 +48,7 @@
             
             function logoutSuccessFn(data, status, headers, config) {
                 Authentication.unauthenticate();
-                delete($rootScope.current_user);
-                
+
                 window.location = '/';
             }
             
@@ -62,8 +62,7 @@
                 .then(checkSuccessFn, checkErrorFn);
 
             function checkSuccessFn(data) {
-                console.log('Active session found on backed');
-                Authentication.setAuthenticationCookie();
+                Authentication.setAuthenticationCookie(data.data.username);
             }
 
             function checkErrorFn(data) {
@@ -75,12 +74,18 @@
             return !!$cookies.get('promortUserAuthenticated');
         }
 
-        function setAuthenticationCookie() {
+        function setAuthenticationCookie(username) {
             $cookies.putObject('promortUserAuthenticated', true);
+            $cookies.putObject('currentUser', username);
         }
 
         function unauthenticate() {
             $cookies.remove('promortUserAuthenticated');
+            $cookies.remove('currentUser');
+        }
+
+        function getCurrentUser() {
+            return $cookies.getObject('currentUser');
         }
     }
 })();
