@@ -120,7 +120,8 @@
 
             function qualityControlCreationSuccessFn(response) {
                 if(vm.slideQualityControl.goodImageQuality === 'true') {
-                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/rois_manager');
+                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
+                            vm.annotation_step_id + '/rois_manager');
                 } else {
                     // close the review because image quality is bad
                     ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
