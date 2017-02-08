@@ -52,8 +52,8 @@
                     function fetchStainingSuccessFn(response) {
                         vm.stainings = response.data;
                     }
-                    if (response.data.staining !== null) {
-                        vm.slideStaining = response.data.staining;
+                    if (response.data.slide.staining !== null) {
+                        vm.slideStaining = response.data.slide.staining;
                         vm.slideStainingSubmitted = true;
                     }
                 } else {
