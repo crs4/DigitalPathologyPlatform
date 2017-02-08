@@ -49,8 +49,8 @@ urlpatterns = [
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
 
     # ROIs
-    url(r'api/slides/(?P<pk>[\w\-.]+)/rois_list/$', ROIsTreeList.as_view()),
-    url(r'api/slides/(?P<pk>[\w\-.]+)/slices/$', SliceList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/rois_list/$', ROIsTreeList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/slices/$', SliceList.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
     url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
@@ -63,9 +63,11 @@ urlpatterns = [
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', ROIsAnnotationDetail.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
         ROIsAnnotationStepDetail.as_view()),
+
     # quality control
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
+
     # clinical annotations
     url(r'api/clinical_annotations/$', ClinicalAnnotationsList.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', ClinicalAnnotationsDetail.as_view()),
