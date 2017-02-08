@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from slides_manager.models import Case, Slide, \
     SlideQualityControl
+from reviews_manager.models import ROIsAnnotationStep
 
 
 class CaseSerializer(serializers.ModelSerializer):
@@ -35,6 +36,10 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
         write_only=True,
         queryset=Slide.objects.all(),
     )
+    rois_annotation_step = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        queryset=ROIsAnnotationStep.objects.all()
+    )
 
     class Meta:
         model = SlideQualityControl
@@ -42,7 +47,6 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
         fields = ('slide', 'rois_annotation_step', 'adequate_slide', 'not_adequacy_reason',
                   'reviewer', 'acquisition_date', 'notes')
         read_only_fields = ('acquisition_date',)
-        write_only_fields = ('rois_annotation_step',)
 
 
 class CaseDetailedSerializer(serializers.ModelSerializer):
@@ -57,14 +61,11 @@ class CaseDetailedSerializer(serializers.ModelSerializer):
 
 class SlideDetailSerializer(serializers.ModelSerializer):
     case = serializers.PrimaryKeyRelatedField(read_only=True)
-    quality_control = SlideQualityControlSerializer(read_only=True,
-                                                    source='quality_control_passed')
 
     class Meta:
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'quality_control',
-                  'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel', 'staining')
         read_only_fields = ('import_date',)
 
