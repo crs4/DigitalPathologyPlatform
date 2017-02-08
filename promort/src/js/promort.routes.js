@@ -28,13 +28,13 @@
                 templateUrl: '/static/templates/worklist/review_steps.html'
             })
             // slide quality control
-            .when('/worklist/:case/:slide/quality_control', {
+            .when('/worklist/:case/:slide/:annotation_step/quality_control', {
                 controller: 'QualityControlController',
                 controllerAs: 'qcc',
                 templateUrl: '/static/templates/slide_review/quality_control.html'
             })
             // ROIs manager
-            .when('/worklist/:case/:slide/rois_manager', {
+            .when('/worklist/:case/:slide/:annotation_step/rois_manager', {
                 controller: 'ROIsManagerController',
                 controllerAs: 'rmc',
                 templateUrl: '/static/templates/rois_manager/manager.html'

@@ -3,42 +3,43 @@
 
     angular
         .module('promort.rois_manager.services')
-        .factory('SlidesManagerService', SlidesManagerService)
+        .factory('ROIsAnnotationStepManagerService', ROIsAnnotationStepManagerService)
         .factory('SlicesManagerService', SlicesManagerService)
         .factory('CoresManagerService', CoresManagerService)
         .factory('FocusRegionsManagerService', FocusRegionsManagerService);
 
-    SlidesManagerService.$inject = ['$http'];
+    ROIsAnnotationStepManagerService.$inject = ['$http'];
 
-    function SlidesManagerService($http) {
-        var SlidesManagerService = {
+    function ROIsAnnotationStepManagerService($http) {
+        var ROIsAnnotationStepManagerService = {
             getSlices: getSlices,
             createSlice: createSlice,
             getROIs: getROIs,
             clearROIs: clearROIs
         };
 
-        return SlidesManagerService;
+        return ROIsAnnotationStepManagerService;
 
-        function getSlices(slide_id) {
-            return $http.get('/api/slides/' + slide_id + '/slices/');
+        function getSlices(step_id) {
+            return $http.get('/api/rois_annotation_steps/' + step_id + '/slices/');
         }
 
-        function createSlice(slide_id, slice_label, roi_json, total_cores) {
+        function createSlice(step_id, slide_id, slice_label, roi_json, total_cores) {
             var params = {
                 label: slice_label,
+                slide: slide_id,
                 roi_json: JSON.stringify(roi_json),
                 total_cores: total_cores
             };
-            return $http.post('/api/slides/' + slide_id + '/slices/', params);
+            return $http.post('/api/rois_annotation_steps/' + step_id + '/slices/', params);
         }
 
-        function getROIs(slide_id) {
-            return $http.get('/api/slides/' + slide_id + '/rois_list/');
+        function getROIs(step_id) {
+            return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/');
         }
 
-        function clearROIs(slide_id) {
-            return $http.delete('/api/slides/' + slide_id + '/rois_list/');
+        function clearROIs(step_id) {
+            return $http.delete('/api/rois_annotation_steps/' + step_id + '/rois_list/');
         }
     }
 

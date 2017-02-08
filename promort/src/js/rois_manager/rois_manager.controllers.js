@@ -13,13 +13,16 @@
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
-        'ngDialog', 'SlideService', 'SlidesManagerService', 'AnnotationsViewerService'];
+        'ngDialog', 'Authentication', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
+        'AnnotationsViewerService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
-                                   SlideService, SlidesManagerService, AnnotationsViewerService) {
+                                   Authentication, ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
+                                   AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.annotation_step_id = undefined;
 
         vm.slices_map = undefined;
         vm.cores_map = undefined;
@@ -77,6 +80,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.annotation_step_id = $routeParams.annotation_step;
 
             vm.slices_map = {};
             vm.cores_map = {};
@@ -86,12 +90,12 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            SlideService.get(vm.slide_id)
-                .then(getSlideSuccessFn, getSlideErrorFn);
+            ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+                .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
-            function getSlideSuccessFn(response) {
-                if (response.data.quality_control !== null &&
-                    response.data.quality_control.adequate_slide) {
+            function getROIsAnnotationStepSuccessFn(response) {
+                if (response.data.slide_quality_control !== null &&
+                    response.data.slide_quality_control.adequate_slide) {
 
                     // shut down creation forms when specific events occur
                     $scope.$on('tool.destroyed',
@@ -200,7 +204,7 @@
                 }
             }
 
-            function getSlideErrorFn(response) {
+            function getROIsAnnotationStepErrorFn(response) {
                 console.error('Cannot load slide info');
                 console.error(response);
             }
@@ -382,7 +386,7 @@
                         closeByDocument: false
                     });
 
-                    SlidesManagerService.clearROIs(vm.slide_id)
+                    ROIsAnnotationStepManagerService.clearROIs(vm.annotation_step_id)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
                 }
 
@@ -502,13 +506,14 @@
     }
 
     NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'AnnotationsViewerService', 'SlidesManagerService'];
+        'AnnotationsViewerService', 'ROIsAnnotationStepManagerService'];
 
-    function NewSliceController($scope, $routeParams, $rootScope, ngDialog,
-                                AnnotationsViewerService, SlidesManagerService) {
+    function NewSliceController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
+                                ROIsAnnotationStepManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.annotation_step_id = undefined;
         vm.shape = undefined;
         vm.totalCores = 0;
 
@@ -549,6 +554,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.annotation_step_id = $routeParams.annotation_step;
         }
 
         function newPolygon() {
@@ -684,7 +690,8 @@
                 closeByNavigation: false,
                 closeByDocument: false
             });
-            SlidesManagerService.createSlice(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores)
+            ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_id, vm.slide_id, vm.shape.shape_id,
+                vm.shape, vm.totalCores)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
             function createSliceSuccessFn(response) {

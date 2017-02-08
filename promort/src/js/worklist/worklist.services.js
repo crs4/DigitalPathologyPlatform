@@ -59,6 +59,7 @@
     function ROIsAnnotationStepService($http) {
         var ROIsAnnotationStepService = {
             get: get,
+            getDetails: getDetails,
             startAnnotationStep: startAnnotationStep,
             closeAnnotationStep: closeAnnotationStep
         };
@@ -69,13 +70,17 @@
             return $http.get('/api/worklist/' + case_id + '/');
         }
 
+        function getDetails(case_id, reviewer, slide_id) {
+            return $http.get('/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id +'/');
+        }
+
         function _annotationStepAction(case_id, reviewer, slide_id, action, notes) {
             var params = {action: action};
             if (typeof notes !== 'undefined') {
                 params.notes = notes;
             }
             return $http.put(
-                '/api/rois_annotation/' + case_id + '/' + reviewer + '/' + slide_id + '/',
+                '/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id + '/',
                 params
             );
         }

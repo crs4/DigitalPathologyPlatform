@@ -6,8 +6,7 @@
         .controller('SimpleViewerController', SimpleViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController);
 
-    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope',
-        '$location', 'ViewerService'];
+    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ViewerService'];
 
     function SimpleViewerController($scope, $routeParams, $rootScope, $location, ViewerService) {
         var vm = this;
@@ -68,12 +67,13 @@
     }
 
     AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ngDialog',
-        'ViewerService', 'AnnotationsViewerService', 'SlidesManagerService'];
+        'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService'];
 
     function AnnotationsViewerController($scope, $routeParams, $rootScope, $location, ngDialog, ViewerService,
-                                         AnnotationsViewerService, SlidesManagerService) {
+                                         AnnotationsViewerService, ROIsAnnotationStepManagerService) {
         var vm = this;
         vm.slide_id = undefined;
+        vm.annotation_step_id = undefined;
         vm.slide_details = undefined;
         vm.dzi_url = undefined;
         vm.static_files_url = undefined;
@@ -86,6 +86,7 @@
 
         function activate() {
             vm.slide_id = $routeParams.slide;
+            vm.annotation_step_id = $routeParams.annotation_step;
             ViewerService.getOMEBaseURLs()
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
@@ -126,7 +127,8 @@
                         closeByDocument: false
                     });
 
-                    SlidesManagerService.getROIs(vm.slide_id).then(getROIsSuccessFn, getROIsErrorFn);
+                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id)
+                        .then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
                         for (var sl in response.data.slices) {

@@ -34,9 +34,9 @@
             vm.annotation_step_id = $routeParams.annotation_step;
 
             ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
-                .then(getSlideSuccessFn, getSlideErrorFn);
+                .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
-            function getSlideSuccessFn(response) {
+            function getROIsAnnotationStepSuccessFn(response) {
                 if (response.data.slide_quality_control === null) {
                     // initialize not_adequacy_reason
                     QualityControlService.fetchNotAdequacyReasons()
@@ -66,7 +66,7 @@
                 }
             }
 
-            function getSlideErrorFn(response) {
+            function getROIsAnnotationStepErrorFn(response) {
                 console.error('Cannot load slide info');
                 console.error(response);
             }
