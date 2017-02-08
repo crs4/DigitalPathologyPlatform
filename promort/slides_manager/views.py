@@ -44,23 +44,27 @@ class SlideDetail(GenericDetailView):
 class SlideQualityControlDetail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def _find_by_rois_annotation_step(self, case_id, username, slide_id):
+    def _find_rois_annotation_step(self, case_id, username, slide_id):
         try:
             annotation = ROIsAnnotation.objects.get(
                 case=case_id,
                 reviewer=User.objects.get(username=username)
             )
-            annotation_step = ROIsAnnotationStep.objects.get(
+            return ROIsAnnotationStep.objects.get(
                 rois_annotation=annotation,
                 slide=slide_id
-            )
-            return SlideQualityControl.objects.get(
-                rois_annotation_step=annotation_step
             )
         except ROIsAnnotation.DoesNotExist:
             raise NotFound('unable to find ROIs annotation for case %s assigned to user %s' % (case_id, username))
         except ROIsAnnotationStep.DoesNotExist:
             raise NotFound('unable to find ROIs annotation step for slide %s' % slide_id)
+
+    def _find_by_rois_annotation_step(self, case_id, username, slide_id):
+        try:
+            annotation_step = self._find_rois_annotation_step(case_id, username, slide_id)
+            return SlideQualityControl.objects.get(
+                rois_annotation_step=annotation_step
+            )
         except SlideQualityControl.DoesNotExist:
             raise NotFound('unable to find quality control data')
 
@@ -74,6 +78,7 @@ class SlideQualityControlDetail(APIView):
         qc_data = request.data
         qc_data['reviewer'] = reviewer
         qc_data['slide'] = slide
+        qc_data['rois_annotation_step'] = self._find_rois_annotation_step(case, reviewer, slide).id
 
         logger.debug('Serializing data %r -- Object class %r', qc_data, SlideQualityControl)
 
