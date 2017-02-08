@@ -6,10 +6,10 @@
         .controller('QualityControlController', QualityControlController);
 
     QualityControlController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
-        'QualityControlService', 'ROIsAnnotationStepService'];
+        'QualityControlService', 'ROIsAnnotationStepService', 'SlideService'];
 
     function QualityControlController($scope, $routeParams, $location, Authentication, QualityControlService,
-                                      ROIsAnnotationStepService) {
+                                      ROIsAnnotationStepService, SlideService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
