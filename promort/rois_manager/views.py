@@ -12,12 +12,13 @@ from django.db import IntegrityError
 
 from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 
+from reviews_manager.models import ROIsAnnotationStep
+from reviews_manager.serializers import ROIsAnnotationStepFullSerializer, \
+    ROIsAnnotationStepROIsTreeSerializer
 from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
 from rois_manager.serializers import SlideDetailsSerializer, SliceSerializer, \
-    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer,\
-    SlideROIsTreeSerializer
-
+    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer
 import logging
 logger = logging.getLogger('promort')
 
@@ -27,30 +28,30 @@ class ROIsTreeList(APIView):
 
     def get(self, request, pk, format=None):
         try:
-            logger.info('Searching for slide with ID %s' % pk)
-            obj = Slide.objects.get(pk=pk)
-        except Slide.DoesNotExist:
-            raise NotFound('There is no Slide with ID %s' % pk)
-        serializer = SlideROIsTreeSerializer(obj)
+            logger.info('Searching for ROIsAnnotationStep with ID %s' % pk)
+            obj = ROIsAnnotationStep.objects.get(pk=pk)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('There is no ROIsAnnotationStep with ID %s' % pk)
+        serializer = ROIsAnnotationStepROIsTreeSerializer(obj)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
-        slices = Slice.objects.filter(slide=pk)
+        slices = Slice.objects.filter(annotation_step=pk)
         for s in slices:
             s.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SliceList(GenericReadOnlyDetailView):
-    model = Slide
-    model_serializer = SlideDetailsSerializer
+    model = ROIsAnnotationStep
+    model_serializer = ROIsAnnotationStepFullSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, pk, format=None):
         slice_data = request.data
+        slice_data['annotation_step'] = pk
         slice_data['author'] = request.user.username
-        slice_data['slide'] = pk
 
         logger.debug('Serializing data %r -- Object class %r', slice_data, Slice)
 
@@ -124,7 +125,7 @@ class FocusRegionList(GenericReadOnlyDetailView):
         if serializer.is_valid():
             try:
                 serializer.save()
-            except IntegrityError, ie:
+            except IntegrityError:
                 return Response({
                     'status': 'ERROR',
                     'message': 'duplicated focus region label %s for core %s' %
