@@ -40,7 +40,7 @@ urlpatterns = [
 
     # groups
     url(r'api/groups/$', GroupListView.as_view()),
-    url(r'api/groups/(?P<group>reviewer_1|reviewer_2|reviewer_3)/$', GroupDetailsView.as_view()),
+    url(r'api/groups/(?P<group>rois_manager|clinical_manager|gold_standard)/$', GroupDetailsView.as_view()),
 
     # cases and slides
     url(r'^api/cases/$', CaseList.as_view()),
