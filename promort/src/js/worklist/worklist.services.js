@@ -89,8 +89,8 @@
             return _annotationStepAction(case_id, reviewer, slide_id, 'START');
         }
 
-        function closeAnnotationStep(case_id, reviewer, slide_id, notes) {
-            return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH', notes);
+        function closeAnnotationStep(case_id, reviewer, slide_id) {
+            return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH');
         }
     }
 })();
