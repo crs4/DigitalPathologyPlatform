@@ -278,8 +278,19 @@ class ROIsAnnotationStepDetail(APIView):
                     'message': '\'%s\' is not a valid action' % action
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
+            # after saving closing an annotation step, also check if ROIs annotation can be closed
+            rois_annotation_closed = False
+            if action == 'FINISH':
+                rois_annotation = annotation_step.rois_annotation
+                if rois_annotation.can_be_closed():
+                    rois_annotation.completion_date = datetime.now()
+                    rois_annotation.save()
+                    rois_annotation_closed = True
             serializer = ROIsAnnotationStepSerializer(annotation_step)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                'rois_annotation_step': serializer.data,
+                'rois_annotation_closed': rois_annotation_closed
+            }, status=status.HTTP_200_OK)
         else:
             return Response({
                 'status': 'ERROR',
