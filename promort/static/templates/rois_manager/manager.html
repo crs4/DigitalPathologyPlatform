@@ -20,6 +20,10 @@
                            ng-show="rmc.getCoresCount() > 0">New focus region</a></li>
                 </ul>
             </div>
+            <button class="btn btn-success" ng-click="rmc.closeROIsAnnotationStep()"
+                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
+                <i class="icon-check_circle"></i> Confirm ROIs
+            </button>
             <button class="btn btn-danger" ng-click="rmc.clearROIs()"
                     ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
                 <i class="icon-trash_can"></i> Clear ROIs

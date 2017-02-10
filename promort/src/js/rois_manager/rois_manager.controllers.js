@@ -47,6 +47,7 @@
         vm.selectROI = selectROI;
         vm.deselectROI = deselectROI;
         vm.clearROIs = clearROIs;
+        vm.closeROIsAnnotationStep = closeROIsAnnotationStep;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
         vm.activateShowSliceMode = activateShowSliceMode;
@@ -379,7 +380,7 @@
             function confirmFn(confirm_value) {
                 if (confirm_value) {
                     var dialog = ngDialog.open({
-                        'template': '/static/templates/dialogs/deleting_data.html',
+                        template: '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,
@@ -412,6 +413,37 @@
                     console.error('Clear ROIs failed');
                     console.error(response);
                     dialog.close();
+                }
+            }
+        }
+
+        function closeROIsAnnotationStep() {
+            var dialog = ngDialog.openConfirm({
+                template: '/static/templates/dialogs/accept_rois_confirm.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+                        .then(closeROIsAnnotationStepSuccessFn, closeROIsAnnotationStepErrorFn);
+                }
+
+                function closeROIsAnnotationStepSuccessFn(response) {
+                    // TODO: close clinical annotation steps related to this object
+                    if (response.data.rois_annotation_closed === true) {
+                        $location.url('worklist');
+                    } else {
+                        // review closed, go back to case worklist
+                        $location.url('worklist/' + vm.case_id);
+                    }
+                }
+
+                function closeROIsAnnotationStepErrorFn(response) {
+                    console.error(response.error);
                 }
             }
         }
