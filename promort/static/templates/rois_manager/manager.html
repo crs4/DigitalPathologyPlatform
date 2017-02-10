@@ -3,7 +3,10 @@
         <div class="col-sm-8 text-left prm-valign">
             <h3>Slide {{ rmc.slide_id }} - ROIs editing</h3>
         </div><!--
-        --><div class="col-sm-4 prm-valign text-right">
+     --><div class="col-sm-4 prm-valign text-right">
+            <a href="worklist/{{ rmc.case_id }}" role="button" class="btn btn-default">
+                <i class="icon-arrow_big_left"></i> Back to slides
+            </a>
             <div class="btn-group dropdown">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                         ng-disabled="rmc.newItemCreationModeActive()">
@@ -66,15 +69,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div id="pg_footer" class="col-sm-12 text-center">
-        <a href="worklist/{{ rmc.case_id }}" role="button" class="btn btn-default prm-control-btn-lg">
-            <i class="icon-arrow_big_left"></i> Back to slides
-        </a>
-        <!--
-        <a href="#" role="button" class="btn btn-default prm-control-btn-lg">
-            Go to review <i class="icon-arrow_big_right"></i>
-        </a>
-        -->
     </div>
 </div>
