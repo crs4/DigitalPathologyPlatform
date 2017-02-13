@@ -148,7 +148,7 @@ class ClinicalAnnotationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_can_be_started(obj):
-        obj.can_be_started()
+        return obj.can_be_started()
 
     @staticmethod
     def get_annotation_type(obj):
