@@ -1,9 +1,12 @@
 <div class="container_fluid">
     <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
-        <div class="col-sm-8 text-left prm-valign">
+        <div class="col-sm-5 text-left prm-valign">
             <h3>Slide {{ rmc.slide_id }} - ROIs editing</h3>
         </div><!--
-        --><div class="col-sm-4 prm-valign text-right">
+     --><div class="col-sm-7 prm-valign text-right">
+            <a href="worklist/{{ rmc.case_id }}" role="button" class="btn btn-default">
+                <i class="icon-arrow_big_left"></i> Back to slides
+            </a>
             <div class="btn-group dropdown">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                         ng-disabled="rmc.newItemCreationModeActive()">
@@ -17,6 +20,10 @@
                            ng-show="rmc.getCoresCount() > 0">New focus region</a></li>
                 </ul>
             </div>
+            <button class="btn btn-success" ng-click="rmc.closeROIsAnnotationStep()"
+                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
+                <i class="icon-check_circle"></i> Confirm ROIs
+            </button>
             <button class="btn btn-danger" ng-click="rmc.clearROIs()"
                     ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
                 <i class="icon-trash_can"></i> Clear ROIs
@@ -66,15 +73,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div id="pg_footer" class="col-sm-12 text-center">
-        <a href="worklist/{{ rmc.case_id }}" role="button" class="btn btn-default prm-control-btn-lg">
-            <i class="icon-arrow_big_left"></i> Back to slides
-        </a>
-        <!--
-        <a href="#" role="button" class="btn btn-default prm-control-btn-lg">
-            Go to review <i class="icon-arrow_big_right"></i>
-        </a>
-        -->
     </div>
 </div>

@@ -23,10 +23,11 @@ from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
-from reviews_manager.views import ReviewsList, ReviewsDetail,\
-    ReviewDetail, ReviewStepDetail
-from worklist_manager.views import UserWorkList, UserWorkListReview,\
-    WorkListAdmin
+from reviews_manager.views import ROIsAnnotationsList, ClinicalAnnotationsList, ROIsAnnotationsDetail, \
+    ClinicalAnnotationsDetail, ROIsAnnotationDetail, ClinicalAnnotationDetail, ROIsAnnotationStepDetail, \
+    ClinicalAnnotationStepDetail
+from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
+    UserWorklistClinicalAnnotation, WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
 import utils.views as promort_utils
@@ -39,7 +40,7 @@ urlpatterns = [
 
     # groups
     url(r'api/groups/$', GroupListView.as_view()),
-    url(r'api/groups/(?P<group>reviewer_1|reviewer_2|reviewer_3)/$', GroupDetailsView.as_view()),
+    url(r'api/groups/(?P<group>rois_manager|clinical_manager|gold_standard)/$', GroupDetailsView.as_view()),
 
     # cases and slides
     url(r'^api/cases/$', CaseList.as_view()),
@@ -47,31 +48,39 @@ urlpatterns = [
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
 
-    # slide quality control
-    url(r'api/slides/(?P<slide>[\w\-.]+)/quality_control/$',
-        SlideQualityControlDetail.as_view()),
-
     # ROIs
-    url(r'api/slides/(?P<pk>[\w\-.]+)/rois_list/$', ROIsTreeList.as_view()),
-    url(r'api/slides/(?P<pk>[\w\-.]+)/slices/$', SliceList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/rois_list/$', ROIsTreeList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/slices/$', SliceList.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
     url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
     url(r'api/cores/(?P<pk>[0-9]+)/focus_regions/$', FocusRegionList.as_view()),
     url(r'api/focus_regions/(?P<pk>[0-9]+)/$', FocusRegionDetail.as_view()),
 
-    # reviews and review steps
-    url(r'api/reviews/$', ReviewsList.as_view()),
-    url(r'api/reviews/(?P<case>[\w\-.]+)/$', ReviewsDetail.as_view()),
-    url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/$',
-        ReviewDetail.as_view()),
-    url(r'api/reviews/(?P<case>[\w\-.]+)/(?P<review_type>review_1|review_2|review_3)/(?P<slide>[\w\-.]+)/$',
-        ReviewStepDetail.as_view()),
+    # ROIs annotations
+    url(r'api/rois_annotations/$', ROIsAnnotationsList.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', ROIsAnnotationsDetail.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', ROIsAnnotationDetail.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
+        ROIsAnnotationStepDetail.as_view()),
+
+    # quality control
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/quality_control/$',
+        SlideQualityControlDetail.as_view()),
+
+    # clinical annotations
+    url(r'api/clinical_annotations/$', ClinicalAnnotationsList.as_view()),
+    url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', ClinicalAnnotationsDetail.as_view()),
+    url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
+        ClinicalAnnotationDetail.as_view()),
+    url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
+        ClinicalAnnotationStepDetail.as_view),
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
-    url(r'api/worklist/(?P<case>[\w\-.]+)/$', UserWorkListReview.as_view()),
-    url(r'api/worklist/admin/(?P<username>[\w.]+)/$', WorkListAdmin.as_view()),
+    url(r'api/worklist/(?P<case>[\w\-.]+)/$', UserWorklistROIsAnnotation.as_view()),
+    url(r'api/worklist/(?P<case>[\w\-.]+)/(?P<rois_review>[0-9]+)/$', UserWorklistClinicalAnnotation.as_view()),
+    url(r'api/worklist/admin/(?P<username>[\w\-.]+)/$', WorkListAdmin.as_view()),
 
     # utils
     url(r'api/utils/omeseadragon_base_urls/$', promort_utils.get_ome_seadragon_base_url),

@@ -22,7 +22,7 @@ class CheckUserView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'username': request.user.username}, status=status.HTTP_200_OK)
 
 
 class LoginView(views.APIView):

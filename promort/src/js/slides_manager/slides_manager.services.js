@@ -44,15 +44,15 @@
 
         return QualityControlService;
 
-        function get(slide_id) {
-            return $http.get('api/slides/' + slide_id + '/quality_control/');
+        function get(case_id, reviewer, slide_id) {
+            return $http.get('api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id + '/quality_control/');
         }
         
         function fetchNotAdequacyReasons() {
             return $http.get('api/utils/slide_not_adequacy_reasons/');
         }
 
-        function create(slide_id, adequacy, not_adequancy_reason, notes) {
+        function create(case_id, reviewer, slide_id, adequacy, not_adequancy_reason, notes) {
             var params = {
                 adequate_slide: adequacy
             };
@@ -63,7 +63,8 @@
                 params.notes = notes;
             }
             console.log(params);
-            return $http.post('api/slides/' + slide_id + '/quality_control/', params);
+            return $http.post('api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id + '/quality_control/',
+                params);
         }
     }
 })();

@@ -5,17 +5,16 @@
         </div><!--
         --><div class="col-sm-4 text-right prm-valign">
             <a ng-href="worklist/{{ qcc.case_id }}" class="btn btn-default" role="button">
-                <i class="icon-list"></i>
-                Back to slides
+                <i class="icon-arrow_big_left"></i> Back to slides
             </a>
         </div>
     </div>
     <div id="pg_body" class="col-sm-12">
-		<div class="col-sm-9 col-md-9">
-        	<div id="viewer_container" class="prm-viewer_frame well">
-            	<simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
-        	</div>
-		</div>
+        <div class="col-sm-9 col-md-9">
+            <div id="viewer_container" class="prm-viewer_frame well">
+                <simple-viewer slide_id="{{ qcc.slide_id }}"></simple-viewer>
+            </div>
+        </div>
         <div id="qc_form_container" class="col-sm-3 col-md-3">
             <viewer-navigation-panel></viewer-navigation-panel>
             <div class="well">

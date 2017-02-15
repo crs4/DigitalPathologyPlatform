@@ -13,13 +13,16 @@
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
-        'ngDialog', 'SlideService', 'SlidesManagerService', 'AnnotationsViewerService'];
+        'ngDialog', 'Authentication', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
+        'AnnotationsViewerService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
-                                   SlideService, SlidesManagerService, AnnotationsViewerService) {
+                                   Authentication, ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
+                                   AnnotationsViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.annotation_step_id = undefined;
 
         vm.slices_map = undefined;
         vm.cores_map = undefined;
@@ -44,6 +47,7 @@
         vm.selectROI = selectROI;
         vm.deselectROI = deselectROI;
         vm.clearROIs = clearROIs;
+        vm.closeROIsAnnotationStep = closeROIsAnnotationStep;
         vm.activateNewSliceMode = activateNewSliceMode;
         vm.newSliceModeActive = newSliceModeActive;
         vm.activateShowSliceMode = activateShowSliceMode;
@@ -77,6 +81,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.annotation_step_id = $routeParams.annotation_step;
 
             vm.slices_map = {};
             vm.cores_map = {};
@@ -86,12 +91,16 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            SlideService.get(vm.slide_id)
-                .then(getSlideSuccessFn, getSlideErrorFn);
+            ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+                .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
-            function getSlideSuccessFn(response) {
-                if (response.data.quality_control !== null &&
-                    response.data.quality_control.adequate_slide) {
+            function getROIsAnnotationStepSuccessFn(response) {
+                if (response.data.completed === true) {
+                    $location.url('worklist/' + vm.case_id);
+                }
+
+                if (response.data.slide_quality_control !== null &&
+                    response.data.slide_quality_control.adequate_slide) {
 
                     // shut down creation forms when specific events occur
                     $scope.$on('tool.destroyed',
@@ -200,7 +209,7 @@
                 }
             }
 
-            function getSlideErrorFn(response) {
+            function getROIsAnnotationStepErrorFn(response) {
                 console.error('Cannot load slide info');
                 console.error(response);
             }
@@ -375,14 +384,14 @@
             function confirmFn(confirm_value) {
                 if (confirm_value) {
                     var dialog = ngDialog.open({
-                        'template': '/static/templates/dialogs/deleting_data.html',
+                        template: '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,
                         closeByDocument: false
                     });
 
-                    SlidesManagerService.clearROIs(vm.slide_id)
+                    ROIsAnnotationStepManagerService.clearROIs(vm.annotation_step_id)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
                 }
 
@@ -408,6 +417,37 @@
                     console.error('Clear ROIs failed');
                     console.error(response);
                     dialog.close();
+                }
+            }
+        }
+
+        function closeROIsAnnotationStep() {
+            var dialog = ngDialog.openConfirm({
+                template: '/static/templates/dialogs/accept_rois_confirm.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+                        .then(closeROIsAnnotationStepSuccessFn, closeROIsAnnotationStepErrorFn);
+                }
+
+                function closeROIsAnnotationStepSuccessFn(response) {
+                    // TODO: close clinical annotation steps related to this object
+                    if (response.data.rois_annotation_closed === true) {
+                        $location.url('worklist');
+                    } else {
+                        // review closed, go back to case worklist
+                        $location.url('worklist/' + vm.case_id);
+                    }
+                }
+
+                function closeROIsAnnotationStepErrorFn(response) {
+                    console.error(response.error);
                 }
             }
         }
@@ -502,13 +542,14 @@
     }
 
     NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'AnnotationsViewerService', 'SlidesManagerService'];
+        'AnnotationsViewerService', 'ROIsAnnotationStepManagerService'];
 
-    function NewSliceController($scope, $routeParams, $rootScope, ngDialog,
-                                AnnotationsViewerService, SlidesManagerService) {
+    function NewSliceController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
+                                ROIsAnnotationStepManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
+        vm.annotation_step_id = undefined;
         vm.shape = undefined;
         vm.totalCores = 0;
 
@@ -549,6 +590,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.annotation_step_id = $routeParams.annotation_step;
         }
 
         function newPolygon() {
@@ -684,7 +726,8 @@
                 closeByNavigation: false,
                 closeByDocument: false
             });
-            SlidesManagerService.createSlice(vm.slide_id, vm.shape.shape_id, vm.shape, vm.totalCores)
+            ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_id, vm.slide_id, vm.shape.shape_id,
+                vm.shape, vm.totalCores)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
             function createSliceSuccessFn(response) {
@@ -1210,7 +1253,7 @@
 
         function formValid() {
             // if tumor ruler tool is active, "Save" button should be disabled
-            if (vm.isTumorRulerToolActive()) {
+            if (vm.isTumorRulerToolActive() || vm.isRulerToolActive()) {
                 return false;
             }
             // if shape exists, we also have the parent slice and the shape area, we only need to check
@@ -1778,6 +1821,9 @@
         }
 
         function formValid() {
+            if (vm.isRulerToolActive()) {
+                return false;
+            }
             return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
         }
 
