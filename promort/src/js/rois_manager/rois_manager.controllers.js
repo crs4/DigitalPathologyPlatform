@@ -1249,7 +1249,7 @@
 
         function formValid() {
             // if tumor ruler tool is active, "Save" button should be disabled
-            if (vm.isTumorRulerToolActive()) {
+            if (vm.isTumorRulerToolActive() || vm.isRulerToolActive()) {
                 return false;
             }
             // if shape exists, we also have the parent slice and the shape area, we only need to check
@@ -1817,6 +1817,9 @@
         }
 
         function formValid() {
+            if (vm.isRulerToolActive()) {
+                return false;
+            }
             return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
         }
 
