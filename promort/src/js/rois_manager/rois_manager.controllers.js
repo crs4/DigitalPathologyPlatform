@@ -95,6 +95,10 @@
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
             function getROIsAnnotationStepSuccessFn(response) {
+                if (response.data.completed === true) {
+                    $location.url('worklist/' + vm.case_id);
+                }
+
                 if (response.data.slide_quality_control !== null &&
                     response.data.slide_quality_control.adequate_slide) {
 
