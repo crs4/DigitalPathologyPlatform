@@ -68,6 +68,7 @@ def check_clinical_annotations_dates(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('slides_manager', '0010_auto_20170207_1018'),
         ('reviews_manager', '0008_auto_20161215_1519'),
     ]
 
