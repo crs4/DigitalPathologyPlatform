@@ -142,8 +142,6 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -179,13 +177,13 @@ REPORT_RECIPIENTS = ['']
 
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
-    'reviewer_1': {
+    'rois_manager': {
         'name': 'REVIEWER_1',
     },
-    'reviewer_2': {
+    'clinical_manager': {
         'name': 'REVIEWER_2',
     },
-    'reviewer_3': {
+    'gold_standard': {
         'name': 'REVIEWER_3',
     }
 }

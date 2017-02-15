@@ -21,9 +21,10 @@ class SliceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Slice
-        fields = ('id', 'label', 'slide', 'author', 'creation_date', 'roi_json',
+        fields = ('id', 'label', 'slide', 'author', 'annotation_step', 'creation_date', 'roi_json',
                   'total_cores', 'positive_cores_count', 'cores_count')
         read_only_fields = ('id', 'creation_date', 'positive_cores_count', 'cores_count')
+        write_only_fields = ('annotation_step',)
 
     def get_cores_count(self, obj):
         return obj.cores.count()
@@ -106,8 +107,8 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date',
-                  'roi_json', 'length', 'area', 'tumor_length', 'positive', 'focus_regions')
+        fields = ('id', 'label', 'slice', 'author', 'creation_date','roi_json',
+                  'length', 'area', 'tumor_length', 'positive', 'focus_regions')
         read_only_fields = ('id', 'creation_date', 'positive')
 
     def get_positive(self, obj):
@@ -127,8 +128,8 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Slice
-        fields = ('id', 'label', 'slide', 'author', 'creation_date',
-                  'roi_json', 'total_cores', 'positive_cores_count', 'cores')
+        fields = ('id', 'label', 'slide', 'author', 'creation_date','roi_json',
+                  'total_cores', 'positive_cores_count', 'cores')
         read_only_fields = ('id', 'creation_date', 'positive_cores_count')
 
     def get_positive_cores_count(self, obj):
@@ -162,7 +163,3 @@ class CoreROIsTreeSerializer(CoreDetailsSerializer):
 
 class SliceROIsTreeSerializer(SliceDetailsSerializer):
     cores = CoreROIsTreeSerializer(many=True, read_only=True)
-
-
-class SlideROIsTreeSerializer(SlideDetailsSerializer):
-    slices = SliceROIsTreeSerializer(many=True, read_only=True)

@@ -1,20 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import User
 from slides_manager.models import Slide
+from reviews_manager.models import ROIsAnnotationStep
 
 
 class Slice(models.Model):
     label = models.CharField(max_length=10, blank=False)
-    slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
-                              blank=False, related_name='slices')
-    author = models.ForeignKey(User, on_delete=models.PROTECT,
-                               blank=False)
+    slide = models.ForeignKey(Slide, on_delete=models.PROTECT, blank=False)
+    author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
+    annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
+                                        blank=False, related_name='slices')
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
 
     class Meta:
-        unique_together = ('label', 'slide')
+        unique_together = ('label', 'annotation_step')
 
 
 class Core(models.Model):
