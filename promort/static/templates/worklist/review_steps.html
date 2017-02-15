@@ -16,8 +16,7 @@
                         <div>
                             <a class="btn btn-success"
                                ng-href="{{ rc.getAnnotationStepLink(step) }}"
-                               ng-show="rc.annotationStepPending(step)"
-                               ng-click="rc.startAnnotationStep(step)">Start slide review</a>
+                               ng-show="rc.annotationStepPending(step)">Start slide review</a>
                             <a class="btn btn-warning"
                                ng-show="rc.annotationStepInProgress(step)"
                                ng-href="{{ rc.getAnnotationStepLink(step) }}">Continue slide review</a>

@@ -120,8 +120,20 @@
 
             function qualityControlCreationSuccessFn(response) {
                 if(vm.slideQualityControl.goodImageQuality === 'true') {
-                    $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
+                    ROIsAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
+                        vm.slide_id).then(startAnnotationSuccessFn, startAnnotationErrorFn);
+
+                    //noinspection JSAnnotator
+                    function startAnnotationSuccessFn(response) {
+                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
                             vm.annotation_step_id + '/rois_manager');
+                    }
+
+                    //noinspection JSAnnotator
+                    function startAnnotationErrorFn(response) {
+                        console.error(response.error);
+                    }
+
                 } else {
                     // close the review because image quality is bad
                     ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),

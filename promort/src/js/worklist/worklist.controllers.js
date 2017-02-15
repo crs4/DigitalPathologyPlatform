@@ -65,6 +65,8 @@
         function canStartClinicalAnnotation(annotation) {
             if (vm.isClinicalAnnotation(annotation)) {
                 return annotation.can_be_started;
+            } else {
+                return undefined;
             }
         }
         
@@ -116,7 +118,6 @@
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
         vm.getAnnotationStepLink = getAnnotationStepLink;
-        vm.startAnnotationStep = startAnnotationStep;
 
         activate();
 
@@ -150,11 +151,6 @@
         function getAnnotationStepLink(annotationStep) {
             return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' +
                 annotationStep.id + '/quality_control';
-        }
-
-        function startAnnotationStep(annotationStep) {
-            ROIsAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                annotationStep.slide);
         }
     }
 })();
