@@ -59,3 +59,19 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
                   'cellular_density_helper_json', 'cellular_density')
         read_only_fields = ('id', 'creation_date')
         write_only_fields = ('annotation_step',)
+
+    @staticmethod
+    def validate_gleason_4_path_json(value):
+        try:
+            json.loads(value)
+            return value
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'gleason_4_path_json\' field')
+
+    @staticmethod
+    def validate_cellular_density_helper_json(value):
+        try:
+            json.loads(value)
+            return value
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'cellular_density_helper_json\' field')
