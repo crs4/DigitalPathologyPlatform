@@ -59,6 +59,7 @@ class FocusRegionAnnotation(models.Model):
     creation_date = models.DateTimeField(default=timezone.now)
     perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
     intraductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
+    ductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     poorly_formed_glands = models.BooleanField(blank=False, null=False, default=False)
     cribriform_pattern = models.BooleanField(blank=False, null=False, default=False)
     small_cell_signer_ring = models.BooleanField(blank=False, null=False, default=False)
