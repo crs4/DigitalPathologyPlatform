@@ -9,6 +9,7 @@ from rest_framework import serializers
 
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, \
     FocusRegionAnnotation
+from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
 
 
 class SliceAnnotationSerializer(serializers.ModelSerializer):
@@ -24,6 +25,10 @@ class SliceAnnotationSerializer(serializers.ModelSerializer):
                   'intraglandular_inflammation', 'stromal_inflammation')
         read_only_fields = ('id', 'creation_date')
         write_only_fields = ('annotation_step',)
+
+
+class SliceAnnotationDetailsSerializer(SliceSerializer):
+    slice = SliceSerializer(read_only=True)
 
 
 class CoreAnnotationSerializer(serializers.ModelSerializer):
@@ -43,6 +48,10 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_gleason_score(obj):
         return '%d + %d' % (obj.primary_gleason, obj.secondary_gleason)
+
+
+class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):
+    core = CoreSerializer(read_only=True)
 
 
 class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
@@ -75,3 +84,7 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'cellular_density_helper_json\' field')
+
+
+class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
+    focus_region = FocusRegionSerializer(read_only=True)
