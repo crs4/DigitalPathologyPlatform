@@ -83,7 +83,7 @@
             if (vm.isROIsAnnotation(annotation)) {
                 return 'worklist/' + annotation.case;
             } else if (vm.isClinicalAnnotation(annotation)) {
-                return 'worklist/ ' + annotation.case + '/' + annotation.rois_reviews;
+                return 'worklist/' + annotation.case + '/' + annotation.rois_review;
             }
         }
         
