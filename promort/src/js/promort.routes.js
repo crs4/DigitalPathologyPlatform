@@ -21,11 +21,12 @@
                 controllerAs: 'wlc',
                 templateUrl: '/static/templates/worklist/pending_reviews.html'
             })
-            // review steps template
+            // ROIs annotation steps template
             .when('/worklist/:case', {
                 controller: 'ROIsAnnotationController',
                 controllerAs: 'rc',
-                templateUrl: '/static/templates/worklist/review_steps.html'
+                templateUrl: '/static/templates/worklist/rois_annotation_steps.html'
+            })
             })
             // slide quality control
             .when('/worklist/:case/:slide/:annotation_step/quality_control', {
