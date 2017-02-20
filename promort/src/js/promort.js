@@ -12,7 +12,8 @@
             'promort.slides_manager',
             'promort.viewer',
             'promort.user_report',
-            'promort.rois_manager'
+            'promort.rois_manager',
+            'promort.clinical_annotations_manager'
         ])
         .run(run);
 
