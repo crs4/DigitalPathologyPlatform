@@ -1,27 +1,33 @@
 <div>
     <div class="prm-form-header">
-        <h4 class="text-right">CORE 1</h4>
+        <!-- TODO: put real core label here -->
+        <h4 class="text-right">core_n</h4>
     </div>
     <div class="form-group row">
-        <div class="col-sm-6 prm-valign prm-label-elem">
-            <label>Core length</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
-            <div class="input-group">
-                <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
-                <div class="input-group-addon prm-addon">mm</div>
-            </div>
+        <div class="prm-label-elem">
+            <label>Core area</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" readonly>
+            <!--TODO: unit of measure selector -->
         </div>
     </div>
     <div class="form-group row">
-        <div class="col-sm-6 prm-valign prm-label-elem">
-            <label>Core area</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
-            <div class="input-group">
-                <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
-                <div class="input-group-addon prm-addon">mm&sup2</div>
-            </div>
+        <div class="prm-label-elem">
+            <label>Core length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" readonly>
+            <!--TODO: unit of measure selector -->
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="prm-label-elem">
+            <label>Tumor length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" readonly>
+            <!--TODO: unit of measure selector -->
         </div>
     </div>
     <div class="form-group row">
@@ -30,7 +36,7 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <div class="input-group">
-                <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+                <input class="form-control prm-text-input" type="number" readonly>
                 <div class="input-group-addon prm-addon">%</div>
             </div>
         </div>
@@ -72,16 +78,18 @@
                 <label>Gleason score</label>
             </div><!--
          --><div class="col-sm-6 prm-valign prm-form-elem">
-                <input type="number" readonly class="form-control prm-text-input" placeholder="I°+II°">
+                <!-- Insert the value in the form I°+II°=SUM-->
+                <input class="form-control prm-text-input" type="number" readonly placeholder="I°+II°">
             </div>
         </div>
         <div class="form-group row">
-            <div class="prm-label-elem">
-                <label>Gleason grade 4</label>
-            </div>
-            <div class="prm-row-elem">
+            <div class="col-sm-6 prm-valign prm-label-elem">
+                <label>Gleason pattern 4</label>
+            </div><!--
+         --><div class="col-sm-6 prm-valign prm-form-elem">
                 <div class="input-group">
-                    <input class="form-control promort_input_element" id="spinner" type="number" placeholder="0.00">
+                    <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+                    <div class="input-group-addon prm-addon">%</div>
                 </div>
             </div>
         </div>
@@ -90,7 +98,7 @@
                 <label>Grade group WHO </label>
             </div><!--
          --><div class="col-sm-6 prm-valign prm-form-elem">
-                <input type="number" readonly class="form-control prm-text-input" placeholder="">
+                <input class="form-control prm-text-input" type="number" readonly placeholder="">
             </div>
         </div>
     </fieldset>

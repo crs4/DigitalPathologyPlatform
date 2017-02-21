@@ -1,45 +1,42 @@
-<div class="container">
-    <div class="col-sm-12 row page-header prm-no-margin-top">
-        <div class="col-sm-9 text-left prm-valign">
-            <h3>ROIs REVIEW TEMPLATE</h3>
+<div class="container_fluid">
+    <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
+        <div class="col-sm-5 text-left prm-valign">
+            <!--TODO: insert slide number-->
+            <h3>Slide_n - ROIs annotation</h3>
         </div><!--
-     --><div class="col-sm-3 text-right prm-valign">
+     --><div class="col-sm-7 prm-valign text-right">
             <a href="#" role="button" class="btn btn-default">
-                <i class="icon-list"></i> Back to slides
+                <i class="icon-arrow_big_left"></i> Back to slides
             </a>
+            <button class="btn btn-success">
+                <i class="icon-check_circle"></i> Confirm slide review
+            </button>
+            <button class="btn btn-danger">
+                <i class="icon-trash_can"></i> Delete slide review
+            </button>
         </div>
     </div>
-    <div class="col-sm-12 row">
-        <div class="col-sm-2">
+    <div id="pg_body" class="col-sm-12 row">
+        <div class="col-sm-3 col-md-2">
             <div id="navigation" class="well panel-group prm-tree-well">
                 <div class="prm-form-header">
-                    <h4 class="text-left">ROIs</h4>
+                    <h4 class="text-left">ROIs list</h4>
                 </div>
-                <ul class="list-group">
+                <ul id="rois_tree" class="list-group">
                     <!-- rois_tree -->
                 </ul>
             </div>
         </div>
-        <div id="viewer_container" class="col-sm-7 prm-viewer_frame well">
-            <div class="text-center">
-                <h1>OME_SEADRAGON VIEWER</h1>
-            </div>
+        <div id="viewer_container" class="col-sm-6 col-md-8 prm-viewer_frame well">
+            <!--annotations_viewer-->
         </div>
-        <div id="promort_form" class="col-sm-3">
+        <div id="promort_form" class="col-sm-3 col-md-2">
             <div class="well">
 
                 <!-- form_templates -->
 
             </div>
         </div>
-    </div>
-    <div class="col-sm-12 text-center row">
-        <a href="#" role="button" class="btn btn-default prm-control-btn-lg">
-            <i class="icon-arrow_big_left"></i> Back to ROIs
-        </a>
-        <a href="#" role="button" class="btn btn-default prm-control-btn-lg">
-            Review summary <i class="icon-arrow_big_right"></i>
-        </a>
     </div>
 </div>
 
