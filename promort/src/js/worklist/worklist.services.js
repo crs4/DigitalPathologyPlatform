@@ -4,7 +4,8 @@
     angular
         .module('promort.worklist.services')
         .factory('WorkListService', WorkListService)
-        .factory('ROIsAnnotationStepService', ROIsAnnotationStepService);
+        .factory('ROIsAnnotationStepService', ROIsAnnotationStepService)
+        .factory('ClinicalAnnotationStepService', ClinicalAnnotationStepService);
 
     WorkListService.$inject = ['$http'];
 
@@ -74,11 +75,8 @@
             return $http.get('/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id +'/');
         }
 
-        function _annotationStepAction(case_id, reviewer, slide_id, action, notes) {
+        function _annotationStepAction(case_id, reviewer, slide_id, action) {
             var params = {action: action};
-            if (typeof notes !== 'undefined') {
-                params.notes = notes;
-            }
             return $http.put(
                 '/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id + '/',
                 params
@@ -91,6 +89,48 @@
 
         function closeAnnotationStep(case_id, reviewer, slide_id) {
             return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH');
+        }
+    }
+
+    ClinicalAnnotationStepService.$inject = ['$http'];
+
+    function ClinicalAnnotationStepService($http) {
+        var ClinicalAnnotationStepService = {
+            get: get,
+            getDetails: getDetails,
+            startAnnotationStep: startAnnotationStep,
+            closeAnnotationStep: closeAnnotationStep
+        };
+
+        return ClinicalAnnotationStepService;
+
+        function get(case_id, rois_annotation_id) {
+            return $http.get('/api/worklist/' + case_id + '/' + rois_annotation_id + '/');
+        }
+
+        function getDetails(case_id, reviewer, rois_annotation_id, slide_id) {
+            return $http.get('/api/clinical_annotation/' + case_id + '/' + reviewer + '/' +
+                rois_annotation_id + '/' + slide_id + '/');
+        }
+
+        function _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, action, notes) {
+            var params = {action: action};
+            if (typeof notes !== 'undefined') {
+                params.notes = notes;
+            }
+            return $http.put(
+                '/api/clinical_annotations/' + case_id + '/' + reviewer + '/' +
+                rois_annotation_id + '/' + slide_id + '/',
+                params
+            );
+        }
+
+        function startAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id) {
+            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, 'START');
+        }
+
+        function closeAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id) {
+            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, 'FINISH');
         }
     }
 })();

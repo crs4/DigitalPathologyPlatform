@@ -4,7 +4,8 @@
     angular
         .module('promort.worklist.controllers')
         .controller('WorkListController', WorkListController)
-        .controller('ROIsAnnotationController', ROIsAnnotationController);
+        .controller('ROIsAnnotationController', ROIsAnnotationController)
+        .controller('ClinicalAnnotationController', ClinicalAnnotationController);
     
     WorkListController.$inject = ['$scope', 'Authentication', 'WorkListService'];
     
@@ -106,11 +107,9 @@
         }
     }
     
-    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location',
-        'Authentication', 'ROIsAnnotationStepService'];
+    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ROIsAnnotationStepService'];
 
-    function ROIsAnnotationController($scope, $routeParams, $location, Authentication,
-                                      ROIsAnnotationStepService) {
+    function ROIsAnnotationController($scope, $routeParams, $location, ROIsAnnotationStepService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.case_id = undefined;
@@ -151,6 +150,61 @@
         function getAnnotationStepLink(annotationStep) {
             return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' +
                 annotationStep.id + '/quality_control';
+        }
+    }
+
+    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
+        'ClinicalAnnotationStepService'];
+
+    function ClinicalAnnotationController($scope, $routeParams, $location, Authentication,
+                                          ClinicalAnnotationStepService) {
+        var vm = this;
+        vm.annotationSteps = [];
+        vm.case_id = undefined;
+        vm.rois_annotation_id = undefined;
+        vm.annotationStepPending = annotationStepPending;
+        vm.annotationStepInProgress = annotationStepInProgress;
+        vm.annotationStepCompleted = annotationStepCompleted;
+        vm.getAnnotationStepLink = getAnnotationStepLink;
+
+        activate();
+
+        function activate() {
+            vm.case_id = $routeParams.case;
+            vm.rois_annotation_id = $routeParams.rois_annotation_step;
+            ClinicalAnnotationStepService.get(vm.case_id, vm.rois_annotation_id)
+                .then(AnnotationStepSuccessFn, AnnotationStepErrorFn);
+
+            function AnnotationStepSuccessFn(response) {
+                vm.annotationSteps = response.data;
+            }
+
+            function AnnotationStepErrorFn(response) {
+                console.error(response.error);
+                $location.url('404');
+            }
+        }
+
+        function annotationStepPending(annotationStep) {
+            return (!annotationStep.started && !annotationStep.completed);
+        }
+
+        function annotationStepInProgress(annotationStep) {
+            return (annotationStep.started && !annotationStep.completed);
+        }
+
+        function annotationStepCompleted(annotationStep) {
+            return annotationStep.completed;
+        }
+
+        function getAnnotationStepLink(annotationStep) {
+            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' +
+                vm.rois_annotation_id + '/' + annotationStep.id;
+        }
+
+        function startAnnotationStep(annotationStep) {
+            ClinicalAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
+                vm.rois_annotation_id, annotationStep.slide);
         }
     }
 })();

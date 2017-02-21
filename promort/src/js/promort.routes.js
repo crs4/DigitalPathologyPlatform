@@ -27,6 +27,11 @@
                 controllerAs: 'rc',
                 templateUrl: '/static/templates/worklist/rois_annotation_steps.html'
             })
+            // clinical annotation steps template
+            .when('/worklist/:case/:rois_annotation_step', {
+                controller: 'ClinicalAnnotationController',
+                controllerAs: 'cc',
+                templateUrl: '/static/templates/worklist/clinical_annotation_steps.html'
             })
             // slide quality control
             .when('/worklist/:case/:slide/:annotation_step/quality_control', {
