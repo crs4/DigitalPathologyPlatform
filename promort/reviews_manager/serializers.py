@@ -174,12 +174,12 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
         return obj.is_started()
 
     @staticmethod
-    def get_complted(obj):
+    def get_completed(obj):
         return obj.is_completed()
 
     @staticmethod
     def get_can_be_started(obj):
-        return obj.can_be_started
+        return obj.can_be_started()
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
