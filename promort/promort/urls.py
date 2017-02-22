@@ -88,7 +88,7 @@ urlpatterns = [
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
         ClinicalAnnotationDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
-        ClinicalAnnotationStepDetail.as_view),
+        ClinicalAnnotationStepDetail.as_view()),
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
