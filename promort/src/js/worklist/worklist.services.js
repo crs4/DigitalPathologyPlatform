@@ -109,7 +109,7 @@
         }
 
         function getDetails(case_id, reviewer, rois_annotation_id, slide_id) {
-            return $http.get('/api/clinical_annotation/' + case_id + '/' + reviewer + '/' +
+            return $http.get('/api/clinical_annotations/' + case_id + '/' + reviewer + '/' +
                 rois_annotation_id + '/' + slide_id + '/');
         }
 
