@@ -45,6 +45,12 @@
                 controllerAs: 'rmc',
                 templateUrl: '/static/templates/rois_manager/manager.html'
             })
+            // clinical annotations manager
+            .when('/worklist/:case/:slide/:annotation_step/:clinical_annotation_step/annotations_manager', {
+                controller: 'ClinicalAnnotationsManagerController',
+                controllerAs: 'cmc',
+                templateUrl: '/static/templates/clinical_annotations_manager/manager.html'
+            })
             // homepage
             .when('/', {
                 controller: 'AuthenticationController',

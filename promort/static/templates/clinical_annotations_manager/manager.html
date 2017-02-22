@@ -2,10 +2,11 @@
     <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
         <div class="col-sm-5 text-left prm-valign">
             <!--TODO: insert slide number-->
-            <h3>Slide_n - ROIs annotation</h3>
+            <h3>Slide {{ cmc.slide_id }} - Clinical annotation</h3>
         </div><!--
      --><div class="col-sm-7 prm-valign text-right">
-            <a href="#" role="button" class="btn btn-default">
+            <a href="worklist/{{ cmc.case_id }}/{{ cmc.rois_annotation_step_id }}" role="button"
+               class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
             <button class="btn btn-success">
@@ -18,6 +19,7 @@
     </div>
     <div id="pg_body" class="col-sm-12 row">
         <div class="col-sm-3 col-md-2">
+            <viewer-navigation-panel></viewer-navigation-panel>
             <div id="navigation" class="well panel-group prm-tree-well">
                 <div class="prm-form-header">
                     <h4 class="text-left">ROIs list</h4>
@@ -28,7 +30,7 @@
             </div>
         </div>
         <div id="viewer_container" class="col-sm-6 col-md-8 prm-viewer_frame well">
-            <!--annotations_viewer-->
+            <clinical-annotations-viewer></clinical-annotations-viewer>
         </div>
         <div id="promort_form" class="col-sm-3 col-md-2">
             <div class="well">
@@ -39,11 +41,3 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    $("#spinner").TouchSpin({
-        min: 0,
-        max: 100,
-        postfix: '%',
-    });
-</script>
