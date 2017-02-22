@@ -5,7 +5,7 @@
         .module('promort.viewer.directives')
         .directive('viewerNavigationPanel', viewerNavigationPanel)
         .directive('simpleViewer', simpleViewer)
-        .directive('annotationsViewer', annotationsViewer);
+        .directive('roiAnnotationsViewer', roiAnnotationsViewer)
 
     function viewerNavigationPanel() {
         var directive = {
@@ -79,7 +79,7 @@
         return directive;
     }
 
-    function annotationsViewer() {
+    function roiAnnotationsViewer() {
         var directive = {
             replace: true,
             controller: 'AnnotationsViewerController',
