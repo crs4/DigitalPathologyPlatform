@@ -37,6 +37,10 @@
 
                 <!-- form_templates -->
 
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.newSliceAnnotationModeActive()">
+                    <new-slice-annotation-form></new-slice-annotation-form>
+                    <new-slice-annotation-buttons></new-slice-annotation-buttons>
+                </div>
             </div>
         </div>
     </div>

@@ -1,14 +1,14 @@
 <div>
     <div class="prm-form-header">
-        <!-- TODO: put real slice label here -->
-        <h4 class="text-right">slice_n</h4>
+        <h4 class="text-right">{{ cmCtrl.label }}</h4>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem">
             <label> Number of cores</label>
         </div>
         <div class="prm-row-elem">
-            <input type="number" class="form-control prm-text-input" readonly>
+            <input type="number" class="form-control prm-text-input"
+                   ng-model="cmCtrl.totalCores" readonly>
         </div>
     </div>
     <div class="form-group row">
@@ -16,20 +16,21 @@
             <label> Number of positive cores</label>
         </div>
         <div class="prm-row-elem">
-            <input type="number" class="form-control prm-text-input" readonly>
+            <input type="number" class="form-control prm-text-input"
+                   ng-model="cmCtrl.positiveCores" readonly>
         </div>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox">High grade PIN
+                <input type="checkbox" ng-model="cmCtrl.highGradePin">High grade PIN
             </label>
         </div>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox">PAH
+                <input type="checkbox" ng-model="cmCtrl.pah">PAH
             </label>
         </div>
     </div>
@@ -37,27 +38,27 @@
         <legend class="prm-legend">inflammation</legend>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Chronic
+                <input type="checkbox" ng-model="cmCtrl.chronicInflammation"> Chronic
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Acute
+                <input type="checkbox" ng-model="cmCtrl.acuteInflammation"> Acute
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Periglandular
+                <input type="checkbox" ng-model="cmCtrl.periglandularInflammation"> Periglandular
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Intraglandular
+                <input type="checkbox" ng-model="cmCtrl.intraglandularInflammation"> Intraglandular
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Stromal
+                <input type="checkbox" ng-model="cmCtrl.stromalInflammation"> Stromal
             </label>
         </div>
     </fieldset>
