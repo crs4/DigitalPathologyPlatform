@@ -19,16 +19,16 @@
         return SliceAnnotationsManagerService;
 
         function getAnnotation(slice_id, annotation_step_id) {
-            return $http.get('/api/slices/' + slice_id + '/' + annotation_step_id + '/');
+            return $http.get('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/');
         }
 
         function createAnnotation(slice_id, annotation_step_id, annotation_config) {
-            return $http.post('/api/slices/' + slice_id + '/' + annotation_step_id + '/',
+            return $http.post('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/',
                 annotation_config);
         }
 
         function deleteAnnotation(slice_id, annotation_step_id) {
-            return $http.delete('/api/slices/' + slice_id + '/' + annotation_step_id + '/');
+            return $http.delete('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/');
         }
     }
 
@@ -44,16 +44,16 @@
         return CoreAnnotationsManagerService;
 
         function getAnnotation(core_id, annotation_step_id) {
-            return $http.get('/api/cores/' + core_id + '/' + annotation_step_id +'/');
+            return $http.get('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/');
         }
 
         function createAnnotation(core_id, annotation_step_id, annotation_config) {
-            return $http.post('/api/cores/' + core_id + '/' + annotation_step_id +'/',
+            return $http.post('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/',
                 annotation_config);
         }
 
         function deleteAnnotation(core_id, annotation_step_id) {
-            return $http.delete('/api/cores/' + core_id + '/' + annotation_step_id +'/');
+            return $http.delete('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/');
         }
     }
 
@@ -69,16 +69,19 @@
         return FocusRegionAnnotationsManagerService;
 
         function getAnnotation(focus_region_id, annotation_step_id) {
-            return $http.get('/api/focus_regions/' + focus_region_id + '/' + annotation_step_id + '/');
+            return $http.get('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
+                annotation_step_id + '/');
         }
 
         function createAnnotation(focus_region_id, annotation_step_id, annotation_config) {
-            return $http.post('/api/focus_regions/' + focus_region_id + '/' + annotation_step_id + '/',
+            return $http.post('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
+                annotation_step_id + '/',
                 annotation_config);
         }
 
         function deleteAnnotation(focus_region_id, annotation_step_id) {
-            return $http.delete('/api/focus_regions/' + focus_region_id + '/' + annotation_step_id + '/');
+            return $http.delete('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
+                annotation_step_id + '/');
         }
     }
 })();
