@@ -166,6 +166,7 @@
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
         vm.getAnnotationStepLink = getAnnotationStepLink;
+        vm.startAnnotationStep = startAnnotationStep;
 
         activate();
 
