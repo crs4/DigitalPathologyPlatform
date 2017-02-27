@@ -813,7 +813,7 @@
             function confirmFn(confirm_value) {
                 if (confirm_value) {
                     dialog = ngDialog.open({
-                        'template': '/static/templates/dialogs/deleting_data.html',
+                        template: '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,

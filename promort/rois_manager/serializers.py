@@ -106,7 +106,7 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date','roi_json',
+        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
                   'length', 'area', 'tumor_length', 'positive', 'focus_regions')
         read_only_fields = ('id', 'creation_date', 'positive')
 
