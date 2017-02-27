@@ -1,6 +1,6 @@
 <div>
     <div class="prm-form-header">
-        <h4 class="text-right">{{ cmCtrl.label }}</h4>
+        <h4 class="text-right">{{ cmCtrl.slice_label }}</h4>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem">
@@ -23,14 +23,16 @@
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.highGradePin">High grade PIN
+                <input type="checkbox" ng-model="cmCtrl.highGradePin"
+                       ng-disabled="cmCtrl.isReadOnly()">High grade PIN
             </label>
         </div>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.pah">PAH
+                <input type="checkbox" ng-model="cmCtrl.pah"
+                       ng-disabled="cmCtrl.isReadOnly()">PAH
             </label>
         </div>
     </div>
@@ -38,27 +40,32 @@
         <legend class="prm-legend">inflammation</legend>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.chronicInflammation"> Chronic
+                <input type="checkbox" ng-model="cmCtrl.chronicInflammation"
+                       ng-disabled="cmCtrl.isReadOnly()"> Chronic
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.acuteInflammation"> Acute
+                <input type="checkbox" ng-model="cmCtrl.acuteInflammation"
+                       ng-disabled="cmCtrl.isReadOnly()"> Acute
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.periglandularInflammation"> Periglandular
+                <input type="checkbox" ng-model="cmCtrl.periglandularInflammation"
+                       ng-disabled="cmCtrl.isReadOnly()"> Periglandular
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.intraglandularInflammation"> Intraglandular
+                <input type="checkbox" ng-model="cmCtrl.intraglandularInflammation"
+                       ng-disabled="cmCtrl.isReadOnly()"> Intraglandular
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="cmCtrl.stromalInflammation"> Stromal
+                <input type="checkbox" ng-model="cmCtrl.stromalInflammation"
+                       ng-disabled="cmCtrl.isReadOnly()"> Stromal
             </label>
         </div>
     </fieldset>

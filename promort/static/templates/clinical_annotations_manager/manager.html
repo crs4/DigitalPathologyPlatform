@@ -34,12 +34,25 @@
         </div>
         <div id="promort_form" class="col-sm-3 col-md-2">
             <div class="well">
-
-                <!-- form_templates -->
-
                 <div ng-controller="NewScopeController as nsc" ng-show="cmc.newSliceAnnotationModeActive()">
                     <new-slice-annotation-form></new-slice-annotation-form>
                     <new-slice-annotation-buttons></new-slice-annotation-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.showSliceAnnotationModeActive()">
+                    <show-slice-annotation-form></show-slice-annotation-form>
+                    <show-slice-annotation-buttons></show-slice-annotation-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.newCoreAnnotationModeActive()">
+                    <!-- new core annotation -->
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.showCoreAnnotationModeActive()">
+                    <!-- show core annotation -->
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.newFocusRegionAnnotationModeActive()">
+                    <!-- new focus region annotation -->
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.showFocusRegionAnnotationModeActive()">
+                    <!-- show focus region annotation -->
                 </div>
             </div>
         </div>

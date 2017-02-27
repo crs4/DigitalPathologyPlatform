@@ -4,7 +4,8 @@
     angular
         .module('promort.clinical_annotations_manager.controllers')
         .controller('ClinicalAnnotationsManagerController', ClinicalAnnotationsManagerController)
-        .controller('NewSliceAnnotationController', NewSliceAnnotationController);
+        .controller('NewSliceAnnotationController', NewSliceAnnotationController)
+        .controller('ShowSliceAnnotationController', ShowSliceAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
@@ -41,6 +42,7 @@
         vm._getFocusRegionLabel = _getFocusRegionLabel;
         vm._createListItem = _createListItem;
         vm._createNewSubtree = _createNewSubtree;
+        vm._focusOnShape = _focusOnShape;
         vm.showROIPanel = showROIPanel;
         vm.selectROI = selectROI;
         vm.deselectROI = deselectROI;
@@ -49,6 +51,8 @@
         vm.allModesOff = allModesOff;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
+        vm.activateShowSliceAnnotationMode = activateShowSliceAnnotationMode;
+        vm.showSliceAnnotationModeActive = showSliceAnnotationModeActive;
 
         activate();
 
@@ -143,6 +147,16 @@
                         vm.slices_edit_mode[slice_id] = false;
                     }
                 );
+
+                $scope.$on('slice_annotation.deleted',
+                    function(event, slice_label, slice_id) {
+                        var $icon = $("#" + slice_label).find('i');
+                        $icon.removeClass("icon-check_circle");
+                        $icon.addClass("icon-black_question");
+                        vm.allModesOff();
+                        vm.slices_edit_mode[slice_id] = true;
+                    }
+                );
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
@@ -208,6 +222,22 @@
             return html;
         }
 
+        function _focusOnShape(shape_type, roi_id) {
+            var shape_id = undefined;
+            switch (shape_type) {
+                case 'slice':
+                    shape_id = vm.slices_map[roi_id];
+                    break;
+                case 'core':
+                    shape_id = vm.cores_map[roi_id];
+                    break;
+                case 'focus_region':
+                    shape_id = vm.focus_regions_map[roi_id];
+                    break;
+            }
+            AnnotationsViewerService.focusOnShape(shape_id);
+        }
+
         function showROIPanel(roi_type, roi_id) {
             var edit_mode = undefined;
             switch (roi_type) {
@@ -222,6 +252,7 @@
                     break;
             }
             vm.deselectROI(roi_type, roi_id);
+            vm._focusOnShape(roi_type, roi_id);
             if (edit_mode === true) {
                 if (!vm.roisTreeLocked) {
                     switch (roi_type) {
@@ -235,7 +266,15 @@
                     }
                 }
             } else {
-                console.log('Edit mode off');
+                switch(roi_type) {
+                    case 'slice':
+                        vm.activateShowSliceAnnotationMode(roi_id);
+                        break;
+                    case 'core':
+                        break;
+                    case 'focus_region':
+                        break;
+                }
             }
         }
 
@@ -298,6 +337,16 @@
         function newSliceAnnotationModeActive() {
             return vm.ui_active_modes['annotate_slice'];
         }
+
+        function activateShowSliceAnnotationMode(slice_id) {
+            vm.allModesOff();
+            $rootScope.$broadcast('slice_annotation.show', slice_id);
+            vm.ui_active_modes['show_slice'] = true;
+        }
+
+        function showSliceAnnotationModeActive(slice_id) {
+            return vm.ui_active_modes['show_slice'];
+        }
     }
 
     NewSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
@@ -307,7 +356,7 @@
                                           SlicesManagerService, SliceAnnotationsManagerService) {
         var vm = this;
         vm.slice_id = undefined;
-        vm.label = undefined;
+        vm.slice_label = undefined;
         vm.totalCores = undefined;
         vm.positiveCores = undefined;
         vm.highGradePin = false;
@@ -320,6 +369,7 @@
 
         vm.clinical_annotation_step_id = undefined;
 
+        vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
         vm.formValid = formValid;
         vm.destroy = destroy;
@@ -332,13 +382,13 @@
             $scope.$on('slice_annotation.new',
                 function(event, slice_id) {
                     vm.slice_id = slice_id;
-                    SlicesManagerService.get(slice_id)
+                    SlicesManagerService.get(vm.slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
                 }
             );
 
             function getSliceSuccessFn(response) {
-                vm.label = response.data.label;
+                vm.slice_label = response.data.label;
                 vm.totalCores = response.data.total_cores;
                 vm.positiveCores = response.data.positive_cores_count;
             }
@@ -347,6 +397,20 @@
                 console.error('Unable to load slice data');
                 console.error(response);
             }
+        }
+
+        function _clean() {
+            vm.slice_id = undefined;
+            vm.slice_label = undefined;
+            vm.totalCores = undefined;
+            vm.positiveCores = undefined;
+            vm.highGradePin = false;
+            vm.pah = false;
+            vm.chronicInflammation = false;
+            vm.acuteInflammation = false;
+            vm.periglandularInflammation = false;
+            vm.intraglandularInflammation = false;
+            vm.stromalInflammation = false;
         }
 
         function isReadOnly() {
@@ -358,6 +422,7 @@
         }
 
         function destroy() {
+            vm._clean();
             $rootScope.$broadcast('annotation_panel.closed');
         }
 
@@ -376,20 +441,132 @@
                 chronic_inflammation: vm.chronicInflammation,
                 acute_inflammation: vm.acuteInflammation,
                 periglandular_inflammation: vm.periglandularInflammation,
-                intraglandural_inflammation: vm.intraglandularInflammation,
+                intraglandular_inflammation: vm.intraglandularInflammation,
                 stromal_inflammation: vm.stromalInflammation
             };
             SliceAnnotationsManagerService.createAnnotation(vm.slice_id, vm.clinical_annotation_step_id, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
             function createAnnotationSuccessFn(response) {
-                $rootScope.$broadcast('slice_annotation.saved', vm.label, vm.slice_id);
+                $rootScope.$broadcast('slice_annotation.saved', vm.slice_label, vm.slice_id);
+                vm._clean();
                 dialog.close();
             }
 
             function createAnnotationErrorFn(response) {
                 console.error('Unable to save annotation');
                 console.error(response.data);
+                dialog.close();
+            }
+        }
+    }
+
+    ShowSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'SliceAnnotationsManagerService'];
+
+    function ShowSliceAnnotationController($scope, $routeParams, $rootScope, ngDialog,
+                                           SliceAnnotationsManagerService) {
+        var vm = this;
+        vm.slice_id = undefined;
+        vm.slice_label = undefined;
+        vm.totalCores = undefined;
+        vm.positiveCores = undefined;
+        vm.highGradePin = undefined;
+        vm.pah = undefined;
+        vm.chronicInflammation = undefined;
+        vm.acuteInflammation = undefined;
+        vm.periglandularInflammation = undefined;
+        vm.intraglandularInflammation = undefined;
+        vm.stromalInflammation = undefined;
+
+        vm.clinical_annotation_step_id = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.destroy = destroy;
+        vm.deleteAnnotation = deleteAnnotation;
+
+        activate();
+
+        function activate() {
+            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            $scope.$on('slice_annotation.show',
+                function(event, slice_id) {
+                    vm.slice_id = slice_id;
+                    SliceAnnotationsManagerService.getAnnotation(vm.slice_id, vm.clinical_annotation_step_id)
+                        .then(getSliceAnnotationSuccessFn, getSliceAnnotationErrorFn);
+                }
+            );
+
+            function getSliceAnnotationSuccessFn(response) {
+                vm.slice_label = response.data.slice.label;
+                vm.totalCores = response.data.slice.total_cores;
+                vm.positiveCores = response.data.slice.positive_cores_count;
+                vm.highGradePin = response.data.high_grade_pin;
+                vm.pah = response.data.pah;
+                vm.chronicInflammation = response.data.chronic_inflammation;
+                vm.acuteInflammation = response.data.acute_inflammation;
+                vm.periglandularInflammation = response.data.periglandular_inflammation;
+                vm.intraglandularInflammation = response.data.intraglandular_inflammation;
+                vm.stromalInflammation = response.data.stromal_inflammation;
+            }
+
+            function getSliceAnnotationErrorFn(response) {
+                console.error('Unable to load slice annotatin data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function destroy() {
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function deleteAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFm);
+
+            var dialog = undefined;
+            function confirmFm(confirm_value) {
+                if (confirm_value) {
+                    dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/deleting_data.html',
+                        showClose: true,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                    SliceAnnotationsManagerService.deleteAnnotation(vm.slice_id, vm.clinical_annotation_step_id)
+                        .then(deleteSliceAnnotationSuccessFn, deleteSliceAnnotationErrorFn);
+                }
+            }
+
+            function deleteSliceAnnotationSuccessFn(response) {
+                $rootScope.$broadcast('slice_annotation.deleted', vm.slice_label, vm.slice_id);
+                vm.slice_id = undefined;
+                vm.slice_label = undefined;
+                vm.totalCores = undefined;
+                vm.positiveCores = undefined;
+                vm.highGradePin = undefined;
+                vm.pah = undefined;
+                vm.chronicInflammation = undefined;
+                vm.acuteInflammation = undefined;
+                vm.periglandularInflammation = undefined;
+                vm.intraglandularInflammation = undefined;
+                vm.stromalInflammation = undefined;
+                dialog.close();
+            }
+
+            function deleteSliceAnnotationErrorFn(response) {
+                console.error('unable to delete slice annotation');
+                console.error(response);
                 dialog.close();
             }
         }
