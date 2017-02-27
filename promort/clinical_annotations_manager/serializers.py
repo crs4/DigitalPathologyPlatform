@@ -27,7 +27,7 @@ class SliceAnnotationSerializer(serializers.ModelSerializer):
         write_only_fields = ('annotation_step',)
 
 
-class SliceAnnotationDetailsSerializer(SliceSerializer):
+class SliceAnnotationDetailsSerializer(SliceAnnotationSerializer):
     slice = SliceSerializer(read_only=True)
 
 
