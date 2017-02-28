@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
+from rois_manager.models import Slice, Core, FocusRegion
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, \
     FocusRegionAnnotation
 from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
@@ -31,6 +32,13 @@ class SliceAnnotationDetailsSerializer(SliceAnnotationSerializer):
     slice = SliceSerializer(read_only=True)
 
 
+class SliceAnnotationInfosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SliceAnnotation
+        fields = ('id', 'annotation_step')
+        read_only_fields = ('id', 'annotation_step')
+
+
 class CoreAnnotationSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -52,6 +60,13 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
 
 class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):
     core = CoreSerializer(read_only=True)
+
+
+class CoreAnnotationInfosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoreAnnotation
+        fields = ('id', 'annotation_step')
+        read_only_fields = ('id', 'annotation_step')
 
 
 class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
@@ -88,3 +103,41 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
     focus_region = FocusRegionSerializer(read_only=True)
+
+
+class FocusRegionAnnotationInfosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FocusRegionAnnotation
+        fields = ('id', 'annotation_step')
+        read_only_fields = ('id', 'annotation_step')
+
+
+class AnnotatedFocusRegionSerializer(serializers.ModelSerializer):
+    clinical_annotations = FocusRegionAnnotationInfosSerializer(many=True)
+
+    class Meta:
+        model = FocusRegion
+        fields = ('id', 'label', 'core', 'roi_json', 'length', 'area',
+                  'cancerous_region', 'clinical_annotations')
+        read_only_fields = fields
+
+
+class AnnotatedCoreSerializer(serializers.ModelSerializer):
+    focus_regions = AnnotatedFocusRegionSerializer(many=True)
+    clinical_annotations = CoreAnnotationInfosSerializer(many=True)
+
+    class Meta:
+        model = Core
+        fields = ('id', 'label', 'slice', 'roi_json', 'length', 'area', 'tumor_length',
+                  'focus_regions', 'clinical_annotations')
+        read_only_fields = fields
+
+
+class AnnotatedSliceSerializer(serializers.ModelSerializer):
+    cores = AnnotatedCoreSerializer(many=True)
+    clinical_annotations = SliceAnnotationInfosSerializer(many=True)
+
+    class Meta:
+        model = Slice
+        fields = ('id', 'label', 'slide', 'roi_json', 'cores', 'clinical_annotations')
+        read_only_fields = fields
