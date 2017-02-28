@@ -34,8 +34,15 @@
             return $http.post('/api/rois_annotation_steps/' + step_id + '/slices/', params);
         }
 
-        function getROIs(step_id) {
-            return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/');
+        function getROIs(step_id, read_only, clinical_step_id) {
+            console.log(read_only, clinical_step_id);
+            if (!read_only) {
+                console.log('/api/rois_annotation_steps/' + step_id + '/rois_list/');
+                return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/');
+            } else {
+                console.log('/api/rois_annotation_steps/' + step_id + '/rois_list/' + clinical_step_id + '/');
+                return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/' + clinical_step_id + '/');
+            }
         }
 
         function clearROIs(step_id) {
