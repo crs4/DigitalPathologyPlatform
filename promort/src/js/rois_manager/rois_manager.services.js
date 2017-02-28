@@ -35,12 +35,9 @@
         }
 
         function getROIs(step_id, read_only, clinical_step_id) {
-            console.log(read_only, clinical_step_id);
             if (!read_only) {
-                console.log('/api/rois_annotation_steps/' + step_id + '/rois_list/');
                 return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/');
             } else {
-                console.log('/api/rois_annotation_steps/' + step_id + '/rois_list/' + clinical_step_id + '/');
                 return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/' + clinical_step_id + '/');
             }
         }

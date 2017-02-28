@@ -94,7 +94,8 @@
                         vm._registreSlice(slice_info);
                         vm.allModesOff();
                         var $tree = $("#rois_tree");
-                        var $new_slice_item = $(vm._createListItem(slice_info.label, false, true));
+                        var $new_slice_item = $(vm._createListItem(slice_info.label,
+                            vm.slices_edit_mode[slice_info.id], true));
                         var $anchor = $new_slice_item.find('a');
                         $anchor.attr('ng-click', 'cmc.showROIPanel("slice", ' + slice_info.id + ')')
                             .attr('ng-mouseenter', 'cmc.selectROI("slice", ' + slice_info.id + ')')
@@ -111,7 +112,8 @@
                         vm._registerCore(core_info);
                         vm.allModesOff();
                         var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
-                        var $new_core_item = $(vm._createListItem(core_info.label, false, true));
+                        var $new_core_item = $(vm._createListItem(core_info.label,
+                            vm.cores_edit_mode[core_info.id], true));
                         var $anchor = $new_core_item.find('a');
                         $anchor.attr('ng-click', 'cmc.showROIPanel("core", ' + core_info.id + ')')
                             .attr('ng-mouseenter', 'cmc.selectROI("core", ' + core_info.id + ')')
@@ -128,7 +130,8 @@
                         vm._registerFocusRegion(focus_region_info);
                         vm.allModesOff();
                         var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
-                        var $new_focus_region_item = $(vm._createListItem(focus_region_info.label, false, false));
+                        var $new_focus_region_item = $(vm._createListItem(focus_region_info.label,
+                            vm.focus_regions_edit_mode[focus_region_info.id], false));
                         var $anchor = $new_focus_region_item.find('a');
                         $anchor.attr('ng-click', 'cmc.showROIPanel("focus_region", ' + focus_region_info.id + ')')
                             .attr('ng-mouseenter', 'cmc.selectROI("focus_region", ' + focus_region_info.id + ')')
@@ -168,8 +171,7 @@
         function _registerSlice(slice_info) {
             $rootScope.slices.push(slice_info);
             vm.slices_map[slice_info.id] = slice_info.label;
-            // TODO: check
-            vm.slices_edit_mode[slice_info.id] = true;
+            vm.slices_edit_mode[slice_info.id] = !slice_info.annotated;
         }
 
         function _getSliceLabel(slice_id) {
@@ -179,8 +181,7 @@
         function _registerCore(core_info) {
             $rootScope.cores.push(core_info);
             vm.cores_map[core_info.id] = core_info.label;
-            // TODO: check
-            vm.cores_edit_mode[core_info.id] = true;
+            vm.cores_edit_mode[core_info.id] = !core_info.annotated;
         }
 
         function _getCoreLabel(core_id) {
@@ -190,15 +191,14 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
-            // TODO: check
-            vm.focus_regions_edit_mode[focus_region_info.id] = true;
+            vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
         }
 
         function _getFocusRegionLabel(focus_region_id) {
             return vm.focus_regions_map[focus_region_id];
         }
 
-        function _createListItem(label, read_mode, set_neg_margin_cls) {
+        function _createListItem(label, edit_mode, set_neg_margin_cls) {
             var html = '<li id="';
             html += label;
             html += '_list" class="list-group-item prm-tree-item';
@@ -207,7 +207,7 @@
             }
             html += '"><a id="';
             html += label;
-            if (read_mode === false) {
+            if (edit_mode === true) {
                 html += '" class="prm-tree-el" href="#"><i class="icon-black_question"></i> ';
             } else {
                 html += '" class="prm-tree-el" href="#"><i class="icon-check_circle"></i> ';

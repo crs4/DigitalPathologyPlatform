@@ -135,27 +135,42 @@
                         for (var sl in response.data.slices) {
                             var slice = response.data.slices[sl];
                             AnnotationsViewerService.drawShape($.parseJSON(slice.roi_json));
+                            var annotated = false;
+                            if (slice.hasOwnProperty('annotated')) {
+                                annotated = slice.annotated;
+                            }
                             var slice_info = {
                                 'id': slice.id,
-                                'label': slice.label
+                                'label': slice.label,
+                                'annotated': annotated
                             };
                             $rootScope.$broadcast('slice.new', slice_info);
                             for (var cr in slice.cores) {
                                 var core = slice.cores[cr];
                                 AnnotationsViewerService.drawShape($.parseJSON(core.roi_json));
+                                annotated = false;
+                                if (core.hasOwnProperty('annotated')) {
+                                    annotated = core.annotated;
+                                }
                                 var core_info = {
                                     'id': core.id,
                                     'label': core.label,
-                                    'slice': core.slice
+                                    'slice': core.slice,
+                                    'annotated': annotated
                                 };
                                 $rootScope.$broadcast('core.new', core_info);
                                 for (var fr in core.focus_regions) {
                                     var focus_region = core.focus_regions[fr];
                                     AnnotationsViewerService.drawShape($.parseJSON(focus_region.roi_json));
+                                    annotated = false;
+                                    if (core.hasOwnProperty('annotated')) {
+                                        annotated = focus_region.annotated;
+                                    }
                                     var focus_region_info = {
                                         'id': focus_region.id,
                                         'label': focus_region.label,
-                                        'core': focus_region.core
+                                        'core': focus_region.core,
+                                        'annotated': annotated
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
                                 }
