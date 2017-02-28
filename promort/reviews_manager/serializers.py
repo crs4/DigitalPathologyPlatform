@@ -6,6 +6,7 @@ from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
     ClinicalAnnotation, ClinicalAnnotationStep
 from slides_manager.serializers import SlideSerializer, SlideQualityControlSerializer
 from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
+from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
 
 
 class ROIsAnnotationSerializer(serializers.ModelSerializer):
@@ -81,6 +82,10 @@ class ROIsAnnotationStepFullSerializer(ROIsAnnotationStepDetailsSerializer):
 
 class ROIsAnnotationStepROIsTreeSerializer(ROIsAnnotationStepFullSerializer):
     slices = SliceROIsTreeSerializer(many=True, read_only=True)
+
+
+class ClinicalAnnotationStepROIsTreeSerializer(ROIsAnnotationStepFullSerializer):
+    slices = AnnotatedSliceSerializer(many=True, read_only=True)
 
 
 class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):

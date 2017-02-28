@@ -10,6 +10,8 @@ from rest_framework.exceptions import NotFound
 
 from django.db import IntegrityError
 
+from reviews_manager.models import ROIsAnnotationStep
+from reviews_manager.serializers import ClinicalAnnotationStepROIsTreeSerializer
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, FocusRegionAnnotation
 from clinical_annotations_manager.serializers import SliceAnnotationSerializer, SliceAnnotationDetailsSerializer,\
     CoreAnnotationSerializer, CoreAnnotationDetailsSerializer, FocusRegionAnnotationSerializer, \
@@ -17,6 +19,33 @@ from clinical_annotations_manager.serializers import SliceAnnotationSerializer, 
 
 import logging
 logger = logging.getLogger('promort')
+
+
+class AnnotatedROIsTreeList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def _update_annotation(self, roi_data, clinical_annotation_step):
+        annotation_status = {'annotated': False}
+        annotations = roi_data.pop('clinical_annotations')
+        for annotation in annotations:
+            if annotation['annotation_step'] == int(clinical_annotation_step):
+                annotation_status['annotated'] = True
+        roi_data.update(annotation_status)
+
+    def get(self, request, rois_annotation_step, clinical_annotation_step, format=None):
+        try:
+            obj = ROIsAnnotationStep.objects.get(pk=rois_annotation_step)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('There is no ROIsAnnotationStep with ID %s' % rois_annotation_step)
+        serializer = ClinicalAnnotationStepROIsTreeSerializer(obj)
+        rois_tree = serializer.data
+        for slice in rois_tree['slices']:
+            self._update_annotation(slice, clinical_annotation_step)
+            for core in slice['cores']:
+                self._update_annotation(core, clinical_annotation_step)
+                for focus_region in core['focus_regions']:
+                    self._update_annotation(focus_region, clinical_annotation_step)
+        return Response(rois_tree, status=status.HTTP_200_OK)
 
 
 class SliceAnnotationList(APIView):
