@@ -118,7 +118,7 @@
             }
 
             $scope.$on('viewerctrl.components.registered',
-                function() {
+                function(event, rois_read_only, clinical_annotation_step_id) {
                     var dialog = ngDialog.open({
                         template: '/static/templates/dialogs/rois_loading.html',
                         showClose: false,
@@ -127,7 +127,8 @@
                         closeByDocument: false
                     });
 
-                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id)
+                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id, rois_read_only,
+                        clinical_annotation_step_id)
                         .then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
@@ -184,12 +185,17 @@
             return vm.slide_details.image_microns_per_pixel;
         }
 
-        function registerComponents(viewer_manager, annotations_manager, tools_manager) {
+        function registerComponents(viewer_manager, annotations_manager, tools_manager, rois_read_only) {
             AnnotationsViewerService.registerComponents(viewer_manager,
                 annotations_manager, tools_manager);
             console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
-            $rootScope.$broadcast('viewerctrl.components.registered');
+            var clinical_annotation_step_id = undefined;
+            if (rois_read_only) {
+                clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            }
+            $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
+                clinical_annotation_step_id);
         }
     }
 })();

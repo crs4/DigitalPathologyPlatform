@@ -151,7 +151,7 @@
 
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
-                            annotations_canvas, tools_manager);
+                            annotations_canvas, tools_manager, false);
                     });
                 });
             }
@@ -228,7 +228,7 @@
 
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
-                            annotations_canvas, tools_manager);
+                            annotations_canvas, tools_manager, true);
                     });
                 });
             }
