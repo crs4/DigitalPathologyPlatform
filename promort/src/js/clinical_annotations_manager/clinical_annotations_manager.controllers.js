@@ -5,7 +5,8 @@
         .module('promort.clinical_annotations_manager.controllers')
         .controller('ClinicalAnnotationsManagerController', ClinicalAnnotationsManagerController)
         .controller('NewSliceAnnotationController', NewSliceAnnotationController)
-        .controller('ShowSliceAnnotationController', ShowSliceAnnotationController);
+        .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
+        .controller('NewCoreAnnotationController', NewCoreAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
@@ -53,6 +54,8 @@
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
         vm.activateShowSliceAnnotationMode = activateShowSliceAnnotationMode;
         vm.showSliceAnnotationModeActive = showSliceAnnotationModeActive;
+        vm.activateNewCoreAnnoationMode = activateNewCoreAnnotationMode;
+        vm.newCoreAnnotationModeActive = newCoreAnnotationModeActive;
 
         activate();
 
@@ -160,6 +163,16 @@
                         vm.slices_edit_mode[slice_id] = true;
                     }
                 );
+
+                $scope.$on('core_annotation.saved',
+                    function(event, core_label, core_id) {
+                        var $icon = $("#" + core_label).find('i');
+                        $icon.removeClass("icon-black_question");
+                        $icon.addClass("icon-check_circle");
+                        vm.allModesOff();
+                        vm.cores_edit_mode[core_id] = false;
+                    }
+                );
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
@@ -260,6 +273,7 @@
                             vm.activateNewSliceAnnotationMode(roi_id);
                             break;
                         case 'core':
+                            vm.activateNewCoreAnnoationMode(roi_id);
                             break;
                         case 'focus_region':
                             break;
@@ -346,6 +360,17 @@
 
         function showSliceAnnotationModeActive(slice_id) {
             return vm.ui_active_modes['show_slice'];
+        }
+
+        function activateNewCoreAnnotationMode(core_id) {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            $rootScope.$broadcast('core_annotation.new', core_id);
+            vm.ui_active_modes['annotate_core'] = true;
+        }
+
+        function newCoreAnnotationModeActive() {
+            return vm.ui_active_modes['annotate_core'];
         }
     }
 
@@ -567,6 +592,142 @@
             function deleteSliceAnnotationErrorFn(response) {
                 console.error('unable to delete slice annotation');
                 console.error(response);
+                dialog.close();
+            }
+        }
+    }
+
+    NewCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'CoresManagerService', 'CoreAnnotationsManagerService'];
+
+    function NewCoreAnnotationController($scope, $routeParams, $rootScope, ngDialog,
+                                         CoresManagerService, CoreAnnotationsManagerService) {
+        var vm = this;
+        vm.core_id = undefined;
+        vm.core_label = undefined;
+        vm.coreArea = undefined;
+        vm.coreLength = undefined;
+        vm.tumorLength = undefined;
+        vm.normalTissuePercentage = undefined;
+        vm.primaryGleason = undefined;
+        vm.secondaryGleason = undefined;
+        vm.gradeGroupWho = undefined;
+        vm.gradeGroupWhoLabel = '';
+
+        vm.clinical_annotation_step_id = undefined;
+
+        activate();
+
+        vm._clean = _clean;
+        vm.isReadOnly = isReadOnly;
+        vm.formValid = formValid;
+        vm.destroy = destroy;
+        vm.upgradeGradeGroupWho = updateGradeGroupWho;
+        vm.save = save;
+
+        function activate() {
+            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            $scope.$on('core_annotation.new',
+                function(event, core_id) {
+                    vm.core_id = core_id;
+                    CoresManagerService.get(vm.core_id)
+                        .then(getCoreSuccessFn, getCoreErrorFn);
+                }
+            );
+
+            function getCoreSuccessFn(response) {
+                vm.core_label = response.data.label;
+                vm.coreArea = response.data.area;
+                vm.coreLength = response.data.length;
+                vm.tumorLength = response.data.tumor_length;
+            }
+
+            function getCoreErrorFn(response) {
+                console.error('Unable to load core data');
+                console.error(response);
+            }
+        }
+
+        function _clean() {
+            vm.core_id = undefined;
+            vm.core_label = undefined;
+            vm.coreArea = undefined;
+            vm.coreLength = undefined;
+            vm.tumorLength = undefined;
+            vm.normalTissuePercentage = undefined;
+            vm.primaryGleason = undefined;
+            vm.secondaryGleason = undefined;
+            vm.gradeGroupWho = undefined;
+            vm.gradeGroupWhoLabel = '';
+        }
+
+        function isReadOnly() {
+            return false;
+        }
+
+        function formValid() {
+            return ((typeof vm.primaryGleason !== 'undefined') &&
+            (typeof vm.secondaryGleason !== 'undefined'));
+        }
+
+        function destroy() {
+            vm._clean();
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function updateGradeGroupWho() {
+            if ((typeof vm.primaryGleason !== 'undefined') && (typeof vm.secondaryGleason !== 'undefined')) {
+                var gleason_score = Number(vm.primaryGleason) + Number(vm.secondaryGleason);
+                if (gleason_score <= 6) {
+                    vm.gradeGroupWho = 'GG1';
+                    vm.gradeGroupWhoLabel = 'Grade Group 1'
+                } else  if (gleason_score == 7) {
+                    if (vm.primaryGleason == 3) {
+                        vm.gradeGroupWho = 'GG2';
+                        vm.gradeGroupWhoLabel = 'Grade Group 2';
+                    } else {
+                        vm.gradeGroupWho = 'GG3';
+                        vm.gradeGroupWhoLabel = 'Grade Group 3';
+                    }
+                } else if (gleason_score == 8) {
+                    vm.gradeGroupWho = 'GG4';
+                    vm.gradeGroupWhoLabel = 'Grade Group 4';
+                } else {
+                    vm.gradeGroupWho = 'GG5';
+                    vm.gradeGroupWhoLabel = 'Grade Group 5';
+                }
+            } else {
+                vm.gradeGroupWho = undefined;
+                vm.gradeGroupWhoLabel = '';
+            }
+        }
+
+        function save() {
+            var dialog = undefined;
+            dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
+            var obj_config = {
+                primary_gleason: Number(vm.primaryGleason),
+                secondary_gleason: Number(vm.secondaryGleason),
+                gleason_group: vm.gradeGroupWho
+            };
+            CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_id, obj_config)
+                .then(createAnnotationSuccessFn, createAnnotationErrorFn);
+
+            function createAnnotationSuccessFn(response) {
+                $rootScope.$broadcast('core_annotation.saved', vm.core_label, vm.core_id);
+                vm._clean();
+                dialog.close();
+            }
+
+            function createAnnotationErrorFn(response) {
+                console.error('Unable to save annotation');
+                console.error(response.data);
                 dialog.close();
             }
         }

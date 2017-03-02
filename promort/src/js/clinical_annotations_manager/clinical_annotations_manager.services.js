@@ -37,7 +37,7 @@
     function CoreAnnotationsManagerService($http) {
         var CoreAnnotationsManagerService = {
             getAnnotation: getAnnotation,
-            createAnnoation: createAnnotation,
+            createAnnotation: createAnnotation,
             deleteAnnotation: deleteAnnotation
         };
 

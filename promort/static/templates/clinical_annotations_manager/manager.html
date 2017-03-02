@@ -43,7 +43,8 @@
                     <show-slice-annotation-buttons></show-slice-annotation-buttons>
                 </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="cmc.newCoreAnnotationModeActive()">
-                    <!-- new core annotation -->
+                    <new-core-annotation-form></new-core-annotation-form>
+                    <new-core-annotation-buttons></new-core-annotation-buttons>
                 </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="cmc.showCoreAnnotationModeActive()">
                     <!-- show core annotation -->

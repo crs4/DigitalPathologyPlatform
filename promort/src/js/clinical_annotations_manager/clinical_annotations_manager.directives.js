@@ -6,7 +6,9 @@
         .directive('newSliceAnnotationForm', newSliceAnnotationForm)
         .directive('newSliceAnnotationButtons', newSliceAnnotationButtons)
         .directive('showSliceAnnotationForm', showSliceAnnotationForm)
-        .directive('showSliceAnnotationButtons', showSliceAnnotationButtons);
+        .directive('showSliceAnnotationButtons', showSliceAnnotationButtons)
+        .directive('newCoreAnnotationForm', newCoreAnnotationForm)
+        .directive('newCoreAnnotationButtons', newCoreAnnotationButtons);
 
     function newSliceAnnotationForm() {
         var directive = {
@@ -48,7 +50,29 @@
             templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
             controller: 'ShowSliceAnnotationController',
             controllerAs: 'cmCtrl'
-        }
+        };
+        return directive;
+    }
+
+    function newCoreAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/core_annotation.html',
+            controller: 'NewCoreAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newCoreAnnotationButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
+            controller: 'NewCoreAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
         return directive;
     }
 })();
