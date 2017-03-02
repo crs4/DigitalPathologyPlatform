@@ -116,7 +116,7 @@ class CoreAnnotationDetail(APIView):
 
     def _get_annotation(self, core_id, annotation_step_id):
         try:
-            return CoreAnnotation.objects.get(slice=core_id, annotation_step=annotation_step_id)
+            return CoreAnnotation.objects.get(core=core_id, annotation_step=annotation_step_id)
         except CoreAnnotation.DoesNotExist:
             raise NotFound('There is no annotation for core %d related to annotation step %d' %
                            (core_id, annotation_step_id))
@@ -170,7 +170,8 @@ class FocusRegionAnnotationDetail(APIView):
 
     def _get_annotation(self, focus_region_id, annotation_step_id):
         try:
-            return FocusRegionAnnotation.objects.get(slice=focus_region_id, annotation_step=annotation_step_id)
+            return FocusRegionAnnotation.objects.get(focus_region=focus_region_id,
+                                                     annotation_step=annotation_step_id)
         except FocusRegionAnnotation.DoesNotExist:
             raise NotFound('There is no annotation for focus_region %d related to annotation step %d' %
                            (focus_region_id, annotation_step_id))
