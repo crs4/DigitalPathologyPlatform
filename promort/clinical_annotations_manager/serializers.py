@@ -45,17 +45,22 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     gleason_score = serializers.SerializerMethodField()
+    gleason_4_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = CoreAnnotation
         fields = ('id', 'author', 'core', 'annotation_step', 'creation_date', 'primary_gleason',
                   'secondary_gleason', 'gleason_score', 'gleason_4_percentage', 'gleason_group')
-        read_only_fields = ('id', 'creation_date', 'gleason_score')
+        read_only_fields = ('id', 'creation_date', 'gleason_score', 'gleason_4_percentage')
         write_only_fields = ('annotation_step',)
 
     @staticmethod
     def get_gleason_score(obj):
         return '%d + %d' % (obj.primary_gleason, obj.secondary_gleason)
+
+    @staticmethod
+    def get_gleason_4_percentage(obj):
+        return obj.get_gleason_4_percentage()
 
 
 class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):

@@ -41,13 +41,25 @@ class CoreAnnotation(models.Model):
     creation_date = models.DateTimeField(default=timezone.now)
     primary_gleason = models.IntegerField(blank=False)
     secondary_gleason = models.IntegerField(blank=False)
-    gleason_4_percentage = models.FloatField(blank=False, default=0.0)
     gleason_group = models.CharField(
         max_length=3, choices=GLEASON_GROUP_WHO_16, blank=False
     )
 
     class Meta:
         unique_together = ('core', 'annotation_step')
+
+    def get_gleason_4_percentage(self):
+        gleason_4_total_area = 0.0
+        for focus_region in self.core.focus_regions.all():
+            try:
+                focus_region_annotation = FocusRegionAnnotation.objects.get(
+                    annotation_step=self.annotation_step,
+                    focus_region=focus_region
+                )
+                gleason_4_total_area += focus_region_annotation.gleason_4_area
+            except FocusRegionAnnotation.DoesNotExist:
+                pass
+        return (gleason_4_total_area / self.core.area) * 100.0
 
 
 class FocusRegionAnnotation(models.Model):
