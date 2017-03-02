@@ -33,6 +33,13 @@ class Core(models.Model):
     class Meta:
         unique_together = ('label', 'slice')
 
+    def get_normal_tissue_percentage(self):
+        total_cancerous_area = 0.0
+        for focus_region in self.focus_regions.all():
+            if focus_region.cancerous_region:
+                total_cancerous_area += focus_region.area
+        return ((self.area - total_cancerous_area) / self.area) * 100.0
+
 
 class FocusRegion(models.Model):
     label = models.CharField(max_length=20, blank=False)

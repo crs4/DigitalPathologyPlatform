@@ -52,12 +52,15 @@ class CoreSerializer(serializers.ModelSerializer):
     )
     focus_regions_count = serializers.SerializerMethodField()
     positive = serializers.SerializerMethodField()
+    normal_tissue_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'tumor_length', 'positive', 'focus_regions_count')
-        read_only_fields = ('id', 'creation_date', 'positive', 'focus_regions_count')
+                  'length', 'area', 'tumor_length', 'positive', 'focus_regions_count',
+                  'normal_tissue_percentage')
+        read_only_fields = ('id', 'creation_date', 'positive', 'focus_regions_count',
+                            'normal_tissue_percentage')
 
     def get_focus_regions_count(self, obj):
         return obj.focus_regions.count()
@@ -74,6 +77,10 @@ class CoreSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
+    @staticmethod
+    def get_normal_tissue_percentage(obj):
+        return obj.get_normal_tissue_percentage()
 
 
 class FocusRegionSerializer(serializers.ModelSerializer):
@@ -106,15 +113,19 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'tumor_length', 'positive', 'focus_regions')
-        read_only_fields = ('id', 'creation_date', 'positive')
+        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json', 'length',
+                  'area', 'tumor_length', 'positive', 'focus_regions', 'normal_tissue_percentage')
+        read_only_fields = ('id', 'creation_date', 'positive', 'normal_tissue_percentage')
 
     def get_positive(self, obj):
         for fr in obj.focus_regions.all():
             if fr.cancerous_region:
                 return True
         return False
+
+    @staticmethod
+    def get_normal_tissue_percentage(obj):
+        return obj.get_normal_tissue_percentage()
 
 
 class SliceDetailsSerializer(serializers.ModelSerializer):
