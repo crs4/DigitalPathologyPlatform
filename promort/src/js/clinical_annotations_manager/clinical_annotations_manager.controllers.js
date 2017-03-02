@@ -6,7 +6,8 @@
         .controller('ClinicalAnnotationsManagerController', ClinicalAnnotationsManagerController)
         .controller('NewSliceAnnotationController', NewSliceAnnotationController)
         .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
-        .controller('NewCoreAnnotationController', NewCoreAnnotationController);
+        .controller('NewCoreAnnotationController', NewCoreAnnotationController)
+        .controller('ShowCoreAnnotationController', ShowCoreAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
@@ -56,6 +57,8 @@
         vm.showSliceAnnotationModeActive = showSliceAnnotationModeActive;
         vm.activateNewCoreAnnoationMode = activateNewCoreAnnotationMode;
         vm.newCoreAnnotationModeActive = newCoreAnnotationModeActive;
+        vm.activateShowCoreAnnotationMode = activateShowCoreAnnotationMode;
+        vm.showCoreAnnotationModeActive = showCoreAnnotationModeActive;
 
         activate();
 
@@ -173,6 +176,16 @@
                         vm.cores_edit_mode[core_id] = false;
                     }
                 );
+
+                $scope.$on('core_annotation.deleted',
+                    function(event, core_label, core_id) {
+                        var $icon = $("#" + core_label).find('i');
+                        $icon.removeClass("icon-check_circle");
+                        $icon.addClass("icon-black_question");
+                        vm.allModesOff();
+                        vm.cores_edit_mode[core_id] = true;
+                    }
+                );
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
@@ -285,6 +298,7 @@
                         vm.activateShowSliceAnnotationMode(roi_id);
                         break;
                     case 'core':
+                        vm.activateShowCoreAnnotationMode(roi_id);
                         break;
                     case 'focus_region':
                         break;
@@ -358,7 +372,7 @@
             vm.ui_active_modes['show_slice'] = true;
         }
 
-        function showSliceAnnotationModeActive(slice_id) {
+        function showSliceAnnotationModeActive() {
             return vm.ui_active_modes['show_slice'];
         }
 
@@ -371,6 +385,16 @@
 
         function newCoreAnnotationModeActive() {
             return vm.ui_active_modes['annotate_core'];
+        }
+
+        function activateShowCoreAnnotationMode(core_id) {
+            vm.allModesOff();
+            $rootScope.$broadcast('core_annotation.show', core_id);
+            vm.ui_active_modes['show_core'] = true;
+        }
+
+        function showCoreAnnotationModeActive() {
+            return vm.ui_active_modes['show_core'];
         }
     }
 
@@ -556,10 +580,10 @@
                 showClose: false,
                 closeByNavigation: false,
                 closeByDocument: false
-            }).then(confirmFm);
+            }).then(confirmFn);
 
             var dialog = undefined;
-            function confirmFm(confirm_value) {
+            function confirmFn(confirm_value) {
                 if (confirm_value) {
                     dialog = ngDialog.open({
                         template: '/static/templates/dialogs/deleting_data.html',
@@ -608,7 +632,6 @@
         vm.coreArea = undefined;
         vm.coreLength = undefined;
         vm.tumorLength = undefined;
-        vm.normalTissuePercentage = undefined;
         vm.primaryGleason = undefined;
         vm.secondaryGleason = undefined;
         vm.gradeGroupWho = undefined;
@@ -654,7 +677,6 @@
             vm.coreArea = undefined;
             vm.coreLength = undefined;
             vm.tumorLength = undefined;
-            vm.normalTissuePercentage = undefined;
             vm.primaryGleason = undefined;
             vm.secondaryGleason = undefined;
             vm.gradeGroupWho = undefined;
@@ -728,6 +750,127 @@
             function createAnnotationErrorFn(response) {
                 console.error('Unable to save annotation');
                 console.error(response.data);
+                dialog.close();
+            }
+        }
+    }
+
+    ShowCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'CoreAnnotationsManagerService'];
+
+    function ShowCoreAnnotationController($scope, $routeParams, $rootScope, ngDialog,
+                                          CoreAnnotationsManagerService) {
+        var vm = this;
+        vm.core_id = undefined;
+        vm.core_label = undefined;
+        vm.coreArea = undefined;
+        vm.coreLength = undefined;
+        vm.tumorLength = undefined;
+        vm.normalTissuePercentage = undefined;
+        vm.gleasonScore = undefined;
+        vm.gradeGroupWhoLabel = undefined;
+        vm.gleason4Percentage = undefined;
+
+        vm.clinical_annotation_step_id = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.destroy = destroy;
+        vm.deleteAnnotation = deleteAnnotation;
+
+        activate();
+
+        function activate() {
+            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            $scope.$on('core_annotation.show',
+                function (event, core_id) {
+                    vm.core_id = core_id;
+                    CoreAnnotationsManagerService.getAnnotation(vm.core_id, vm.clinical_annotation_step_id)
+                        .then(getCoreAnnotationSuccessFn, getCoreAnnotationErrorFn);
+                }
+            );
+
+            function getCoreAnnotationSuccessFn(response) {
+                vm.core_label = response.data.core.label;
+                vm.coreArea = response.data.core.area;
+                vm.coreLength = response.data.core.length;
+                vm.tumorLength = response.data.core.tumor_length;
+                vm.normalTissuePercentage = response.data.core.normal_tissue_percentage;
+                vm.gleasonScore = response.data.gleason_score;
+                vm.gleason4Percentage = response.data.gleason_4_percentage;
+                switch (response.data.gleason_group) {
+                    case 'GG1':
+                        vm.gradeGroupWhoLabel = 'Grade Group 1';
+                        break;
+                    case 'GG2':
+                        vm.gradeGroupWhoLabel = 'Grade Group 2';
+                        break;
+                    case 'GG3':
+                        vm.gradeGroupWhoLabel = 'Grade Group 3';
+                        break;
+                    case 'GG4':
+                        vm.gradeGroupWhoLabel = 'Grade Group 4';
+                        break;
+                    case 'GG5':
+                        vm.gradeGroupWhoLabel = 'Grade Group 5';
+                        break
+                }
+            }
+
+            function getCoreAnnotationErrorFn(response) {
+                console.error('Unablte to load core annotation data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function destroy() {
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function deleteAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            var dialog = undefined;
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/deleting_data.html',
+                        showClose: true,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                    CoreAnnotationsManagerService.deleteAnnotation(vm.core_id, vm.clinical_annotation_step_id)
+                        .then(deleteCoreAnnotationSuccessFn, deleteCoreAnnotationErrorFn);
+                }
+            }
+
+            function deleteCoreAnnotationSuccessFn(response) {
+                $rootScope.$broadcast('core_annotation.deleted', vm.core_label, vm.core_id);
+                vm.core_id = undefined;
+                vm.core_label = undefined;
+                vm.coreArea = undefined;
+                vm.coreLength = undefined;
+                vm.tumorLength = undefined;
+                vm.normalTissuePercentage = undefined;
+                vm.gleasonScore = undefined;
+                vm.gradeGroupWhoLabel = undefined;
+                vm.gleason4Percentage = undefined;
+                dialog.close();
+            }
+
+            function deleteCoreAnnotationErrorFn(response) {
+                console.error('unable to delete core annotation');
+                console.error(response);
                 dialog.close();
             }
         }
