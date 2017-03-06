@@ -74,7 +74,7 @@ class FocusRegionAnnotation(models.Model):
     ductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     poorly_formed_glands = models.BooleanField(blank=False, null=False, default=False)
     cribriform_pattern = models.BooleanField(blank=False, null=False, default=False)
-    small_cell_signer_ring = models.BooleanField(blank=False, null=False, default=False)
+    small_cell_signet_ring = models.BooleanField(blank=False, null=False, default=False)
     hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
     comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
