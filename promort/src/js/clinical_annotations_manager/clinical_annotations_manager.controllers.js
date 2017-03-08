@@ -7,7 +7,8 @@
         .controller('NewSliceAnnotationController', NewSliceAnnotationController)
         .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
         .controller('NewCoreAnnotationController', NewCoreAnnotationController)
-        .controller('ShowCoreAnnotationController', ShowCoreAnnotationController);
+        .controller('ShowCoreAnnotationController', ShowCoreAnnotationController)
+        .controller('NewFocusRegionAnnotationController', NewFocusRegionAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
@@ -59,6 +60,8 @@
         vm.newCoreAnnotationModeActive = newCoreAnnotationModeActive;
         vm.activateShowCoreAnnotationMode = activateShowCoreAnnotationMode;
         vm.showCoreAnnotationModeActive = showCoreAnnotationModeActive;
+        vm.activateNewFocusRegionAnnotationMode = activateNewFocusRegionAnnotationMode;
+        vm.newFocusRegionAnnotationModeActive = newFocusRegionAnnotationModeActive;
 
         activate();
 
@@ -186,6 +189,16 @@
                         vm.cores_edit_mode[core_id] = true;
                     }
                 );
+
+                $scope.$on('focus_region_annotation.saved',
+                    function(event, focus_region_label, focus_region_id) {
+                        var $icon = $("#" + focus_region_label).find('i');
+                        $icon.removeClass("icon-check_circle");
+                        $icon.addClass("icon-black_question");
+                        vm.allModesOff();
+                        vm.focus_regions_edit_mode[focus_region_id] = true;
+                    }
+                );
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
@@ -289,7 +302,7 @@
                             vm.activateNewCoreAnnoationMode(roi_id);
                             break;
                         case 'focus_region':
-                            break;
+                            vm.activateNewFocusRegionAnnotationMode(roi_id);
                     }
                 }
             } else {
@@ -395,6 +408,17 @@
 
         function showCoreAnnotationModeActive() {
             return vm.ui_active_modes['show_core'];
+        }
+
+        function activateNewFocusRegionAnnotationMode(focus_region_id) {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            $rootScope.$broadcast('focus_region_annotation.new', focus_region_id);
+            vm.ui_active_modes['annotate_focus_region'] = true;
+        }
+
+        function newFocusRegionAnnotationModeActive() {
+            return vm.ui_active_modes['annotate_focus_region']
         }
     }
 
@@ -639,14 +663,14 @@
 
         vm.clinical_annotation_step_id = undefined;
 
-        activate();
-
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.upgradeGradeGroupWho = updateGradeGroupWho;
         vm.save = save;
+
+        activate();
 
         function activate() {
             vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
@@ -871,6 +895,245 @@
             function deleteCoreAnnotationErrorFn(response) {
                 console.error('unable to delete core annotation');
                 console.error(response);
+                dialog.close();
+            }
+        }
+    }
+
+    NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
+
+    function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, ngDialog, FocusRegionsManagerService,
+                                                FocusRegionAnnotationsManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.focus_region_id = undefined;
+        vm.focus_region_label = undefined;
+        vm.focusRegionArea = undefined;
+        vm.coreCoveragePercentage = undefined;
+        vm.cancerousRegion = false;
+        vm.focusRegionLength = undefined;
+        vm.perineuralInvolvement = false;
+        vm.intraductalCarcinoma = false;
+        vm.ductalCarcinoma = false;
+        vm.poorlyFormedGlands = false;
+        vm.cribriformPattern = false;
+        vm.smallCellSignetRing = false;
+        vm.hypernephroidPattern = false;
+        vm.mucinous = false;
+        vm.comedoNecrosis = false;
+        vm.gleason4Shape = undefined;
+        vm.gleason4ShapeArea = undefined;
+        vm.cellularDensityHelperShape = undefined;
+        vm.cellularDensity = undefined;
+
+        vm.clinical_annotation_step_id = undefined;
+
+        vm.ruler_tool_active = false;
+
+        vm._clean = _clean;
+        vm.isReadOnly = isReadOnly;
+        vm.formValid = formValid;
+        vm.destroy = destroy;
+        vm.save = save;
+        vm.initializeRuler = initializeRuler;
+        vm.startRuler = startRuler;
+        vm.rulerToolActive = rulerToolActive;
+        vm.rulerExists = rulerExists;
+        vm.abortRuler = abortRuler;
+        vm.clearRuler = clearRuler;
+        vm.showRuler = showRuler;
+        vm.hideRuler = hideRuler;
+
+        activate();
+
+        function activate() {
+            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+
+            $scope.$on('focus_region_annotation.new',
+                function(event, focus_region_id) {
+                    vm.focus_region_id = focus_region_id;
+                    FocusRegionsManagerService.get(vm.focus_region_id)
+                        .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
+                }
+            );
+
+            function getFocusRegionSuccessFn(response) {
+                vm.focus_region_label = response.data.label;
+                vm.focusRegionArea = response.data.area;
+                vm.focusRegionLength = response.data.length;
+                vm.coreCoveragePercentage = response.data.core_coverage_percentage;
+                vm.cancerousRegion = response.data.cancerous_region;
+            }
+
+            function getFocusRegionErrorFn(response) {
+                console.error('Unable to load focus region data');
+                console.error(response);
+            }
+
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    vm.initializeRuler();
+                }
+            );
+        }
+
+        function _clean() {
+            vm.clearRuler();
+
+            vm.focus_region_id = undefined;
+            vm.focus_region_label = undefined;
+            vm.focusRegionArea = undefined;
+            vm.coreCoveragePercentage = undefined;
+            vm.cancerousRegion = false;
+            vm.focusRegionLength = undefined;
+            vm.perineuralInvolvement = false;
+            vm.intraductalCarcinoma = false;
+            vm.ductalCarcinoma = false;
+            vm.poorlyFormedGlands = false;
+            vm.cribriformPattern = false;
+            vm.smallCellSignetRing = false;
+            vm.hypernephroidPattern = false;
+            vm.mucinous = false;
+            vm.comedoNecrosis = false;
+            vm.cellularDensityHelperShape = undefined;
+            vm.cellularDensity = undefined;
+
+            AnnotationsViewerService.disableActiveTool();
+            vm.ruler_tool_active = false;
+        }
+
+        function initializeRuler() {
+            AnnotationsViewerService.createAreaRulerBindings('area_ruler_switch_on',
+                'gleason_4_area_output');
+        }
+
+        function showRuler() {
+            AnnotationsViewerService.drawShape(vm.gleason4Shape);
+        }
+
+        function hideRuler() {
+            AnnotationsViewerService.deleteShape(vm.gleason4Shape.shape_id);
+        }
+
+        function startRuler() {
+            var $ruler_out = $("#gleason_4_area_output");
+            AnnotationsViewerService.bindAreaRulerToShape(vm.focus_region_label);
+            $ruler_out
+                .on('area_ruler_updated',
+                    function() {
+                        vm.gleason4ShapeArea = $ruler_out.data('measure');
+                        vm.gleason4Shape = $ruler_out.data('ruler_json');
+                    }
+                )
+                .on('area_ruler_empty_intersection',
+                    function() {
+                        console.error('ERROR!!!!! empty intersection!');
+                        vm.ruler_tool_active = false;
+                        $ruler_out.unbind('area_ruler_cleared')
+                            .unbind('area_ruler_updated')
+                            .unbind('area_ruler_empty_intersection');
+                        vm.gleason4Shape = undefined;
+                        vm.gleason4ShapeArea = undefined;
+                        AnnotationsViewerService.disableActiveTool();
+                        $scope.$apply();
+                        ngDialog.open({
+                            template: '/static/templates/dialogs/invalid_gleason_4.html'
+                        });
+                    }
+                )
+                .on('area_ruler_cleared',
+                    function() {
+                        $ruler_out.unbind('area_ruler_cleared')
+                            .unbind('area_ruler_updated')
+                            .unbind('area_ruler_empty_intersection');
+                        vm.ruler_tool_active = false;
+                        AnnotationsViewerService.disableActiveTool();
+                        console.log('RULER SHAPE: ' + vm.gleason4Shape);
+                        console.log('RULER SHAPE AREA ' + vm.gleason4ShapeArea);
+                        vm.showRuler();
+                        $scope.$apply();
+                    }
+                );
+            vm.ruler_tool_active = true;
+        }
+
+        function abortRuler() {
+            var $ruler_out = $("#gleason_4_area_output");
+            $ruler_out
+                // .unbind('area_ruler_created')
+                .unbind('area_ruler_updated')
+                .unbind('area_ruler_empty_intersection')
+                .unbind('area_ruler_cleared');
+            vm.ruler_tool_active = false;
+            AnnotationsViewerService.disableActiveTool();
+        }
+
+        function clearRuler() {
+            if (vm.gleason4Shape) {
+                vm.hideRuler();
+            }
+            vm.gleason4Shape = undefined;
+            vm.gleason4ShapeArea = undefined;
+        }
+
+        function rulerToolActive() {
+            return vm.ruler_tool_active;
+        }
+
+        function rulerExists() {
+            return (typeof vm.gleason4Shape !== 'undefined');
+        }
+
+        function isReadOnly() {
+            return false;
+        }
+
+        function formValid() {
+            return true;
+        }
+
+        function destroy() {
+            vm._clean();
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function save() {
+            var dialog = undefined;
+            dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
+            var obj_config = {
+                perineural_involvement: vm.perineuralInvolvement,
+                intraductal_carcinoma: vm.intraductalCarcinoma,
+                ductal_carcinoma: vm.ductalCarcinoma,
+                poorly_formed_glands: vm.poorlyFormedGlands,
+                cribriform_pattern: vm.cribriformPattern,
+                small_cell_signet_ring: vm.smallCellSignetRing,
+                hypernephroid_pattern: vm.hypernephroidPattern,
+                mucinous: vm.mucinous,
+                comedo_necrosis: vm.comedoNecrosis,
+                gleason_4_path_json: vm.gleason4Shape,
+                gleason_4_area: vm.gleason4ShapeArea
+                //TODO: add cellular density data
+            };
+            FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
+                vm.clinical_annotation_step_id, obj_config)
+                .then(createAnnotationSuccessFn, createAnnotationErrorFn);
+
+            function createAnnotationSuccessFn(response) {
+                $rootScope.$broadcast('focus_region_annotation.saved',
+                    vm.focus_region_label, vm.focus_region_id);
+                vm._clean();
+                dialog.close();
+            }
+
+            function createAnnotationErrorFn(response) {
+                console.error('Unable to save annotation');
+                console.error(response.data);
                 dialog.close();
             }
         }

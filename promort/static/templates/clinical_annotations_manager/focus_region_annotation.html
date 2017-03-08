@@ -1,12 +1,12 @@
 <div>
     <div class="prm-form-header">
         <!-- TODO: put real region label here -->
-        <h4 class="text-right">focus_region_n</h4>
+        <h4 class="text-right">{{ cmCtrl.focus_region_label }}</h4>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox" checked disabled>Tumor area
+                <input type="checkbox" checked disabled ng-model="cmCtrl.cancerousRegion">Tumor area
             </label>
         </div>
     </div>
@@ -15,7 +15,8 @@
             <label>Focus region area</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
+                   ng-model="cmCtrl.focusRegionArea">
             <!--TODO: unit of measure selector -->
         </div>
     </div>
@@ -25,7 +26,8 @@
         </div><!--
       --><div class="col-sm-6 prm-valign prm-form-elem">
             <div class="input-group">
-                <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+                <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
+                       ng-model="cmCtrl.coreCoveragePercentage">
                 <div class="input-group-addon prm-addon">%</div>
             </div>
         </div>
@@ -35,44 +37,61 @@
             <label>Focus region length</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00">
+            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
+                   ng-model="cmCtrl.focusRegionLength">
             <!-- TODO: insert unit of measure selector -->
         </div>
     </div>
-    <div class="form-group row"> <!-- Before creating the shape-->
+    <div class="form-group row"
+         ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists()"> <!-- Before creating the shape-->
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Pattern 4 area</label>
         </div><!--
      --><div class="col-sm-5 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" title="Draw the shape using the freehand drawing tool">
+            <button id="area_ruler_switch_on" class="btn btn-default prm-icon-btn"
+                    ng-click="cmCtrl.startRuler()"
+                    title="Draw the shape using the freehand drawing tool">
                 <i class="icon-vector_pen"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row"> <!-- If the shape exist-->
-        <div class="col-sm-7 prm-valign prm-label-elem">
+
+    <div id="show_area_measure" class="form-group row"
+         ng-show="cmCtrl.isReadOnly() || cmCtrl.rulerExists()"> <!-- If the shape exist-->
+        <div class="prm-label-elem">
             <label>Pattern 4 area</label>
-        </div><!--
-     --><div class="col-sm-5 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" title="Delete the shape">
-                <i class="icon-trash_can"></i>
-            </button>
-            <button class="btn btn-default prm-icon-btn" title="Adapt the viewer to show the shape at the maximum size">
-                <i class="icon-eye"></i>
-            </button>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
+                   readonly placeholder="0.0" ng-model="cmCtrl.gleason4ShapeArea">
+            <!-- TODO: insert unit of measure selector -->
+            <div class="input-group-btn">
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
+                        ng-hide="cmCtrl.isReadOnly()"
+                        title="Delete the shape">
+                    <i class="icon-trash_can"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        title="Adapt the viewer to show the shape at the maximum size">
+                    <i class="icon-eye"></i>
+                </button>
+            </div>
         </div>
     </div>
-    <div class="form-group row"> <!--With the pattern 4 tool active-->
+
+    <div class="form-group row" ng-show="cmCtrl.rulerToolActive()"
+         ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerExists() || !cmCtrl.rulerToolActive()"> <!--With the pattern 4 tool active-->
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Pattern 4 tool</label>
         </div><!--
      --><div class="col-sm-5 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" title="Discharge shape and abort tool">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortRuler()"
+                    title="Discharge shape and abort tool">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Cell count</label>
         </div><!--
@@ -82,7 +101,7 @@
             </button>
         </div>
     </div>
-    <div class="form-group row"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()"> <!--With the cell count tool active-->
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Box tool</label>
         </div><!--
@@ -96,7 +115,7 @@
             </button>
         </div>
     </div>
-    <div class="form-group row"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()"> <!--With the cell count tool active-->
         <div class="prm-row-elem prm-valign">
             <input class="form-control" type="number" required id="spinner" placeholder="Cells count">
         </div>
@@ -105,7 +124,7 @@
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Cells count</label>
         </div><!--
-     --><div class="col-sm-5 prm-valign prm-form-elem">
+     --><div class="col-sm-5 prm-valign prm-form-elem" ng-hide="cmCtrl.isReadOnly()">
             <button class="btn btn-default prm-icon-btn" title="Delete the count">
                 <i class="icon-trash_can"></i>
             </button>
@@ -127,14 +146,16 @@
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox">Perineural involvement
+                <input type="checkbox" ng-model="cmCtrl.perineuralInvolvement"
+                       ng-disabled="cmCtrl.isReadOnly()">Perineural involvement
             </label>
         </div>
     </div>
     <div class="form-group row">
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
-                <input type="checkbox">Intraductal carcinoma
+                <input type="checkbox" ng-model="cmCtrl.intraductalCarcinoma"
+                       ng-disabled="cmCtrl.isReadOnly()">Intraductal carcinoma
             </label>
         </div>
     </div>
@@ -142,37 +163,44 @@
         <legend class="prm-legend">patterns</legend>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Poorly formed glands
+                <input type="checkbox" ng-model="cmCtrl.poorlyFormedGlands"
+                       ng-disabled="cmCtrl.isReadOnly()"> Poorly formed glands
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Cribriform pattern
+                <input type="checkbox" ng-model="cmCtrl.cribriformPattern"
+                       ng-disabled="cmCtrl.isReadOnly()"> Cribriform pattern
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Small cell/signet ring
+                <input type="checkbox" ng-model="cmCtrl.smallCellSignetRing"
+                       ng-disabled="cmCtrl.isReadOnly()"> Small cell/signet ring
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Hypernephroid pattern
+                <input type="checkbox" ng-model="cmCtrl.hypernephroidPattern"
+                       ng-disabled="cmCtrl.isReadOnly()"> Hypernephroid pattern
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Mucinous
+                <input type="checkbox" ng-model="cmCtrl.mucinous"
+                       ng-disabled="cmCtrl.isReadOnly()"> Mucinous
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Comedo-necrosis
+                <input type="checkbox" ng-model="cmCtrl.comedoNecrosis"
+                       ng-disabled="cmCtrl.isReadOnly()"> Comedo-necrosis
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Ductal carcinoma
+                <input type="checkbox" ng-model="cmCtrl.ductalCarcinoma"
+                       ng-disabled="cmCtrl.isReadOnly()"> Ductal carcinoma
             </label>
         </div>
     </fieldset>

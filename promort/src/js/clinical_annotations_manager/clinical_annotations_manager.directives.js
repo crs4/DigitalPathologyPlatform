@@ -10,7 +10,9 @@
         .directive('newCoreAnnotationForm', newCoreAnnotationForm)
         .directive('newCoreAnnotationButtons', newCoreAnnotationButtons)
         .directive('showCoreAnnotationForm', showCoreAnnotationForm)
-        .directive('showCoreAnnotationButtons', showCoreAnnotationButtons);
+        .directive('showCoreAnnotationButtons', showCoreAnnotationButtons)
+        .directive('newFocusRegionAnnotationForm', newFocusRegionAnnotationForm)
+        .directive('newFocusRegionAnnotationButtons', newFocusRegionAnnotationButtons);
 
     function newSliceAnnotationForm() {
         var directive = {
@@ -95,6 +97,36 @@
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
             controller: 'ShowCoreAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newFocusRegionAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/focus_region_annotation.html',
+            controller: 'NewFocusRegionAnnotationController',
+            controllerAs: 'cmCtrl',
+            link: function(scope, element, attrs) {
+                $("#spinner").TouchSpin({
+                    min: 0,
+                    step: 1,
+                    booster: false,
+                    mousewheel: false
+                });
+            }
+        };
+        return directive;
+    }
+
+    function newFocusRegionAnnotationButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
+            controller: 'NewFocusRegionAnnotationController',
             controllerAs: 'cmCtrl'
         };
         return directive;
