@@ -929,6 +929,7 @@
         vm.clinical_annotation_step_id = undefined;
 
         vm.ruler_tool_active = false;
+        vm.ruler_hidden = true;
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
@@ -943,6 +944,7 @@
         vm.clearRuler = clearRuler;
         vm.showRuler = showRuler;
         vm.hideRuler = hideRuler;
+        vm.showHideRuler = showHideRuler;
 
         activate();
 
@@ -1000,6 +1002,7 @@
 
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
+            vm.ruler_hidden = true;
         }
 
         function initializeRuler() {
@@ -1009,10 +1012,23 @@
 
         function showRuler() {
             AnnotationsViewerService.drawShape(vm.gleason4Shape);
+            $("#show_ruler").removeClass('prm-pale-icon');
+            vm.ruler_hidden = false;
         }
 
         function hideRuler() {
             AnnotationsViewerService.deleteShape(vm.gleason4Shape.shape_id);
+            $("#show_ruler").addClass('prm-pale-icon');
+            vm.ruler_hidden = true;
+        }
+
+        function showHideRuler() {
+            console.log('Ruler is hidden ' + vm.ruler_hidden);
+            if (vm.ruler_hidden === true) {
+                vm.showRuler();
+            } else {
+                vm.hideRuler();
+            }
         }
 
         function startRuler() {
@@ -1027,7 +1043,6 @@
                 )
                 .on('area_ruler_empty_intersection',
                     function() {
-                        console.error('ERROR!!!!! empty intersection!');
                         vm.ruler_tool_active = false;
                         $ruler_out.unbind('area_ruler_cleared')
                             .unbind('area_ruler_updated')
@@ -1048,8 +1063,6 @@
                             .unbind('area_ruler_empty_intersection');
                         vm.ruler_tool_active = false;
                         AnnotationsViewerService.disableActiveTool();
-                        console.log('RULER SHAPE: ' + vm.gleason4Shape);
-                        console.log('RULER SHAPE AREA ' + vm.gleason4ShapeArea);
                         vm.showRuler();
                         $scope.$apply();
                     }
