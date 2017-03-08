@@ -55,3 +55,6 @@ class FocusRegion(models.Model):
 
     class Meta:
         unique_together = ('label', 'core')
+
+    def get_core_coverage_percentage(self):
+        return (self.area / self.core.area) * 100.0

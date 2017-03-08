@@ -88,12 +88,13 @@ class FocusRegionSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    core_coverage_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = FocusRegion
         fields = ('id', 'label', 'core', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'cancerous_region')
-        read_only_fields = ('id', 'creation_date',)
+                  'length', 'area', 'cancerous_region', 'core_coverage_percentage')
+        read_only_fields = ('id', 'creation_date', 'core_coverage_percentage')
 
     def validate_roi_json(self, value):
         try:
@@ -101,6 +102,10 @@ class FocusRegionSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
+    @staticmethod
+    def get_core_coverage_percentage(obj):
+        return obj.get_core_coverage_percentage()
 
 
 class CoreDetailsSerializer(serializers.ModelSerializer):
