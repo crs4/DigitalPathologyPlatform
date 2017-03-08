@@ -51,6 +51,9 @@
             checkContainment: checkContainment,
             createRulerBindings: createRulerBindings,
             clearRuler: clearRuler,
+            createAreaRulerBindings: createAreaRulerBindings,
+            clearAreaRuler: clearAreaRuler,
+            bindAreaRulerToShape: bindAreaRulerToShape,
             getAreaCoverage: getAreaCoverage,
             setShapeStrokeColor: setShapeStrokeColor
         };
@@ -158,6 +161,19 @@
 
         function clearRuler() {
             this.roisManager.clearRuler(true);
+        }
+
+        function createAreaRulerBindings(on_switch, output) {
+            console.log(this.roisManager.bindToAreaRuler);
+            this.roisManager.bindToAreaRuler(on_switch, output);
+        }
+
+        function bindAreaRulerToShape(shape_id) {
+            this.roisManager.bindAreaRulerToShape(shape_id);
+        }
+
+        function clearAreaRuler() {
+            this.roisManager.clearAreaRuler(true);
         }
 
         function getAreaCoverage(shape_1_label, shape_2_label) {

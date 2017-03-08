@@ -223,8 +223,14 @@
 
                         var tools_manager = new AnnotationsEventsController(annotations_canvas);
                         // initialize polygon, freehand drawing and measuring tools
-                        // var shape_config = {'fill_alpha': 0.01, 'stroke_width': 40};
-                        // TODO: initialize required tools here
+                        var shape_config = {
+                            fill_alpha: 0.2,
+                            fill_color: '#ff0000',
+                            stroke_width: 5,
+                            stroke_color: '#ff0000'
+                        };
+                        console.log(shape_config);
+                        tools_manager.initializeAreaMeasuringTool(shape_config);
 
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
