@@ -1219,6 +1219,7 @@
         }
 
         function cellularDensityExists() {
+            console.log((typeof vm.cellsCount !== 'undefined'));
             return (typeof vm.cellsCount !== 'undefined');
         }
 
