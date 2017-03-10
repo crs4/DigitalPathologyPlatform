@@ -78,10 +78,11 @@ class FocusRegionAnnotation(models.Model):
     hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
     comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
-    gleason_4_path_json = models.TextField(blank=True)
+    gleason_4_path_json = models.TextField(blank=True, null=True)
     gleason_4_area = models.FloatField(default=0)
-    cellular_density_helper_json = models.TextField(blank=True)
-    cellular_density = models.IntegerField(blank=True)
+    cellular_density_helper_json = models.TextField(blank=True, null=True)
+    cellular_density = models.IntegerField(blank=True, null=True)
+    cells_count = models.IntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
