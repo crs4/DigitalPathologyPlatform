@@ -726,21 +726,21 @@
                 var gleason_score = Number(vm.primaryGleason) + Number(vm.secondaryGleason);
                 if (gleason_score <= 6) {
                     vm.gradeGroupWho = 'GG1';
-                    vm.gradeGroupWhoLabel = 'Grade Group 1'
+                    vm.gradeGroupWhoLabel = 'Group 1'
                 } else  if (gleason_score == 7) {
                     if (vm.primaryGleason == 3) {
                         vm.gradeGroupWho = 'GG2';
-                        vm.gradeGroupWhoLabel = 'Grade Group 2';
+                        vm.gradeGroupWhoLabel = 'Group 2';
                     } else {
                         vm.gradeGroupWho = 'GG3';
-                        vm.gradeGroupWhoLabel = 'Grade Group 3';
+                        vm.gradeGroupWhoLabel = 'Group 3';
                     }
                 } else if (gleason_score == 8) {
                     vm.gradeGroupWho = 'GG4';
-                    vm.gradeGroupWhoLabel = 'Grade Group 4';
+                    vm.gradeGroupWhoLabel = 'Group 4';
                 } else {
                     vm.gradeGroupWho = 'GG5';
-                    vm.gradeGroupWhoLabel = 'Grade Group 5';
+                    vm.gradeGroupWhoLabel = 'Group 5';
                 }
             } else {
                 vm.gradeGroupWho = undefined;
@@ -823,19 +823,19 @@
                 vm.gleason4Percentage = response.data.gleason_4_percentage;
                 switch (response.data.gleason_group) {
                     case 'GG1':
-                        vm.gradeGroupWhoLabel = 'Grade Group 1';
+                        vm.gradeGroupWhoLabel = 'Group 1';
                         break;
                     case 'GG2':
-                        vm.gradeGroupWhoLabel = 'Grade Group 2';
+                        vm.gradeGroupWhoLabel = 'Group 2';
                         break;
                     case 'GG3':
-                        vm.gradeGroupWhoLabel = 'Grade Group 3';
+                        vm.gradeGroupWhoLabel = 'Group 3';
                         break;
                     case 'GG4':
-                        vm.gradeGroupWhoLabel = 'Grade Group 4';
+                        vm.gradeGroupWhoLabel = 'Group 4';
                         break;
                     case 'GG5':
-                        vm.gradeGroupWhoLabel = 'Grade Group 5';
+                        vm.gradeGroupWhoLabel = 'Group 5';
                         break
                 }
             }
