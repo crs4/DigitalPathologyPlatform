@@ -186,7 +186,13 @@ class FocusRegionAnnotationDetail(APIView):
         focus_region_annotation_data['focus_region'] = focus_region_id
         focus_region_annotation_data['annotation_step'] = annotation_step_id
         focus_region_annotation_data['author'] = request.user.username
-        serializer = CoreAnnotationSerializer(data=focus_region_annotation_data)
+        if focus_region_annotation_data.get('gleason_4_path_json'):
+            focus_region_annotation_data['gleason_4_path_json'] =\
+                json.dumps(focus_region_annotation_data['gleason_4_path_json'])
+        if focus_region_annotation_data.get('cellular_density_helper_json'):
+            focus_region_annotation_data['cellular_density_helper_json'] = \
+                json.dumps(focus_region_annotation_data['cellular_density_helper_json'])
+        serializer = FocusRegionAnnotationSerializer(data=focus_region_annotation_data)
         if serializer.is_valid():
             try:
                 serializer.save()
