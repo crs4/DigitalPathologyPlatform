@@ -8,7 +8,8 @@
         .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
         .controller('NewCoreAnnotationController', NewCoreAnnotationController)
         .controller('ShowCoreAnnotationController', ShowCoreAnnotationController)
-        .controller('NewFocusRegionAnnotationController', NewFocusRegionAnnotationController);
+        .controller('NewFocusRegionAnnotationController', NewFocusRegionAnnotationController)
+        .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
@@ -62,6 +63,8 @@
         vm.showCoreAnnotationModeActive = showCoreAnnotationModeActive;
         vm.activateNewFocusRegionAnnotationMode = activateNewFocusRegionAnnotationMode;
         vm.newFocusRegionAnnotationModeActive = newFocusRegionAnnotationModeActive;
+        vm.activateShowFocusRegionAnnotationMode = activateShowFocusRegionAnnotationMode;
+        vm.showFocusRegionAnnotationModeActive = showFocusRegionAnnotationModeActive;
 
         activate();
 
@@ -199,6 +202,16 @@
                         vm.focus_regions_edit_mode[focus_region_id] = false;
                     }
                 );
+
+                $scope.$on('focus_region_annotation.deleted',
+                    function(event, focus_region_label, focus_region_id) {
+                        var $icon = $("#" + focus_region_label).find('i');
+                        $icon.removeClass('icon-check_circle');
+                        $icon.addClass('icon-black_question');
+                        vm.allModesOff();
+                        vm.focus_regions_edit_mode[focus_region_id] = true;
+                    }
+                );
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
@@ -314,7 +327,7 @@
                         vm.activateShowCoreAnnotationMode(roi_id);
                         break;
                     case 'focus_region':
-                        break;
+                        vm.activateShowFocusRegionAnnotationMode(roi_id);
                 }
             }
         }
@@ -419,6 +432,16 @@
 
         function newFocusRegionAnnotationModeActive() {
             return vm.ui_active_modes['annotate_focus_region']
+        }
+
+        function activateShowFocusRegionAnnotationMode(focus_region_id) {
+            vm.allModesOff();
+            $rootScope.$broadcast('focus_region_annotation.show', focus_region_id);
+            vm.ui_active_modes['show_focus_region'] = true;
+        }
+
+        function showFocusRegionAnnotationModeActive() {
+            return vm.ui_active_modes['show_focus_region'];
         }
     }
 
@@ -841,7 +864,7 @@
             }
 
             function getCoreAnnotationErrorFn(response) {
-                console.error('Unablte to load core annotation data');
+                console.error('Unable to load core annotation data');
                 console.error(response);
             }
         }
@@ -1254,6 +1277,132 @@
                 console.error(response.data);
                 dialog.close();
             }
+        }
+    }
+
+    ShowFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+        'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
+
+    function ShowFocusRegionAnnotationController($scope, $routeParams, $rootScope, ngDialog,
+                                                 FocusRegionAnnotationsManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.focus_region_id = undefined;
+        vm.focus_region_label = undefined;
+        vm.focusRegionArea = undefined;
+        vm.coreCoveragePercentage = undefined;
+        vm.cancerousRegion = false;
+        vm.focusRegionLength = undefined;
+        vm.perineuralInvolvement = false;
+        vm.intraductalCarcinoma = false;
+        vm.ductalCarcinoma = false;
+        vm.poorlyFormedGlands = false;
+        vm.cribriformPattern = false;
+        vm.smallCellSignetRing = false;
+        vm.hypernephroidPattern = false;
+        vm.mucinous = false;
+        vm.comedoNecrosis = false;
+        vm.gleason4Shape = undefined;
+        vm.gleason4ShapeArea = undefined;
+        vm.cellularDensityHelperShape = undefined;
+        vm.cellsCount = undefined;
+
+        vm.clinical_annotation_step_id = undefined;
+
+        vm.ruler_hidden = true;
+        vm.cellular_density_helper_hidden = true;
+
+        vm.isReadOnly = isReadOnly;
+        vm.destroy = destroy;
+        vm.deleteAnnotation = deleteAnnotation;
+        vm.showHideRuler = showHideRuler;
+        vm.showHideCellularDensityHelper = showHideCellularDensityHelper;
+        vm.cellularDensityExists = cellularDensityExists;
+
+        activate();
+
+        function activate() {
+            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            $scope.$on('focus_region_annotation.show',
+                function (event, focus_region_id) {
+                    vm.focus_region_id = focus_region_id;
+                    FocusRegionAnnotationsManagerService.getAnnotation(vm.focus_region_id,
+                        vm.clinical_annotation_step_id)
+                        .then(getFocusRegionAnnotationSuccessFn, getFocusRegionAnnotationErrorFn);
+                }
+            );
+
+            function getFocusRegionAnnotationSuccessFn(response) {
+                vm.focus_region_label = response.data.focus_region.label;
+                vm.focusRegionArea  = response.data.focus_region.area;
+                vm.coreCoveragePercentage = response.data.focus_region.core_coverage_percentage;
+                vm.cancerousRegion = response.data.focus_region.cancerous_region;
+                vm.focusRegionLength = response.data.focus_region.length;
+                vm.perineuralInvolvement = response.data.perineural_involvement;
+                vm.intraductalCarcinoma = response.data.intraductal_carcinoma;
+                vm.ductalCarcinoma = response.data.ductal_carcinoma;
+                vm.poorlyFormedGlands = response.data.poorly_formed_glands;
+                vm.cribriformPattern = response.data.cribriform_pattern;
+                vm.smallCellSignetRing = response.data.small_cell_signet_ring;
+                vm.hypernephroidPattern = response.data.hypernephroid_pattern;
+                vm.mucinous = response.data.mucinous;
+                vm.comedoNecrosis = response.data.comedo_necrosis;
+                vm.gleason4Shape = $.parseJSON(response.data.gleason_4_path_json);
+                vm.gleason4ShapeArea = response.data.gleason_4_area;
+                vm.cellularDensityHelperShape = $.parseJSON(response.data.cellular_density_helper_json);
+                vm.cellsCount = response.data.cells_count;
+
+                $("#show_ruler").addClass('prm-pale-icon');
+                $("#show_cc_helper_addon").addClass('prm-pale-icon');
+            }
+
+            function getFocusRegionAnnotationErrorFn(response) {
+                console.error('Unable to load focus region annotation data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function destroy() {
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function deleteAnnotation() {
+            console.log('DELETE!!!!');
+        }
+
+        function showHideRuler() {
+            if (typeof vm.gleason4Shape !== 'undefined') {
+                if (vm.ruler_hidden === true) {
+                    AnnotationsViewerService.drawShape(vm.gleason4Shape);
+                    $("#show_ruler").removeClass('prm-pale-icon');
+                    vm.ruler_hidden = false;
+                } else {
+                    AnnotationsViewerService.deleteShape(vm.gleason4Shape.shape_id);
+                    $("#show_ruler").addClass('prm-pale-icon');
+                    vm.ruler_hidden = true;
+                }
+            }
+        }
+
+        function showHideCellularDensityHelper() {
+            if (typeof vm.cellularDensityHelperShape !== 'undefined') {
+                if (vm.cellular_density_helper_hidden === true) {
+                    AnnotationsViewerService.drawShape(vm.cellularDensityHelperShape);
+                    $("#show_cc_helper_addon").removeClass('prm-pale-icon');
+                    vm.cellular_density_helper_hidden = false;
+                } else {
+                    AnnotationsViewerService.deleteShape(vm.cellularDensityHelperShape.shape_id);
+                    $("#show_cc_helper_addon").addClass('prm-pale-icon');
+                    vm.cellular_density_helper_hidden = true;
+                }
+            }
+        }
+
+        function cellularDensityExists() {
+            return true;
         }
     }
 })();
