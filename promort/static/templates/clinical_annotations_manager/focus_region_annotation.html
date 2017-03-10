@@ -72,8 +72,9 @@
                     <i class="icon-trash_can"></i>
                 </button>
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
-                        title="Adapt the viewer to show the shape at the maximum size">
-                    <i id="show_ruler" class="icon-eye"></i>
+                        title="Adapt the viewer to show the shape at the maximum size"
+                        ng-disabled="!cmCtrl.rulerExists()">
+                    <i class="show_ruler icon-eye"></i>
                 </button>
             </div>
         </div>
@@ -133,9 +134,9 @@
             <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.cellsCount" readonly>
             <div class="input-group-btn">
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideCellularDensityHelper()"
-                            title="Shows the position of the box tool">
-                        <i id="show_cc_helper_addon" class="icon-eye"></i>
-                    </button>
+                        ng-disabled="!cmCtrl.cellularDensityExists()" title="Shows the position of the box tool">
+                    <i class="show_cc_helper_addon icon-eye"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -157,7 +158,7 @@
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideCellularDensityHelper()"
                     title="Shows the position of the box tool">
-                <i id="show_cc_helper" class="icon-eye"></i>
+                <i class="show_cc_helper icon-eye"></i>
             </button>
         </div>
     </div>
