@@ -164,7 +164,6 @@
         }
 
         function createAreaRulerBindings(on_switch, output) {
-            console.log(this.roisManager.bindToAreaRuler);
             this.roisManager.bindToAreaRuler(on_switch, output);
         }
 

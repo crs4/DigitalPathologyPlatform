@@ -91,76 +91,76 @@
             </button>
         </div>
     </div>
-    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
+    <div class="form-group row"
+         ng-hide="cmCtrl.isReadOnly() || cmCtrl.cellularDensityHelperActive() || cmCtrl.cellularDensityExists()">
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Cell count</label>
         </div><!--
      --><div class="col-sm-5 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" title="Count the cells within the box">
+            <button id="cell_counter_activate" class="btn btn-default prm-icon-btn"
+                    ng-click="cmCtrl.startCellularDensityHelper()"
+                    title="Count the cells within the box">
                 <i class="icon-node_cluster"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive()"> <!--With the cell count tool active-->
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Box tool</label>
         </div><!--
      --><div class="prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" title="Discharge shape and abort tool">
+            <button class="btn btn-default prm-icon-btn" title="Discharge shape and abort tool"
+                    ng-click="cmCtrl.abortCellularDensityHelper()">
                 <i class="icon-cross_mark"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn" title="Accept the count">
-                <!--to be activate only if the number of cells has been inserted-->
+            <button id="cell_counter_save" class="btn btn-default prm-icon-btn"
+                    title="Accept the count" ng-disabled="!cmCtrl.validCellularDensity()">
                 <i class="icon-check"></i>
             </button>
         </div>
     </div>
-    <div class="form-group row" ng-hide="cmCtrl.isReadOnly()"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive()"> <!--With the cell count tool active-->
         <div class="prm-row-elem prm-valign">
-            <input class="form-control" type="number" required id="spinner" placeholder="Cells count">
+            <input class="form-control" type="number" required id="spinner" ng-model="cmCtrl.cellularDensity"
+                   placeholder="Cells count">
         </div>
     </div>
-    <div class="form-group row"> <!-- If the count exist-->
-        <div class="col-sm-7 prm-valign prm-label-elem">
-            <label>Cells count</label>
-        </div><!--
-     --><div class="col-sm-5 prm-valign prm-form-elem" ng-hide="cmCtrl.isReadOnly()">
-            <button class="btn btn-default prm-icon-btn" title="Delete the count">
-                <i class="icon-trash_can"></i>
-            </button>
-            <button class="btn btn-default prm-icon-btn" title="Shows the position of the box tool">
-                <i class="icon-eye"></i>
-            </button>
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists()"> <!-- If the count exist-->
+        <div class="col-sm-12 prm-label-elem">
+            <label>Total cells count</label>
         </div>
-    </div>
-    <div class="form-group row"> <!-- If the count exist-->
-        <div class="prm-valign prm-row-elem">
-            <label>Total cells per region</label>
-        </div><!--
-     --><div class="prm-valign prm-row-elem">
+        <div class="prm-row-elem">
             <div class="input">
-                <input class="form-control" type="number" readonly>
+                <input class="form-control" type="number" ng-model="cmCtrl.cellsCount" readonly>
             </div>
         </div>
     </div>
-    <div class="form-group row">
-        <div class="prm-label-elem checkbox prm-checkbox">
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists()">
+        <div class="col-sm-12 prm-row-elem text-right" ng-hide="cmCtrl.isReadOnly()">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearCellularDensityHelper()"
+                    title="Delete the count">
+                <i class="icon-trash_can"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideCellularDensityHelper()"
+                    title="Shows the position of the box tool">
+                <i id="show_cc_helper" class="icon-eye"></i>
+            </button>
+        </div>
+    </div>
+    <fieldset class="promort_fieldset">
+        <legend class="prm-legend">patterns</legend>
+        <div class="checkbox">
             <label>
                 <input type="checkbox" ng-model="cmCtrl.perineuralInvolvement"
                        ng-disabled="cmCtrl.isReadOnly()">Perineural involvement
             </label>
         </div>
-    </div>
-    <div class="form-group row">
-        <div class="prm-label-elem checkbox prm-checkbox">
+        <div class="checkbox">
             <label>
                 <input type="checkbox" ng-model="cmCtrl.intraductalCarcinoma"
                        ng-disabled="cmCtrl.isReadOnly()">Intraductal carcinoma
             </label>
         </div>
-    </div>
-    <fieldset class="promort_fieldset">
-        <legend class="prm-legend">patterns</legend>
         <div class="checkbox">
             <label>
                 <input type="checkbox" ng-model="cmCtrl.poorlyFormedGlands"

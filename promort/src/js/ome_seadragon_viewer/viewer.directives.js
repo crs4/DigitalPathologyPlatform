@@ -231,6 +231,16 @@
                         };
                         console.log(shape_config);
                         tools_manager.initializeAreaMeasuringTool(shape_config);
+                        // initialize cellular count helper tool
+                        var helper_box_config = {
+                            fill_alpha: 0.01,
+                            stroke_width: 5,
+                            stroke_color: '#0000ff'
+                        };
+                        // box size in microns
+                        var box_size = 50;
+                        tools_manager.initializeCellularCountHelperTool(box_size, helper_box_config,
+                            'cell_counter_activate', 'cell_counter_save');
 
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,

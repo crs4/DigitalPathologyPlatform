@@ -925,11 +925,17 @@
         vm.gleason4ShapeArea = undefined;
         vm.cellularDensityHelperShape = undefined;
         vm.cellularDensity = undefined;
+        vm.cellsCount = undefined;
 
         vm.clinical_annotation_step_id = undefined;
 
         vm.ruler_tool_active = false;
         vm.ruler_hidden = true;
+
+        vm.cellular_density_helper_active = false;
+        vm.tmp_cellular_density_helper_id = undefined;
+        vm.tmp_cellular_density_helper_exists = false;
+        vm.cellular_density_helper_hidden = true;
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
@@ -945,6 +951,15 @@
         vm.showRuler = showRuler;
         vm.hideRuler = hideRuler;
         vm.showHideRuler = showHideRuler;
+        vm.startCellularDensityHelper = startCellularDensityHelper;
+        vm.abortCellularDensityHelper = abortCellularDensityHelper;
+        vm.clearCellularDensityHelper = clearCellularDensityHelper;
+        vm.cellularDensityHelperActive = cellularDensityHelperActive;
+        vm.validCellularDensity = validCellularDensity;
+        vm.showCellularDensityHelper = showCellularDensityHelper;
+        vm.hideCellularDensityHelper = hideCellularDensityHelper;
+        vm.cellularDensityExists = cellularDensityExists;
+        vm.showHideCellularDensityHelper = showHideCeullularDensityHelper;
 
         activate();
 
@@ -981,6 +996,7 @@
 
         function _clean() {
             vm.clearRuler();
+            vm.clearCellularDensityHelper();
 
             vm.focus_region_id = undefined;
             vm.focus_region_label = undefined;
@@ -997,8 +1013,6 @@
             vm.hypernephroidPattern = false;
             vm.mucinous = false;
             vm.comedoNecrosis = false;
-            vm.cellularDensityHelperShape = undefined;
-            vm.cellularDensity = undefined;
 
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
@@ -1023,7 +1037,6 @@
         }
 
         function showHideRuler() {
-            console.log('Ruler is hidden ' + vm.ruler_hidden);
             if (vm.ruler_hidden === true) {
                 vm.showRuler();
             } else {
@@ -1073,7 +1086,6 @@
         function abortRuler() {
             var $ruler_out = $("#gleason_4_area_output");
             $ruler_out
-                // .unbind('area_ruler_created')
                 .unbind('area_ruler_updated')
                 .unbind('area_ruler_empty_intersection')
                 .unbind('area_ruler_cleared');
@@ -1097,6 +1109,96 @@
             return (typeof vm.gleason4Shape !== 'undefined');
         }
 
+        function startCellularDensityHelper() {
+            vm.cellular_density_helper_active = true;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas
+                .on('cellular_count_helper.created',
+                    function(event, helper_id) {
+                        vm.tmp_cellular_density_helper_id = helper_id;
+                        $canvas.unbind('cellular_count_helper.created');
+                    }
+                )
+                .on('cellular_count_helper.saved',
+                    function(event, helper_json) {
+                        vm.tmp_cellular_density_helper_exists = false;
+                        vm.tmp_cellular_density_helper_id = undefined;
+                        vm.cellular_density_helper_active = false;
+                        vm.cellularDensityHelperShape = helper_json;
+                        vm.showCellularDensityHelper();
+                        var helperArea = AnnotationsViewerService.getShapeArea(vm.cellularDensityHelperShape.shape_id);
+                        vm.cellsCount = Math.round((vm.focusRegionArea / helperArea) * vm.cellularDensity);
+                        console.log(vm.cellsCount);
+                        $scope.$apply();
+                    }
+                )
+                .on('cellular_count_helper.placed',
+                    function() {
+                        vm.tmp_cellular_density_helper_exists = true;
+                        $scope.$apply();
+                    }
+                );
+        }
+
+        function abortCellularDensityHelper() {
+            if (vm.tmp_cellular_density_helper_exists) {
+                AnnotationsViewerService.deleteShape(vm.tmp_cellular_density_helper_id);
+            }
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas
+                .unbind('cellular_count_helper.saved')
+                .unbind('cellular_count_helper.placed');
+            vm.tmp_cellular_density_helper_exists = false;
+            vm.tmp_cellular_density_helper_id = undefined;
+            vm.cellular_density_helper_active = false;
+            vm.cellular_density_helper_hidden = true;
+            AnnotationsViewerService.disableActiveTool();
+        }
+
+        function clearCellularDensityHelper() {
+            if (!vm.cellular_density_helper_hidden) {
+                vm.hideCellularDensityHelper();
+            }
+            vm.abortCellularDensityHelper();
+            vm.cellularDensity = undefined;
+            vm.cellularDensityHelperShape = undefined;
+            vm.cellsCount = undefined;
+        }
+
+        function cellularDensityHelperActive() {
+            return vm.cellular_density_helper_active;
+        }
+
+        function validCellularDensity() {
+            return (vm.tmp_cellular_density_helper_exists && vm.cellularDensity > 0);
+        }
+
+        function showCellularDensityHelper() {
+            AnnotationsViewerService.drawShape(vm.cellularDensityHelperShape);
+            $("#show_cc_helper").removeClass('prm-pale-icon');
+            vm.cellular_density_helper_hidden = false;
+        }
+
+        function hideCellularDensityHelper() {
+            AnnotationsViewerService.deleteShape(vm.cellularDensityHelperShape.shape_id);
+            $("#show_cc_helper").addClass('prm-pale-icon');
+            vm.cellular_density_helper_hidden = true;
+        }
+
+        function showHideCeullularDensityHelper() {
+            if (vm.cellular_density_helper_hidden === true) {
+                vm.showCellularDensityHelper();
+            } else {
+                vm.hideCellularDensityHelper();
+            }
+        }
+
+        function cellularDensityExists() {
+            return (typeof vm.cellsCount !== 'undefined');
+        }
+
         function isReadOnly() {
             return false;
         }
@@ -1111,6 +1213,7 @@
         }
 
         function save() {
+            console.log('SAVING FOCUS REGION');
             var dialog = undefined;
             dialog = ngDialog.open({
                 template: '/static/templates/dialogs/saving_data.html',
@@ -1130,8 +1233,10 @@
                 mucinous: vm.mucinous,
                 comedo_necrosis: vm.comedoNecrosis,
                 gleason_4_path_json: vm.gleason4Shape,
-                gleason_4_area: vm.gleason4ShapeArea
-                //TODO: add cellular density data
+                gleason_4_area: vm.gleason4ShapeArea,
+                cellular_density_helper_json: vm.cellularDensityHelperShape,
+                cellular_density: vm.cellularDensity,
+                cells_count: vm.cellsCount
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_id, obj_config)
