@@ -193,10 +193,10 @@
                 $scope.$on('focus_region_annotation.saved',
                     function(event, focus_region_label, focus_region_id) {
                         var $icon = $("#" + focus_region_label).find('i');
-                        $icon.removeClass("icon-check_circle");
-                        $icon.addClass("icon-black_question");
+                        $icon.removeClass("icon-black_question");
+                        $icon.addClass("icon-check_circle");
                         vm.allModesOff();
-                        vm.focus_regions_edit_mode[focus_region_id] = true;
+                        vm.focus_regions_edit_mode[focus_region_id] = false;
                     }
                 );
             }
