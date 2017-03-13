@@ -1372,7 +1372,63 @@
         }
 
         function deleteAnnotation() {
-            console.log('DELETE!!!!');
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            var dialog = undefined;
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/deleting_data.html',
+                        showClose: true,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                    FocusRegionAnnotationsManagerService.deleteAnnotation(vm.focus_region_id,
+                        vm.clinical_annotation_step_id)
+                        .then(deleteFocusRegionAnnotationSuccessFn, deleteFocusRegionAnnotationErrorFn);
+                }
+            }
+
+            function deleteFocusRegionAnnotationSuccessFn(response) {
+                $rootScope.$broadcast('focus_region_annotation.deleted', vm.focus_region_label, vm.focus_region_id);
+                vm.focus_region_id = undefined;
+                vm.focus_region_label = undefined;
+                vm.focusRegionArea = undefined;
+                vm.coreCoveragePercentage = undefined;
+                vm.cancerousRegion = false;
+                vm.focusRegionLength = undefined;
+                vm.perineuralInvolvement = false;
+                vm.intraductalCarcinoma = false;
+                vm.ductalCarcinoma = false;
+                vm.poorlyFormedGlands = false;
+                vm.cribriformPattern = false;
+                vm.smallCellSignetRing = false;
+                vm.hypernephroidPattern = false;
+                vm.mucinous = false;
+                vm.comedoNecrosis = false;
+                vm.gleason4Shape = undefined;
+                vm.gleason4ShapeArea = undefined;
+                vm.cellularDensityHelperShape = undefined;
+                vm.cellsCount = undefined;
+
+                vm.ruler_hidden = true;
+                vm.cellular_density_helper_hidden = true;
+
+                dialog.close();
+            }
+
+            function deleteFocusRegionAnnotationErrorFn(response) {
+                console.error('unable to delete focus region annotation');
+                console.error('response');
+                dialog.close();
+            }
         }
 
         function showHideRuler() {
