@@ -291,43 +291,45 @@
         }
 
         function showROIPanel(roi_type, roi_id) {
-            var edit_mode = undefined;
-            switch (roi_type) {
-                case 'slice':
-                    edit_mode = vm.slices_edit_mode[roi_id];
-                    break;
-                case 'core':
-                    edit_mode = vm.cores_edit_mode[roi_id];
-                    break;
-                case 'focus_region':
-                    edit_mode = vm.focus_regions_edit_mode[roi_id];
-                    break;
-            }
-            vm.deselectROI(roi_type, roi_id);
-            vm._focusOnShape(roi_type, roi_id);
-            if (edit_mode === true) {
-                if (!vm.roisTreeLocked) {
-                    switch (roi_type) {
-                        case 'slice':
-                            vm.activateNewSliceAnnotationMode(roi_id);
-                            break;
-                        case 'core':
-                            vm.activateNewCoreAnnoationMode(roi_id);
-                            break;
-                        case 'focus_region':
-                            vm.activateNewFocusRegionAnnotationMode(roi_id);
-                    }
-                }
-            } else {
-                switch(roi_type) {
+            if (!vm.roisTreeLocked) {
+                var edit_mode = undefined;
+                switch (roi_type) {
                     case 'slice':
-                        vm.activateShowSliceAnnotationMode(roi_id);
+                        edit_mode = vm.slices_edit_mode[roi_id];
                         break;
                     case 'core':
-                        vm.activateShowCoreAnnotationMode(roi_id);
+                        edit_mode = vm.cores_edit_mode[roi_id];
                         break;
                     case 'focus_region':
-                        vm.activateShowFocusRegionAnnotationMode(roi_id);
+                        edit_mode = vm.focus_regions_edit_mode[roi_id];
+                        break;
+                }
+                vm.deselectROI(roi_type, roi_id);
+                vm._focusOnShape(roi_type, roi_id);
+                if (edit_mode === true) {
+                    if (!vm.roisTreeLocked) {
+                        switch (roi_type) {
+                            case 'slice':
+                                vm.activateNewSliceAnnotationMode(roi_id);
+                                break;
+                            case 'core':
+                                vm.activateNewCoreAnnoationMode(roi_id);
+                                break;
+                            case 'focus_region':
+                                vm.activateNewFocusRegionAnnotationMode(roi_id);
+                        }
+                    }
+                } else {
+                    switch (roi_type) {
+                        case 'slice':
+                            vm.activateShowSliceAnnotationMode(roi_id);
+                            break;
+                        case 'core':
+                            vm.activateShowCoreAnnotationMode(roi_id);
+                            break;
+                        case 'focus_region':
+                            vm.activateShowFocusRegionAnnotationMode(roi_id);
+                    }
                 }
             }
         }
