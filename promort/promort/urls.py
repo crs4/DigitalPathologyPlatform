@@ -30,8 +30,9 @@ from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
-from clinical_annotations_manager.views import AnnotatedROIsTreeList, SliceAnnotationList, SliceAnnotationDetail, \
-    CoreAnnotationList, CoreAnnotationDetail, FocusRegionAnnotationList, FocusRegionAnnotationDetail
+from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList,\
+    SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
+    FocusRegionAnnotationList, FocusRegionAnnotationDetail
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -62,6 +63,8 @@ urlpatterns = [
     # clinical annotations data
     url(r'api/rois_annotation_steps/(?P<rois_annotation_step>[0-9]+)/rois_list/(?P<clinical_annotation_step>[0-9]+)/$',
         AnnotatedROIsTreeList.as_view()),
+    url('api/clinical_annotation_steps/(?P<clinical_annotation_step>[0-9]+)/annotations_list/',
+        ClinicalAnnotationStepAnnotationsList.as_view()),
     url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/$', SliceAnnotationList.as_view()),
     url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
         SliceAnnotationDetail.as_view()),

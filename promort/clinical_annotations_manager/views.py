@@ -48,6 +48,26 @@ class AnnotatedROIsTreeList(APIView):
         return Response(rois_tree, status=status.HTTP_200_OK)
 
 
+class ClinicalAnnotationStepAnnotationsList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, clinical_annotation_step):
+        annotations = []
+        slice_annotations = SliceAnnotation.objects.filter(annotation_step=clinical_annotation_step)
+        annotations.extend(SliceAnnotationSerializer(slice_annotations, many=True).data)
+        core_annotations = CoreAnnotation.objects.filter(annotation_step=clinical_annotation_step)
+        annotations.extend(CoreAnnotationSerializer(core_annotations, many=True).data)
+        focus_region_annotations = FocusRegionAnnotation.objects.filter(annotation_step=clinical_annotation_step)
+        annotations.extend(FocusRegionAnnotationSerializer(focus_region_annotations, many=True).data)
+        return Response(annotations, status=status.HTTP_200_OK)
+
+    def delete(self, request, clinical_annotation_step):
+        SliceAnnotation.objects.filter(annotation_step=clinical_annotation_step).delete()
+        CoreAnnotation.objects.filter(annotation_step=clinical_annotation_step).delete()
+        FocusRegionAnnotation.objects.filter(annotation_step=clinical_annotation_step).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class SliceAnnotationList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
