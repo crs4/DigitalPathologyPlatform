@@ -9,10 +9,10 @@
                class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
-            <button class="btn btn-success">
+            <button class="btn btn-success" ng-disabled="!cmc.canCloseAnnotation()">
                 <i class="icon-check_circle"></i> Confirm slide review
             </button>
-            <button class="btn btn-danger">
+            <button class="btn btn-danger" ng-disabled="!cmc.canClearAnnotations()">
                 <i class="icon-trash_can"></i> Delete slide review
             </button>
         </div>

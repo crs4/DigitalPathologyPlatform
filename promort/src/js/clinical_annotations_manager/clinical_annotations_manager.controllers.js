@@ -52,6 +52,8 @@
         vm.deselectROI = deselectROI;
         vm._lockRoisTree = _lockRoisTree;
         vm._unlockRoisTree = _unlockRoisTree;
+        vm.canCloseAnnotation = canCloseAnnotation;
+        vm.canClearAnnotations = canClearAnnotations;
         vm.allModesOff = allModesOff;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
@@ -288,6 +290,44 @@
                     break;
             }
             AnnotationsViewerService.focusOnShape(shape_id);
+        }
+
+        function canCloseAnnotation() {
+            for (var x in vm.slices_edit_mode) {
+                if (vm.slices_edit_mode[x] === true) {
+                    return false;
+                }
+            }
+            for (var x in vm.cores_edit_mode) {
+                if (vm.cores_edit_mode[x] === true) {
+                    return false;
+                }
+            }
+            for (var x in vm.focus_regions_edit_mode) {
+                if (vm.focus_regions_edit_mode[x] === true) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function canClearAnnotations() {
+            for (var x in vm.slices_edit_mode) {
+                if (vm.slices_edit_mode[x] === false) {
+                    return true;
+                }
+            }
+            for (var x in vm.cores_edit_mode) {
+                if (vm.cores_edit_mode[x] === false) {
+                    return true;
+                }
+            }
+            for (var x in vm.focus_regions_edit_mode) {
+                if (vm.focus_regions_edit_mode[x] === false) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function showROIPanel(roi_type, roi_id) {
