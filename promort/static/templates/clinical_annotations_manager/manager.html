@@ -12,7 +12,8 @@
             <button class="btn btn-success" ng-disabled="!cmc.canCloseAnnotation()">
                 <i class="icon-check_circle"></i> Confirm slide review
             </button>
-            <button class="btn btn-danger" ng-disabled="!cmc.canClearAnnotations()">
+            <button class="btn btn-danger" ng-disabled="!cmc.canClearAnnotations()"
+                    ng-click="cmc.clearAnnotations()">
                 <i class="icon-trash_can"></i> Delete slide review
             </button>
         </div>

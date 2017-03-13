@@ -3,9 +3,24 @@
 
     angular
         .module('promort.clinical_annotations_manager.services')
+        .factory('ClinicalAnnotationStepManagerService', ClinicalAnnotationStepManagerService)
         .factory('SliceAnnotationsManagerService', SliceAnnotationsManagerService)
         .factory('CoreAnnotationsManagerService', CoreAnnotationsManagerService)
         .factory('FocusRegionAnnotationsManagerService', FocusRegionAnnotationsManagerService);
+
+    ClinicalAnnotationStepManagerService.$inject = ['$http'];
+
+    function ClinicalAnnotationStepManagerService($http) {
+        var ClinicalAnnotationStepManagerService = {
+            clearAnnotations: clearAnnotations
+        };
+
+        return ClinicalAnnotationStepManagerService;
+
+        function clearAnnotations(annotation_step_id) {
+            return $http.delete('/api/clinical_annotation_steps/' + annotation_step_id + '/annotations_list/');
+        }
+    }
 
     SliceAnnotationsManagerService.$inject = ['$http'];
 

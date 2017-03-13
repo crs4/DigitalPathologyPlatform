@@ -12,11 +12,12 @@
         .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
-        'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService'];
+        'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService',
+        'ClinicalAnnotationStepManagerService'];
 
     function ClinicalAnnotationsManagerController($scope, $rootScope, $routeParams, $compile, $location, ngDialog,
                                                   Authentication, AnnotationsViewerService,
-                                                  ClinicalannotationStepService) {
+                                                  ClinicalAnnotationStepService, ClinicalAnnotationStepManagerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -54,6 +55,7 @@
         vm._unlockRoisTree = _unlockRoisTree;
         vm.canCloseAnnotation = canCloseAnnotation;
         vm.canClearAnnotations = canClearAnnotations;
+        vm.clearAnnotations = clearAnnotations;
         vm.allModesOff = allModesOff;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
@@ -88,7 +90,7 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            ClinicalannotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(),
+            ClinicalAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(),
                 vm.rois_annotation_step_id, vm.slide_id)
                 .then(getClinicalAnnotationStepSuccessFn, getClinicalAnnotationStepErrorFn);
 
@@ -328,6 +330,51 @@
                 }
             }
             return false;
+        }
+
+        function clearAnnotations() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/clear_clinical_annotations_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    var dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+
+                    ClinicalAnnotationStepManagerService.clearAnnotations(vm.clinical_annotation_step_id)
+                        .then(clearAnnotationsSuccessFn, clearAnnotationsErrorFn);
+                }
+
+                function clearAnnotationsSuccessFn(response) {
+                    for (var x in vm.slices_map) {
+                        $rootScope.$broadcast('slice_annotation.deleted', vm.slices_map[x], x);
+                    }
+                    for (var x in vm.cores_map) {
+                        $rootScope.$broadcast('core_annotation.deleted', vm.cores_map[x], x);
+                    }
+                    for (var x in vm.focus_regions_map) {
+                        $rootScope.$broadcast('focus_region_annotation.deleted',
+                            vm.focus_regions_map[x], x);
+                    }
+                    dialog.close();
+                }
+
+                function clearAnnotationsErrorFn(response) {
+                    console.error('unable to clear existing annotations');
+                    console.error(response);
+                    dialog.close();
+                }
+            }
         }
 
         function showROIPanel(roi_type, roi_id) {
