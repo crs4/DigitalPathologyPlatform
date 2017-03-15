@@ -278,7 +278,7 @@ class ROIsAnnotationStepDetail(APIView):
                     'message': '\'%s\' is not a valid action' % action
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
-            # after saving closing an annotation step, also check if ROIs annotation can be closed
+            # after closing an annotation step, also check if ROIs annotation can be closed
             rois_annotation_closed = False
             if action == 'FINISH':
                 rois_annotation = annotation_step.rois_annotation
@@ -364,14 +364,25 @@ class ClinicalAnnotationStepDetail(APIView):
                 annotation_step.start_date = datetime.now()
             elif action == 'FINISH':
                 annotation_step.completion_date = datetime.now()
+                annotation_step.notes = request.data.get('notes')
             else:
                 return Response({
                     'status': 'ERROR',
                     'message': '\'%s\' is not a valid action' % action
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
+            clinical_annotation_closed = False
+            if action == 'FINISH':
+                clinical_annotation = annotation_step.clinical_annotation
+                if clinical_annotation.can_be_closed():
+                    clinical_annotation.completion_date = datetime.now()
+                    clinical_annotation.save()
+                    clinical_annotation_closed = True
             serializer = ClinicalAnnotationStepSerializer(annotation_step)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                'clinical_annotation_step': serializer.data,
+                'clinical_annotation_closed': clinical_annotation_closed
+            }, status=status.HTTP_200_OK)
         else:
             return Response({
                 'status': 'ERROR',
