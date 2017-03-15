@@ -54,6 +54,7 @@
         vm._lockRoisTree = _lockRoisTree;
         vm._unlockRoisTree = _unlockRoisTree;
         vm.canCloseAnnotation = canCloseAnnotation;
+        vm.closeAnnotation = closeAnnotation;
         vm.canClearAnnotations = canClearAnnotations;
         vm.clearAnnotations = clearAnnotations;
         vm.allModesOff = allModesOff;
@@ -330,6 +331,38 @@
                 }
             }
             return false;
+        }
+
+        function closeAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/accept_clinical_annotation_confirm.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                controller: 'NewScopeController',
+                controllerAs: 'confirmCtrl'
+            }).then(confirmFn);
+
+            function confirmFn(confirm_obj) {
+                if (confirm_obj.value === true) {
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
+                        vm.rois_annotation_step_id, vm.slide_id, confirm_obj.notes)
+                        .then(closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn);
+                }
+
+                function closeClinicalAnnotationStepSuccessFn(response) {
+                    if (response.data.clinical_annotation_closed === true) {
+                        $location.url('worklist');
+                    } else {
+                        $location.url('worklist/' + vm.case_id + '/' + vm.rois_annotation_step_id);
+                    }
+                }
+
+                function closeClinicalAnnotationStepErrorFn(response) {
+                    console.error(response.error);
+                }
+            }
         }
 
         function clearAnnotations() {
@@ -1325,6 +1358,8 @@
         }
 
         function save() {
+            console.log('CELLS COUNT: ' + vm.cellsCount);
+            console.log('CELL SHAPE ' + vm.cellularDensityHelperShape);
             var dialog = undefined;
             dialog = ngDialog.open({
                 template: '/static/templates/dialogs/saving_data.html',
