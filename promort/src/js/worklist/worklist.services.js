@@ -129,8 +129,9 @@
             return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, 'START');
         }
 
-        function closeAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id) {
-            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, 'FINISH');
+        function closeAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id, notes) {
+            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id,
+                'FINISH', notes);
         }
     }
 })();

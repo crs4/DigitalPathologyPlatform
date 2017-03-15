@@ -437,7 +437,6 @@
                 }
 
                 function closeROIsAnnotationStepSuccessFn(response) {
-                    // TODO: close clinical annotation steps related to this object
                     if (response.data.rois_annotation_closed === true) {
                         $location.url('worklist');
                     } else {
