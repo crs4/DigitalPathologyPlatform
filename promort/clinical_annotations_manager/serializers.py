@@ -85,8 +85,9 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_date', 'perineural_involvement',
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
                   'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
-                  'gleason_4_path_json', 'gleason_4_area', 'cellular_density_helper_json', 'cellular_density',
-                  'cells_count')
+                  'gleason_4_path_json', 'gleason_4_area', 'gleason_4_cellular_density_helper_json',
+                  'gleason_4_cellular_density', 'gleason_4_cells_count', 'cellular_density_helper_json',
+                  'cellular_density', 'cells_count')
         read_only_fields = ('id', 'creation_date')
         write_only_fields = ('annotation_step',)
 
@@ -105,6 +106,14 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'cellular_density_helper_json\' field')
+
+    @staticmethod
+    def validate_gleason_4_cellular_density_helper_json(value):
+        try:
+            json.loads(value)
+            return value
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'gleason_4_cellular_density_helper_json\' field')
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
