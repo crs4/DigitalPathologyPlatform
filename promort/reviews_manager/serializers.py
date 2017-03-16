@@ -54,7 +54,7 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
                   'start_date', 'completion_date', 'slide_quality_control')
-        read_only_fields = ('id', 'slide', 'creation_date', 'started', 'completed')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
     @staticmethod
     def get_started(obj):

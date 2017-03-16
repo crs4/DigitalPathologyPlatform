@@ -249,7 +249,7 @@ class ROIsAnnotationStepDetail(APIView):
         rois_annotation = self._find_rois_annotation(case, reviewer)
         annotation_step_data = {
             'slide': slide,
-            'rois_annotation': rois_annotation
+            'rois_annotation': rois_annotation.id
         }
         serializer = ROIsAnnotationStepSerializer(data=annotation_step_data)
         if serializer.is_valid():
