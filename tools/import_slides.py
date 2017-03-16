@@ -142,74 +142,85 @@ class SlidesImporter(object):
         else:
             return 0
 
-    def _serialize_slide_map(self, slides_map):
-        saved_objects_map = {}
+    def _serialize_slides(self):
+        slides_map = self._get_ome_images()
         for case, slides in slides_map.iteritems():
             case_saved = self._save_case(case)
             if case_saved:
-                saved_objects_map[case] = []
                 for slide in slides:
-                    slide_saved = self._save_slide(slide['name'], case,
-                                                   slide['omero_id'], slide['img_type'],
-                                                   self._get_slide_mpp(slide))
-                    if slide_saved:
-                        saved_objects_map[case].append(slide['name'])
-        return saved_objects_map
+                    self._save_slide(slide['name'], case, slide['omero_id'],
+                                     slide['img_type'], self._get_slide_mpp(slide))
 
-    def _get_first_reviewers_list(self):
-        url = urljoin(self.promort_host, 'api/groups/reviewer_1/')
+
+    def _get_slides_map(self):
+        slides_map = {}
+        cases_response = self.promort_client.get(urljoin(self.promort_host, 'api/cases/'))
+        if cases_response.status_code == requests.codes.OK:
+            cases = cases_response.json()
+            for case in cases:
+                case_id = case['id']
+                slides_response = self.promort_client.get(urljoin(self.promort_host, 'api/cases/%s/' % case_id))
+                if slides_response.status_code == requests.codes.OK:
+                    slides = slides_response.json()['slides']
+                    for slide in slides:
+                        slides_map.setdefault(case_id, []).append(slide['id'])
+        return slides_map
+
+    def _get_rois_reviewers_list(self):
+        url = urljoin(self.promort_host, 'api/groups/rois_manager/')
         response = self.promort_client.get(url)
         if response.status_code == requests.codes.OK:
             users = response.json()['users']
             self.logger.info('Loaded %d users' % len(users))
             return [u['username'] for u in users]
         else:
-            self.logger.error('Unable to load users list for "reviewer_1" group')
+            self.logger.error('Unable to load users list for "rois_manager" group')
             self._promort_logout()
-            sys.exit('Unable to load users list for "reviewer_1" group')
+            sys.exit('Unable to load users list for "rois_manager" group')
 
-    def _create_review(self, case_id, reviewer):
-        payload = {
-            'reviewer': reviewer
-        }
+    def _create_rois_annotation(self, case_id, reviewer):
+        payload = dict()
         self._update_payload(payload)
-        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/' % case_id)
+        url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/' % (case_id, reviewer))
         response = self.promort_client.post(url, payload)
+        self.logger.info('STATUS CODE: %s', response.status_code)
         if response.status_code == requests.codes.CREATED:
-            self.logger.info('Created a review for case %s', case_id)
+            self.logger.info('Created a ROIs annotation for case %s', case_id)
             return True
         elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
-            self.logger.warn('Unable to create review for case %s [status code %s]',
+            self.logger.warn('Unable to create ROIs annotation for case %s [status code %s]',
                              case_id, response.status_code)
             return False
 
-    def _create_review_step(self, case_id, slide_id):
+    def _create_rois_annotation_step(self, case_id, reviewer, slide_id):
         payload = dict()
         self._update_payload(payload)
-        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/%s/' % (case_id, slide_id))
+        url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/%s/' % (case_id, reviewer, slide_id))
         response = self.promort_client.post(url, payload)
         if response.status_code == requests.codes.CREATED:
-            self.logger.info('Created a review step for slide %s of case %s', slide_id, case_id)
+            self.logger.info('Create a ROIs annotation step for slide %s', slide_id)
         elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
-            self.logger.warn('Unable to create review step for slide %s of case %s [status code %s]',
-                             slide_id, case_id, response.status_code)
+            self.logger.warn('Unable to create ROIs annotation step for slide %s [status code %s]',
+                             slide_id, response.status_code)
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.error(response.json()['message'])
 
-    def _create_worklists(self, objs_map):
-        r1_users = self._get_first_reviewers_list()
+    def _create_rois_worklist(self):
+        objs_map = self._get_slides_map()
+        r1_users = self._get_rois_reviewers_list()
         for i, (case, slides) in enumerate(objs_map.iteritems()):
             reviewer = r1_users[i % len(r1_users)]
-            self.logger.info('Assigning review for case %s to user %s', case, reviewer)
-            rev_created = self._create_review(case, reviewer)
+            self.logger.info('Creating ROIs annotation for case %s to user %s', case, reviewer)
+            rev_created = self._create_rois_annotation(case, reviewer)
             if rev_created:
                 for slide in slides:
-                    self.logger.info('Assigning review step for slide %s of case %s', slide, case)
-                    self._create_review_step(case, slide)
+                    self.logger.info('Creating annotation step for slide %s of case %s', slide, case)
+                    self._create_rois_annotation_step(case, reviewer, slide)
 
     def run(self):
         self._promort_login()
-        slides_map = self._get_ome_images()
-        saved_objs_map = self._serialize_slide_map(slides_map)
-        self._create_worklists(saved_objs_map)
+        self._serialize_slides()
+        self._create_rois_worklist()
         self._promort_logout()
 
 
