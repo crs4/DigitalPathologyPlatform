@@ -332,6 +332,13 @@ class ClinicalAnnotationStepDetail(APIView):
         except ClinicalAnnotationStep.DoesNotExist:
             raise NotFound('No clinical annotation step for slide \'%s\'' % slide_id)
 
+    def _find_rois_review_step(self, rois_review_id, slide_id):
+        try:
+            return ROIsAnnotationStep.objects.get(rois_annotation=rois_review_id, slide=slide_id)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step for ROIs Annotation %s related to slide %s' %
+                           (rois_review_id, slide_id))
+
     def get(self, request, case, reviewer, rois_review, slide, format=None):
         annotation_step = self._find_clinical_annotation_step(case, reviewer, rois_review, slide)
         serializer = ClinicalAnnotationStepSerializer(annotation_step)
@@ -339,9 +346,11 @@ class ClinicalAnnotationStepDetail(APIView):
 
     def post(self, request, case, reviewer, rois_review, slide, format=None):
         clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+        rois_annotation_step = self._find_rois_review_step(rois_review, slide)
         annotation_step_data = {
             'slide': slide,
-            'clinical_annotation': clinical_annotation
+            'clinical_annotation': clinical_annotation.id,
+            'rois_review_step': rois_annotation_step.id
         }
         serializer = ClinicalAnnotationStepSerializer(data=annotation_step_data)
         if serializer.is_valid():
