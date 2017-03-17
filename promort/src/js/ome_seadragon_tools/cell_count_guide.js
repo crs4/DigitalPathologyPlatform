@@ -61,19 +61,24 @@ AnnotationsEventsController.prototype.initializeCellularCountHelperTool = functi
 
         this.initialized_tools[AnnotationsEventsController.CELLULAR_COUNT_HELPER_TOOL] = cellular_count_helper_tool;
 
-        if (typeof switch_on_id !== 'undefined') {
-            this._bind_switch(switch_on_id, AnnotationsEventsController.CELLULAR_COUNT_HELPER_TOOL);
-        }
+        this.bindControllers = function (switch_on_id, switch_off_id) {
+            if (typeof switch_on_id !== 'undefined') {
+                this._bind_switch(switch_on_id, AnnotationsEventsController.CELLULAR_COUNT_HELPER_TOOL);
+            }
 
-        if (typeof switch_off_id !== 'undefined') {
-            $("#" + switch_off_id).bind(
-                'click',
-                {annotation_controller: this.annotation_controller},
-                function (event) {
-                    event.data.annotation_controller.serializeHelperBox();
-                }
-            );
-        }
+            if (typeof switch_off_id !== 'undefined') {
+                $("#" + switch_off_id).bind(
+                    'click',
+                    {annotation_controller: this.annotation_controller},
+                    function (event) {
+                        event.data.annotation_controller.serializeHelperBox();
+                    }
+                );
+            }
+        };
+
+        this.bindControllers(switch_on_id, switch_off_id);
+
     } else {
         console.warn('Tool "' + AnnotationsEventsController.CELLULAR_COUNT_HELPER_TOOL +'" already initialized');
     }

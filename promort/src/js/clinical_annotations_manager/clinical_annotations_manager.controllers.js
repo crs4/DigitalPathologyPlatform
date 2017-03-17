@@ -1071,6 +1071,9 @@
         vm.cellularDensityHelperShape = undefined;
         vm.cellularDensity = undefined;
         vm.cellsCount = undefined;
+        vm.g4CellularDensityHelperShape = undefined;
+        vm.g4CellularDensity = undefined;
+        vm.g4CellsCount = undefined;
 
         vm.clinical_annotation_step_id = undefined;
 
@@ -1078,9 +1081,11 @@
         vm.ruler_hidden = true;
 
         vm.cellular_density_helper_active = false;
+        vm.g4_cellular_density_helper_active = false;
         vm.tmp_cellular_density_helper_id = undefined;
         vm.tmp_cellular_density_helper_exists = false;
         vm.cellular_density_helper_hidden = true;
+        vm.g4_cellular_density_helper_hidden = true;
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
@@ -1097,14 +1102,23 @@
         vm.hideRuler = hideRuler;
         vm.showHideRuler = showHideRuler;
         vm.startCellularDensityHelper = startCellularDensityHelper;
+        vm.startG4CellularDensityHelper = startG4CellularDensityHelper;
         vm.abortCellularDensityHelper = abortCellularDensityHelper;
+        vm.abortG4CellularDensityHelper = abortG4CellularDensityHelper;
         vm.clearCellularDensityHelper = clearCellularDensityHelper;
+        vm.clearG4CellularDensityHelper = clearG4CellularDensityHelper;
         vm.cellularDensityHelperActive = cellularDensityHelperActive;
+        vm.g4CellularDensityHelperActive = g4CellularDensityHelperActive;
         vm.validCellularDensity = validCellularDensity;
+        vm.validG4CellularDensity = validG4CellularDensity;
         vm.showCellularDensityHelper = showCellularDensityHelper;
+        vm.showG4CellularDensityHelper = showG4CellularDensityHelper;
         vm.hideCellularDensityHelper = hideCellularDensityHelper;
+        vm.hideG4CellularDensityHelper = hideG4CellularDensityHelper;
         vm.cellularDensityExists = cellularDensityExists;
+        vm.g4CellularDensityExists = g4CellularDensityExists;
         vm.showHideCellularDensityHelper = showHideCeullularDensityHelper;
+        vm.showHideG4CellularDensityHelper = showHideG4CellularDensityHelper;
 
         activate();
 
@@ -1142,6 +1156,7 @@
         function _clean() {
             vm.clearRuler();
             vm.clearCellularDensityHelper();
+            vm.clearG4CellularDensityHelper();
 
             vm.focus_region_id = undefined;
             vm.focus_region_label = undefined;
@@ -1244,6 +1259,9 @@
             }
             vm.gleason4Shape = undefined;
             vm.gleason4ShapeArea = undefined;
+            if (vm.g4CellularDensityExists()) {
+                vm.clearG4CellularDensityHelper();
+            }
         }
 
         function rulerToolActive() {
@@ -1272,10 +1290,12 @@
                         vm.cellular_density_helper_active = false;
                         vm.cellularDensityHelperShape = helper_json;
                         vm.showCellularDensityHelper();
-                        var helperArea = AnnotationsViewerService.getShapeArea(vm.cellularDensityHelperShape.shape_id);
-                        vm.cellsCount = Math.round((vm.focusRegionArea / helperArea) * vm.cellularDensity);
-                        console.log(vm.cellsCount);
+                        var helper_area = AnnotationsViewerService.getShapeArea(vm.cellularDensityHelperShape.shape_id);
+                        vm.cellsCount = Math.round((vm.focusRegionArea / helper_area) * vm.cellularDensity);
                         $scope.$apply();
+                        $canvas
+                            .unbind('cellular_count_helper.saved')
+                            .unbind('cellular_count_helper.placed')
                     }
                 )
                 .on('cellular_count_helper.placed',
@@ -1284,6 +1304,42 @@
                         $scope.$apply();
                     }
                 );
+        }
+
+        function startG4CellularDensityHelper() {
+            vm.g4_cellular_density_helper_active = true;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas
+                .on('cellular_count_helper.created',
+                    function(event, helper_id) {
+                        vm.tmp_cellular_density_helper_id = helper_id;
+                        $canvas.unbind('cellular_count_helper.created');
+                    }
+                )
+                .on('cellular_count_helper.saved',
+                    function(event, helper_json) {
+                        vm.tmp_cellular_density_helper_exists = false;
+                        vm.tmp_cellular_density_helper_id = undefined;
+                        vm.g4_cellular_density_helper_active = false;
+                        vm.g4CellularDensityHelperShape = helper_json;
+                        vm.g4CellularDensityHelperShape.shape_id = 'G4_' + vm.g4CellularDensityHelperShape.shape_id;
+                        vm.showG4CellularDensityHelper();
+                        var helper_area = AnnotationsViewerService.getShapeArea(
+                            vm.g4CellularDensityHelperShape.shape_id);
+                        vm.g4CellsCount = Math.round((vm.gleason4ShapeArea / helper_area) * vm.g4CellularDensity);
+                        $scope.$apply();
+                        $canvas
+                            .unbind('cellular_count_helper.saved')
+                            .unbind('cellular_count_helper.placed')
+                    }
+                )
+                .on('cellular_count_helper.placed',
+                    function() {
+                        vm.tmp_cellular_density_helper_exists = true;
+                        $scope.$apply();
+                    }
+                )
         }
 
         function abortCellularDensityHelper() {
@@ -1302,6 +1358,22 @@
             AnnotationsViewerService.disableActiveTool();
         }
 
+        function abortG4CellularDensityHelper() {
+            if (vm.tmp_cellular_density_helper_exists) {
+                AnnotationsViewerService.deleteShape(vm.tmp_cellular_density_helper_id);
+            }
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas
+                .unbind('cellular_count_helper.saved')
+                .unbind('cellular_count_helper.placed');
+            vm.tmp_cellular_density_helper_exists = false;
+            vm.tmp_cellular_density_helper_id = undefined;
+            vm.g4_cellular_density_helper_active = false;
+            vm.g4_cellular_density_helper_hidden = true;
+            AnnotationsViewerService.disableActiveTool();
+        }
+
         function clearCellularDensityHelper() {
             if (!vm.cellular_density_helper_hidden) {
                 vm.hideCellularDensityHelper();
@@ -1312,12 +1384,30 @@
             vm.cellsCount = undefined;
         }
 
+        function clearG4CellularDensityHelper() {
+            if (!vm.g4_cellular_density_helper_hidden) {
+                vm.hideG4CellularDensityHelper();
+            }
+            vm.abortG4CellularDensityHelper();
+            vm.g4CellularDensity = undefined;
+            vm.g4CellularDensityHelperShape = undefined;
+            vm.g4CellsCount = undefined;
+        }
+
         function cellularDensityHelperActive() {
             return vm.cellular_density_helper_active;
         }
 
+        function g4CellularDensityHelperActive() {
+            return vm.g4_cellular_density_helper_active;
+        }
+
         function validCellularDensity() {
             return (vm.tmp_cellular_density_helper_exists && vm.cellularDensity > 0);
+        }
+
+        function validG4CellularDensity() {
+            return (vm.tmp_cellular_density_helper_exists && vm.g4CellularDensity > 0);
         }
 
         function showCellularDensityHelper() {
@@ -1326,10 +1416,22 @@
             vm.cellular_density_helper_hidden = false;
         }
 
+        function showG4CellularDensityHelper() {
+            AnnotationsViewerService.drawShape(vm.g4CellularDensityHelperShape);
+            $(".show_g4_cc_helper").removeClass('prm-pale-icon');
+            vm.g4_cellular_density_helper_hidden = false;
+        }
+
         function hideCellularDensityHelper() {
             AnnotationsViewerService.deleteShape(vm.cellularDensityHelperShape.shape_id);
             $(".show_cc_helper").addClass('prm-pale-icon');
             vm.cellular_density_helper_hidden = true;
+        }
+
+        function hideG4CellularDensityHelper() {
+            AnnotationsViewerService.deleteShape(vm.g4CellularDensityHelperShape.shape_id);
+            $(".show_g4_cc_helper").addClass('prm-pale-icon');
+            vm.g4_cellular_density_helper_hidden = true;
         }
 
         function showHideCeullularDensityHelper() {
@@ -1340,8 +1442,20 @@
             }
         }
 
+        function showHideG4CellularDensityHelper() {
+            if (vm.g4_cellular_density_helper_hidden === true) {
+                vm.showG4CellularDensityHelper();
+            } else {
+                vm.hideG4CellularDensityHelper();
+            }
+        }
+
         function cellularDensityExists() {
             return (typeof vm.cellsCount !== 'undefined');
+        }
+
+        function g4CellularDensityExists() {
+            return (typeof vm.g4CellsCount !== 'undefined');
         }
 
         function isReadOnly() {
@@ -1382,7 +1496,10 @@
                 gleason_4_area: vm.gleason4ShapeArea,
                 cellular_density_helper_json: vm.cellularDensityHelperShape,
                 cellular_density: vm.cellularDensity,
-                cells_count: vm.cellsCount
+                cells_count: vm.cellsCount,
+                gleason_4_cellular_density_helper_json: vm.g4CellularDensityHelperShape,
+                gleason_4_cellular_density: vm.g4CellularDensity,
+                gleason_4_cells_count: vm.g4CellsCount
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_id, obj_config)
@@ -1428,18 +1545,24 @@
         vm.gleason4ShapeArea = undefined;
         vm.cellularDensityHelperShape = undefined;
         vm.cellsCount = undefined;
+        vm.g4CellularDensityHelperShape = undefined;
+        vm.g4CellularDensity = undefined;
+        vm.g4CellsCount = undefined;
 
         vm.clinical_annotation_step_id = undefined;
 
         vm.ruler_hidden = true;
         vm.cellular_density_helper_hidden = true;
+        vm.g4_cellular_density_helper_hidden = true;
 
         vm.isReadOnly = isReadOnly;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
         vm.showHideRuler = showHideRuler;
         vm.showHideCellularDensityHelper = showHideCellularDensityHelper;
+        vm.showHideG4CellularDensityHelper = showHideG4CellularDensityHelper;
         vm.cellularDensityExists = cellularDensityExists;
+        vm.g4CellularDensityExists = g4CellularDensityExists;
         vm.rulerExists = rulerExists;
 
         activate();
@@ -1474,9 +1597,13 @@
                 vm.gleason4ShapeArea = response.data.gleason_4_area;
                 vm.cellularDensityHelperShape = $.parseJSON(response.data.cellular_density_helper_json);
                 vm.cellsCount = response.data.cells_count;
+                vm.g4CellularDensityHelperShape = $.parseJSON(response.data.gleason_4_cellular_density_helper_json);
+                vm.g4CellularDensity = response.data.gleason_4_cellular_density;
+                vm.g4CellsCount = response.data.gleason_4_cells_count;
 
                 $(".show_ruler").addClass('prm-pale-icon');
                 $(".show_cc_helper_addon").addClass('prm-pale-icon');
+                $(".g4_show_cc_helper_addon").addClass('prm-pale-icon');
             }
 
             function getFocusRegionAnnotationErrorFn(response) {
@@ -1520,6 +1647,17 @@
 
             function deleteFocusRegionAnnotationSuccessFn(response) {
                 $rootScope.$broadcast('focus_region_annotation.deleted', vm.focus_region_label, vm.focus_region_id);
+
+                if (vm.ruler_hidden === false) {
+                    AnnotationsViewerService.deleteShape(vm.gleason4Shape.shape_id);
+                }
+                if (vm.cellular_density_helper_hidden === false) {
+                    AnnotationsViewerService.deleteShape(vm.cellularDensityHelperShape.shape_id);
+                }
+                if (vm.g4_cellular_density_helper_hidden === false) {
+                    AnnotationsViewerService.deleteShape(vm.g4CellularDensityHelperShape.shape_id);
+                }
+
                 vm.focus_region_id = undefined;
                 vm.focus_region_label = undefined;
                 vm.focusRegionArea = undefined;
@@ -1539,9 +1677,14 @@
                 vm.gleason4ShapeArea = undefined;
                 vm.cellularDensityHelperShape = undefined;
                 vm.cellsCount = undefined;
+                vm.g4CellularDensityHelperShape = undefined;
+                vm.g4CellularDensity = undefined;
+                vm.g4CellsCount = undefined;
 
                 vm.ruler_hidden = true;
                 vm.cellular_density_helper_hidden = true;
+                vm.g4_cellular_density_helper_hidden = true;
+
 
                 dialog.close();
             }
@@ -1586,8 +1729,26 @@
             }
         }
 
+        function showHideG4CellularDensityHelper() {
+            if (vm.g4CellularDensityHelperShape) {
+                if (vm.g4_cellular_density_helper_hidden === true) {
+                    AnnotationsViewerService.drawShape(vm.g4CellularDensityHelperShape);
+                    $(".g4_show_cc_helper_addon").removeClass('prm-pale-icon');
+                    vm.g4_cellular_density_helper_hidden = false;
+                } else {
+                    AnnotationsViewerService.deleteShape(vm.g4CellularDensityHelperShape.shape_id);
+                    $(".g4_show_cc_helper_addon").addClass('prm-pale-icon');
+                    vm.g4_cellular_density_helper_hidden = true;
+                }
+            }
+        }
+
         function cellularDensityExists() {
             return (vm.cellularDensityHelperShape !== null && typeof vm.cellularDensityHelperShape !== 'undefined');
+        }
+
+        function g4CellularDensityExists() {
+            return (vm.g4CellularDensityHelperShape !== null && typeof vm.cellularDensityHelperShape !== 'undefined');
         }
     }
 })();
