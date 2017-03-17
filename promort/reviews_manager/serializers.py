@@ -202,9 +202,9 @@ class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
         model = ClinicalAnnotation
 
         fields = ('id', 'annotation_type', 'reviewer', 'case', 'rois_review',
-                  'started', 'completed', 'can_be_started',
-                  'creation_date', 'start_date', 'completion_date', 'steps_count')
-        read_only_fields = ('id', 'creation_date', 'steps_count',
+                  'started', 'completed', 'can_be_started', 'steps',
+                  'creation_date', 'start_date', 'completion_date')
+        read_only_fields = ('id', 'creation_date', 'steps',
                             'started', 'completed', 'can_be_started', 'annotation_type')
 
     @staticmethod
