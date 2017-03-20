@@ -30,6 +30,9 @@ from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
+from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList,\
+    SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
+    FocusRegionAnnotationList, FocusRegionAnnotationDetail
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -57,6 +60,22 @@ urlpatterns = [
     url(r'api/cores/(?P<pk>[0-9]+)/focus_regions/$', FocusRegionList.as_view()),
     url(r'api/focus_regions/(?P<pk>[0-9]+)/$', FocusRegionDetail.as_view()),
 
+    # clinical annotations data
+    url(r'api/rois_annotation_steps/(?P<rois_annotation_step>[0-9]+)/rois_list/(?P<clinical_annotation_step>[0-9]+)/$',
+        AnnotatedROIsTreeList.as_view()),
+    url('api/clinical_annotation_steps/(?P<clinical_annotation_step>[0-9]+)/annotations_list/',
+        ClinicalAnnotationStepAnnotationsList.as_view()),
+    url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/$', SliceAnnotationList.as_view()),
+    url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+        SliceAnnotationDetail.as_view()),
+    url(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/$', CoreAnnotationList.as_view()),
+    url(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+        CoreAnnotationDetail.as_view()),
+    url(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/$',
+        FocusRegionAnnotationList.as_view()),
+    url(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+        FocusRegionAnnotationDetail.as_view()),
+
     # ROIs annotations
     url(r'api/rois_annotations/$', ROIsAnnotationsList.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', ROIsAnnotationsDetail.as_view()),
@@ -74,7 +93,7 @@ urlpatterns = [
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
         ClinicalAnnotationDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
-        ClinicalAnnotationStepDetail.as_view),
+        ClinicalAnnotationStepDetail.as_view()),
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),

@@ -118,7 +118,7 @@
             }
 
             $scope.$on('viewerctrl.components.registered',
-                function() {
+                function(event, rois_read_only, clinical_annotation_step_id) {
                     var dialog = ngDialog.open({
                         template: '/static/templates/dialogs/rois_loading.html',
                         showClose: false,
@@ -127,34 +127,50 @@
                         closeByDocument: false
                     });
 
-                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id)
+                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id, rois_read_only,
+                        clinical_annotation_step_id)
                         .then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
                         for (var sl in response.data.slices) {
                             var slice = response.data.slices[sl];
                             AnnotationsViewerService.drawShape($.parseJSON(slice.roi_json));
+                            var annotated = false;
+                            if (slice.hasOwnProperty('annotated')) {
+                                annotated = slice.annotated;
+                            }
                             var slice_info = {
                                 'id': slice.id,
-                                'label': slice.label
+                                'label': slice.label,
+                                'annotated': annotated
                             };
                             $rootScope.$broadcast('slice.new', slice_info);
                             for (var cr in slice.cores) {
                                 var core = slice.cores[cr];
                                 AnnotationsViewerService.drawShape($.parseJSON(core.roi_json));
+                                annotated = false;
+                                if (core.hasOwnProperty('annotated')) {
+                                    annotated = core.annotated;
+                                }
                                 var core_info = {
                                     'id': core.id,
                                     'label': core.label,
-                                    'slice': core.slice
+                                    'slice': core.slice,
+                                    'annotated': annotated
                                 };
                                 $rootScope.$broadcast('core.new', core_info);
                                 for (var fr in core.focus_regions) {
                                     var focus_region = core.focus_regions[fr];
                                     AnnotationsViewerService.drawShape($.parseJSON(focus_region.roi_json));
+                                    annotated = false;
+                                    if (core.hasOwnProperty('annotated')) {
+                                        annotated = focus_region.annotated;
+                                    }
                                     var focus_region_info = {
                                         'id': focus_region.id,
                                         'label': focus_region.label,
-                                        'core': focus_region.core
+                                        'core': focus_region.core,
+                                        'annotated': annotated
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
                                 }
@@ -184,12 +200,17 @@
             return vm.slide_details.image_microns_per_pixel;
         }
 
-        function registerComponents(viewer_manager, annotations_manager, tools_manager) {
+        function registerComponents(viewer_manager, annotations_manager, tools_manager, rois_read_only) {
             AnnotationsViewerService.registerComponents(viewer_manager,
                 annotations_manager, tools_manager);
             console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
-            $rootScope.$broadcast('viewerctrl.components.registered');
+            var clinical_annotation_step_id = undefined;
+            if (rois_read_only) {
+                clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            }
+            $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
+                clinical_annotation_step_id);
         }
     }
 })();

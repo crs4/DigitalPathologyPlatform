@@ -15,10 +15,10 @@ from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 from reviews_manager.models import ROIsAnnotationStep
 from reviews_manager.serializers import ROIsAnnotationStepFullSerializer, \
     ROIsAnnotationStepROIsTreeSerializer
-from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
-from rois_manager.serializers import SlideDetailsSerializer, SliceSerializer, \
-    SliceDetailsSerializer, CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer
+from rois_manager.serializers import SliceSerializer, SliceDetailsSerializer, \
+    CoreSerializer, CoreDetailsSerializer, FocusRegionSerializer
+
 import logging
 logger = logging.getLogger('promort')
 

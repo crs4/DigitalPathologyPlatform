@@ -1,0 +1,34 @@
+<div>
+    <div class="text-center">
+        <h3 class="prm-dialog-container">
+            <i class="icon-warning icon2x prm-warning-icon"></i>
+        </h3>
+        <h4>
+            <span>
+                Do you want to accept all the ROIs annotations and close the annotation step?
+                <br>
+                <br>
+                You won't be able to edit these data anymore.
+            </span>
+        </h4>
+        <br>
+        <br>
+    </div>
+    <div>
+        <div class="form-group">
+            <span>
+                You can also attach a short text to the annotation step when closing it.
+            </span>
+            <textarea class="form-control" id="annotation_step_notes"
+                      name="annotationStepNotes" rows="5" ng-model="confirmCtrl.notes"></textarea>
+        </div>
+    </div>
+    <div class="ngdialog-buttons prm-ngdialog-buttons">
+        <button type="button" class="ngdialog-button ngdialog-button-primary"
+                ng-click="confirm({value: true, notes: confirmCtrl.notes})">Yes
+        </button>
+        <button type="button" class="ngdialog-button ngdialog-button-secondary"
+                ng-click="confirm({value: false, notes: undeinfed})">No
+        </button>
+    </div>
+</div>

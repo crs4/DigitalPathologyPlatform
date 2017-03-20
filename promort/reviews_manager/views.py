@@ -117,9 +117,21 @@ class ROIsAnnotationDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                rois_annotation.start_date = datetime.now()
+                if not rois_annotation.is_started():
+                    rois_annotation.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                rois_annotation.completion_date = datetime.now()
+                if rois_annotation.can_be_closed() and not rois_annotation.is_completed():
+                    rois_annotation.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -190,9 +202,21 @@ class ClinicalAnnotationDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                clinical_annotation.start_date = datetime.now()
+                if not clinical_annotation.is_started():
+                    clinical_annotation.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                clinical_annotation.completion_date = datetime.now()
+                if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
+                    clinical_annotation.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -249,7 +273,7 @@ class ROIsAnnotationStepDetail(APIView):
         rois_annotation = self._find_rois_annotation(case, reviewer)
         annotation_step_data = {
             'slide': slide,
-            'rois_annotation': rois_annotation
+            'rois_annotation': rois_annotation.id
         }
         serializer = ROIsAnnotationStepSerializer(data=annotation_step_data)
         if serializer.is_valid():
@@ -269,16 +293,28 @@ class ROIsAnnotationStepDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                annotation_step.start_date = datetime.now()
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation step can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                annotation_step.completion_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation step can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
                     'message': '\'%s\' is not a valid action' % action
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
-            # after saving closing an annotation step, also check if ROIs annotation can be closed
+            # after closing an annotation step, also check if ROIs annotation can be closed
             rois_annotation_closed = False
             if action == 'FINISH':
                 rois_annotation = annotation_step.rois_annotation
@@ -332,6 +368,13 @@ class ClinicalAnnotationStepDetail(APIView):
         except ClinicalAnnotationStep.DoesNotExist:
             raise NotFound('No clinical annotation step for slide \'%s\'' % slide_id)
 
+    def _find_rois_review_step(self, rois_review_id, slide_id):
+        try:
+            return ROIsAnnotationStep.objects.get(rois_annotation=rois_review_id, slide=slide_id)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step for ROIs Annotation %s related to slide %s' %
+                           (rois_review_id, slide_id))
+
     def get(self, request, case, reviewer, rois_review, slide, format=None):
         annotation_step = self._find_clinical_annotation_step(case, reviewer, rois_review, slide)
         serializer = ClinicalAnnotationStepSerializer(annotation_step)
@@ -339,9 +382,11 @@ class ClinicalAnnotationStepDetail(APIView):
 
     def post(self, request, case, reviewer, rois_review, slide, format=None):
         clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+        rois_annotation_step = self._find_rois_review_step(rois_review, slide)
         annotation_step_data = {
             'slide': slide,
-            'clinical_annotation': clinical_annotation
+            'clinical_annotation': clinical_annotation.id,
+            'rois_review_step': rois_annotation_step.id
         }
         serializer = ClinicalAnnotationStepSerializer(data=annotation_step_data)
         if serializer.is_valid():
@@ -361,17 +406,40 @@ class ClinicalAnnotationStepDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                annotation_step.start_date = datetime.now()
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation step can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                annotation_step.completion_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                    annotation_step.notes = request.data.get('notes')
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation step can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
                     'message': '\'%s\' is not a valid action' % action
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
+            clinical_annotation_closed = False
+            if action == 'FINISH':
+                clinical_annotation = annotation_step.clinical_annotation
+                if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
+                    clinical_annotation.completion_date = datetime.now()
+                    clinical_annotation.save()
+                    clinical_annotation_closed = True
             serializer = ClinicalAnnotationStepSerializer(annotation_step)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                'clinical_annotation_step': serializer.data,
+                'clinical_annotation_closed': clinical_annotation_closed
+            }, status=status.HTTP_200_OK)
         else:
             return Response({
                 'status': 'ERROR',

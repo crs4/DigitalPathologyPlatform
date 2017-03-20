@@ -1,0 +1,113 @@
+<div>
+    <div class="prm-form-header">
+        <!-- TODO: put real core label here -->
+        <h4 class="text-right">{{ cmCtrl.core_label }}</h4>
+    </div>
+    <div class="form-group row">
+        <div class="prm-label-elem">
+            <label>Core area</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.coreArea"
+                   readonly>
+            <!--TODO: unit of measure selector -->
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="prm-label-elem">
+            <label>Core length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.coreLength"
+                   readonly>
+            <!--TODO: unit of measure selector -->
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="prm-label-elem">
+            <label>Tumor length</label>
+        </div>
+        <div class="input-group prm-row-elem">
+            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.tumorLength"
+                   readonly>
+            <!--TODO: unit of measure selector -->
+        </div>
+    </div>
+    <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Normal tissue</label>
+        </div><!--
+     --><div class="col-sm-6 prm-valign prm-form-elem">
+            <div class="input-group">
+                <input class="form-control prm-text-input" type="number"
+                       ng-model="cmCtrl.normalTissuePercentage" readonly>
+                <div class="input-group-addon prm-addon">%</div>
+            </div>
+        </div>
+    </div>
+    <fieldset>
+        <legend class="prm-legend text-">grading</legend>
+        <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
+            <div class="col-sm-8 prm-valign prm-label-elem">
+                <label>Primary Gleason grade</label>
+            </div><!--
+         --><div class="col-sm-4 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.primaryGleason"
+                        ng-change="cmCtrl.upgradeGradeGroupWho()">
+                    <option value="" selected disabled></option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
+            <div class="col-sm-8 prm-valign prm-label-elem">
+                <label>Secondary Gleason grade</label>
+            </div><!--
+         --><div class="col-sm-4 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.secondaryGleason"
+                        ng-change="cmCtrl.upgradeGradeGroupWho()">
+                    <option value="" selected disabled></option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+            <div class="col-sm-6 prm-valign prm-label-elem">
+                <label>Gleason score</label>
+            </div><!--
+         --><div class="col-sm-6 prm-valign prm-form-elem">
+                <!-- Insert the value in the form I°+II°=SUM-->
+                <input class="form-control prm-text-input" ng-model="cmCtrl.gleasonScore" readonly>
+            </div>
+        </div>
+        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+            <div class="col-sm-6 prm-valign prm-label-elem">
+                <label>Gleason pattern 4</label>
+            </div><!--
+         --><div class="col-sm-6 prm-valign prm-form-elem">
+                <div class="input-group">
+                    <input class="form-control prm-text-input" type="number"
+                           ng-model="cmCtrl.gleason4Percentage" readonly>
+                    <div class="input-group-addon prm-addon">%</div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-6 prm-valign prm-label-elem">
+                <label>Grade group WHO </label>
+            </div><!--
+         --><div class="col-sm-6 prm-valign prm-form-elem">
+                <input class="form-control prm-text-input" ng-model="cmCtrl.gradeGroupWhoLabel"
+                       readonly placeholder="">
+            </div>
+        </div>
+    </fieldset>
+</div>

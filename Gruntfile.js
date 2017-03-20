@@ -31,8 +31,12 @@ module.exports = function(grunt) {
         "promort/src/js/rois_manager/rois_manager.module.js",
         "promort/src/js/rois_manager/rois_manager.services.js",
         "promort/src/js/rois_manager/rois_manager.controllers.js",
-        "promort/src/js/rois_manager/rois_manager.directives.js"
-
+        "promort/src/js/rois_manager/rois_manager.directives.js",
+        "promort/src/js/clinical_annotations_manager/clinical_annotations_manager.module.js",
+        "promort/src/js/clinical_annotations_manager/clinical_annotations_manager.services.js",
+        "promort/src/js/clinical_annotations_manager/clinical_annotations_manager.controllers.js",
+        "promort/src/js/clinical_annotations_manager/clinical_annotations_manager.directives.js",
+        "promort/src/js/ome_seadragon_tools/cell_count_guide.js"
     ];
 
     grunt.initConfig({
