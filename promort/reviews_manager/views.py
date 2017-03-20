@@ -117,9 +117,21 @@ class ROIsAnnotationDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                rois_annotation.start_date = datetime.now()
+                if not rois_annotation.is_started():
+                    rois_annotation.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                rois_annotation.completion_date = datetime.now()
+                if rois_annotation.can_be_closed() and not rois_annotation.is_completed():
+                    rois_annotation.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -190,9 +202,21 @@ class ClinicalAnnotationDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                clinical_annotation.start_date = datetime.now()
+                if not clinical_annotation.is_started():
+                    clinical_annotation.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                clinical_annotation.completion_date = datetime.now()
+                if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
+                    clinical_annotation.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -269,9 +293,21 @@ class ROIsAnnotationStepDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                annotation_step.start_date = datetime.now()
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation step can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                annotation_step.completion_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'ROIs annotation step can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -370,10 +406,22 @@ class ClinicalAnnotationStepDetail(APIView):
         if action is not None:
             action = action.upper()
             if action == 'START':
-                annotation_step.start_date = datetime.now()
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation step can\'t be started'
+                    }, status=status.HTTP_409_CONFLICT)
             elif action == 'FINISH':
-                annotation_step.completion_date = datetime.now()
-                annotation_step.notes = request.data.get('notes')
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                    annotation_step.notes = request.data.get('notes')
+                else:
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation step can\'t be closed'
+                    }, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({
                     'status': 'ERROR',
@@ -383,7 +431,7 @@ class ClinicalAnnotationStepDetail(APIView):
             clinical_annotation_closed = False
             if action == 'FINISH':
                 clinical_annotation = annotation_step.clinical_annotation
-                if clinical_annotation.can_be_closed():
+                if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
                     clinical_annotation.completion_date = datetime.now()
                     clinical_annotation.save()
                     clinical_annotation_closed = True
