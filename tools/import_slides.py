@@ -2,6 +2,7 @@ import requests
 import logging
 import sys
 import re
+import random
 from argparse import ArgumentParser
 from urlparse import urljoin
 
@@ -45,7 +46,7 @@ class SlidesImporter(object):
         response = self.promort_client.post(url, json=payload)
         if response.status_code == requests.codes.OK:
             self.csrf_token = self.promort_client.cookies.get('csrftoken')
-            self.session_id = self.promort_client.cookies.get('sessionid')
+            self.session_id = self.promort_client.cookies.get('promort_sessionid')
         else:
             self.logger.error('Unable to perform login')
             sys.exit('Unable to perform login')
@@ -60,7 +61,7 @@ class SlidesImporter(object):
     def _update_payload(self, payload):
         auth_payload = {
             'csrfmiddlewaretoken': self.csrf_token,
-            'sessionid': self.session_id
+            'promort_sessionid': self.session_id
         }
         payload.update(auth_payload)
 
@@ -142,74 +143,224 @@ class SlidesImporter(object):
         else:
             return 0
 
-    def _serialize_slide_map(self, slides_map):
-        saved_objects_map = {}
+    def _serialize_slides(self):
+        slides_map = self._get_ome_images()
         for case, slides in slides_map.iteritems():
             case_saved = self._save_case(case)
             if case_saved:
-                saved_objects_map[case] = []
                 for slide in slides:
-                    slide_saved = self._save_slide(slide['name'], case,
-                                                   slide['omero_id'], slide['img_type'],
-                                                   self._get_slide_mpp(slide))
-                    if slide_saved:
-                        saved_objects_map[case].append(slide['name'])
-        return saved_objects_map
+                    self._save_slide(slide['name'], case, slide['omero_id'],
+                                     slide['img_type'], self._get_slide_mpp(slide))
 
-    def _get_first_reviewers_list(self):
-        url = urljoin(self.promort_host, 'api/groups/reviewer_1/')
-        response = self.promort_client.get(url)
+
+    def _get_slides_map(self):
+        slides_map = {}
+        cases_response = self.promort_client.get(urljoin(self.promort_host, 'api/cases/'))
+        if cases_response.status_code == requests.codes.OK:
+            cases = cases_response.json()
+            for case in cases:
+                case_id = case['id']
+                slides_response = self.promort_client.get(urljoin(self.promort_host, 'api/cases/%s/' % case_id))
+                if slides_response.status_code == requests.codes.OK:
+                    slides = slides_response.json()['slides']
+                    for slide in slides:
+                        slides_map.setdefault(case_id, []).append(slide['id'])
+        return slides_map
+
+    def _get_users_list(self, group):
+        url = urljoin(self.promort_host, 'api/groups/%s/' % group)
+        return self.promort_client.get(url)
+
+    def _get_rois_reviewers_list(self):
+        response = self._get_users_list('rois_manager')
         if response.status_code == requests.codes.OK:
             users = response.json()['users']
             self.logger.info('Loaded %d users' % len(users))
             return [u['username'] for u in users]
         else:
-            self.logger.error('Unable to load users list for "reviewer_1" group')
+            self.logger.error('Unable to load users list for "rois_manager" group')
             self._promort_logout()
-            sys.exit('Unable to load users list for "reviewer_1" group')
+            sys.exit('Unable to load users list for "rois_manager" group')
 
-    def _create_review(self, case_id, reviewer):
-        payload = {
-            'reviewer': reviewer
-        }
+    def _create_rois_annotation(self, case_id, reviewer):
+        payload = dict()
         self._update_payload(payload)
-        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/' % case_id)
+        url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/' % (case_id, reviewer))
         response = self.promort_client.post(url, payload)
+        self.logger.info('STATUS CODE: %s', response.status_code)
         if response.status_code == requests.codes.CREATED:
-            self.logger.info('Created a review for case %s', case_id)
+            self.logger.info('Created a ROIs annotation for case %s', case_id)
             return True
         elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
-            self.logger.warn('Unable to create review for case %s [status code %s]',
+            self.logger.warn('Unable to create ROIs annotation for case %s [status code %s]',
                              case_id, response.status_code)
             return False
 
-    def _create_review_step(self, case_id, slide_id):
+    def _create_rois_annotation_step(self, case_id, reviewer, slide_id):
         payload = dict()
         self._update_payload(payload)
-        url = urljoin(self.promort_host, 'api/reviews/%s/review_1/%s/' % (case_id, slide_id))
+        url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/%s/' % (case_id, reviewer, slide_id))
         response = self.promort_client.post(url, payload)
         if response.status_code == requests.codes.CREATED:
-            self.logger.info('Created a review step for slide %s of case %s', slide_id, case_id)
+            self.logger.info('Create a ROIs annotation step for slide %s', slide_id)
         elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
-            self.logger.warn('Unable to create review step for slide %s of case %s [status code %s]',
-                             slide_id, case_id, response.status_code)
+            self.logger.warn('Unable to create ROIs annotation step for slide %s [status code %s]',
+                             slide_id, response.status_code)
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.error(response.json()['message'])
 
-    def _create_worklists(self, objs_map):
-        r1_users = self._get_first_reviewers_list()
+    def _create_rois_worklist(self):
+        objs_map = self._get_slides_map()
+        rois_users = self._get_rois_reviewers_list()
         for i, (case, slides) in enumerate(objs_map.iteritems()):
-            reviewer = r1_users[i % len(r1_users)]
-            self.logger.info('Assigning review for case %s to user %s', case, reviewer)
-            rev_created = self._create_review(case, reviewer)
+            reviewer = rois_users[i % len(rois_users)]
+            self.logger.info('Creating ROIs annotation for case %s to user %s', case, reviewer)
+            rev_created = self._create_rois_annotation(case, reviewer)
             if rev_created:
                 for slide in slides:
-                    self.logger.info('Assigning review step for slide %s of case %s', slide, case)
-                    self._create_review_step(case, slide)
+                    self.logger.info('Creating annotation step for slide %s of case %s', slide, case)
+                    self._create_rois_annotation_step(case, reviewer, slide)
 
-    def run(self):
+    def _get_clinical_annotations_reviewers_list(self):
+        response = self._get_users_list('clinical_manager')
+        if response.status_code == requests.codes.OK:
+            users = response.json()['users']
+            self.logger.info('Loaded %d users' % len(users))
+            return [u['username'] for u in users]
+        else:
+            self.logger.error('Unable to load users list for "clinical_manager" group')
+            self._promort_logout()
+            sys.exit('Unable to load users list for "clinical_manager" group')
+
+    def _select_clinical_reviewers(self, users_list, rois_reviewer, reviewers_count):
+        reviewers = []
+        rct = reviewers_count
+        if rois_reviewer in users_list:
+            reviewers.append(rois_reviewer)
+            rct -= 1
+        while rct > 0:
+            # TODO: optimize this....
+            r = random.choice(users_list)
+            if r not in reviewers:
+                reviewers.append(r)
+                rct -= 1
+        return reviewers
+
+
+    def _get_rois_annotations_list(self):
+        annotations_list = []
+        url = urljoin(self.promort_host, 'api/rois_annotations/')
+        response = self.promort_client.get(url)
+        if response.status_code == requests.codes.OK:
+            for annotation in response.json():
+                annotations_list.append({
+                    'id': annotation['id'],
+                    'reviewer': annotation['reviewer'],
+                    'case': annotation['case']
+                })
+        return annotations_list
+
+    def _get_rois_annotation_steps_list(self, case_id):
+        steps_list = []
+        url = urljoin(self.promort_host, 'api/rois_annotations/%s/' % case_id)
+        response = self.promort_client.get(url)
+        if response.status_code == requests.codes.OK:
+            for annotation in response.json():
+                reviewer = annotation['reviewer']
+                url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/' % (case_id, reviewer))
+                ann_response = self.promort_client.get(url)
+                if ann_response.status_code == requests.codes.OK:
+                    for step in ann_response.json()['steps']:
+                        steps_list.append({
+                            'id': step['id'],
+                            'slide': step['slide'],
+                            'quality_control': step['slide_quality_control']
+                        })
+        return steps_list
+
+    def _create_clinical_annotation(self, case_id, reviewer, rois_annotation_id):
+        payload = dict()
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/' % (case_id, reviewer,
+                                                                                 rois_annotation_id))
+        response = self.promort_client.post(url, payload)
+        if response.status_code == requests.codes.CREATED:
+            self.logger.info(
+                'Created a clinical annotation for case %s assigned to reviewer %s linked to ROIs annotation %s' %
+                (case_id, reviewer, rois_annotation_id))
+        elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
+            self.logger.warn('Unable to create clinical annotation [status code %s]' % response.status_code)
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.error(response.json()['message'])
+
+    def _start_clinical_annotation(self, case_id, reviewer, rois_annotation_id):
+        payload = {'action': 'START'}
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/' % (case_id, reviewer,
+                                                                                 rois_annotation_id))
+        response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Started clinical annotation')
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.warn('Unable to start clinical annotation')
+
+    def _start_and_close_clinical_annotation_step(self, case_id, reviewer, rois_annotation_id, slide_id):
+        self._start_clinical_annotation(case_id, reviewer, rois_annotation_id)
+        # start clinical annotation step
+        payload = {'action': 'START'}
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/%s/' % (case_id, reviewer,
+                                                                                    rois_annotation_id, slide_id))
+        response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Started clinical annotation step')
+            payload['action'] = 'FINISH'
+            response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+            if response.status_code == requests.codes.OK:
+                self.logger.info('Closed clinical_annotation_step')
+            elif response.status_code == requests.codes.CONFLICT:
+                self.logger.warn('Unable to close clinical annotation step')
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.warn('Unable to start clinical annotation step')
+
+    def _create_clinical_annotation_step(self, case_id, reviewer, rois_annotation_id, slide_id, immediate_close):
+        payload = dict()
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/%s/' % (case_id, reviewer,
+                                                                                    rois_annotation_id, slide_id))
+        response = self.promort_client.post(url, payload)
+        if response.status_code == requests.codes.CREATED:
+            self.logger.info('Created a clinical annotation step for slide %s' % slide_id)
+            if immediate_close:
+                self.logger.info('START and CLOSE this clinical annotation step')
+                self._start_and_close_clinical_annotation_step(case_id, reviewer, rois_annotation_id, slide_id)
+        elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
+            self.logger.warn('Unable to create clinical annotation step [status code %s]' % response.status_code)
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.error(response.json()['message'])
+
+    def _create_clinical_annotations_worklist(self, reviewers_count):
+        clinical_users = self._get_clinical_annotations_reviewers_list()
+        annotations_list = self._get_rois_annotations_list()
+        for annotation in annotations_list:
+            steps_list = self._get_rois_annotation_steps_list(annotation['case'])
+            reviewers = self._select_clinical_reviewers(clinical_users, annotation['reviewer'],
+                                                        reviewers_count)
+            for r in reviewers:
+                self._create_clinical_annotation(annotation['case'], r, annotation['id'])
+                for step in steps_list:
+                    close_clinical_annotation = not step['quality_control'] is None and \
+                                                not step['quality_control']['adequate_slide']
+                    self._create_clinical_annotation_step(annotation['case'], r, annotation['id'], step['slide'],
+                                                          close_clinical_annotation)
+
+    def run(self, create_rois_worklist, create_clinical_worklist, reviewers_count):
         self._promort_login()
-        slides_map = self._get_ome_images()
-        saved_objs_map = self._serialize_slide_map(slides_map)
-        self._create_worklists(saved_objs_map)
+        self._serialize_slides()
+        if create_rois_worklist:
+            self._create_rois_worklist()
+        if create_clinical_worklist:
+            self._create_clinical_annotations_worklist(reviewers_count)
         self._promort_logout()
 
 
@@ -223,6 +374,12 @@ def get_parser():
                         help='ProMort user')
     parser.add_argument('--promort-password', type=str, required=True,
                         help='ProMort password')
+    parser.add_argument('--rois-worklist', action='store_true',
+                        help='create ROIs annotations worklist')
+    parser.add_argument('--clinical-worklist', action='store_true',
+                        help='create clinical annotations worklist')
+    parser.add_argument('--reviewers', type=int, default=2,
+                        help='number of clinical reviewers')
     parser.add_argument('--log-level', type=str, default='INFO',
                         help='log level (default=INFO)')
     parser.add_argument('--log-file', type=str, default=None,
@@ -236,7 +393,7 @@ def main(argv):
     importer = SlidesImporter(args.omero_host, args.promort_host,
                               args.promort_user, args.promort_password,
                               args.log_level, args.log_file)
-    importer.run()
+    importer.run(args.rois_worklist, args.clinical_worklist, args.reviewers)
 
 
 if __name__ == '__main__':

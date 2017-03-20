@@ -21,11 +21,17 @@
                 controllerAs: 'wlc',
                 templateUrl: '/static/templates/worklist/pending_reviews.html'
             })
-            // review steps template
+            // ROIs annotation steps template
             .when('/worklist/:case', {
                 controller: 'ROIsAnnotationController',
                 controllerAs: 'rc',
-                templateUrl: '/static/templates/worklist/review_steps.html'
+                templateUrl: '/static/templates/worklist/rois_annotation_steps.html'
+            })
+            // clinical annotation steps template
+            .when('/worklist/:case/:rois_annotation_step', {
+                controller: 'ClinicalAnnotationController',
+                controllerAs: 'cc',
+                templateUrl: '/static/templates/worklist/clinical_annotation_steps.html'
             })
             // slide quality control
             .when('/worklist/:case/:slide/:annotation_step/quality_control', {
@@ -38,6 +44,12 @@
                 controller: 'ROIsManagerController',
                 controllerAs: 'rmc',
                 templateUrl: '/static/templates/rois_manager/manager.html'
+            })
+            // clinical annotations manager
+            .when('/worklist/:case/:slide/:annotation_step/:clinical_annotation_step/annotations_manager', {
+                controller: 'ClinicalAnnotationsManagerController',
+                controllerAs: 'cmc',
+                templateUrl: '/static/templates/clinical_annotations_manager/manager.html'
             })
             // homepage
             .when('/', {

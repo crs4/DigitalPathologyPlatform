@@ -437,7 +437,6 @@
                 }
 
                 function closeROIsAnnotationStepSuccessFn(response) {
-                    // TODO: close clinical annotation steps related to this object
                     if (response.data.rois_annotation_closed === true) {
                         $location.url('worklist');
                     } else {
@@ -733,7 +732,8 @@
             function createSliceSuccessFn(response) {
                 var slice_info = {
                     'id': response.data.id,
-                    'label': response.data.label
+                    'label': response.data.label,
+                    'annotated': false
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('slice.new', slice_info);
@@ -813,7 +813,7 @@
             function confirmFn(confirm_value) {
                 if (confirm_value) {
                     dialog = ngDialog.open({
-                        'template': '/static/templates/dialogs/deleting_data.html',
+                        template: '/static/templates/dialogs/deleting_data.html',
                         showClose: false,
                         closeByEscape: false,
                         closeByNavigation: false,
@@ -1277,7 +1277,8 @@
                 var core_info = {
                     'id': response.data.id,
                     'label': response.data.label,
-                    'slice': response.data.slice
+                    'slice': response.data.slice,
+                    'annotated': false
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('core.new', core_info);
@@ -1806,7 +1807,8 @@
                 var focus_region_info = {
                     'id': response.data.id,
                     'label': response.data.label,
-                    'core': response.data.core
+                    'core': response.data.core,
+                    'annotated': false
                 };
                 vm.clear(false);
                 $rootScope.$broadcast('focus_region.new', focus_region_info);

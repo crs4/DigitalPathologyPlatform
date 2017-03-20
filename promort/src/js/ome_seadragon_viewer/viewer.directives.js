@@ -5,7 +5,8 @@
         .module('promort.viewer.directives')
         .directive('viewerNavigationPanel', viewerNavigationPanel)
         .directive('simpleViewer', simpleViewer)
-        .directive('annotationsViewer', annotationsViewer);
+        .directive('roiAnnotationsViewer', roiAnnotationsViewer)
+        .directive('clinicalAnnotationsViewer', clinicalAnnotationsViewer);
 
     function viewerNavigationPanel() {
         var directive = {
@@ -79,7 +80,7 @@
         return directive;
     }
 
-    function annotationsViewer() {
+    function roiAnnotationsViewer() {
         var directive = {
             replace: true,
             controller: 'AnnotationsViewerController',
@@ -150,7 +151,100 @@
 
                         console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
-                            annotations_canvas, tools_manager);
+                            annotations_canvas, tools_manager, false);
+                    });
+                });
+            }
+        };
+        return directive;
+    }
+
+    function clinicalAnnotationsViewer() {
+        var directive = {
+            replace:true,
+            controller: 'AnnotationsViewerController',
+            controllerAs: 'avc',
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/rois_viewer.html',
+            link: function(scope, element, attrs) {
+                function setViewerHeight() {
+                    var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
+                        + $("#index_navbar").height() + 100;
+
+                    var available_v_space = $(window).height() - used_v_space;
+
+                    $("#rois_viewer").height(available_v_space);
+                    $("#rois_viewer_containter").height(available_v_space);
+                }
+
+                setViewerHeight();
+                $(window).resize(setViewerHeight);
+                $(window).bind('resize_annotated_viewer', setViewerHeight);
+
+                scope.$on('viewer.controller_initialized', function() {
+                    // clean navigator div
+                    $('#navi').empty();
+
+                    var viewer_config = {
+                        'showNavigator': true,
+                        'showFullPageControl': false,
+                        'animationTime': 0.01,
+                        'navigatorId': 'navi',
+                        'zoomInButton': 'navi_zoom_in',
+                        'zoomOutButton': 'navi_zoom_out',
+                        'homeButton': 'navi_home'
+                    };
+                    var ome_seadragon_viewer = new ViewerController(
+                        'rois_viewer',
+                        scope.avc.getStaticFilesURL(),
+                        scope.avc.getDZIURL(),
+                        viewer_config
+                    );
+                    ome_seadragon_viewer.buildViewer();
+
+                    var scalebar_config = {
+                        'xOffset': 10,
+                        'yOffset': 10,
+                        'barThickness': 5,
+                        'color': '#777',
+                        'fontColor': '#000',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.5)'
+                    };
+                    ome_seadragon_viewer.enableScalebar(
+                        scope.avc.getSlideMicronsPerPixel(), scalebar_config
+                    );
+
+                    ome_seadragon_viewer.viewer.addHandler('open', function() {
+                        ome_seadragon_viewer.setMinDZILevel(8);
+
+                        var annotations_canvas = new AnnotationsController('rois_canvas');
+                        annotations_canvas.buildAnnotationsCanvas(ome_seadragon_viewer);
+                        ome_seadragon_viewer.addAnnotationsController(annotations_canvas, true);
+
+                        var tools_manager = new AnnotationsEventsController(annotations_canvas);
+                        //initialize area measuring tools
+                        var shape_config = {
+                            fill_alpha: 0.2,
+                            fill_color: '#ff0000',
+                            stroke_width: 5,
+                            stroke_color: '#ff0000'
+                        };
+                        tools_manager.initializeAreaMeasuringTool(shape_config);
+                        // initialize cellular count helper tool
+                        var helper_box_config = {
+                            fill_alpha: 0.01,
+                            stroke_width: 5,
+                            stroke_color: '#0000ff'
+                        };
+                        // box size in microns
+                        var box_size = 50;
+                        tools_manager.initializeCellularCountHelperTool(box_size, helper_box_config);
+                        tools_manager.bindControllers('cell_counter_activate', 'cell_counter_save');
+                        tools_manager.bindControllers('g4_cell_counter_activate', 'g4_cell_counter_save');
+
+                        console.log('Registering components');
+                        scope.avc.registerComponents(ome_seadragon_viewer,
+                            annotations_canvas, tools_manager, true);
                     });
                 });
             }

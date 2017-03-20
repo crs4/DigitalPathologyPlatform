@@ -200,6 +200,10 @@ h3.prm-dialog-container {
     border-color: #adadad !important;
 }
 
+.prm-pale-icon {
+    color: #bbbbbb;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;

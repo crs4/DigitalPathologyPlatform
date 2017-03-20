@@ -6,6 +6,7 @@ from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
     ClinicalAnnotation, ClinicalAnnotationStep
 from slides_manager.serializers import SlideSerializer, SlideQualityControlSerializer
 from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
+from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
 
 
 class ROIsAnnotationSerializer(serializers.ModelSerializer):
@@ -53,7 +54,7 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
                   'start_date', 'completion_date', 'slide_quality_control')
-        read_only_fields = ('id', 'slide', 'creation_date', 'started', 'completed')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
     @staticmethod
     def get_started(obj):
@@ -81,6 +82,10 @@ class ROIsAnnotationStepFullSerializer(ROIsAnnotationStepDetailsSerializer):
 
 class ROIsAnnotationStepROIsTreeSerializer(ROIsAnnotationStepFullSerializer):
     slices = SliceROIsTreeSerializer(many=True, read_only=True)
+
+
+class ClinicalAnnotationStepROIsTreeSerializer(ROIsAnnotationStepFullSerializer):
+    slices = AnnotatedSliceSerializer(many=True, read_only=True)
 
 
 class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
@@ -174,12 +179,12 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
         return obj.is_started()
 
     @staticmethod
-    def get_complted(obj):
+    def get_completed(obj):
         return obj.is_completed()
 
     @staticmethod
     def get_can_be_started(obj):
-        return obj.can_be_started
+        return obj.can_be_started()
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
@@ -197,9 +202,9 @@ class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
         model = ClinicalAnnotation
 
         fields = ('id', 'annotation_type', 'reviewer', 'case', 'rois_review',
-                  'started', 'completed', 'can_be_started',
-                  'creation_date', 'start_date', 'completion_date', 'steps_count')
-        read_only_fields = ('id', 'creation_date', 'steps_count',
+                  'started', 'completed', 'can_be_started', 'steps',
+                  'creation_date', 'start_date', 'completion_date')
+        read_only_fields = ('id', 'creation_date', 'steps',
                             'started', 'completed', 'can_be_started', 'annotation_type')
 
     @staticmethod
