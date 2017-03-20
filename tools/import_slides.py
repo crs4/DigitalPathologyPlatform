@@ -46,7 +46,7 @@ class SlidesImporter(object):
         response = self.promort_client.post(url, json=payload)
         if response.status_code == requests.codes.OK:
             self.csrf_token = self.promort_client.cookies.get('csrftoken')
-            self.session_id = self.promort_client.cookies.get('sessionid')
+            self.session_id = self.promort_client.cookies.get('promort_sessionid')
         else:
             self.logger.error('Unable to perform login')
             sys.exit('Unable to perform login')
@@ -61,7 +61,7 @@ class SlidesImporter(object):
     def _update_payload(self, payload):
         auth_payload = {
             'csrfmiddlewaretoken': self.csrf_token,
-            'sessionid': self.session_id
+            'promort_sessionid': self.session_id
         }
         payload.update(auth_payload)
 
@@ -273,7 +273,8 @@ class SlidesImporter(object):
                     for step in ann_response.json()['steps']:
                         steps_list.append({
                             'id': step['id'],
-                            'slide': step['slide']
+                            'slide': step['slide'],
+                            'quality_control': step['slide_quality_control']
                         })
         return steps_list
 
@@ -292,7 +293,37 @@ class SlidesImporter(object):
         elif response.status_code == requests.codes.CONFLICT:
             self.logger.error(response.json()['message'])
 
-    def _create_clinical_annotation_step(self, case_id, reviewer, rois_annotation_id, slide_id):
+    def _start_clinical_annotation(self, case_id, reviewer, rois_annotation_id):
+        payload = {'action': 'START'}
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/' % (case_id, reviewer,
+                                                                                 rois_annotation_id))
+        response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Started clinical annotation')
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.warn('Unable to start clinical annotation')
+
+    def _start_and_close_clinical_annotation_step(self, case_id, reviewer, rois_annotation_id, slide_id):
+        self._start_clinical_annotation(case_id, reviewer, rois_annotation_id)
+        # start clinical annotation step
+        payload = {'action': 'START'}
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/%s/' % (case_id, reviewer,
+                                                                                    rois_annotation_id, slide_id))
+        response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Started clinical annotation step')
+            payload['action'] = 'FINISH'
+            response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+            if response.status_code == requests.codes.OK:
+                self.logger.info('Closed clinical_annotation_step')
+            elif response.status_code == requests.codes.CONFLICT:
+                self.logger.warn('Unable to close clinical annotation step')
+        elif response.status_code == requests.codes.CONFLICT:
+            self.logger.warn('Unable to start clinical annotation step')
+
+    def _create_clinical_annotation_step(self, case_id, reviewer, rois_annotation_id, slide_id, immediate_close):
         payload = dict()
         self._update_payload(payload)
         url = urljoin(self.promort_host, 'api/clinical_annotations/%s/%s/%s/%s/' % (case_id, reviewer,
@@ -300,6 +331,9 @@ class SlidesImporter(object):
         response = self.promort_client.post(url, payload)
         if response.status_code == requests.codes.CREATED:
             self.logger.info('Created a clinical annotation step for slide %s' % slide_id)
+            if immediate_close:
+                self.logger.info('START and CLOSE this clinical annotation step')
+                self._start_and_close_clinical_annotation_step(case_id, reviewer, rois_annotation_id, slide_id)
         elif response.status_code in (requests.codes.BAD, requests.codes.FORBIDDEN):
             self.logger.warn('Unable to create clinical annotation step [status code %s]' % response.status_code)
         elif response.status_code == requests.codes.CONFLICT:
@@ -315,15 +349,18 @@ class SlidesImporter(object):
             for r in reviewers:
                 self._create_clinical_annotation(annotation['case'], r, annotation['id'])
                 for step in steps_list:
-                    self._create_clinical_annotation_step(annotation['case'], r, annotation['id'], step['slide'])
+                    close_clinical_annotation = not step['quality_control'] is None and \
+                                                not step['quality_control']['adequate_slide']
+                    self._create_clinical_annotation_step(annotation['case'], r, annotation['id'], step['slide'],
+                                                          close_clinical_annotation)
 
-    def run(self, create_rois_worklist, create_clinical_worklist):
+    def run(self, create_rois_worklist, create_clinical_worklist, reviewers_count):
         self._promort_login()
         self._serialize_slides()
         if create_rois_worklist:
             self._create_rois_worklist()
         if create_clinical_worklist:
-            self._create_clinical_annotations_worklist(reviewers_count=2)
+            self._create_clinical_annotations_worklist(reviewers_count)
         self._promort_logout()
 
 
@@ -341,6 +378,8 @@ def get_parser():
                         help='create ROIs annotations worklist')
     parser.add_argument('--clinical-worklist', action='store_true',
                         help='create clinical annotations worklist')
+    parser.add_argument('--reviewers', type=int, default=2,
+                        help='number of clinical reviewers')
     parser.add_argument('--log-level', type=str, default='INFO',
                         help='log level (default=INFO)')
     parser.add_argument('--log-file', type=str, default=None,
@@ -354,7 +393,7 @@ def main(argv):
     importer = SlidesImporter(args.omero_host, args.promort_host,
                               args.promort_user, args.promort_password,
                               args.log_level, args.log_file)
-    importer.run(args.rois_worklist, args.clinical_worklist)
+    importer.run(args.rois_worklist, args.clinical_worklist, args.reviewers)
 
 
 if __name__ == '__main__':
