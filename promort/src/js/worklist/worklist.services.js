@@ -41,7 +41,7 @@
 
         function _clinicalAnnotationAction(case_id, reviewer, rois_review_id, action) {
             return $http.put(
-                '/api/clinical_annotation/' + case_id + '/' + reviewer + '/' + rois_review_id + '/',
+                '/api/clinical_annotations/' + case_id + '/' + reviewer + '/' + rois_review_id + '/',
                 {action: action}
             )
         }
