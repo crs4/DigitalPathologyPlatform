@@ -115,6 +115,7 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
     )
     focus_regions = FocusRegionSerializer(many=True, read_only=True)
     positive = serializers.SerializerMethodField()
+    normal_tissue_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
