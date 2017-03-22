@@ -76,6 +76,7 @@
         function activate() {
             vm.slide_id = $routeParams.slide;
             vm.case_id = $routeParams.case;
+            vm.rois_annotation_id = $routeParams.rois_annotation;
             vm.rois_annotation_step_id = $routeParams.annotation_step;
             vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
 
@@ -92,7 +93,7 @@
             $rootScope.focus_regions = [];
 
             ClinicalAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(),
-                vm.rois_annotation_step_id, vm.slide_id)
+                vm.rois_annotation_id, vm.slide_id)
                 .then(getClinicalAnnotationStepSuccessFn, getClinicalAnnotationStepErrorFn);
 
             function getClinicalAnnotationStepSuccessFn(response) {
@@ -347,7 +348,7 @@
             function confirmFn(confirm_obj) {
                 if (confirm_obj.value === true) {
                     ClinicalAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                        vm.rois_annotation_step_id, vm.slide_id, confirm_obj.notes)
+                        vm.rois_annotation_id, vm.slide_id, confirm_obj.notes)
                         .then(closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn);
                 }
 
@@ -355,7 +356,7 @@
                     if (response.data.clinical_annotation_closed === true) {
                         $location.url('worklist');
                     } else {
-                        $location.url('worklist/' + vm.case_id + '/' + vm.rois_annotation_step_id);
+                        $location.url('worklist/' + vm.case_id + '/' + vm.rois_annotation_id);
                     }
                 }
 
