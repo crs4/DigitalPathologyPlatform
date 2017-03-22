@@ -1286,6 +1286,7 @@
                 )
                 .on('cellular_count_helper.saved',
                     function(event, helper_json) {
+                        AnnotationsViewerService.disableActiveTool();
                         vm.tmp_cellular_density_helper_exists = false;
                         vm.tmp_cellular_density_helper_id = undefined;
                         vm.cellular_density_helper_active = false;
@@ -1320,6 +1321,7 @@
                 )
                 .on('cellular_count_helper.saved',
                     function(event, helper_json) {
+                        AnnotationsViewerService.disableActiveTool();
                         vm.tmp_cellular_density_helper_exists = false;
                         vm.tmp_cellular_density_helper_id = undefined;
                         vm.g4_cellular_density_helper_active = false;
