@@ -199,8 +199,8 @@
         }
 
         function getAnnotationStepLink(annotationStep) {
-            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' +
-                vm.rois_annotation_id + '/' + annotationStep.id + '/annotations_manager';
+            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' + vm.rois_annotation_id + '/' +
+                annotationStep.rois_review_step + '/' + annotationStep.id + '/annotations_manager';
         }
 
         function startAnnotationStep(annotationStep) {
