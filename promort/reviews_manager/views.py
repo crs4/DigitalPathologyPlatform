@@ -308,6 +308,11 @@ class ROIsAnnotationStepDetail(APIView):
                         'status': 'ERROR',
                         'message': 'ROIs annotation step can\'t be closed'
                     }, status=status.HTTP_409_CONFLICT)
+            elif action == 'START_AND_FINISH':
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
             else:
                 return Response({
                     'status': 'ERROR',
@@ -316,7 +321,7 @@ class ROIsAnnotationStepDetail(APIView):
             annotation_step.save()
             # after closing an annotation step, also check if ROIs annotation can be closed
             rois_annotation_closed = False
-            if action == 'FINISH':
+            if action in ('FINISH', 'START_AND_FINISH'):
                 rois_annotation = annotation_step.rois_annotation
                 if rois_annotation.can_be_closed():
                     rois_annotation.completion_date = datetime.now()
@@ -422,6 +427,12 @@ class ClinicalAnnotationStepDetail(APIView):
                         'status': 'ERROR',
                         'message': 'clinical annotation step can\'t be closed'
                     }, status=status.HTTP_409_CONFLICT)
+            elif action == 'START_AND_FINISH':
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                    annotation_step.notes = request.data.get('notes')
             else:
                 return Response({
                     'status': 'ERROR',
@@ -429,7 +440,7 @@ class ClinicalAnnotationStepDetail(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
             clinical_annotation_closed = False
-            if action == 'FINISH':
+            if action in ('FINISH', 'START_AND_FINISH'):
                 clinical_annotation = annotation_step.clinical_annotation
                 if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
                     clinical_annotation.completion_date = datetime.now()
