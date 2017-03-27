@@ -90,7 +90,7 @@ class ClinicalAnnotationStep(models.Model):
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
                               blank=False)
     rois_review_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
-                                         blank=False)
+                                         blank=False, related_name='clinical_annotation_steps')
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)

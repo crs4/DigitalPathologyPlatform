@@ -25,7 +25,7 @@ from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
 from reviews_manager.views import ROIsAnnotationsList, ClinicalAnnotationsList, ROIsAnnotationsDetail, \
     ClinicalAnnotationsDetail, ROIsAnnotationDetail, ClinicalAnnotationDetail, ROIsAnnotationStepDetail, \
-    ClinicalAnnotationStepDetail
+    ClinicalAnnotationStepDetail, ClinicalAnnotationStepsList
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
@@ -50,6 +50,10 @@ urlpatterns = [
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
+
+    # ROIs annotation steps details
+    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/clinical_annotation_steps/$',
+        ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
     url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/rois_list/$', ROIsTreeList.as_view()),

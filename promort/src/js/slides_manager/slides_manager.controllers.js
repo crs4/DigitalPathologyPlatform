@@ -136,17 +136,29 @@
 
                 } else {
                     // close the review because image quality is bad
-                    ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
+                    ROIsAnnotationStepService.startAndCloseAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
                         vm.slide_id).then(closeReviewSuccessFn, closeReviewErrorFn);
 
                     //noinspection JSAnnotator
                     function closeReviewSuccessFn(response) {
+                        var rois_annotation_closed = response.data.rois_annotation_closed;
                         // TODO: close clinical annotation steps related to this object
-                        if (response.data.rois_annotation_closed === true) {
-                            $location.url('worklist');
-                        } else {
-                            // review closed, go back to case worklist
-                            $location.url('worklist/' + vm.case_id);
+                        var clinical_steps_notes = 'Automatically closed due to bad quality image';
+                        ROIsAnnotationStepService.startAndCloseClinicalAnnotationSteps(
+                            vm.annotation_step_id, clinical_steps_notes)
+                            .then(closeClinicalStepsSuccessFn, closeClinicalStepsErrorFn);
+
+                        function closeClinicalStepsSuccessFn(response) {
+                            if (rois_annotation_closed === true) {
+                                $location.url('worklist');
+                            } else {
+                                // review closed, go back to case worklist
+                                $location.url('worklist/' + vm.case_id);
+                            }
+                        }
+
+                        function closeClinicalStepsErrorFn(response) {
+                            console.error(response.error);
                         }
                     }
 

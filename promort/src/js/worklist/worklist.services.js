@@ -62,7 +62,9 @@
             get: get,
             getDetails: getDetails,
             startAnnotationStep: startAnnotationStep,
-            closeAnnotationStep: closeAnnotationStep
+            closeAnnotationStep: closeAnnotationStep,
+            startAndCloseAnnotationStep: startAndCloseAnnotationStep,
+            startAndCloseClinicalAnnotationSteps: startAndCloseClinicalAnnotationSteps
         };
 
         return ROIsAnnotationStepService;
@@ -90,6 +92,26 @@
         function closeAnnotationStep(case_id, reviewer, slide_id) {
             return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH');
         }
+
+        function startAndCloseAnnotationStep(case_id, reviewer, slide_id) {
+            return _annotationStepAction(case_id, reviewer, slide_id, 'START_AND_FINISH')
+        }
+
+        function _relatedClinicalAnnotationStepsAction(annotation_step_id, action, notes) {
+            var params = {
+                action: action,
+                notes: notes
+            };
+            return $http.put(
+                'api/rois_annotation_steps/' + annotation_step_id + '/clinical_annotation_steps/',
+                params
+            );
+        }
+
+        function startAndCloseClinicalAnnotationSteps(annotation_step_id, notes) {
+            return _relatedClinicalAnnotationStepsAction(annotation_step_id,
+                'START_AND_FINISH', notes);
+        }
     }
 
     ClinicalAnnotationStepService.$inject = ['$http'];
@@ -99,7 +121,8 @@
             get: get,
             getDetails: getDetails,
             startAnnotationStep: startAnnotationStep,
-            closeAnnotationStep: closeAnnotationStep
+            closeAnnotationStep: closeAnnotationStep,
+            startAndCloseAnnotationStep: startAndCloseAnnotationStep
         };
 
         return ClinicalAnnotationStepService;
@@ -132,6 +155,11 @@
         function closeAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id, notes) {
             return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id,
                 'FINISH', notes);
+        }
+
+        function startAndCloseAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id, notes) {
+            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id,
+                'START_AND_FINISH', notes);
         }
     }
 })();

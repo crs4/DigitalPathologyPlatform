@@ -84,7 +84,7 @@ class SliceAnnotationDetail(APIView):
         try:
             return SliceAnnotation.objects.get(slice=slice_id, annotation_step=annotation_step_id)
         except SliceAnnotation.DoesNotExist:
-            raise NotFound('There is no annotation for slice %d related to annotation step %d' %
+            raise NotFound('There is no annotation for slice %r related to annotation step %r' %
                            (slice_id, annotation_step_id))
 
     def get(self, request, slice_id, annotation_step_id, format=None):
@@ -138,7 +138,7 @@ class CoreAnnotationDetail(APIView):
         try:
             return CoreAnnotation.objects.get(core=core_id, annotation_step=annotation_step_id)
         except CoreAnnotation.DoesNotExist:
-            raise NotFound('There is no annotation for core %d related to annotation step %d' %
+            raise NotFound('There is no annotation for core %r related to annotation step %r' %
                            (core_id, annotation_step_id))
 
     def get(self, request, core_id, annotation_step_id, format=None):
@@ -193,7 +193,7 @@ class FocusRegionAnnotationDetail(APIView):
             return FocusRegionAnnotation.objects.get(focus_region=focus_region_id,
                                                      annotation_step=annotation_step_id)
         except FocusRegionAnnotation.DoesNotExist:
-            raise NotFound('There is no annotation for focus_region %d related to annotation step %d' %
+            raise NotFound('There is no annotation for focus_region %r related to annotation step %r' %
                            (focus_region_id, annotation_step_id))
 
     def get(self, request, focus_region_id, annotation_step_id, format=None):

@@ -171,11 +171,13 @@
 
                 $scope.$on('slice_annotation.deleted',
                     function(event, slice_label, slice_id) {
-                        var $icon = $("#" + slice_label).find('i');
-                        $icon.removeClass("icon-check_circle");
-                        $icon.addClass("icon-black_question");
-                        vm.allModesOff();
-                        vm.slices_edit_mode[slice_id] = true;
+                        if (slice_id in vm.slices_edit_mode) {
+                            var $icon = $("#" + slice_label).find('i');
+                            $icon.removeClass("icon-check_circle");
+                            $icon.addClass("icon-black_question");
+                            vm.allModesOff();
+                            vm.slices_edit_mode[slice_id] = true;
+                        }
                     }
                 );
 
@@ -191,11 +193,13 @@
 
                 $scope.$on('core_annotation.deleted',
                     function(event, core_label, core_id) {
-                        var $icon = $("#" + core_label).find('i');
-                        $icon.removeClass("icon-check_circle");
-                        $icon.addClass("icon-black_question");
-                        vm.allModesOff();
-                        vm.cores_edit_mode[core_id] = true;
+                        if (core_id in vm.cores_edit_mode) {
+                            var $icon = $("#" + core_label).find('i');
+                            $icon.removeClass("icon-check_circle");
+                            $icon.addClass("icon-black_question");
+                            vm.allModesOff();
+                            vm.cores_edit_mode[core_id] = true;
+                        }
                     }
                 );
 
@@ -211,11 +215,13 @@
 
                 $scope.$on('focus_region_annotation.deleted',
                     function(event, focus_region_label, focus_region_id) {
-                        var $icon = $("#" + focus_region_label).find('i');
-                        $icon.removeClass('icon-check_circle');
-                        $icon.addClass('icon-black_question');
-                        vm.allModesOff();
-                        vm.focus_regions_edit_mode[focus_region_id] = true;
+                        if (focus_region_id in vm.focus_regions_edit_mode) {
+                            var $icon = $("#" + focus_region_label).find('i');
+                            $icon.removeClass('icon-check_circle');
+                            $icon.addClass('icon-black_question');
+                            vm.allModesOff();
+                            vm.focus_regions_edit_mode[focus_region_id] = true;
+                        }
                     }
                 );
             }
@@ -239,7 +245,9 @@
         function _registerCore(core_info) {
             $rootScope.cores.push(core_info);
             vm.cores_map[core_info.id] = core_info.label;
-            vm.cores_edit_mode[core_info.id] = !core_info.annotated;
+            if (core_info.tumor === true) {
+                vm.cores_edit_mode[core_info.id] = !core_info.annotated;
+            }
         }
 
         function _getCoreLabel(core_id) {
@@ -249,7 +257,9 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
-            vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
+            if (focus_region_info.tumor === true) {
+                vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
+            }
         }
 
         function _getFocusRegionLabel(focus_region_id) {
@@ -416,13 +426,14 @@
                 var edit_mode = undefined;
                 switch (roi_type) {
                     case 'slice':
-                        edit_mode = vm.slices_edit_mode[roi_id];
+                        edit_mode = roi_id in vm.slices_edit_mode ? vm.slices_edit_mode[roi_id] : false;
                         break;
                     case 'core':
-                        edit_mode = vm.cores_edit_mode[roi_id];
+                        edit_mode = roi_id in vm.cores_edit_mode ? vm.cores_edit_mode[roi_id] : false;
                         break;
                     case 'focus_region':
-                        edit_mode = vm.focus_regions_edit_mode[roi_id];
+                        edit_mode = roi_id in vm.focus_regions_edit_mode ?
+                            vm.focus_regions_edit_mode[roi_id] : false;
                         break;
                 }
                 vm.deselectROI(roi_type, roi_id);
@@ -590,6 +601,7 @@
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
@@ -633,6 +645,10 @@
         }
 
         function isReadOnly() {
+            return false;
+        }
+
+        function isLocked() {
             return false;
         }
 
@@ -701,6 +717,7 @@
         vm.clinical_annotation_step_id = undefined;
 
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
 
@@ -737,6 +754,10 @@
 
         function isReadOnly() {
             return true;
+        }
+
+        function isLocked() {
+            return false;
         }
 
         function destroy() {
@@ -811,6 +832,7 @@
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.upgradeGradeGroupWho = updateGradeGroupWho;
@@ -854,6 +876,10 @@
         }
 
         function isReadOnly() {
+            return false;
+        }
+
+        function isLocked() {
             return false;
         }
 
@@ -926,10 +952,10 @@
     }
 
     ShowCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'CoreAnnotationsManagerService'];
+        'CoreAnnotationsManagerService', 'CoresManagerService'];
 
     function ShowCoreAnnotationController($scope, $routeParams, $rootScope, ngDialog,
-                                          CoreAnnotationsManagerService) {
+                                          CoreAnnotationsManagerService, CoresManagerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.core_label = undefined;
@@ -943,7 +969,10 @@
 
         vm.clinical_annotation_step_id = undefined;
 
+        vm.locked = undefined;
+
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
 
@@ -953,6 +982,7 @@
             vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
             $scope.$on('core_annotation.show',
                 function (event, core_id) {
+                    vm.locked = false;
                     vm.core_id = core_id;
                     CoreAnnotationsManagerService.getAnnotation(vm.core_id, vm.clinical_annotation_step_id)
                         .then(getCoreAnnotationSuccessFn, getCoreAnnotationErrorFn);
@@ -987,13 +1017,37 @@
             }
 
             function getCoreAnnotationErrorFn(response) {
-                console.error('Unable to load core annotation data');
-                console.error(response);
+                if (response.status === 404) {
+                    CoresManagerService.get(vm.core_id)
+                        .then(getCoreSuccessFn, getCoreErrorFn);
+                }
+                else {
+                    console.error('Unable to load core annotation data');
+                    console.error(response);
+                }
+
+                function getCoreSuccessFn(response) {
+                    vm.core_label = response.data.label;
+                    vm.coreArea = response.data.area;
+                    vm.coreLength = response.data.length;
+                    vm.tumorLength = response.data.tumor_length;
+                    vm.normalTissuePercentage = response.data.normal_tissue_percentage;
+                    vm.locked = true;
+                }
+
+                function getCoreErrorFn(response) {
+                    console.error('Unable to load core data');
+                    console.error(response);
+                }
             }
         }
 
         function isReadOnly() {
             return true;
+        }
+
+        function isLocked() {
+            return vm.locked;
         }
 
         function destroy() {
@@ -1090,6 +1144,7 @@
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
@@ -1286,6 +1341,7 @@
                 )
                 .on('cellular_count_helper.saved',
                     function(event, helper_json) {
+                        AnnotationsViewerService.disableActiveTool();
                         vm.tmp_cellular_density_helper_exists = false;
                         vm.tmp_cellular_density_helper_id = undefined;
                         vm.cellular_density_helper_active = false;
@@ -1320,6 +1376,7 @@
                 )
                 .on('cellular_count_helper.saved',
                     function(event, helper_json) {
+                        AnnotationsViewerService.disableActiveTool();
                         vm.tmp_cellular_density_helper_exists = false;
                         vm.tmp_cellular_density_helper_id = undefined;
                         vm.g4_cellular_density_helper_active = false;
@@ -1463,6 +1520,10 @@
             return false;
         }
 
+        function isLocked() {
+            return false;
+        }
+
         function formValid() {
             return true;
         }
@@ -1522,10 +1583,11 @@
     }
 
     ShowFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
+        'FocusRegionAnnotationsManagerService', 'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
     function ShowFocusRegionAnnotationController($scope, $routeParams, $rootScope, ngDialog,
-                                                 FocusRegionAnnotationsManagerService, AnnotationsViewerService) {
+                                                 FocusRegionAnnotationsManagerService, FocusRegionsManagerService,
+                                                 AnnotationsViewerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -1555,8 +1617,10 @@
         vm.ruler_hidden = true;
         vm.cellular_density_helper_hidden = true;
         vm.g4_cellular_density_helper_hidden = true;
+        vm.locked = undefined;
 
         vm.isReadOnly = isReadOnly;
+        vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
         vm.showHideRuler = showHideRuler;
@@ -1572,6 +1636,7 @@
             vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
             $scope.$on('focus_region_annotation.show',
                 function (event, focus_region_id) {
+                    vm.locked = false;
                     vm.focus_region_id = focus_region_id;
                     FocusRegionAnnotationsManagerService.getAnnotation(vm.focus_region_id,
                         vm.clinical_annotation_step_id)
@@ -1608,13 +1673,36 @@
             }
 
             function getFocusRegionAnnotationErrorFn(response) {
-                console.error('Unable to load focus region annotation data');
-                console.error(response);
+                if (response.status === 404) {
+                    FocusRegionsManagerService.get(vm.focus_region_id)
+                        .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
+                } else {
+                    console.error('Unable to load focus region annotation data');
+                    console.error(response);
+                }
+
+                function getFocusRegionSuccessFn(response) {
+                    vm.focus_region_label = response.data.label;
+                    vm.focusRegionArea = response.data.area;
+                    vm.coreCoveragePercentage = response.data.core_coverage_percentage;
+                    vm.cancerousRegion = response.data.cancerous_region;
+                    vm.focusRegionLength = response.data.length;
+                    vm.locked = true;
+                }
+
+                function getFocusRegionErrorFn(response) {
+                    console.error('Unable to load focus region data');
+                    console.error(response);
+                }
             }
         }
 
         function isReadOnly() {
             return true;
+        }
+
+        function isLocked() {
+            return vm.locked;
         }
 
         function destroy() {

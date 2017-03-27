@@ -308,6 +308,11 @@ class ROIsAnnotationStepDetail(APIView):
                         'status': 'ERROR',
                         'message': 'ROIs annotation step can\'t be closed'
                     }, status=status.HTTP_409_CONFLICT)
+            elif action == 'START_AND_FINISH':
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
             else:
                 return Response({
                     'status': 'ERROR',
@@ -316,7 +321,7 @@ class ROIsAnnotationStepDetail(APIView):
             annotation_step.save()
             # after closing an annotation step, also check if ROIs annotation can be closed
             rois_annotation_closed = False
-            if action == 'FINISH':
+            if action in ('FINISH', 'START_AND_FINISH'):
                 rois_annotation = annotation_step.rois_annotation
                 if rois_annotation.can_be_closed():
                     rois_annotation.completion_date = datetime.now()
@@ -343,6 +348,70 @@ class ROIsAnnotationStepDetail(APIView):
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ClinicalAnnotationStepsList(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_rois_annotation_step(self, annotation_step_id):
+        try:
+            return ROIsAnnotationStep.objects.get(id=annotation_step_id)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step with ID %s' % annotation_step_id)
+
+    def _apply_action(self, step, action, notes):
+        clinical_annotation = step.clinical_annotation
+        if action in ('START', 'START_AND_FINISH'):
+            if not clinical_annotation.is_started():
+                clinical_annotation.start_date = datetime.now()
+                clinical_annotation.save()
+        if action == 'START':
+            if not step.is_started():
+                step.start_date = datetime.now()
+        elif action == 'FINISH':
+            if not step.is_completed():
+                step.completion_date = datetime.now()
+                step.notes = notes
+        elif action == 'START_AND_FINISH':
+            if not step.is_started():
+                step.start_date = datetime.now()
+            if not step.is_completed():
+                step.completion_date = datetime.now()
+                step.notes = notes
+        step.save()
+        if action in ('FINISH', 'START_AND_FINISH'):
+            if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
+                clinical_annotation.completion_date = datetime.now()
+                clinical_annotation.save()
+
+    def get(self, request, pk, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(pk)
+        clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
+        serializer = ClinicalAnnotationStepSerializer(clinical_steps, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(pk)
+        clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
+        action = request.data.get('action')
+        notes = request.data.get('notes')
+        if action is not None:
+            action = action.upper()
+            if action in ('START', 'FINISH', 'START_AND_FINISH'):
+                for step in clinical_steps:
+                    self._apply_action(step, action, notes)
+                serializer = ClinicalAnnotationStepSerializer(clinical_steps, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'status': 'ERROR',
+                    'message': '%s is not a valid action' % action
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                'status': 'ERROR',
+                'message': 'missing \'action\' field in request data'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ClinicalAnnotationStepDetail(APIView):
@@ -422,6 +491,12 @@ class ClinicalAnnotationStepDetail(APIView):
                         'status': 'ERROR',
                         'message': 'clinical annotation step can\'t be closed'
                     }, status=status.HTTP_409_CONFLICT)
+            elif action == 'START_AND_FINISH':
+                if not annotation_step.is_started():
+                    annotation_step.start_date = datetime.now()
+                if not annotation_step.is_completed():
+                    annotation_step.completion_date = datetime.now()
+                    annotation_step.notes = request.data.get('notes')
             else:
                 return Response({
                     'status': 'ERROR',
@@ -429,7 +504,7 @@ class ClinicalAnnotationStepDetail(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             annotation_step.save()
             clinical_annotation_closed = False
-            if action == 'FINISH':
+            if action in ('FINISH', 'START_AND_FINISH'):
                 clinical_annotation = annotation_step.clinical_annotation
                 if clinical_annotation.can_be_closed() and not clinical_annotation.is_completed():
                     clinical_annotation.completion_date = datetime.now()

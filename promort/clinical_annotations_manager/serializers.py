@@ -140,12 +140,20 @@ class AnnotatedFocusRegionSerializer(serializers.ModelSerializer):
 class AnnotatedCoreSerializer(serializers.ModelSerializer):
     focus_regions = AnnotatedFocusRegionSerializer(many=True)
     clinical_annotations = CoreAnnotationInfosSerializer(many=True)
+    positive = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
         fields = ('id', 'label', 'slice', 'roi_json', 'length', 'area', 'tumor_length',
-                  'focus_regions', 'clinical_annotations')
+                  'focus_regions', 'clinical_annotations', 'positive')
         read_only_fields = fields
+
+    @staticmethod
+    def get_positive(obj):
+        for fr in obj.focus_regions.all():
+            if fr.cancerous_region:
+                return True
+        return False
 
 
 class AnnotatedSliceSerializer(serializers.ModelSerializer):
