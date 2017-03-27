@@ -44,7 +44,8 @@
     </div>
 
     <div class="form-group row"
-         ng-hide="cmCtrl.isReadOnly() || cmCtrl.cellularDensityHelperActive() || cmCtrl.cellularDensityExists()">
+         ng-hide="cmCtrl.isReadOnly() || cmCtrl.cellularDensityHelperActive()
+          || cmCtrl.cellularDensityExists() || cmCtrl.isLocked()">
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Region cells count</label>
         </div><!--
@@ -58,7 +59,7 @@
         </div>
     </div>
 
-    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive()"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive() && !cmCtrl.isLocked()">
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Region cells count</label>
         </div><!--
@@ -74,12 +75,12 @@
         </div>
     </div>
 
-    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive()"> <!--With the cell count tool active-->
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityHelperActive() && !cmCtrl.isLocked()">
         <div class="prm-row-elem">
             <input class="form-control" type="number" required id="spinner" ng-model="cmCtrl.cellularDensity">
         </div>
     </div>
-    <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+    <div class="form-group row" ng-show="cmCtrl.isReadOnly() && !cmCtrl.isLocked()">
         <div class="col-sm-12 prm-label-elem">
             <label>Region cells count</label>
         </div>
@@ -93,7 +94,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly()">
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly() && !cmCtrl.isLocked()">
         <div class="col-sm-12 prm-label-elem">
             <label>Region cells count</label>
         </div>
@@ -103,7 +104,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly()">
+    <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly() && !cmCtrl.isLocked()">
         <div class="col-sm-12 prm-row-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearCellularDensityHelper()"
                     title="Delete the count">
@@ -116,7 +117,7 @@
         </div>
     </div>
 
-    <fieldset class="promort_fieldset">
+    <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
         <legend class="prm-legend">gleason 4 data</legend>
         <!-- RULER -->
         <div class="form-group row"
@@ -248,7 +249,7 @@
         <!-- END OF CELLS COUNT -->
     </fieldset>
 
-    <fieldset class="promort_fieldset">
+    <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
         <legend class="prm-legend">patterns</legend>
         <div class="checkbox">
             <label>
