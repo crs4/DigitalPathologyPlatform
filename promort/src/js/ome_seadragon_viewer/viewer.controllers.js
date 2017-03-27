@@ -156,7 +156,8 @@
                                     'id': core.id,
                                     'label': core.label,
                                     'slice': core.slice,
-                                    'annotated': annotated
+                                    'annotated': annotated,
+                                    'tumor': core.positive
                                 };
                                 $rootScope.$broadcast('core.new', core_info);
                                 for (var fr in core.focus_regions) {
@@ -170,7 +171,8 @@
                                         'id': focus_region.id,
                                         'label': focus_region.label,
                                         'core': focus_region.core,
-                                        'annotated': annotated
+                                        'annotated': annotated,
+                                        'tumor': focus_region.cancerous_region
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
                                 }
