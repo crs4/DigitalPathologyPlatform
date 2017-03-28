@@ -1193,7 +1193,7 @@
                 vm.focus_region_label = response.data.label;
                 vm.focusRegionArea = response.data.area;
                 vm.focusRegionLength = response.data.length;
-                vm.coreCoveragePercentage = response.data.core_coverage_percentage;
+                vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.cancerousRegion = response.data.cancerous_region;
             }
 
@@ -1647,7 +1647,8 @@
             function getFocusRegionAnnotationSuccessFn(response) {
                 vm.focus_region_label = response.data.focus_region.label;
                 vm.focusRegionArea  = response.data.focus_region.area;
-                vm.coreCoveragePercentage = response.data.focus_region.core_coverage_percentage;
+                vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
+                    .toFixed(3));
                 vm.cancerousRegion = response.data.focus_region.cancerous_region;
                 vm.focusRegionLength = response.data.focus_region.length;
                 vm.perineuralInvolvement = response.data.perineural_involvement;
