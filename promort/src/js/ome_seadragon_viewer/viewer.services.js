@@ -49,6 +49,7 @@
             getShapeArea: getShapeArea,
             focusOnShape: focusOnShape,
             checkContainment: checkContainment,
+            adaptToContainer: adaptToContainer,
             createRulerBindings: createRulerBindings,
             clearRuler: clearRuler,
             createAreaRulerBindings: createAreaRulerBindings,
@@ -152,7 +153,13 @@
         function checkContainment(container_label, contained_label) {
             var container = this.roisManager.getShape(container_label);
             var contained = this.roisManager.getShape(contained_label);
-            return container.containsShape(contained);
+            return (container.containsShape(contained) || container.intersectsShape(contained));
+        }
+
+        function adaptToContainer(container_label, contained_label) {
+            var container = this.roisManager.getShape(container_label);
+            var contained = this.roisManager.getShape(contained_label);
+            this.roisManager.intersectShapes(container, contained, false, true, true);
         }
 
         function createRulerBindings(on_switch, off_switch, output) {
