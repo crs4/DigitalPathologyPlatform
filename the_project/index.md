@@ -1,7 +1,10 @@
 ---
 layout: default
 title: The project
+permalink: /project/
 ---
+
+## From the folder 
 
 The goal of the ProMort image management system is to conduct a large scale epidemiological study of patients that have beendiagnosed with a benign form of prostatic cancer but nevertheless died before expected.
 
