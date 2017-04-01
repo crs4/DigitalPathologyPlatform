@@ -1,7 +1,7 @@
 ---
 layout: default
 title: The project
-permalink: /project/
+permalink: /ProMort/project/
 ---
 
 ## From the root
