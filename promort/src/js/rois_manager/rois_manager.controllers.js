@@ -970,6 +970,7 @@
                     var slices = $rootScope.slices;
                     for (var s in slices) {
                         if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             console.log('FREEHAND SAVED ' + vm.shape);
                             vm._updateCoreData(polygon_label, slices[s]);
@@ -1134,6 +1135,7 @@
                     var slices = $rootScope.slices;
                     for (var s in slices) {
                         if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateCoreData(polygon_label, slices[s]);
                             break;
@@ -1594,6 +1596,7 @@
                     var cores = $rootScope.cores;
                     for (var c in cores) {
                         if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateFocusRegionData(polygon_label, cores[c]);
                             break;
@@ -1708,6 +1711,7 @@
                     var cores = $rootScope.cores;
                     for (var c in cores) {
                         if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateFocusRegionData(polygon_label, cores[c]);
                             break;
