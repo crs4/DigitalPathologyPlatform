@@ -2,6 +2,7 @@
 layout: default
 title: ROIs editing
 ---
+# ROIs editing
 
 ## Preliminary review
 When opening for the first time a Slide, user will perform a Preliminary review on the image. From this point on, the user can navigate on the viewer and zoom in/out to see the full details of the slide, he/she has to specify the type of staining (choosing among the options) and a quality evaluation. If the quality of the image is considered not good enough to perform the analysis, the user must specify a reason and, optionally, add notes. In that case, by saving, the review of the current slide is closed and the user will be redirect on the slide list page. If the quality is good, the user will be redirect to the ROIs editing page.  
