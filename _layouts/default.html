@@ -17,8 +17,9 @@
         <h1>{{ site.title | default: site.github.repository_name }}</h1>
         <p>{{ site.description | default: site.github.project_tagline }}</p>
         
-          <p><a href="{{ site.baseurl }}{% link index.md %}">Home</a></p>
+        <p><a href="{{ site.baseurl }}{% link index.md %}">Home</a></p>
         <p><a href="{{ site.baseurl }}{% link project.md %}">The project</a></p>
+        <p><a href="{{ site.baseurl }}{% link rois_editing.md %}">ROIs editing</a></p>
              
        
       </header>
@@ -29,7 +30,7 @@
       </section>
       <footer>
         {% if site.github.is_project_page %}
-        <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
+        <p>This tutorial is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
         {% endif %}
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
