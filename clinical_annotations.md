@@ -50,7 +50,7 @@ The counter tool is used to estimate the cells quantity inside the region. The u
 ![cl_ann_ed_cc2](./img/40.cl_ann_edit_cell_count_2.png)
 
 ## Gleason 4 data
-The user can put in evidence a region with a Gleason 4 pattern using the "Drow region" button inside the Gleason 4 data section. The tool works the same as the freehand drawing tool of the ROIs editing phase, but in a more flexible way: if the user draws outside the focus region, the application simply save the intersection between the two. The region is showd in a pale red color.
+The user can put in evidence a region with a Gleason 4 pattern using the "Drow region" button inside the Gleason 4 data section. The tool works the same as the freehand drawing tool of the ROIs editing phase, but in a more flexible way: if the user draws outside the focus region, the application simply save the intersection between the two. The region is showd in a pale red color. A **video tutorial** for this operations is available [here](./video_page.html).
 
 ![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area.png)
 
@@ -63,6 +63,8 @@ In the read-only mode of the focus region both the cells counter boxes and the G
 ![cl_ann_vo_rg](./img/44.cl_ann_view_only_region.png)
 
 ![cl_ann_vo_rg_2](./img/45.cl_ann_view_only_region_2.png)
+
+
 
 ## Gleason 4 percentage in the core
 Note that after the saving of a focus region that contains a Gleason 4 area, the form of the parent core is updated to show the percentage of that area.

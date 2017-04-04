@@ -27,3 +27,6 @@ By clicking on the “Start Review” or “Continue Review” button on the “
 The user can, from any point of the application, send a message to the system administrators to report any experienced problem or give a suggestion to enhance the interface or the workflow in relation to that specific page.
 
 ![feedback](./img/27.feedback.png)
+
+
+
