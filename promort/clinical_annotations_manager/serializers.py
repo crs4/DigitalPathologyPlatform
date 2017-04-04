@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 from rois_manager.models import Slice, Core, FocusRegion
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, \
-    FocusRegionAnnotation
+    FocusRegionAnnotation, Gleason4Element
 from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
 
 
@@ -114,6 +114,29 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'gleason_4_cellular_density_helper_json\' field')
+
+
+class Gleason4ElementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gleason4Element
+        fields = ('id', 'focus_region_annotation', 'json_path', 'area', 'cellular_density_helper_json',
+                  'cellular_density', 'cells_count')
+
+    @staticmethod
+    def validate_json_path(value):
+        try:
+            json.loads(value)
+            return value
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'json_path\' field')
+
+    @staticmethod
+    def validate_cellular_density_helper_json(value):
+        try:
+            json.loads(value)
+            return value
+        except ValueError:
+            raise serializers.ValidationError('Not a valid JSON in \'cellular_density_helper_json\' field')
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):

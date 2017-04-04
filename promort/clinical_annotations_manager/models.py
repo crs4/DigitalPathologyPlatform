@@ -89,3 +89,13 @@ class FocusRegionAnnotation(models.Model):
 
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
+
+
+class Gleason4Element(models.Model):
+    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_4_elements',
+                                                blank=False, on_delete=models.CASCADE)
+    json_path = models.TextField(blank=False, null=False)
+    area = models.FloatField(blank=False, null=False)
+    cellular_density_helper_json = models.TextField(blank=False, null=False)
+    cellular_density = models.IntegerField(blank=False, null=False)
+    cells_count = models.IntegerField(blank=False, null=False)
