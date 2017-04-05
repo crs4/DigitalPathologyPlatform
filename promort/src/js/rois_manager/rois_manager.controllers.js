@@ -984,7 +984,6 @@
                         });
                     }
                     vm.abortTool();
-                    $canvas.unbind('freehand_polygon_saved');
                     $scope.$apply();
                 }
             );
@@ -1148,7 +1147,6 @@
                         });
                     }
                     vm.abortTool();
-                    $canvas.unbind('polygon_saved');
                 }
             );
             AnnotationsViewerService.saveTemporaryPolygon('core');
@@ -1175,6 +1173,10 @@
         function abortTool() {
             if (vm.active_tool === vm.POLYGON_TOOL) {
                 AnnotationsViewerService.clearTemporaryPolygon();
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
+            }
+            if (vm.active_tool === vm.FREEHAND_TOOL) {
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('freehand_polygon_saved');
             }
             if (vm.active_tool === vm.RULER_TOOL) {
                 vm.deleteRuler();
@@ -1609,7 +1611,6 @@
                         });
                     }
                     vm.abortTool();
-                    $canvas.unbind('freehand_polygon_saved');
                     $scope.$apply();
                 }
             );
@@ -1724,7 +1725,6 @@
                         });
                     }
                     vm.abortTool();
-                    $canvas.unbind('polygon_saved');
                 }
             );
             AnnotationsViewerService.saveTemporaryPolygon('focus_region');
@@ -1744,6 +1744,10 @@
         function abortTool() {
             if (vm.active_tool === vm.POLYGON_TOOL) {
                 AnnotationsViewerService.clearTemporaryPolygon();
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
+            }
+            if (vm.active_tool === vm.FREEHAND_TOOL) {
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('freehand_polygon_saved');
             }
             if (vm.active_tool === vm.RULER_TOOL) {
                 vm.deleteRuler();
