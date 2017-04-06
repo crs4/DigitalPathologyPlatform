@@ -970,7 +970,8 @@
                     // check if new core is contained inside an existing slide
                     var slices = $rootScope.slices;
                     for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
                             AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             console.log('FREEHAND SAVED ' + vm.shape);
@@ -1134,7 +1135,8 @@
                 function(event, polygon_label) {
                     var slices = $rootScope.slices;
                     for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label)) {
+                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
                             AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateCoreData(polygon_label, slices[s]);
@@ -1598,7 +1600,8 @@
                 function(event, polygon_label){
                     var cores = $rootScope.cores;
                     for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
                             AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateFocusRegionData(polygon_label, cores[c]);
@@ -1712,7 +1715,8 @@
                 function(event, polygon_label) {
                     var cores = $rootScope.cores;
                     for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label)) {
+                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
                             AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
                             vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
                             vm._updateFocusRegionData(polygon_label, cores[c]);
