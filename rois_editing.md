@@ -5,7 +5,7 @@ title: ROIs editing
 # ROIs editing
 
 ## Preliminary review
-When opening for the first time a Slide, user will perform a Preliminary review on the image. From this point on, the user can navigate on the viewer and zoom in/out to see the full details of the slide, he/she has to specify the type of staining (choosing among the options) and a quality evaluation. If the quality of the image is considered not good enough to perform the analysis, the user must specify a reason and, optionally, add notes. In that case, by saving, the review of the current slide is closed and the user will be redirect on the slide list page. If the quality is good, the user will be redirect to the ROIs editing page.  
+When opening for the first time a Slide, user will perform a Preliminary review on the image. From this point on, the user can navigate on the viewer and zoom in/out to see the full details of the slide using the navigation panel. He/she has to specify the type of staining (choosing among the options) and a quality evaluation. If the quality of the image is considered not good enough to perform the analysis, the user must select a reason and, optionally, add notes. In that case, by saving, the review of the current slide is closed and the user will be redirected on the slide list page. If the quality is good, the user will be redirected to the ROIs editing page.  
 Note that, if the image does not have a good quality but the user still wants to go ahead with the analysis, he/she can do it by selecting the "Good quality" button and, preferably, adding a comment to explain that.
 
 ![preliminary_review](./img/5.preliminary_review.png)
@@ -13,22 +13,23 @@ Note that, if the image does not have a good quality but the user still wants to
 
 ![staining](./img/6.staining.png)
 ![quality_control](./img/7.quality_control.png)
-![quality_comment](./img/7.2.comment.png)
+![quality_commernt](./img/7.2.comment.png)
 
 &nbsp;
 
 ## ROIs editing
 
-After the Preliminary Review is completed and only if the images was marked as “Good” user can access the interface of the ROIs editing mode. He\she can navigate on the image, see the already created ROIs (in the ROIs list block), create new ROIs or clear all the existing ones (see details below).
+After the Preliminary Review is completed and only if the images was marked as “Good” user can access the interface of the ROIs editing mode. He\she can navigate on the image, see the already created ROIs (in the ROIs list block), create new ROIs, clear all the existing ones or confirm to close the drawing step (see details below).
 
 ![editing_home](./img/8.editing_home.png)
 
 &nbsp;
 
-## New slice
-Clicking on the “New item” button, the user can draw a slice (only a slice if it is the very first ROI) choosing among the polygon-drawing tool (shown as example in the figures) and the freehand one. To use the polygon-drawing tool simply drop points on the image and confirm with the “ ✔ ” button after the desired shape has been completed. Alternatively, the shape can be discharged with the “ ✗ ” button if the user is not satisfied with it. Then, add the number of cores and save the ROI, which will be added to the ROIs list in the left side. The eye button is to center and adapt the ROI to the viewer. The same functionality can be obtained by clicking on a ROI from the ROIs list.
+## New slice - polygon-drawing tool
+To add a ROI, the user can click on the "New item" menu and choose one of the options (only a slice if it is the very first ROI). To draw the shape, the user can choose among the polygon-drawing tool (shown as example in the figures) and the freehand one. To use the polygon-drawing tool simply drop points on the image and confirm with the “ ✔ ” button after the desired shape has been completed. Alternatively, the shape can be discharged with the “ ✗ ” button if the user is not satisfied with it. Then, add the number of cores and save the ROI, which will be added to the ROIs list in the left side. The eye button is to center and adapt the ROI to the viewer. The same functionality can be obtained by clicking on a ROI from the ROIs list.
 
 ![new_slice](./img/9.new_slice.png)
+
 ![new_slice](./img/10.new_slice_tools.png)
 ![new_slice](./img/11.new_slice_accept.png)
 ![new_slice](./img/12.new_slice_save.png)
@@ -38,8 +39,8 @@ Clicking on the “New item” button, the user can draw a slice (only a slice i
 
 &nbsp;
 
-## New core
-The procedure is the same seen for the slice. As an example, here is used the freehand-drawing tool that can be activated by clicking on a point of the viewer and keeping the mouse pressed dragging it until the shape is completed, releasing the mouse will create the shape and automatically accept it. Note that a new core can be added only if at least one slice is already present.
+## New core - freehand-drawing tool
+The procedure is the same seen for the slice. As an example, here is used the freehand-drawing tool that can be activated by clicking on a point of the viewer and keeping the mouse pressed dragging it until the shape is completed. Releasing the mouse will create the shape and automatically accept it. Note that a new core can be added only if at least one slice is already present and it must be, even partially, contained inside a slice.
 
 ![new_core](./img/14.new_core.png)
 ![new_core_tools](./img/15.new_core_tools.png)
@@ -49,13 +50,12 @@ The procedure is the same seen for the slice. As an example, here is used the fr
 &nbsp;
 
 ## Error message
-It should be noted that the system accepts core ROIs only if the shape is contained entirely inside the perimeter of a slice. Otherwise, a pop-up with an error message will be displayed and the shape will be discharged.
+The system discharges core ROIs that are entirely otuside the perimeter of a slice. In that case, a pop-up with an error message will be displayed to inform the user. Otherwise, if the shape is partially contained inside the slice, only the intersection will be maintained. The system will behave the same for focus region drawn partially outside a core (see below an example).  
 
 ![hierarchy_error](./img/17.hierarchy_error.png)
 
 ## Ruler tool
-To get the measure of the core length the user can drop points like he/she does using the polygon-drawing tool. By accepting the polyline with the “✔” button, the measure will be displayed. Ruler tool can also be deactivated with the “✗” button. The core ROI can be saved only its measure
-exists.
+To get the measure of the core length the user can drop points like he/she does using the polygon-drawing tool. By accepting the polyline with the “✔” button, the measure will be recorded. Ruler tool can also be deactivated with the “✗” button. The core ROI can be saved only if its measure exists.
 
 ![ruler_tool](./img/18.ruler_tool.png)
 
@@ -63,19 +63,26 @@ Optionally, the user can get the measure of the tumor (if present) in the same w
 
 ![ruler_tool_tumor](./img/18.2.ruler_tool_tumor.png)
 
+For each measure, the user can change the unity of measure (millimetres or micrometres) through the drop-down menu beside the value. 
+
 ![core_view_uom](./img/18.4.core_view_uom.png)
 
 &nbsp;
 
 ## New focus region
-The user can add a focus region just like he/she does with the core. Note that a focus region can be added only if at least a core exists and it must be drawn inside a core to be accepted.
+The user can add a focus region just like he/she did with the core. Note that a focus region can be added only if at least a core exists and it must be drawn inside a core to be accepted.
 
 ![new_focus_region](./img/19.new_focus_region.png)
 ![new_focus_region_tools](./img/20.new_focus_region_tools.png)
 
-![new_focus_region_save_tumor](./img/21.new_focus_region_save_tumor.png) 	
+If the focus region is drawn partially outside the core, the system automatically save only the intersection of the shapes.
 
-The user has to measure the length of the region with the ruler tool and to specify if it is a tumor region or not with the flag. Tumor regions are drawn in red while non-tumor regions are green.
+![inters_1](./img/19.fr_inters_1.png)
+![inters_2](./img/19.fr_inters_2.png)
+
+The user has to measure the length of the region with the ruler tool and can specify if it is a tumor region with the check button. Tumor regions are drawn in red while non-tumor regions are green.
+
+![new_focus_region_save_tumor](./img/21.new_focus_region_save_tumor.png) 	
 
 ![new_focus_region_view_tumor](./img/22.new_focus_region_view_tumor.png)
 
@@ -84,7 +91,7 @@ The user has to measure the length of the region with the ruler tool and to spec
 &nbsp;
 
 ## ROIs list
-The list of the ROIs is automatically populated every time the user add a new region of interest. Moreover it is useful to jump quickly from a ROI to another one and display the related annotations.
+The list of the ROIs is automatically populated every time the user add a new region of interest. This panel is useful to jump quickly from a ROI to another one, display it centered and adapted to the viewer and read the related annotations.
 
 ![tree_moving](./img/23.tree_moving.png)
 
@@ -107,7 +114,7 @@ In the top-right corner, the “Clear ROIs” button is to delete at the same ti
 
 ## Confirm ROIs
 
-By confirming the ROIs the user closes the editing phase, and he/she will be redirect to the worklist containing the pending annotations to proceede.
+By confirming the ROIs the user closes the editing phase, and he/she will be redirect to the worklist containing the pending annotations to proceede. This button becomes available only if at least a ROI has been added. Like the Clear and the Delete functions, the process can't be undone. 
 
 ![confirm_rois](./img/28.confirm_rois.png)
 
