@@ -107,10 +107,12 @@
     <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly() && !cmCtrl.isLocked()">
         <div class="col-sm-12 prm-row-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearCellularDensityHelper()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
                     title="Delete the count">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideCellularDensityHelper()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
                     title="Shows the position of the box tool">
                 <i class="show_cc_helper icon-eye"></i>
             </button>
@@ -146,11 +148,12 @@
                 <!-- TODO: insert unit of measure selector -->
                 <div class="input-group-btn">
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
-                            ng-hide="cmCtrl.isReadOnly()"
-                            title="Delete the shape">
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
+                            ng-hide="cmCtrl.isReadOnly()" title="Delete the shape">
                         <i class="icon-trash_can"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
                             title="Adapt the viewer to show the shape at the maximum size"
                             ng-disabled="!cmCtrl.rulerExists()">
                         <i class="show_ruler icon-eye"></i>
@@ -238,10 +241,12 @@
 
         <div class="form-group row" ng-show="cmCtrl.g4CellularDensityExists() && !cmCtrl.isReadOnly()">
             <div class="col-sm-12 prm-row-elem text-right">
-                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearG4CellularDensityHelper()">
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearG4CellularDensityHelper()"
+                        ng-disabled="cmCtrl.cellularDensityHelperActive()">
                     <i class="icon-trash_can"></i>
                 </button>
-                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()">
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()"
+                        ng-disabled="cmCtrl.cellularDensityHelperActive()">
                     <i class="show_g4_cc_helper icon-eye"></i>
                 </button>
             </div>
