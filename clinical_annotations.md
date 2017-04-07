@@ -13,10 +13,10 @@ This page gives the list of the pending clinical annotation for a specific case.
 ## Clinical annotation
 The page for the clinical annotation maintains the same structure used for the editing phase. In the left side there is a tree of the ROIs that allows the user to:
 
-* select the ROIs among those which present the "**?**" icons to annotate them;
-* jump quickly to one annotated region to another (that ones with the “✔” icon) and view the data in the form on the right side of the page. 
+* select a ROI among those which present the "**?**" icons to annotate them;
+* jump quickly from one annotated region to another (that ones with the “✔” icon) and view the data in the form on the right side of the page. 
 
-![cl_ann_hm](./img/31.clinical_annotation_hom.png)
+![cl_ann_hm](./img/31.clinical_annotation_home.png)
 
 ## Clinical annotation: slices
 The form for the annotation of a clinical slice contains some information derived automatically from the editing phase followed by a list of clinical observation to be checked if present. Note that the form has no constraints, so it can be also saved empty. 
@@ -29,16 +29,21 @@ After completing the annotation phase, the icon beside the slice name in the ROI
 
 
 ## Clincal annotation: cores
-First of all, the form shows some read-only data about the geometry of the ROI(coming from the previous editing phase). The only clinical annotations here regards the  grading system, and these are mandatory only in case of positive core. Note that the Grade Group WHO is automatically derived from the inserted Gleason grades.
+First of all, the form shows some read-only data about the geometry of the ROI (coming from the previous editing phase). The only clinical annotations here regards the  grading system for the tumor classification, and these are present and mandatory only in case of positive core. Note that the Grade Group WHO is automatically derived from the inserted Gleason grades.
 
 ![cl_ann_ed_cr_sv](./img/36.cl_ann_edit_core_save.png)
 
-In addiction, the form in the view-only mode, contains a field, the "Gleason pattern 4" which shows the percentage of that pattern on the core. Note that it is initially empty because it is a quantity derived from the subsequent annotation of the tumoral focus region.  
+In addiction, the form in the view-only mode, contains:
+
+* a field that indicates the percentage of the normal tissue;
+* a field named "Gleason pattern 4" which shows the percentage of that pattern on the core. 
+
+Note that the latter is initially empty because it is a quantity derived from the subsequent annotation of the tumoral focus region.  
 
 ![cl_ann_vo_cr](./img/37.cl_ann_viewonly_core.png)
 
 ## Clincal annotation: focus regions with tumor
-The form for the annotation of the focus region contains the main part of the whole clinical annotation plus some useful tools. Like the slice form, it can be saved empty (all the fields are optional) and shows firstly the geometric characterization of the region. 
+The form for the annotation of the focus region contains the main part of the whole clinical annotation together with some useful tools. Like the slice form, it can be saved empty (all the fields are optional) and shows firstly the geometric characterization of the region. 
 
 ![cl_ann_ed_rg](./img/38.cl_ann_edit_region.png)
 
@@ -50,21 +55,18 @@ The counter tool is used to estimate the cells quantity inside the region. The u
 ![cl_ann_ed_cc2](./img/40.cl_ann_edit_cell_count_2.png)
 
 ## Gleason 4 data
-The user can put in evidence a region with a Gleason 4 pattern using the "Drow region" button inside the Gleason 4 data section. The tool works the same as the freehand drawing tool of the ROIs editing phase, but in a more flexible way: if the user draws outside the focus region, the application simply save the intersection between the two. The region is showd in a pale red color. A **video tutorial** for this operations is available [here](./video_page.html).
+The user can put in evidence a region with a Gleason 4 pattern using the "Drow region" button inside the Gleason 4 data section. The tool works the same as the freehand drawing tool of the ROIs editing phase: if the user draws outside the focus region, the application simply save the intersection between the two. The region is showd in a pale red color. A **video tutorial** for this operations is available [here](./video_page.html).
 
-![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area.png)
+![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area_1.png)
+![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area_2.png)
 
 The cell counter tool is available also for the Gleason pattern 4 area.
 
 ![cl_ann_ed_g4_cc](./img/43.cl_ann_edit_gleason4_count.png)
 
-In the read-only mode of the focus region both the cells counter boxes and the Gleason 4 area can be turned off/on unsing the corresponding eye-buttons.
+In the read-only mode of the focus region both the cells counter boxes and the Gleason 4 area can be turned off/on using the corresponding eye-buttons.
 
 ![cl_ann_vo_rg](./img/44.cl_ann_view_only_region.png)
-
-![cl_ann_vo_rg_2](./img/45.cl_ann_view_only_region_2.png)
-
-
 
 ## Gleason 4 percentage in the core
 Note that after the saving of a focus region that contains a Gleason 4 area, the form of the parent core is updated to show the percentage of that area.

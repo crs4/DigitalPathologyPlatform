@@ -120,4 +120,4 @@ By confirming the ROIs the user closes the editing phase, and he/she will be red
 
 In the worklist the user can find a button beside the case that says "Start clinical annotation" (this happens when all the slides of the case are marked as good) or "Continue clinical annotation" (when there exist some bad qality images in the case). The former is green while the latter is yellow.
 
-&nbsp;
+![confirm_rois](./img/29.continue_clin_ann.png)
