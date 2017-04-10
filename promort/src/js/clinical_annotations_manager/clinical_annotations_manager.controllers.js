@@ -1413,6 +1413,7 @@
             vm.tmp_cellular_density_helper_id = undefined;
             vm.cellular_density_helper_active = false;
             vm.cellular_density_helper_hidden = true;
+            vm.cellularDensity = undefined;
             AnnotationsViewerService.disableActiveTool();
         }
 
@@ -1429,6 +1430,7 @@
             vm.tmp_cellular_density_helper_id = undefined;
             vm.g4_cellular_density_helper_active = false;
             vm.g4_cellular_density_helper_hidden = true;
+            vm.g4CellularDensity = undefined;
             AnnotationsViewerService.disableActiveTool();
         }
 
