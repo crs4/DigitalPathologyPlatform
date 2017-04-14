@@ -144,7 +144,7 @@
             </div>
             <div class="input-group prm-row-elem">
                 <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
-                       readonly ng-model="cmCtrl.gleason4ShapeArea">
+                       readonly ng-model="cmCtrl.tmpG4ShapeArea">
                 <!-- TODO: insert unit of measure selector -->
                 <div class="input-group-btn">
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
@@ -153,9 +153,9 @@
                         <i class="icon-trash_can"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
-                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
-                            title="Adapt the viewer to show the shape at the maximum size"
-                            ng-disabled="!cmCtrl.rulerExists()">
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()
+                                || !cmCtrl.rulerExists()"
+                            title="Adapt the viewer to show the shape at the maximum size">
                         <i class="show_ruler icon-eye"></i>
                     </button>
                 </div>
@@ -187,7 +187,7 @@
                 <button id="g4_cell_counter_activate" class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.startG4CellularDensityHelper()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.rulerToolActive() ||
-                         !cmCtrl.rulerExists()">
+                            !cmCtrl.rulerExists()">
                     <i class="icon-node_cluster"></i>
                 </button>
             </div>
@@ -210,7 +210,8 @@
 
         <div class="form-group row" ng-show="cmCtrl.g4CellularDensityHelperActive()">
             <div class="prm-row-elem prm-valign">
-                <input class="form-control" type="number" required id="g4_spinner" ng-model="cmCtrl.g4CellularDensity">
+                <input class="form-control" type="number" required id="g4_spinner"
+                       ng-model="cmCtrl.tmpG4CellularDensity">
             </div>
         </div>
         <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
@@ -218,7 +219,7 @@
                 <label>Cells count</label>
             </div>
             <div class="input-group prm-row-elem">
-                <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.g4CellsCount" readonly>
+                <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.tmpG4CellsCount" readonly>
                 <div class="input-group-btn">
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()"
                             ng-disabled="!cmCtrl.g4CellularDensityExists()">
@@ -234,7 +235,7 @@
             </div>
             <div class="prm-row-elem">
                 <div class="input">
-                    <input class="form-control" type="number" ng-model="cmCtrl.g4CellsCount" readonly>
+                    <input class="form-control" type="number" ng-model="cmCtrl.tmpG4CellsCount" readonly>
                 </div>
             </div>
         </div>
