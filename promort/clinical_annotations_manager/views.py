@@ -201,20 +201,23 @@ class FocusRegionAnnotationDetail(APIView):
         serializer = FocusRegionAnnotationDetailsSerializer(focus_region_annotation)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def _prepare_gleason_4_elements(self, g4_elements):
+        for element in g4_elements:
+            element['json_path'] = json.dumps(element['json_path'])
+            element['cellular_density_helper_json'] = json.dumps(element['cellular_density_helper_json'])
+        return g4_elements
+
     def post(self, request, focus_region_id, annotation_step_id, format=None):
         focus_region_annotation_data = request.data
         focus_region_annotation_data['focus_region'] = focus_region_id
         focus_region_annotation_data['annotation_step'] = annotation_step_id
         focus_region_annotation_data['author'] = request.user.username
-        if focus_region_annotation_data.get('gleason_4_path_json'):
-            focus_region_annotation_data['gleason_4_path_json'] = \
-                json.dumps(focus_region_annotation_data['gleason_4_path_json'])
+        if focus_region_annotation_data.get('gleason_4_elements'):
+            focus_region_annotation_data['gleason_4_elements'] = \
+                self._prepare_gleason_4_elements(focus_region_annotation_data['gleason_4_elements'])
         if focus_region_annotation_data.get('cellular_density_helper_json'):
             focus_region_annotation_data['cellular_density_helper_json'] = \
                 json.dumps(focus_region_annotation_data['cellular_density_helper_json'])
-        if focus_region_annotation_data.get('gleason_4_cellular_density_helper_json'):
-            focus_region_annotation_data['gleason_4_cellular_density_helper_json'] = \
-                json.dumps(focus_region_annotation_data['gleason_4_cellular_density_helper_json'])
         serializer = FocusRegionAnnotationSerializer(data=focus_region_annotation_data)
         if serializer.is_valid():
             try:
