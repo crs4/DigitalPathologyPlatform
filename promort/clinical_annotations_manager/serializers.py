@@ -77,9 +77,8 @@ class CoreAnnotationInfosSerializer(serializers.ModelSerializer):
 class Gleason4ElementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gleason4Element
-        fields = ('id', 'focus_region_annotation', 'json_path', 'area', 'cellular_density_helper_json',
+        fields = ('id', 'json_path', 'area', 'cellular_density_helper_json',
                   'cellular_density', 'cells_count')
-        write_only_fields = ('focus_region_annotation',)
 
     @staticmethod
     def validate_json_path(value):
@@ -113,6 +112,13 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
                   'gleason_4_elements', 'cellular_density_helper_json', 'cellular_density', 'cells_count')
         read_only_fields = ('id', 'creation_date')
         write_only_fields = ('annotation_step',)
+
+    def create(self, validated_data):
+        g4_elements_data = validated_data.pop('gleason_4_elements')
+        annotation = FocusRegionAnnotation.objects.create(**validated_data)
+        for element_data in g4_elements_data:
+            Gleason4Element.objects.create(focus_region_annotation=annotation, **element_data)
+        return annotation
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
