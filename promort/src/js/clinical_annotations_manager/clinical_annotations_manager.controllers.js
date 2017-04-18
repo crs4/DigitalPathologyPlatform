@@ -1526,6 +1526,7 @@
                 cellular_density_helper_json: vm.tmpG4CellularDensityHelperShape,
                 cellular_density: vm.tmpG4CellularDensity,
                 cells_count: vm.tmpG4CellsCount,
+                gleason_type: 'G4'
             };
             vm.gleason4Elements[vm.tmpG4CellularDensityHelperShape.shape_id] = tmp_g4_object;
         }
@@ -1587,7 +1588,7 @@
                 cellular_density_helper_json: vm.cellularDensityHelperShape,
                 cellular_density: vm.cellularDensity,
                 cells_count: vm.cellsCount,
-                gleason_4_elements: gleason_4_elements
+                gleason_elements: gleason_4_elements
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_id, obj_config)
