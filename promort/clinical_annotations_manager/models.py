@@ -85,10 +85,21 @@ class FocusRegionAnnotation(models.Model):
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
 
+    def get_gleason_4_elements(self):
+        return self.gleason_elements.filter(gleason_type='G4')
 
-class Gleason4Element(models.Model):
-    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_4_elements',
+
+class GleasonElement(models.Model):
+    GLEASON_TYPES = (
+        ('G1', 'GLEASON_1'),
+        ('G2', 'GLEASON_2'),
+        ('G3', 'GLEASON_3'),
+        ('G4', 'GLEASON_4'),
+        ('G5', 'GLEASON_5')
+    )
+    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
                                                 blank=False, on_delete=models.CASCADE)
+    gleason_type = models.CharField(max_length=2, choices=GLEASON_TYPES, blank=False, null=False)
     json_path = models.TextField(blank=False, null=False)
     area = models.FloatField(blank=False, null=False)
     cellular_density_helper_json = models.TextField(blank=False, null=False)
