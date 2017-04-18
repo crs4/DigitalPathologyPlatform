@@ -112,19 +112,19 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
                   'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
                   'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements',
                   'gleason_4_elements')
-        read_only_fields = ('id', 'creation_date', 'gleason_4_elements')
-        write_only_fields = ('annotation_step', 'gleason_elements')
+        read_only_fields = ('creation_date', 'gleason_4_elements')
+        write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 
     def create(self, validated_data):
-        g4_elements_data = validated_data.pop('gleason_elements')
+        gleason_elements_data = validated_data.pop('gleason_elements')
         annotation = FocusRegionAnnotation.objects.create(**validated_data)
-        for element_data in g4_elements_data:
+        for element_data in gleason_elements_data:
             GleasonElement.objects.create(focus_region_annotation=annotation, **element_data)
         return annotation
 
     @staticmethod
     def get_gleason_4_elements(obj):
-        return [GleasonElementSerializer(g4_el) for g4_el in obj.get_gleason_4_elements()]
+        return [GleasonElementSerializer(g4_el).data for g4_el in obj.get_gleason_4_elements()]
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
