@@ -122,6 +122,18 @@
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
         <legend class="prm-legend">gleason 4 data</legend>
         <!-- RULER -->
+        <!-- ACQUIRE NEW GLEASON 4 AREA -->
+        <div class="form-group row">
+            <div class="col-sm-7 prm-valign prm-label-elem">
+                <label>New Element</label>
+            </div><!--
+         --><div class="col-sm-5 prm-valign prm-form-elem">
+                <button id="new_gleason_4" class="btn btn-default prm-icon-btn">
+                    <i class="icon-plus"></i>
+                </button>
+            </div>
+        </div>
+        <!-- ACQUIRE NEW GLEASON 4 AREA -->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists()"> <!-- Before creating the shape-->
             <div class="col-sm-7 prm-valign prm-label-elem">
