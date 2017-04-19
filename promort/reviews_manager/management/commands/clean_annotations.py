@@ -41,8 +41,7 @@ class Command(BaseCommand):
                     self.stdout.write('DELETE FocusRegionAnnotation %r' % focus_region_annotation.id)
                     focus_region_annotation.delete()
                 # reset start and completion date for clinical annotation step
-                self.stdout.write('ERASING START AND FINISH date for ClinicalAnnotationStep')
-                clinical_step.start_date = None
+                self.stdout.write('ERASING FINISH date for ClinicalAnnotationStep')
                 clinical_step.completion_date = None
                 clinical_step.save()
                 # also reopen clinical annotation (if needed)
@@ -54,8 +53,7 @@ class Command(BaseCommand):
                 self.stdout.write('DELETE Slice %r (and related ROIs)' % slice.label)
                 slice.delete()
             # reset start and completion fate for ROIs annotation step
-            self.stdout.write('ERASING START AND FINISH date for ROIsAnnotationStep')
-            rois_annotation_step.start_date = None
+            self.stdout.write('ERASING FINISH date for ROIsAnnotationStep')
             rois_annotation_step.completion_date = None
             rois_annotation_step.save()
             # also reopen ROIs annotation (if needed)
