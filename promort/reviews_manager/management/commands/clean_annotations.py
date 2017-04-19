@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 # also reopen clinical annotation (if needed)
                 if clinical_step.clinical_annotation.is_completed():
                     self.stdout.write('REOPENING ClinicalAnnotation')
-                    clinical_step.clinical_annotation.start_date = None
+                    clinical_step.clinical_annotation.completion_date = None
                     clinical_step.clinical_annotation.save()
             for slice in rois_annotation_step.slices.all():
                 self.stdout.write('DELETE Slice %r (and related ROIs)' % slice.label)
