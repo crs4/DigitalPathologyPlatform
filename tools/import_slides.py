@@ -91,6 +91,16 @@ class SlidesImporter(object):
             self.logger.warn('Unable to create case with ID %r', case_id)
             return False
 
+    def _check_case_existence(self, case_id):
+        url = urljoin(self.promort_host, 'api/%s/' % case_id)
+        response = self.promort_client.get(url)
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Case \'%s\' exists', case_id)
+            return True
+        else:
+            self.logger.info('No case with ID \'%s\'', case_id)
+            return False
+
     def _save_slide(self, slide_id, case, omero_id, image_type, image_mpp):
         payload = {
             'id': slide_id,
@@ -146,12 +156,12 @@ class SlidesImporter(object):
     def _serialize_slides(self):
         slides_map = self._get_ome_images()
         for case, slides in slides_map.iteritems():
-            case_saved = self._save_case(case)
-            if case_saved:
+            self._save_case(case)
+            case_exists = self._check_case_existence(case)
+            if case_exists:
                 for slide in slides:
                     self._save_slide(slide['name'], case, slide['omero_id'],
                                      slide['img_type'], self._get_slide_mpp(slide))
-
 
     def _get_slides_map(self):
         slides_map = {}
