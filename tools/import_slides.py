@@ -92,13 +92,16 @@ class SlidesImporter(object):
             return False
 
     def _check_case_existence(self, case_id):
-        url = urljoin(self.promort_host, 'api/%s/' % case_id)
+        url = urljoin(self.promort_host, 'api/cases/%s/' % case_id)
         response = self.promort_client.get(url)
-        if response.status_code == requests.codes.OK:
-            self.logger.info('Case \'%s\' exists', case_id)
+        try:
+            response.json()
+            self.logger.info('Case with ID %s exists', case_id)
             return True
-        else:
-            self.logger.info('No case with ID \'%s\'', case_id)
+        except ValueError:
+            # default landing page
+            self.logger.info('There is no case with ID %s', case_id)
+            return False
             return False
 
     def _save_slide(self, slide_id, case, omero_id, image_type, image_mpp):
