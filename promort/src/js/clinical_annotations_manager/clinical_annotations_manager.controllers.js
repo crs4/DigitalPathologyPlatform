@@ -1125,6 +1125,8 @@
         vm.cellularDensity = undefined;
         vm.cellsCount = undefined;
 
+        vm.gleason4ModeActive = false;
+
         vm.tmpG4Shape = undefined;
         vm.tmpG4ShapeArea = undefined;
         vm.tmpG4CellularDensityHelperShape = undefined;
@@ -1151,6 +1153,11 @@
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
+        vm.startGleason4Tool = startGleason4Tool;
+        vm.stopGleason4Tool = stopGleason4Tool;
+        vm.abortGleason4Tool = abortGleaon4Tool;
+        vm.gleason4ToolActive = gleason4ToolActive;
+        vm.gleason4DataValid = gleason4DataValid;
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
         vm.rulerToolActive = rulerToolActive;
@@ -1241,6 +1248,30 @@
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
             vm.ruler_hidden = true;
+        }
+
+        function startGleason4Tool() {
+            vm.gleason4ModeActive = true;
+        }
+
+        function stopGleason4Tool() {
+            vm.gleason4ModeActive = false;
+        }
+
+        function abortGleaon4Tool() {
+            vm.abortRuler();
+            vm.clearRuler();
+            vm.abortG4CellularDensityHelper();
+            vm.clearG4CellularDensityHelper();
+            vm.stopGleason4Tool();
+        }
+
+        function gleason4ToolActive() {
+            return vm.gleason4ModeActive;
+        }
+
+        function gleason4DataValid() {
+            return (typeof (vm.tmpG4Shape) !== 'undefined') && (typeof (vm.tmpG4CellsCount) !== 'undefined');
         }
 
         function initializeRuler() {
