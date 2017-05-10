@@ -124,13 +124,10 @@
 
         <!-- ACQUIRE NEW GLEASON 4 AREA -->
         <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive()">
-            <div class="col-sm-7 prm-valign prm-label-elem">
-                <label>New Element</label>
-            </div><!--
-         --><div class="col-sm-5 prm-valign prm-form-elem">
-                <button id="new_gleason_4" class="btn btn-default prm-icon-btn"
+            <div class="col-sm-12 text-center prm-valign prm-form-elem">
+                <button id="new_gleason_4" class="btn btn-default"
                         ng-click="cmCtrl.startGleason4Tool()">
-                    <i class="icon-plus"></i>
+                    Add Gleason 4 Element
                 </button>
             </div>
         </div>
@@ -272,6 +269,7 @@
         </div>
         <!------------------------------->
 
+        <!-- TEMPORARY GLEASON 4 CONTROLS -->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
             <div class="col-sm-12 prm-row-elem text-right">
@@ -286,6 +284,25 @@
                 </button>
             </div>
         </div>
+        <!---------------------------------->
+
+        <!-- EXISTING GLEASON 4 ELEMENTS LIST -->
+        <div class="form-group row">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label>{{ g4_label }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right">
+                    <button class="btn btn-default prm-icon-btn">
+                        <i id="{{ g4_label }}" class="icon-eye prm-pale-icon"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn">
+                        <i class="icon-cross_mark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-------------------------------------->
     </fieldset>
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
