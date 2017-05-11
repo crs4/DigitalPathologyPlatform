@@ -1135,6 +1135,7 @@
 
         vm.gleason4Elements = undefined;
         vm.gleason4ElementsLabels = undefined;
+        vm.displayedGleason4ElementsLabels = undefined;
 
         vm.clinical_annotation_step_id = undefined;
 
@@ -1187,6 +1188,7 @@
         vm.showHideCellularDensityHelper = showHideCeullularDensityHelper;
         vm.showHideG4CellularDensityHelper = showHideG4CellularDensityHelper;
         vm.acceptTemporaryGleason4 = acceptTemporaryGleason4;
+        vm.showHideGleason4Element = showHideGleason4Element;
 
         activate();
 
@@ -1195,6 +1197,7 @@
 
             vm.gleason4Elements = {};
             vm.gleason4ElementsLabels = [];
+            vm.displayedGleason4ElementsLabels = [];
 
             $scope.$on('focus_region_annotation.new',
                 function(event, focus_region_id) {
@@ -1246,6 +1249,8 @@
             vm.comedoNecrosis = false;
 
             vm.gleason4Elements = {};
+            vm.gleason4ElementsLabels = [];
+            vm.displayedGleason4ElementsLabels = [];
 
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
@@ -1647,6 +1652,32 @@
                 console.error('Unable to save annotation');
                 console.error(response.data);
                 dialog.close();
+            }
+        }
+
+        function showHideGleason4Element(element_id) {
+            console.log('CALLED showHideGleason4Element with parameter ' + element_id);
+            console.log(vm.displayedGleason4ElementsLabels);
+            if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
+                // hide element
+                AnnotationsViewerService.deleteShape(
+                    vm.gleason4Elements[element_id].json_path.shape_id
+                );
+                AnnotationsViewerService.deleteShape(
+                    vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
+                );
+                $("#" + element_id).addClass('prm-pale-icon');
+                removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+            } else {
+                // show element
+                AnnotationsViewerService.drawShape(
+                    vm.gleason4Elements[element_id].json_path
+                );
+                AnnotationsViewerService.drawShape(
+                    vm.gleason4Elements[element_id].cellular_density_helper_json
+                );
+                $("#" + element_id).removeClass('prm-pale-icon');
+                vm.displayedGleason4ElementsLabels.push(element_id);
             }
         }
     }
