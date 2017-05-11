@@ -1187,6 +1187,7 @@
         vm.g4CellularDensityExists = g4CellularDensityExists;
         vm.showHideCellularDensityHelper = showHideCeullularDensityHelper;
         vm.showHideG4CellularDensityHelper = showHideG4CellularDensityHelper;
+        vm._getG4ElementIndexLabel = _getG4ElementIndexLabel;
         vm.acceptTemporaryGleason4 = acceptTemporaryGleason4;
         vm._hideGleason4Element = _hideGleason4Element;
         vm._showGleason4Element = _showGleason4Element;
@@ -1561,11 +1562,24 @@
             }
         }
 
+        function _getG4ElementIndexLabel() {
+            var index = 1;
+            var valid_label = false;
+            while (!valid_label) {
+                if (vm.gleason4ElementsLabels.indexOf('g4_element_' + index) !== -1) {
+                    index += 1;
+                } else {
+                    valid_label = true;
+                }
+            }
+            return index;
+        }
+
         function acceptTemporaryGleason4() {
             var old_gleason_4_shape_id = vm.tmpG4Shape.shape_id;
             var old_cc_helper_shape_id = vm.tmpG4CellularDensityHelperShape.shape_id;
-            var gleason_4_shape_id = 'g4_element_' + (vm.gleason4ElementsLabels.length + 1);
-            var cc_helper_shape_id = 'g4_cc_help_' + (vm.gleason4ElementsLabels.length + 1);
+            var gleason_4_shape_id = 'g4_element_' + vm._getG4ElementIndexLabel();
+            var cc_helper_shape_id = 'g4_cc_help_' + vm._getG4ElementIndexLabel();
             vm.tmpG4Shape.shape_id = gleason_4_shape_id;
             vm.tmpG4CellularDensityHelperShape.shape_id = cc_helper_shape_id;
             var tmp_g4_object = {
