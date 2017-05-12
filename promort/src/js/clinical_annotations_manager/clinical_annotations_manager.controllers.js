@@ -1634,8 +1634,6 @@
                 closeByNavigation: false,
                 closeByDocument: false
             });
-            // TODO: this must be associated to a proper button of the UI
-            vm.acceptTemporaryGleason4();
             // build the list with Gleason 4 elements
             var gleason_4_elements = Object.keys(vm.gleason4Elements).map(
                 function(key) {
