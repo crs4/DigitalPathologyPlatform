@@ -52,7 +52,7 @@
      --><div class="col-sm-5 prm-valign prm-form-elem">
             <button id="cell_counter_activate" class="btn btn-default prm-icon-btn"
                     ng-click="cmCtrl.startCellularDensityHelper()"
-                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.gleason4ToolActive()"
                     title="Count the cells within the box">
                 <i class="icon-node_cluster"></i>
             </button>
@@ -136,7 +136,7 @@
         <!-- NEW GLEASON 4 ELEMENT -->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists() ||
-             !cmCtrl.gleason4ToolActive()">
+                !cmCtrl.gleason4ToolActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Draw region</label>
             </div><!--
@@ -167,8 +167,7 @@
         <!--------------------------->
 
         <!-- SHOW GLEASON 4 DATA -->
-        <div id="show_area_measure" class="form-group row"
-             ng-show="cmCtrl.isReadOnly() || cmCtrl.rulerExists()">
+        <div id="show_area_measure" class="form-group row" ng-show="cmCtrl.isReadOnly() || cmCtrl.rulerExists()">
             <div class="prm-label-elem">
                 <label>Region area</label>
             </div>
@@ -287,7 +286,7 @@
         <!---------------------------------->
 
         <!-- EXISTING GLEASON 4 ELEMENTS LIST -->
-        <div class="form-group row">
+        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive()">
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>

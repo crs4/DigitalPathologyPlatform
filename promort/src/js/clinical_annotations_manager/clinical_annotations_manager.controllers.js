@@ -1236,6 +1236,10 @@
             vm.clearCellularDensityHelper();
             vm.clearG4CellularDensityHelper();
 
+            for (var el in vm.gleason4ElementsLabels) {
+                vm._hideGleason4Element(vm.gleason4ElementsLabels[el]);
+            }
+
             vm.focus_region_id = undefined;
             vm.focus_region_label = undefined;
             vm.focusRegionArea = undefined;
@@ -1272,6 +1276,7 @@
         function abortGleaon4Tool(g4_shape_id, g4_cc_helper_shape_id) {
             vm.abortRuler();
             vm.clearRuler(g4_shape_id, g4_cc_helper_shape_id);
+            vm.abortG4CellularDensityHelper();
             vm.stopGleason4Tool();
         }
 
@@ -1612,7 +1617,7 @@
         }
 
         function formValid() {
-            return true;
+            return !vm.gleason4ToolActive();
         }
 
         function destroy() {
@@ -1621,8 +1626,6 @@
         }
 
         function save() {
-            console.log('CELLS COUNT: ' + vm.cellsCount);
-            console.log('CELL SHAPE ' + vm.cellularDensityHelperShape);
             var dialog = undefined;
             dialog = ngDialog.open({
                 template: '/static/templates/dialogs/saving_data.html',
@@ -1711,8 +1714,6 @@
             }
             removeItemFromArray(element_id, vm.gleason4ElementsLabels);
             delete(vm.gleason4Elements[element_id]);
-            console.log(vm.gleason4Elements);
-            console.log(vm.gleason4ElementsLabels);
         }
     }
 
