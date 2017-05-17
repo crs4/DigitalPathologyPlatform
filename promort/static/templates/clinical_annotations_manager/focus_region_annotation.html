@@ -166,6 +166,32 @@
         </div>
         <!--------------------------->
 
+        <!-- SHOW GLEASON 4 DATA -->
+        <div id="show_area_measure" class="form-group row" ng-show="!cmCtrl.isReadOnly() || cmCtrl.rulerExists()">
+            <div class="prm-label-elem">
+                <label>Region area</label>
+            </div>
+            <div class="input-group prm-row-elem">
+                <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
+                       readonly ng-model="cmCtrl.tmpG4ShapeArea">
+                <!-- TODO: insert unit of measure selector -->
+                <div class="input-group-btn">
+                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
+                            ng-hide="cmCtrl.isReadOnly()" title="Delete the shape">
+                        <i class="icon-trash_can"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()
+                                || !cmCtrl.rulerExists()"
+                            title="Adapt the viewer to show the shape at the maximum size">
+                        <i class="show_ruler icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!------------------------->
+
         <!-- NEW GLEASON 4 CELLS COUNT --->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.g4CellularDensityHelperActive() ||
