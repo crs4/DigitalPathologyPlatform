@@ -1740,11 +1740,9 @@
         vm.cellularDensityHelperShape = undefined;
         vm.cellsCount = undefined;
 
-        vm.tmpG4Shape = undefined;
-        vm.tmpG4ShapeArea = undefined;
-        vm.tmpG4CellularDensityHelperShape = undefined;
-        vm.tmpG4CellularDensity = undefined;
-        vm.tmpG4CellsCount = undefined;
+        vm.gleason4Elements = undefined;
+        vm.gleason4ElementsLabels = undefined;
+        vm.displayedGleason4ElementsLabels = undefined;
 
         vm.clinical_annotation_step_id = undefined;
 
@@ -1757,12 +1755,11 @@
         vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
-        vm.showHideRuler = showHideRuler;
         vm.showHideCellularDensityHelper = showHideCellularDensityHelper;
-        vm.showHideG4CellularDensityHelper = showHideG4CellularDensityHelper;
         vm.cellularDensityExists = cellularDensityExists;
-        vm.g4CellularDensityExists = g4CellularDensityExists;
-        vm.rulerExists = rulerExists;
+        vm._hideGleason4Element = _hideGleason4Element;
+        vm._showGleason4Element = _showGleason4Element;
+        vm.showHideGleason4Element = showHideGleason4Element;
 
         activate();
 
@@ -1796,13 +1793,19 @@
                 vm.comedoNecrosis = response.data.comedo_necrosis;
                 vm.cellularDensityHelperShape = $.parseJSON(response.data.cellular_density_helper_json);
                 vm.cellsCount = response.data.cells_count;
-                // TODO: this won't be necessary when the app will be able to handle multiple G4 regions
-                vm.tmpG4Shape = $.parseJSON(response.data.gleason_4_elements[0].json_path);
-                vm.tmpG4ShapeArea = response.data.gleason_4_elements[0].area;
-                vm.tmpG4CellularDensityHelperShape =
-                    $.parseJSON(response.data.gleason_4_elements[0].cellular_density_helper_json);
-                vm.tmpG4CellularDensity = response.data.gleason_4_elements[0].cellular_density;
-                vm.tmpG4CellsCount = response.data.gleason_4_elements[0].cells_count;
+
+                vm.gleason4Elements = {};
+                vm.gleason4ElementsLabels = [];
+                vm.displayedGleason4ElementsLabels = [];
+                // load Gleason 4 elements
+                var gleason_4_elements = response.data.gleason_4_elements;
+                for (var g4_el in gleason_4_elements) {
+                    var g4e = gleason_4_elements[g4_el];
+                    g4e.json_path = $.parseJSON(g4e.json_path);
+                    g4e.cellular_density_helper_json = $.parseJSON(g4e.cellular_density_helper_json);
+                    vm.gleason4ElementsLabels.push(g4e.json_path.shape_id);
+                    vm.gleason4Elements[g4e.json_path.shape_id] = g4e;
+                }
 
                 $(".show_ruler").addClass('prm-pale-icon');
                 $(".show_cc_helper_addon").addClass('prm-pale-icon');
@@ -1922,24 +1925,6 @@
             }
         }
 
-        function showHideRuler() {
-            if (vm.tmpG4Shape) {
-                if (vm.ruler_hidden === true) {
-                    AnnotationsViewerService.drawShape(vm.tmpG4Shape);
-                    $(".show_ruler").removeClass('prm-pale-icon');
-                    vm.ruler_hidden = false;
-                } else {
-                    AnnotationsViewerService.deleteShape(vm.tmpG4Shape.shape_id);
-                    $(".show_ruler").addClass('prm-pale-icon');
-                    vm.ruler_hidden = true;
-                }
-            }
-        }
-
-        function rulerExists() {
-            return (vm.tmpG4Shape !== null && typeof vm.tmpG4Shape !== 'undefined');
-        }
-
         function showHideCellularDensityHelper() {
             if (vm.cellularDensityHelperShape) {
                 if (vm.cellular_density_helper_hidden === true) {
@@ -1954,27 +1939,40 @@
             }
         }
 
-        function showHideG4CellularDensityHelper() {
-            if (vm.tmpG4CellularDensityHelperShape) {
-                if (vm.g4_cellular_density_helper_hidden === true) {
-                    AnnotationsViewerService.drawShape(vm.tmpG4CellularDensityHelperShape);
-                    $(".g4_show_cc_helper_addon").removeClass('prm-pale-icon');
-                    vm.g4_cellular_density_helper_hidden = false;
-                } else {
-                    AnnotationsViewerService.deleteShape(vm.tmpG4CellularDensityHelperShape.shape_id);
-                    $(".g4_show_cc_helper_addon").addClass('prm-pale-icon');
-                    vm.g4_cellular_density_helper_hidden = true;
-                }
-            }
-        }
-
         function cellularDensityExists() {
             return (vm.cellularDensityHelperShape !== null && typeof vm.cellularDensityHelperShape !== 'undefined');
         }
 
-        function g4CellularDensityExists() {
-            return (vm.tmpG4CellularDensityHelperShape !== null
-                && typeof vm.tmpG4CellularDensityHelperShape !== 'undefined');
+        function _hideGleason4Element(element_id) {
+            AnnotationsViewerService.deleteShape(
+                vm.gleason4Elements[element_id].json_path.shape_id
+            );
+            AnnotationsViewerService.deleteShape(
+                vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
+            );
+            $("#" + element_id).addClass('prm-pale-icon');
+            removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+        }
+
+        function _showGleason4Element(element_id) {
+            AnnotationsViewerService.drawShape(
+                vm.gleason4Elements[element_id].json_path
+            );
+            AnnotationsViewerService.drawShape(
+                vm.gleason4Elements[element_id].cellular_density_helper_json
+            );
+            $("#" + element_id).removeClass('prm-pale-icon');
+            vm.displayedGleason4ElementsLabels.push(element_id);
+        }
+
+        function showHideGleason4Element(element_id) {
+            if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
+                // hide element
+                vm._hideGleason4Element(element_id);
+            } else {
+                // show element
+                vm._showGleason4Element(element_id);
+            }
         }
     }
 })();

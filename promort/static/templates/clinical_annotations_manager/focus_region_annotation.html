@@ -123,7 +123,7 @@
         <legend class="prm-legend">Gleason 4 Data</legend>
 
         <!-- ACQUIRE NEW GLEASON 4 AREA -->
-        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive()">
+        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
             <div class="col-sm-12 text-center prm-valign prm-form-elem">
                 <button id="new_gleason_4" class="btn btn-default"
                         ng-click="cmCtrl.startGleason4Tool()">
@@ -166,32 +166,6 @@
         </div>
         <!--------------------------->
 
-        <!-- SHOW GLEASON 4 DATA -->
-        <div id="show_area_measure" class="form-group row" ng-show="cmCtrl.isReadOnly() || cmCtrl.rulerExists()">
-            <div class="prm-label-elem">
-                <label>Region area</label>
-            </div>
-            <div class="input-group prm-row-elem">
-                <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
-                       readonly ng-model="cmCtrl.tmpG4ShapeArea">
-                <!-- TODO: insert unit of measure selector -->
-                <div class="input-group-btn">
-                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
-                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
-                            ng-hide="cmCtrl.isReadOnly()" title="Delete the shape">
-                        <i class="icon-trash_can"></i>
-                    </button>
-                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
-                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()
-                                || !cmCtrl.rulerExists()"
-                            title="Adapt the viewer to show the shape at the maximum size">
-                        <i class="show_ruler icon-eye"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!------------------------->
-
         <!-- NEW GLEASON 4 CELLS COUNT --->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.g4CellularDensityHelperActive() ||
@@ -229,20 +203,6 @@
             <div class="prm-row-elem prm-valign">
                 <input class="form-control" type="number" required id="g4_spinner"
                        ng-model="cmCtrl.tmpG4CellularDensity">
-            </div>
-        </div>
-        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-label-elem">
-                <label>Cells count</label>
-            </div>
-            <div class="input-group prm-row-elem">
-                <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.tmpG4CellsCount" readonly>
-                <div class="input-group-btn">
-                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()"
-                            ng-disabled="!cmCtrl.g4CellularDensityExists()">
-                        <i class="g4_show_cc_helper_addon icon-eye"></i>
-                    </button>
-                </div>
             </div>
         </div>
         <!---------------------------------->
@@ -297,13 +257,14 @@
                         <i id="{{ g4_label }}" class="icon-eye prm-pale-icon"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn"
-                            ng-click="cmCtrl.deleteGleason4Element(g4_label)">
+                            ng-click="cmCtrl.deleteGleason4Element(g4_label)"
+                            ng-hide="cmCtrl.isReadOnly()">
                         <i class="icon-cross_mark"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <!-------------------------------------->
+        <!---------------------------------->
     </fieldset>
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
