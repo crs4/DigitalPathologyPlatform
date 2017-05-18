@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 from rois_manager.models import Slice, Core, FocusRegion
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, \
-    FocusRegionAnnotation
+    FocusRegionAnnotation, GleasonElement
 from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
 
 
@@ -74,30 +74,19 @@ class CoreAnnotationInfosSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'annotation_step')
 
 
-class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all()
-    )
-
+class GleasonElementSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FocusRegionAnnotation
-        fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_date', 'perineural_involvement',
-                  'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
-                  'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
-                  'gleason_4_path_json', 'gleason_4_area', 'gleason_4_cellular_density_helper_json',
-                  'gleason_4_cellular_density', 'gleason_4_cells_count', 'cellular_density_helper_json',
+        model = GleasonElement
+        fields = ('id', 'gleason_type', 'json_path', 'area', 'cellular_density_helper_json',
                   'cellular_density', 'cells_count')
-        read_only_fields = ('id', 'creation_date')
-        write_only_fields = ('annotation_step',)
 
     @staticmethod
-    def validate_gleason_4_path_json(value):
+    def validate_json_path(value):
         try:
             json.loads(value)
             return value
         except ValueError:
-            raise serializers.ValidationError('Not a valid JSON in \'gleason_4_path_json\' field')
+            raise serializers.ValidationError('Not a valid JSON in \'json_path\' field')
 
     @staticmethod
     def validate_cellular_density_helper_json(value):
@@ -107,13 +96,35 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'cellular_density_helper_json\' field')
 
+
+class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    gleason_elements = GleasonElementSerializer(many=True)
+    gleason_4_elements = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FocusRegionAnnotation
+        fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_date', 'perineural_involvement',
+                  'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
+                  'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
+                  'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements',
+                  'gleason_4_elements')
+        read_only_fields = ('creation_date', 'gleason_4_elements')
+        write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
+
+    def create(self, validated_data):
+        gleason_elements_data = validated_data.pop('gleason_elements')
+        annotation = FocusRegionAnnotation.objects.create(**validated_data)
+        for element_data in gleason_elements_data:
+            GleasonElement.objects.create(focus_region_annotation=annotation, **element_data)
+        return annotation
+
     @staticmethod
-    def validate_gleason_4_cellular_density_helper_json(value):
-        try:
-            json.loads(value)
-            return value
-        except ValueError:
-            raise serializers.ValidationError('Not a valid JSON in \'gleason_4_cellular_density_helper_json\' field')
+    def get_gleason_4_elements(obj):
+        return [GleasonElementSerializer(g4_el).data for g4_el in obj.get_gleason_4_elements()]
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):

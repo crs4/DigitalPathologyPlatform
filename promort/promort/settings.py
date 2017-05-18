@@ -179,13 +179,13 @@ REPORT_RECIPIENTS = ['']
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
     'rois_manager': {
-        'name': 'REVIEWER_1',
+        'name': 'ROIS_MANAGERS',
     },
     'clinical_manager': {
-        'name': 'REVIEWER_2',
+        'name': 'CLINICAL_MANAGERS',
     },
     'gold_standard': {
-        'name': 'REVIEWER_3',
+        'name': 'GOLD_STANDARDS',
     }
 }
 

@@ -52,7 +52,7 @@
      --><div class="col-sm-5 prm-valign prm-form-elem">
             <button id="cell_counter_activate" class="btn btn-default prm-icon-btn"
                     ng-click="cmCtrl.startCellularDensityHelper()"
-                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.gleason4ToolActive()"
                     title="Count the cells within the box">
                 <i class="icon-node_cluster"></i>
             </button>
@@ -107,10 +107,12 @@
     <div class="form-group row" ng-show="cmCtrl.cellularDensityExists() && !cmCtrl.isReadOnly() && !cmCtrl.isLocked()">
         <div class="col-sm-12 prm-row-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearCellularDensityHelper()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
                     title="Delete the count">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideCellularDensityHelper()"
+                    ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.rulerToolActive()"
                     title="Shows the position of the box tool">
                 <i class="show_cc_helper icon-eye"></i>
             </button>
@@ -118,10 +120,24 @@
     </div>
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
-        <legend class="prm-legend">gleason 4 data</legend>
-        <!-- RULER -->
+        <legend class="prm-legend">Gleason 4 Data</legend>
+
+        <!-- ACQUIRE NEW GLEASON 4 AREA -->
+        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
+            <div class="col-sm-12 text-center prm-valign prm-form-elem">
+                <button id="new_gleason_4" class="btn btn-default"
+                        ng-click="cmCtrl.startGleason4Tool()"
+                        ng-disabled="cmCtrl.cellularDensityHelperActive()">
+                    Add Gleason 4 Element
+                </button>
+            </div>
+        </div>
+        <!-- ACQUIRE NEW GLEASON 4 AREA -->
+
+        <!-- NEW GLEASON 4 ELEMENT -->
         <div class="form-group row"
-             ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists()"> <!-- Before creating the shape-->
+             ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists() ||
+                !cmCtrl.gleason4ToolActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Draw region</label>
             </div><!--
@@ -134,33 +150,11 @@
                 </button>
             </div>
         </div>
+        <!--------------------------->
 
-        <div id="show_area_measure" class="form-group row"
-             ng-show="cmCtrl.isReadOnly() || cmCtrl.rulerExists()"> <!-- If the shape exist-->
-            <div class="prm-label-elem">
-                <label>Region area</label>
-            </div>
-            <div class="input-group prm-row-elem">
-                <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
-                       readonly ng-model="cmCtrl.gleason4ShapeArea">
-                <!-- TODO: insert unit of measure selector -->
-                <div class="input-group-btn">
-                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
-                            ng-hide="cmCtrl.isReadOnly()"
-                            title="Delete the shape">
-                        <i class="icon-trash_can"></i>
-                    </button>
-                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
-                            title="Adapt the viewer to show the shape at the maximum size"
-                            ng-disabled="!cmCtrl.rulerExists()">
-                        <i class="show_ruler icon-eye"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        <!-- GLEASON 4 TOOL ACTIVE -->
         <div class="form-group row" ng-show="cmCtrl.rulerToolActive()"
-             ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerExists() || !cmCtrl.rulerToolActive()"> <!--With the pattern 4 tool active-->
+             ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerExists() || !cmCtrl.rulerToolActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Pattern 4 tool</label>
             </div><!--
@@ -171,12 +165,38 @@
                 </button>
             </div>
         </div>
-        <!-- END OF RULER -->
+        <!--------------------------->
 
-        <!-- CELLS COUNT -->
+        <!-- SHOW GLEASON 4 DATA -->
+        <div id="show_area_measure" class="form-group row" ng-show="!cmCtrl.isReadOnly() && cmCtrl.rulerExists()">
+            <div class="prm-label-elem">
+                <label>Region area</label>
+            </div>
+            <div class="input-group prm-row-elem">
+                <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
+                       readonly ng-model="cmCtrl.tmpG4ShapeArea">
+                <!-- TODO: insert unit of measure selector -->
+                <div class="input-group-btn">
+                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
+                            ng-hide="cmCtrl.isReadOnly()" title="Delete the shape">
+                        <i class="icon-trash_can"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()
+                                || !cmCtrl.rulerExists()"
+                            title="Adapt the viewer to show the shape at the maximum size">
+                        <i class="show_ruler icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!------------------------->
+
+        <!-- NEW GLEASON 4 CELLS COUNT --->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.g4CellularDensityHelperActive() ||
-             cmCtrl.g4CellularDensityExists()">
+             cmCtrl.g4CellularDensityExists() || !cmCtrl.gleason4ToolActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Cells count</label>
             </div><!--
@@ -184,12 +204,14 @@
                 <button id="g4_cell_counter_activate" class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.startG4CellularDensityHelper()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.rulerToolActive() ||
-                         !cmCtrl.rulerExists()">
+                            !cmCtrl.rulerExists()">
                     <i class="icon-node_cluster"></i>
                 </button>
             </div>
         </div>
+        <!-------------------------------->
 
+        <!-- GLEASON 4 CELLS COUNT ACTIVE -->
         <div class="form-group row" ng-show="cmCtrl.g4CellularDensityHelperActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Cells count</label>
@@ -204,49 +226,87 @@
                 </button>
             </div>
         </div>
-
         <div class="form-group row" ng-show="cmCtrl.g4CellularDensityHelperActive()">
             <div class="prm-row-elem prm-valign">
-                <input class="form-control" type="number" required id="g4_spinner" ng-model="cmCtrl.g4CellularDensity">
+                <input class="form-control" type="number" required id="g4_spinner"
+                       ng-model="cmCtrl.tmpG4CellularDensity">
             </div>
         </div>
-        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-label-elem">
-                <label>Cells count</label>
+        <!---------------------------------->
+
+        <!-- SHOW GLEASON 4 CELLS COUNT -->
+        <div class="form-group row" ng-show="cmCtrl.g4CellularDensityExists() && !cmCtrl.isReadOnly()">
+            <div class="prm-label-elem">
+                <label>Total cells count</label>
             </div>
             <div class="input-group prm-row-elem">
-                <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.g4CellsCount" readonly>
+                <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.tmpG4CellsCount" readonly>
                 <div class="input-group-btn">
+                    <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearG4CellularDensityHelper()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive()">
+                        <i class="icon-trash_can"></i>
+                    </button>
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()"
-                            ng-disabled="!cmCtrl.g4CellularDensityExists()">
-                        <i class="g4_show_cc_helper_addon icon-eye"></i>
+                            ng-disabled="cmCtrl.cellularDensityHelperActive()">
+                        <i class="show_g4_cc_helper icon-eye"></i>
                     </button>
                 </div>
             </div>
         </div>
+        <!------------------------------->
 
-        <div class="form-group row" ng-show="cmCtrl.g4CellularDensityExists() && !cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-label-elem">
-                <label>Total cells count</label>
+        <!-- TEMPORARY GLEASON 4 CONTROLS -->
+        <div class="form-group row"
+             ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
+            <div class="col-sm-12 prm-row-elem text-right">
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.acceptTemporaryGleason4()"
+                        ng-disabled="!cmCtrl.gleason4DataValid()">
+                    <i class="icon-check"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.abortGleason4Tool()">
+                    <i class="icon-cross_mark"></i>
+                </button>
             </div>
-            <div class="prm-row-elem">
-                <div class="input">
-                    <input class="form-control" type="number" ng-model="cmCtrl.g4CellsCount" readonly>
+        </div>
+        <!---------------------------------->
+
+        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-WRITE MODE -->
+        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label>{{ g4_label }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-click="cmCtrl.showHideGleason4Element(g4_label)">
+                        <i id="{{ g4_label }}" class="icon-eye"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-click="cmCtrl.deleteGleason4Element(g4_label)">
+                        <i class="icon-cross_mark"></i>
+                    </button>
                 </div>
             </div>
         </div>
+        <!---------------------------------->
 
-        <div class="form-group row" ng-show="cmCtrl.g4CellularDensityExists() && !cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-row-elem text-right">
-                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearG4CellularDensityHelper()">
-                    <i class="icon-trash_can"></i>
-                </button>
-                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideG4CellularDensityHelper()">
-                    <i class="show_g4_cc_helper icon-eye"></i>
-                </button>
+        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-ONLY MODE -->
+        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label>{{ g4_label }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-click="cmCtrl.showHideGleason4Element(g4_label)">
+                        <i id="{{ g4_label }}_ro" class="icon-eye prm-pale-icon"></i>
+                    </button>
+                </div>
             </div>
         </div>
-        <!-- END OF CELLS COUNT -->
+        <!---------------------------------->
     </fieldset>
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">

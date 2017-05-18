@@ -86,7 +86,7 @@ class UserWorklistClinicalAnnotation(APIView):
                 case=case_id,
                 rois_review=rois_review_id
             )
-            return ClinicalAnnotationStep.objects.filter(clinical_annotation=annotation)
+            return ClinicalAnnotationStep.objects.filter(clinical_annotation=annotation).order_by('slide')
         except ClinicalAnnotation.DoesNotExist:
             raise NotFound('no clinical annotation assigned to user %s for case %s and ROIs annotation %s' %
                            (username, case_id, rois_review_id))

@@ -91,6 +91,30 @@ class SlidesImporter(object):
             self.logger.warn('Unable to create case with ID %r', case_id)
             return False
 
+    def _check_case_existence(self, case_id):
+        url = urljoin(self.promort_host, 'api/cases/%s/' % case_id)
+        response = self.promort_client.get(url)
+        try:
+            response.json()
+            self.logger.info('Case with ID %s exists', case_id)
+            return True
+        except ValueError:
+            # default landing page
+            self.logger.info('There is no case with ID %s', case_id)
+            return False
+
+    def _check_slide_existence(self, slide_id):
+        url = urljoin(self.promort_host, 'api/slides/%s/' % slide_id)
+        response = self.promort_client.get(url)
+        try:
+            response.json()
+            self.logger.info('Slide with ID %s exists', slide_id)
+            return True
+        except ValueError:
+            # default landing page
+            self.logger.info('There is no slide with ID %s', slide_id)
+            return False
+
     def _save_slide(self, slide_id, case, omero_id, image_type, image_mpp):
         payload = {
             'id': slide_id,
@@ -107,6 +131,21 @@ class SlidesImporter(object):
             return True
         elif response.status_code == requests.codes.BAD:
             self.logger.warn('Unable to create slide with ID %r', slide_id)
+            return False
+
+    def _relink_slide(self, slide_id, omero_id, image_type):
+        payload = {
+            'omero_id': omero_id,
+            'image_type': image_type
+        }
+        self._update_payload(payload)
+        url = urljoin(self.promort_host, 'api/slides/%s/' % slide_id)
+        response = self.promort_client.put(url, payload, headers={'X-csrftoken': self.csrf_token})
+        if response.status_code == requests.codes.OK:
+            self.logger.info('Slide with ID %s updated', slide_id)
+            return True
+        else:
+            self.logger.warn('Unable to update slide with ID %s', slide_id)
             return False
 
     def _get_ome_images(self):
@@ -143,15 +182,19 @@ class SlidesImporter(object):
         else:
             return 0
 
-    def _serialize_slides(self):
+    def _serialize_slides(self, relink_slides):
         slides_map = self._get_ome_images()
         for case, slides in slides_map.iteritems():
-            case_saved = self._save_case(case)
-            if case_saved:
+            self._save_case(case)
+            case_exists = self._check_case_existence(case)
+            if case_exists:
                 for slide in slides:
-                    self._save_slide(slide['name'], case, slide['omero_id'],
-                                     slide['img_type'], self._get_slide_mpp(slide))
-
+                    slide_saved = self._save_slide(slide['name'], case, slide['omero_id'],
+                                                   slide['img_type'], self._get_slide_mpp(slide))
+                    if not slide_saved and relink_slides:
+                        slide_exists = self._check_slide_existence(slide['name'])
+                        if slide_exists:
+                            self._relink_slide(slide['name'], slide['omero_id'], slide['img_type'])
 
     def _get_slides_map(self):
         slides_map = {}
@@ -354,9 +397,9 @@ class SlidesImporter(object):
                     self._create_clinical_annotation_step(annotation['case'], r, annotation['id'], step['slide'],
                                                           close_clinical_annotation)
 
-    def run(self, create_rois_worklist, create_clinical_worklist, reviewers_count):
+    def run(self, create_rois_worklist, create_clinical_worklist, reviewers_count, relink_slides):
         self._promort_login()
-        self._serialize_slides()
+        self._serialize_slides(relink_slides)
         if create_rois_worklist:
             self._create_rois_worklist()
         if create_clinical_worklist:
@@ -380,6 +423,8 @@ def get_parser():
                         help='create clinical annotations worklist')
     parser.add_argument('--reviewers', type=int, default=2,
                         help='number of clinical reviewers')
+    parser.add_argument('--relink-slides', action='store_true',
+                        help='Relink slides to their OMERO images')
     parser.add_argument('--log-level', type=str, default='INFO',
                         help='log level (default=INFO)')
     parser.add_argument('--log-file', type=str, default=None,
@@ -393,7 +438,8 @@ def main(argv):
     importer = SlidesImporter(args.omero_host, args.promort_host,
                               args.promort_user, args.promort_password,
                               args.log_level, args.log_file)
-    importer.run(args.rois_worklist, args.clinical_worklist, args.reviewers)
+    importer.run(args.rois_worklist, args.clinical_worklist, args.reviewers,
+                 args.relink_slides)
 
 
 if __name__ == '__main__':

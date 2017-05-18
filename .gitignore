@@ -69,3 +69,6 @@ target/
 # Grunt output files
 node_modules
 promort/static/js/promort.min.js
+
+# Jupyter notebooks folder
+notebooks/

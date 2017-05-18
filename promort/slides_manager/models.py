@@ -25,7 +25,8 @@ class Slide(models.Model):
     import_date = models.DateTimeField(auto_now_add=True)
     omero_id = models.IntegerField(blank=True, null=True,
                                    default=None)
-    image_type = models.CharField(max_length=15, blank=False)
+    image_type = models.CharField(max_length=15, blank=True,
+                                  null=True)
     image_microns_per_pixel = models.FloatField(default=0.0)
     staining = models.CharField(
         max_length=5, choices=STAINING, blank=True,

@@ -159,7 +159,7 @@
         function adaptToContainer(container_label, contained_label) {
             var container = this.roisManager.getShape(container_label);
             var contained = this.roisManager.getShape(contained_label);
-            this.roisManager.intersectShapes(container, contained, false, true, true);
+            this.roisManager.intersectShapes(container, contained, false, true, true, true);
         }
 
         function createRulerBindings(on_switch, off_switch, output) {
