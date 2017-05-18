@@ -56,7 +56,9 @@ class CoreAnnotation(models.Model):
                     annotation_step=self.annotation_step,
                     focus_region=focus_region
                 )
-                gleason_4_total_area += focus_region_annotation.gleason_4_area
+                for gleason_element in focus_region_annotation.gleason_elements.all():
+                    if gleason_element.gleason_type == 'G4':
+                        gleason_4_total_area += gleason_element.area
             except FocusRegionAnnotation.DoesNotExist:
                 pass
         return (gleason_4_total_area / self.core.area) * 100.0
@@ -78,14 +80,30 @@ class FocusRegionAnnotation(models.Model):
     hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
     comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
-    gleason_4_path_json = models.TextField(blank=True, null=True)
-    gleason_4_area = models.FloatField(default=0)
-    gleason_4_cellular_density_helper_json = models.TextField(blank=True, null=True)
-    gleason_4_cellular_density = models.IntegerField(blank=True, null=True)
-    gleason_4_cells_count = models.IntegerField(blank=True, null=True)
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
+
+    def get_gleason_4_elements(self):
+        return self.gleason_elements.filter(gleason_type='G4')
+
+
+class GleasonElement(models.Model):
+    GLEASON_TYPES = (
+        ('G1', 'GLEASON_1'),
+        ('G2', 'GLEASON_2'),
+        ('G3', 'GLEASON_3'),
+        ('G4', 'GLEASON_4'),
+        ('G5', 'GLEASON_5')
+    )
+    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
+                                                blank=False, on_delete=models.CASCADE)
+    gleason_type = models.CharField(max_length=2, choices=GLEASON_TYPES, blank=False, null=False)
+    json_path = models.TextField(blank=False, null=False)
+    area = models.FloatField(blank=False, null=False)
+    cellular_density_helper_json = models.TextField(blank=True, null=True)
+    cellular_density = models.IntegerField(blank=True, null=True)
+    cells_count = models.IntegerField(blank=True, null=True)
