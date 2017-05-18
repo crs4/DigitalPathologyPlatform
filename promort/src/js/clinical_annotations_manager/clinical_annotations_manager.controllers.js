@@ -1263,6 +1263,7 @@
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
             vm.ruler_hidden = true;
+            vm.stopGleason4Tool();
         }
 
         function startGleason4Tool() {
@@ -1598,6 +1599,7 @@
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
             vm.abortGleason4Tool(old_gleason_4_shape_id, old_cc_helper_shape_id);
+            vm._showGleason4Element(gleason_4_shape_id);
         }
 
         function cellularDensityExists() {
@@ -1948,7 +1950,7 @@
             AnnotationsViewerService.deleteShape(
                 vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
             );
-            $("#" + element_id).addClass('prm-pale-icon');
+            $("#" + element_id + "_ro").addClass('prm-pale-icon');
             removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
         }
 
@@ -1959,7 +1961,7 @@
             AnnotationsViewerService.drawShape(
                 vm.gleason4Elements[element_id].cellular_density_helper_json
             );
-            $("#" + element_id).removeClass('prm-pale-icon');
+            $("#" + element_id + "_ro").removeClass('prm-pale-icon');
             vm.displayedGleason4ElementsLabels.push(element_id);
         }
 

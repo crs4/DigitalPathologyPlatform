@@ -272,8 +272,8 @@
         </div>
         <!---------------------------------->
 
-        <!-- EXISTING GLEASON 4 ELEMENTS LIST -->
-        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive()">
+        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-WRITE MODE -->
+        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>
@@ -281,12 +281,27 @@
              --><div class="prm-valign prm-form-elem text-right">
                     <button class="btn btn-default prm-icon-btn"
                             ng-click="cmCtrl.showHideGleason4Element(g4_label)">
-                        <i id="{{ g4_label }}" class="icon-eye prm-pale-icon"></i>
+                        <i id="{{ g4_label }}" class="icon-eye"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn"
-                            ng-click="cmCtrl.deleteGleason4Element(g4_label)"
-                            ng-hide="cmCtrl.isReadOnly()">
+                            ng-click="cmCtrl.deleteGleason4Element(g4_label)">
                         <i class="icon-cross_mark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!---------------------------------->
+
+        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-ONLY MODE -->
+        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label>{{ g4_label }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-click="cmCtrl.showHideGleason4Element(g4_label)">
+                        <i id="{{ g4_label }}_ro" class="icon-eye prm-pale-icon"></i>
                     </button>
                 </div>
             </div>
