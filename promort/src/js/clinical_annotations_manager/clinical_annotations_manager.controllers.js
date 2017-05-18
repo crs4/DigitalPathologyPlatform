@@ -1905,11 +1905,9 @@
                 vm.cellularDensityHelperShape = undefined;
                 vm.cellsCount = undefined;
 
-                vm.tmpG4Shape = undefined;
-                vm.tmpG4ShapeArea = undefined;
-                vm.tmpG4CellularDensityHelperShape = undefined;
-                vm.tmpG4CellularDensity = undefined;
-                vm.tmpG4CellsCount = undefined;
+                for (var el in vm.gleason4ElementsLabels) {
+                    vm._hideGleason4Element(vm.gleason4ElementsLabels[el]);
+                }
 
                 vm.ruler_hidden = true;
                 vm.cellular_density_helper_hidden = true;
