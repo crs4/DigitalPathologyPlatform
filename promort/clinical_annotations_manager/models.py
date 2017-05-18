@@ -56,7 +56,9 @@ class CoreAnnotation(models.Model):
                     annotation_step=self.annotation_step,
                     focus_region=focus_region
                 )
-                gleason_4_total_area += focus_region_annotation.gleason_4_area
+                for gleason_element in focus_region_annotation.gleason_elements.all():
+                    if gleason_element.gleason_type == 'G4':
+                        gleason_4_total_area += gleason_element.area
             except FocusRegionAnnotation.DoesNotExist:
                 pass
         return (gleason_4_total_area / self.core.area) * 100.0
