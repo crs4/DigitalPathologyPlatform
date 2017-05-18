@@ -126,7 +126,8 @@
         <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
             <div class="col-sm-12 text-center prm-valign prm-form-elem">
                 <button id="new_gleason_4" class="btn btn-default"
-                        ng-click="cmCtrl.startGleason4Tool()">
+                        ng-click="cmCtrl.startGleason4Tool()"
+                        ng-disabled="cmCtrl.cellularDensityHelperActive()">
                     Add Gleason 4 Element
                 </button>
             </div>
