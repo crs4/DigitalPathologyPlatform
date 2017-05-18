@@ -994,9 +994,9 @@
                 vm.coreArea = response.data.core.area;
                 vm.coreLength = response.data.core.length;
                 vm.tumorLength = response.data.core.tumor_length;
-                vm.normalTissuePercentage = response.data.core.normal_tissue_percentage;
+                vm.normalTissuePercentage = Number(parseFloat(response.data.core.normal_tissue_percentage).toFixed(3));
                 vm.gleasonScore = response.data.gleason_score;
-                vm.gleason4Percentage = response.data.gleason_4_percentage;
+                vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
                 switch (response.data.gleason_group) {
                     case 'GG1':
                         vm.gradeGroupWhoLabel = 'Group 1';
@@ -1193,7 +1193,7 @@
                 vm.focus_region_label = response.data.label;
                 vm.focusRegionArea = response.data.area;
                 vm.focusRegionLength = response.data.length;
-                vm.coreCoveragePercentage = response.data.core_coverage_percentage;
+                vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.cancerousRegion = response.data.cancerous_region;
             }
 
@@ -1413,6 +1413,7 @@
             vm.tmp_cellular_density_helper_id = undefined;
             vm.cellular_density_helper_active = false;
             vm.cellular_density_helper_hidden = true;
+            vm.cellularDensity = undefined;
             AnnotationsViewerService.disableActiveTool();
         }
 
@@ -1429,6 +1430,7 @@
             vm.tmp_cellular_density_helper_id = undefined;
             vm.g4_cellular_density_helper_active = false;
             vm.g4_cellular_density_helper_hidden = true;
+            vm.g4CellularDensity = undefined;
             AnnotationsViewerService.disableActiveTool();
         }
 
@@ -1647,7 +1649,8 @@
             function getFocusRegionAnnotationSuccessFn(response) {
                 vm.focus_region_label = response.data.focus_region.label;
                 vm.focusRegionArea  = response.data.focus_region.area;
-                vm.coreCoveragePercentage = response.data.focus_region.core_coverage_percentage;
+                vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
+                    .toFixed(3));
                 vm.cancerousRegion = response.data.focus_region.cancerous_region;
                 vm.focusRegionLength = response.data.focus_region.length;
                 vm.perineuralInvolvement = response.data.perineural_involvement;
