@@ -23,9 +23,7 @@ from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import CaseList, CaseDetail, \
     SlideList, SlideDetail, SlideQualityControlDetail
-from reviews_manager.views import ROIsAnnotationsList, ClinicalAnnotationsList, ROIsAnnotationsDetail, \
-    ClinicalAnnotationsDetail, ROIsAnnotationDetail, ClinicalAnnotationDetail, ROIsAnnotationStepDetail, \
-    ClinicalAnnotationStepDetail, ClinicalAnnotationStepsList
+import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
@@ -53,7 +51,7 @@ urlpatterns = [
 
     # ROIs annotation steps details
     url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/clinical_annotation_steps/$',
-        ClinicalAnnotationStepsList.as_view()),
+        rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
     url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/rois_list/$', ROIsTreeList.as_view()),
@@ -81,23 +79,27 @@ urlpatterns = [
         FocusRegionAnnotationDetail.as_view()),
 
     # ROIs annotations
-    url(r'api/rois_annotations/$', ROIsAnnotationsList.as_view()),
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', ROIsAnnotationsDetail.as_view()),
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', ROIsAnnotationDetail.as_view()),
+    url(r'api/rois_annotations/$', rmv.ROIsAnnotationsList.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', rmv.ROIsAnnotationsDetail.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
+    url(r'api/rois_annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ROIsAnnotationDetail.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
-        ROIsAnnotationStepDetail.as_view()),
+        rmv.ROIsAnnotationStepCreation.as_view()),
+    url(r'api/rois_annotations/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ROIsAnnotationStepDetail.as_view()),
 
     # quality control
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
 
     # clinical annotations
-    url(r'api/clinical_annotations/$', ClinicalAnnotationsList.as_view()),
-    url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', ClinicalAnnotationsDetail.as_view()),
+    url(r'api/clinical_annotations/$', rmv.ClinicalAnnotationsList.as_view()),
+    url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', rmv.ClinicalAnnotationsDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
-        ClinicalAnnotationDetail.as_view()),
+        rmv.ClinicalAnnotationCreation.as_view()),
+    url(r'api/clinical_annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ClinicalAnnotationDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
-        ClinicalAnnotationStepDetail.as_view()),
+        rmv.ClinicalAnnotationCreation.as_view()),
+    url(r'api/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ClinicalAnnotationStepDetail.as_view()),
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
