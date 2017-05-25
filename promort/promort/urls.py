@@ -81,11 +81,11 @@ urlpatterns = [
     # ROIs annotations
     url(r'api/rois_annotations/$', rmv.ROIsAnnotationsList.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', rmv.ROIsAnnotationsDetail.as_view()),
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
     url(r'api/rois_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ROIsAnnotationDetail.as_view()),
+    url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ROIsAnnotationStepDetail.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
         rmv.ROIsAnnotationStepCreation.as_view()),
-    url(r'api/rois_annotation/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ROIsAnnotationStepDetail.as_view()),
 
     # quality control
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/quality_control/$',
@@ -94,12 +94,12 @@ urlpatterns = [
     # clinical annotations
     url(r'api/clinical_annotations/$', rmv.ClinicalAnnotationsList.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', rmv.ClinicalAnnotationsDetail.as_view()),
+    url(r'api/clinical_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ClinicalAnnotationDetail.as_view()),
+    url(r'api/clinical_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ClinicalAnnotationStepDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
         rmv.ClinicalAnnotationCreation.as_view()),
-    url(r'api/clinical_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ClinicalAnnotationDetail.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
         rmv.ClinicalAnnotationStepCreation.as_view()),
-    url(r'api/clinical_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ClinicalAnnotationStepDetail.as_view()),
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
