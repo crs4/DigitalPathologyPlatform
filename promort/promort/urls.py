@@ -103,8 +103,8 @@ urlpatterns = [
 
     # worklists
     url(r'api/worklist/$', UserWorkList.as_view()),
-    url(r'api/worklist/(?P<case>[\w\-.]+)/$', UserWorklistROIsAnnotation.as_view()),
-    url(r'api/worklist/(?P<case>[\w\-.]+)/(?P<rois_review>[0-9]+)/$', UserWorklistClinicalAnnotation.as_view()),
+    url(r'api/worklist/rois_annotations/(?P<label>[A-Fa-f0-9]+)/$', UserWorklistROIsAnnotation.as_view()),
+    url(r'api/worklist/clinical_annotations/(?P<label>[A-Fa-f0-9]+)/$', UserWorklistClinicalAnnotation.as_view()),
     url(r'api/worklist/admin/(?P<username>[\w\-.]+)/$', WorkListAdmin.as_view()),
 
     # utils

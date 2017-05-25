@@ -60,18 +60,15 @@ class UserWorkList(APIView):
 class UserWorklistROIsAnnotation(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def _get_rois_annotation_details(self, case_id, username):
+    def _get_rois_annotation_details(self, label):
         try:
-            annotation = ROIsAnnotation.objects.get(
-                reviewer=User.objects.get(username=username),
-                case=case_id
-            )
+            annotation = ROIsAnnotation.objects.get(label=label)
             return ROIsAnnotationStep.objects.filter(rois_annotation=annotation).order_by('slide')
         except ROIsAnnotation.DoesNotExist:
-            raise NotFound('no ROIs annotation assigned to user %s for case %s' % (username, case_id))
+            raise NotFound('no ROIs annotation with label\'%s\'' % label)
 
-    def get(self, request, case, format=None):
-        annotation_steps = self._get_rois_annotation_details(case, request.user.username)
+    def get(self, request, label, format=None):
+        annotation_steps = self._get_rois_annotation_details(label)
         serializer = ROIsAnnotationStepSerializer(annotation_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -79,20 +76,15 @@ class UserWorklistROIsAnnotation(APIView):
 class UserWorklistClinicalAnnotation(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def _get_clinical_annotation_details(self, case_id, username, rois_review_id):
+    def _get_clinical_annotation_details(self, label):
         try:
-            annotation = ClinicalAnnotation.objects.get(
-                reviewer=User.objects.get(username=username),
-                case=case_id,
-                rois_review=rois_review_id
-            )
+            annotation = ClinicalAnnotation.objects.get(label=label)
             return ClinicalAnnotationStep.objects.filter(clinical_annotation=annotation).order_by('slide')
         except ClinicalAnnotation.DoesNotExist:
-            raise NotFound('no clinical annotation assigned to user %s for case %s and ROIs annotation %s' %
-                           (username, case_id, rois_review_id))
+            raise NotFound('no clinical annotation with label \'%s\'' % label)
 
-    def get(self, request, case, rois_review, format=None):
-        annotation_steps = self._get_clinical_annotation_details(case, request.user.username, rois_review)
+    def get(self, request, label, format=None):
+        annotation_steps = self._get_clinical_annotation_details(label)
         serializer = ClinicalAnnotationStepSerializer(annotation_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
