@@ -88,7 +88,7 @@ urlpatterns = [
         rmv.ROIsAnnotationStepCreation.as_view()),
 
     # quality control
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/quality_control/$',
+    url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
 
     # clinical annotations
