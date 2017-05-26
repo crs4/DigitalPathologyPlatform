@@ -46,7 +46,7 @@ class SlideQualityControlDetail(APIView):
 
     def _find_rois_annotation_step(self, label):
         try:
-            return ROIsAnnotationStep.object.get(label=label)
+            return ROIsAnnotationStep.objects.get(label=label)
         except ROIsAnnotationStep.DoesNotExist:
             raise NotFound('there is no ROIs annotation step with label %s', label)
 
@@ -66,7 +66,7 @@ class SlideQualityControlDetail(APIView):
                         status=status.HTTP_200_OK)
 
     def post(self, request, label, format=None):
-        rois_annotation_step = self._find_rois_annotation_step(label).id
+        rois_annotation_step = self._find_rois_annotation_step(label)
         qc_data = request.data
         qc_data['reviewer'] = request.user.username
         qc_data['slide'] = rois_annotation_step.slide.id
