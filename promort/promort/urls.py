@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
 
     # ROIs annotation steps details
-    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/clinical_annotation_steps/$',
+    url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/$',
         rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs

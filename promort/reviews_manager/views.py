@@ -373,11 +373,11 @@ class ROIsAnnotationStepDetail(APIView):
 class ClinicalAnnotationStepsList(APIView):
     permission_classes = (IsReviewManager,)
 
-    def _find_rois_annotation_step(self, annotation_step_id):
+    def _find_rois_annotation_step(self, annotation_step_label):
         try:
-            return ROIsAnnotationStep.objects.get(id=annotation_step_id)
+            return ROIsAnnotationStep.objects.get(label=annotation_step_label)
         except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('No ROIs annotation step with ID %s' % annotation_step_id)
+            raise NotFound('No ROIs annotation step with label %s' % annotation_step_label)
 
     def _apply_action(self, step, action, notes):
         clinical_annotation = step.clinical_annotation
@@ -404,14 +404,14 @@ class ClinicalAnnotationStepsList(APIView):
                 clinical_annotation.completion_date = datetime.now()
                 clinical_annotation.save()
 
-    def get(self, request, pk, format=None):
-        rois_annotation_step = self._find_rois_annotation_step(pk)
+    def get(self, request, label, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(label)
         clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
         serializer = ClinicalAnnotationStepSerializer(clinical_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk, format=None):
-        rois_annotation_step = self._find_rois_annotation_step(pk)
+    def put(self, request, label, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(label)
         clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
         action = request.data.get('action')
         notes = request.data.get('notes')
