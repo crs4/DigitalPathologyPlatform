@@ -54,8 +54,8 @@ urlpatterns = [
         rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
-    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/rois_list/$', ROIsTreeList.as_view()),
-    url(r'api/rois_annotation_steps/(?P<pk>[0-9]+)/slices/$', SliceList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/rois_list/$', ROIsTreeList.as_view()),
+    url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/slices/$', SliceList.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/$', SliceDetail.as_view()),
     url(r'api/slices/(?P<pk>[0-9]+)/cores/$', CoreList.as_view()),
     url(r'api/cores/(?P<pk>[0-9]+)/$', CoreDetail.as_view()),
