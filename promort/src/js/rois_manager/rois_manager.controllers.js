@@ -14,15 +14,17 @@
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
         'ngDialog', 'Authentication', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
-        'AnnotationsViewerService'];
+        'AnnotationsViewerService', 'CurrentSlideDetailsService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
                                    Authentication, ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
-                                   AnnotationsViewerService) {
+                                   AnnotationsViewerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
+        vm.slide_index = undefined;
         vm.case_id = undefined;
-        vm.annotation_step_id = undefined;
+        vm.annotation_label;
+        vm.annotation_step_label = undefined;
 
         vm.slices_map = undefined;
         vm.cores_map = undefined;
@@ -79,9 +81,11 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-            vm.annotation_step_id = $routeParams.annotation_step;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
+            vm.annotation_step_label = $routeParams.label;
+            vm.annotation_label = vm.annotation_step_label.split('-')[0];
+            vm.slide_index = vm.annotation_step_label.split('-')[1];
 
             vm.slices_map = {};
             vm.cores_map = {};
@@ -91,12 +95,12 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+            ROIsAnnotationStepService.getDetails(vm.annotation_step_label)
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
             function getROIsAnnotationStepSuccessFn(response) {
                 if (response.data.completed === true) {
-                    $location.url('worklist/' + vm.case_id);
+                    $location.url('worklist/rois_annotations/' + vm.annotation_label);
                 }
 
                 if (response.data.slide_quality_control !== null &&
@@ -391,7 +395,7 @@
                         closeByDocument: false
                     });
 
-                    ROIsAnnotationStepManagerService.clearROIs(vm.annotation_step_id)
+                    ROIsAnnotationStepManagerService.clearROIs(vm.annotation_step_label)
                         .then(clearROIsSuccessFn, clearROIsErrorFn);
                 }
 
@@ -432,7 +436,7 @@
 
             function confirmFn(confirm_value) {
                 if (confirm_value) {
-                    ROIsAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+                    ROIsAnnotationStepService.closeAnnotationStep(vm.annotation_step_label)
                         .then(closeROIsAnnotationStepSuccessFn, closeROIsAnnotationStepErrorFn);
                 }
 
@@ -441,7 +445,7 @@
                         $location.url('worklist');
                     } else {
                         // review closed, go back to case worklist
-                        $location.url('worklist/' + vm.case_id);
+                        $location.url('worklist/rois_annotations/' + vm.annotation_step_label);
                     }
                 }
 
@@ -540,15 +544,15 @@
         vm.$scope = {};
     }
 
-    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'AnnotationsViewerService', 'ROIsAnnotationStepManagerService'];
+    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog', 'AnnotationsViewerService',
+        'ROIsAnnotationStepManagerService', 'CurrentSlideDetailsService'];
 
     function NewSliceController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
-                                ROIsAnnotationStepManagerService) {
+                                ROIsAnnotationStepManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
-        vm.annotation_step_id = undefined;
+        vm.annotation_step_label = undefined;
         vm.shape = undefined;
         vm.totalCores = 0;
 
@@ -587,9 +591,9 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-            vm.annotation_step_id = $routeParams.annotation_step;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
+            vm.annotation_step_label = $routeParams.label;
         }
 
         function newPolygon() {
@@ -649,7 +653,7 @@
         }
 
         function shapeExists() {
-            return vm.shape != undefined;
+            return typeof vm.shape !==  'undefined';
         }
 
         function pausePolygonTool() {
@@ -726,7 +730,7 @@
                 closeByNavigation: false,
                 closeByDocument: false
             });
-            ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_id, vm.slide_id, vm.shape.shape_id,
+            ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_label, vm.slide_id, vm.shape.shape_id,
                 vm.shape, vm.totalCores)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
@@ -843,10 +847,10 @@
     }
 
     NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
-        'AnnotationsViewerService', 'SlicesManagerService'];
+        'AnnotationsViewerService', 'SlicesManagerService', 'CurrentSlideDetailsService'];
 
-    function NewCoreController($scope, $routeParams, $rootScope, ngDialog,
-                               AnnotationsViewerService, SlicesManagerService) {
+    function NewCoreController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
+                               SlicesManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -929,8 +933,8 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
 
             vm.coreLengthScaleFactor = vm.lengthUOM[0];
             vm.tumorLengthScaleFactor = vm.lengthUOM[0];
@@ -1318,11 +1322,10 @@
         }
     }
 
-    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog',
-        'CoresManagerService', 'AnnotationsViewerService'];
+    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
+        'AnnotationsViewerService'];
 
-    function ShowCoreController($scope, $rootScope, ngDialog,
-                                CoresManagerService, AnnotationsViewerService) {
+    function ShowCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.label = undefined;
@@ -1466,10 +1469,10 @@
     }
 
     NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
-        'AnnotationsViewerService', 'CoresManagerService'];
+        'AnnotationsViewerService', 'CoresManagerService', 'CurrentSlideDetailsService'];
 
-    function NewFocusRegionController($scope, $rootScope, $routeParams, ngDialog,
-                                      AnnotationsViewerService, CoresManagerService) {
+    function NewFocusRegionController($scope, $rootScope, $routeParams, ngDialog, AnnotationsViewerService,
+                                      CoresManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.case_id = undefined;
@@ -1544,8 +1547,8 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
 
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];

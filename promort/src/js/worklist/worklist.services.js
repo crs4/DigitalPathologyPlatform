@@ -24,34 +24,34 @@
             return $http.get('/api/worklist/');
         }
 
-        function _ROIsAnnotationAction(case_id, reviewer, action) {
+        function _ROIsAnnotationAction(label, action) {
             return $http.put(
-                '/api/rois_annotations/' + case_id + '/' + reviewer + '/',
+                '/api/rois_annotations/annotations/' + label + '/',
                 {action: action}
             );
         }
 
-        function startROIsAnnotation(case_id, reviewer) {
-            return _ROIsAnnotationAction(case_id, reviewer, 'START');
+        function startROIsAnnotation(label) {
+            return _ROIsAnnotationAction(label, 'START');
         }
 
-        function closeROIsAnnotation(case_id, reviewer) {
-            return _ROIsAnnotationAction(case_id, reviewer, 'FINISH');
+        function closeROIsAnnotation(label) {
+            return _ROIsAnnotationAction(label, 'FINISH');
         }
 
-        function _clinicalAnnotationAction(case_id, reviewer, rois_review_id, action) {
+        function _clinicalAnnotationAction(label, action) {
             return $http.put(
-                '/api/clinical_annotations/' + case_id + '/' + reviewer + '/' + rois_review_id + '/',
+                '/api/clinical_annotations/annotations/' + label + '/',
                 {action: action}
             )
         }
 
-        function startClinicalAnnotation(case_id, reviewer, rois_review_id) {
-            return _clinicalAnnotationAction(case_id, reviewer, rois_review_id, 'START');
+        function startClinicalAnnotation(label) {
+            return _clinicalAnnotationAction(label, 'START');
         }
 
-        function closeClinicalAnnotation(case_id, reviewer, rois_review_id) {
-            return _clinicalAnnotationAction(case_id, reviewer, rois_review_id, 'FINISH');
+        function closeClinicalAnnotation(label) {
+            return _clinicalAnnotationAction(label, 'FINISH');
         }
     }
 
@@ -69,47 +69,47 @@
 
         return ROIsAnnotationStepService;
 
-        function get(case_id) {
-            return $http.get('/api/worklist/' + case_id + '/');
+        function get(annotation_label) {
+            return $http.get('/api/worklist/rois_annotations/' + annotation_label + '/');
         }
 
-        function getDetails(case_id, reviewer, slide_id) {
-            return $http.get('/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id +'/');
+        function getDetails(label) {
+            return $http.get('/api/rois_annotations/steps/' + label +'/');
         }
 
-        function _annotationStepAction(case_id, reviewer, slide_id, action) {
+        function _annotationStepAction(label, action) {
             var params = {action: action};
             return $http.put(
-                '/api/rois_annotations/' + case_id + '/' + reviewer + '/' + slide_id + '/',
+                '/api/rois_annotations/steps/' + label + '/',
                 params
             );
         }
 
-        function startAnnotationStep(case_id, reviewer, slide_id) {
-            return _annotationStepAction(case_id, reviewer, slide_id, 'START');
+        function startAnnotationStep(label) {
+            return _annotationStepAction(label, 'START');
         }
 
-        function closeAnnotationStep(case_id, reviewer, slide_id) {
-            return _annotationStepAction(case_id, reviewer, slide_id, 'FINISH');
+        function closeAnnotationStep(label) {
+            return _annotationStepAction(label, 'FINISH');
         }
 
-        function startAndCloseAnnotationStep(case_id, reviewer, slide_id) {
-            return _annotationStepAction(case_id, reviewer, slide_id, 'START_AND_FINISH')
+        function startAndCloseAnnotationStep(label) {
+            return _annotationStepAction(label, 'START_AND_FINISH')
         }
 
-        function _relatedClinicalAnnotationStepsAction(annotation_step_id, action, notes) {
+        function _relatedClinicalAnnotationStepsAction(annotation_step_label, action, notes) {
             var params = {
                 action: action,
                 notes: notes
             };
             return $http.put(
-                'api/rois_annotation_steps/' + annotation_step_id + '/clinical_annotation_steps/',
+                'api/rois_annotation_steps/' + annotation_step_label + '/clinical_annotation_steps/',
                 params
             );
         }
 
-        function startAndCloseClinicalAnnotationSteps(annotation_step_id, notes) {
-            return _relatedClinicalAnnotationStepsAction(annotation_step_id,
+        function startAndCloseClinicalAnnotationSteps(annotation_step_label, notes) {
+            return _relatedClinicalAnnotationStepsAction(annotation_step_label,
                 'START_AND_FINISH', notes);
         }
     }

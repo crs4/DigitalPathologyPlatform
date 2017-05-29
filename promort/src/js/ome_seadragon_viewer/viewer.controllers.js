@@ -6,11 +6,14 @@
         .controller('SimpleViewerController', SimpleViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController);
 
-    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ViewerService'];
+    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ViewerService',
+        'CurrentSlideDetailsService'];
 
-    function SimpleViewerController($scope, $routeParams, $rootScope, $location, ViewerService) {
+    function SimpleViewerController($scope, $routeParams, $rootScope, $location,
+                                    ViewerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
+        vm.annotation_step_label = undefined;
         vm.slide_details = undefined;
         vm.dzi_url = undefined;
         vm.static_files_url = undefined;
@@ -21,7 +24,8 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
+            vm.annotation_step_label = $routeParams.label;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
             ViewerService.getOMEBaseURLs()
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
@@ -67,13 +71,14 @@
     }
 
     AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ngDialog',
-        'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService'];
+        'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService', 'CurrentSlideDetailsService'];
 
     function AnnotationsViewerController($scope, $routeParams, $rootScope, $location, ngDialog, ViewerService,
-                                         AnnotationsViewerService, ROIsAnnotationStepManagerService) {
+                                         AnnotationsViewerService, ROIsAnnotationStepManagerService,
+                                         CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
-        vm.annotation_step_id = undefined;
+        vm.annotation_step_label = undefined;
         vm.slide_details = undefined;
         vm.dzi_url = undefined;
         vm.static_files_url = undefined;
@@ -85,8 +90,8 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.annotation_step_id = $routeParams.annotation_step;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.annotation_step_label = $routeParams.label;
             ViewerService.getOMEBaseURLs()
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
@@ -127,7 +132,7 @@
                         closeByDocument: false
                     });
 
-                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_id, rois_read_only,
+                    ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_label, rois_read_only,
                         clinical_annotation_step_id)
                         .then(getROIsSuccessFn, getROIsErrorFn);
 
