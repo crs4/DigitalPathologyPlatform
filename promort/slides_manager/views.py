@@ -81,7 +81,7 @@ class SlideQualityControlDetail(APIView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated entry for slide %s' % slide
+                    'message': 'duplicated entry for slide %s' % rois_annotation_step.slide.id
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
