@@ -70,12 +70,13 @@
         }
     }
 
-    AnnotationsViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ngDialog',
-        'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService', 'CurrentSlideDetailsService'];
+    AnnotationsViewerController.$inject = ['$scope', '$rootScope', '$location', 'ngDialog',
+        'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService',
+        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
-    function AnnotationsViewerController($scope, $routeParams, $rootScope, $location, ngDialog, ViewerService,
+    function AnnotationsViewerController($scope, $rootScope, $location, ngDialog, ViewerService,
                                          AnnotationsViewerService, ROIsAnnotationStepManagerService,
-                                         CurrentSlideDetailsService) {
+                                         CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.annotation_step_label = undefined;
@@ -91,7 +92,7 @@
 
         function activate() {
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
-            vm.annotation_step_label = $routeParams.label;
+            vm.annotation_step_label = CurrentAnnotationStepsDetailsService.getROIsAnnotationStepLabel();
             ViewerService.getOMEBaseURLs()
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
@@ -123,7 +124,7 @@
             }
 
             $scope.$on('viewerctrl.components.registered',
-                function(event, rois_read_only, clinical_annotation_step_id) {
+                function(event, rois_read_only, clinical_annotation_step_label) {
                     var dialog = ngDialog.open({
                         template: '/static/templates/dialogs/rois_loading.html',
                         showClose: false,
@@ -131,9 +132,8 @@
                         closeByNavigation: false,
                         closeByDocument: false
                     });
-
                     ROIsAnnotationStepManagerService.getROIs(vm.annotation_step_label, rois_read_only,
-                        clinical_annotation_step_id)
+                        clinical_annotation_step_label)
                         .then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
@@ -212,12 +212,13 @@
                 annotations_manager, tools_manager);
             console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
-            var clinical_annotation_step_id = undefined;
+            var clinical_annotation_step_label = undefined;
             if (rois_read_only) {
-                clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+                clinical_annotation_step_label =
+                    CurrentAnnotationStepsDetailsService.getClinicalAnnotationStepLabel();
             }
             $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
-                clinical_annotation_step_id);
+                clinical_annotation_step_label);
         }
     }
 })();

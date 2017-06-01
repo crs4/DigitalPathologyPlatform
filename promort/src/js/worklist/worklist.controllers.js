@@ -149,9 +149,9 @@
 
         function startAnnotation(annotationStep) {
             CurrentSlideDetailsService.getSlideByAnnotationStep(annotationStep.label, 'ROIS_ANNOTATION')
-                .then(getSlideByAnnotationStepSuccessF, getSlideByAnnotationStepErrorFn);
+                .then(getSlideByAnnotationStepSuccessFn, getSlideByAnnotationStepErrorFn);
 
-            function getSlideByAnnotationStepSuccessF(response) {
+            function getSlideByAnnotationStepSuccessFn(response) {
                 CurrentSlideDetailsService.registerCurrentSlide(
                     response.data.slide.id, response.data.slide.case
                 );
@@ -165,11 +165,11 @@
         }
     }
 
-    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
-        'ClinicalAnnotationStepService'];
+    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ClinicalAnnotationStepService',
+        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
-    function ClinicalAnnotationController($scope, $routeParams, $location, Authentication,
-                                          ClinicalAnnotationStepService) {
+    function ClinicalAnnotationController($scope, $routeParams, $location, ClinicalAnnotationStepService,
+                                          CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
@@ -177,13 +177,15 @@
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
         vm.getAnnotationStepLink = getAnnotationStepLink;
+        vm._goToAnnotationStep = _goToAnnotationStep;
         vm.startAnnotationStep = startAnnotationStep;
+        vm.continueAnnotationStep = continueAnnotationStep;
 
         activate();
 
         function activate() {
             vm.label = $routeParams.label;
-            ClinicalAnnotationStepService.get(vm.case_id, vm.rois_annotation_id)
+            ClinicalAnnotationStepService.get(vm.label)
                 .then(AnnotationStepSuccessFn, AnnotationStepErrorFn);
 
             function AnnotationStepSuccessFn(response) {
@@ -209,13 +211,48 @@
         }
 
         function getAnnotationStepLink(annotationStep) {
-            return 'worklist/' + vm.case_id + '/' + annotationStep.slide + '/' + vm.rois_annotation_id + '/' +
-                annotationStep.rois_review_step + '/' + annotationStep.id + '/annotations_manager';
+            return 'worklist/' + annotationStep.label + '/annotations_manager';
+        }
+
+        function _goToAnnotationStep(annotationStep) {
+            CurrentAnnotationStepsDetailsService.findROIsAnnotationStepLabelByClinicalStep(annotationStep.label)
+                .then(findROIsAnnotationLabelSuccessFn, findROIsAnnotationLabelErrorFn);
+
+            function findROIsAnnotationLabelSuccessFn(response) {
+                CurrentAnnotationStepsDetailsService.setROIsAnnotationStepLabel(response.data.rois_review_step_label);
+                CurrentAnnotationStepsDetailsService.setClinicalAnnotationStepLabel(annotationStep.label);
+
+                CurrentSlideDetailsService.getSlideByAnnotationStep(annotationStep.label, 'CLINICAL_ANNOTATION')
+                    .then(getSlideByAnnotationStepSuccessFn, getSlideByAnnotationStepErrorFn);
+
+                function getSlideByAnnotationStepSuccessFn(response) {
+                    console.log(response.data);
+                    CurrentSlideDetailsService.registerCurrentSlide(
+                        response.data.slide, response.data.case
+                    );
+                    var url = vm.getAnnotationStepLink(annotationStep);
+                    $location.url(url);
+                }
+
+            function getSlideByAnnotationStepErrorFn(response) {
+                console.log(response.error);
+                $location.url('404');
+            }
+            }
+
+            function findROIsAnnotationLabelErrorFn(response) {
+                console.error('Cannot load slide info');
+                console.error(response);
+            }
         }
 
         function startAnnotationStep(annotationStep) {
-            ClinicalAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                vm.rois_annotation_id, annotationStep.slide);
+            ClinicalAnnotationStepService.startAnnotationStep(annotationStep.label);
+            vm._goToAnnotationStep(annotationStep);
+        }
+
+        function continueAnnotationStep(annotationStep) {
+            vm._goToAnnotationStep(annotationStep);
         }
     }
 })();

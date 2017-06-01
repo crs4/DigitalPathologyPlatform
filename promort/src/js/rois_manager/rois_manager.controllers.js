@@ -13,11 +13,11 @@
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
-        'ngDialog', 'Authentication', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
+        'ngDialog', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
         'AnnotationsViewerService', 'CurrentSlideDetailsService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
-                                   Authentication, ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
+                                   ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
                                    AnnotationsViewerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;

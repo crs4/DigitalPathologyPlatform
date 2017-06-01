@@ -34,11 +34,11 @@
             return $http.post('/api/rois_annotation_steps/' + step_label + '/slices/', params);
         }
 
-        function getROIs(step_label, read_only, clinical_step_id) {
+        function getROIs(step_label, read_only, clinical_step_label) {
             if (!read_only) {
                 return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/');
             } else {
-                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/' + clinical_step_id + '/');
+                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/' + clinical_step_label + '/');
             }
         }
 

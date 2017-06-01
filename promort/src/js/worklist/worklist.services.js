@@ -127,39 +127,35 @@
 
         return ClinicalAnnotationStepService;
 
-        function get(case_id, rois_annotation_id) {
-            return $http.get('/api/worklist/' + case_id + '/' + rois_annotation_id + '/');
+        function get(annotation_label) {
+            return $http.get('/api/worklist/clinical_annotations/' + annotation_label + '/');
         }
 
-        function getDetails(case_id, reviewer, rois_annotation_id, slide_id) {
-            return $http.get('/api/clinical_annotations/' + case_id + '/' + reviewer + '/' +
-                rois_annotation_id + '/' + slide_id + '/');
+        function getDetails(annotation_step_label) {
+            return $http.get('/api/clinical_annotations/steps/' + annotation_step_label + '/');
         }
 
-        function _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, action, notes) {
+        function _annotationStepAction(annotation_step_label, action, notes) {
             var params = {action: action};
             if (typeof notes !== 'undefined') {
                 params.notes = notes;
             }
             return $http.put(
-                '/api/clinical_annotations/' + case_id + '/' + reviewer + '/' +
-                rois_annotation_id + '/' + slide_id + '/',
+                '/api/clinical_annotations/steps/' + annotation_step_label + '/',
                 params
             );
         }
 
-        function startAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id) {
-            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id, 'START');
+        function startAnnotationStep(annotation_step_label) {
+            return _annotationStepAction(annotation_step_label, 'START');
         }
 
-        function closeAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id, notes) {
-            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id,
-                'FINISH', notes);
+        function closeAnnotationStep(annotation_step_label, notes) {
+            return _annotationStepAction(annotation_step_label, 'FINISH', notes);
         }
 
-        function startAndCloseAnnotationStep(case_id, reviewer, rois_annotation_id, slide_id, notes) {
-            return _annotationStepAction(case_id, reviewer, rois_annotation_id, slide_id,
-                'START_AND_FINISH', notes);
+        function startAndCloseAnnotationStep(annotation_step_label) {
+            return _annotationStepAction(annotation_step_label, 'START_AND_FINISH', notes);
         }
     }
 })();
