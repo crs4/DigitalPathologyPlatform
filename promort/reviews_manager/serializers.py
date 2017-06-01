@@ -164,14 +164,16 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
     can_be_started = serializers.SerializerMethodField()
+    rois_review_step_label = serializers.SerializerMethodField()
+    case = serializers.SerializerMethodField()
 
     class Meta:
         model = ClinicalAnnotationStep
 
-        fields = ('id', 'label', 'clinical_annotation', 'slide', 'rois_review_step',
-                  'started', 'completed', 'can_be_started',
+        fields = ('id', 'label', 'clinical_annotation', 'slide', 'case', 'rois_review_step',
+                  'rois_review_step_label', 'started', 'completed', 'can_be_started',
                   'creation_date', 'start_date', 'completion_date', 'notes')
-        read_only_fields = ('id', 'creation_date', 'started', 'completed',
+        read_only_fields = ('id', 'case', 'creation_date', 'started', 'completed', 'rois_review_step_label',
                             'can_be_started')
 
     @staticmethod
@@ -185,6 +187,14 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_can_be_started(obj):
         return obj.can_be_started()
+
+    @staticmethod
+    def get_rois_review_step_label(obj):
+        return obj.rois_review_step.label
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slide.case.id
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):

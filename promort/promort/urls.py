@@ -63,19 +63,19 @@ urlpatterns = [
     url(r'api/focus_regions/(?P<pk>[0-9]+)/$', FocusRegionDetail.as_view()),
 
     # clinical annotations data
-    url(r'api/rois_annotation_steps/(?P<rois_annotation_step>[0-9]+)/rois_list/(?P<clinical_annotation_step>[0-9]+)/$',
+    url(r'api/rois_annotation_steps/(?P<rois_annotation_step>[A-Fa-f0-9\-.]+)/rois_list/(?P<clinical_annotation_step>[A-Fa-f0-9\-.]+)/$',
         AnnotatedROIsTreeList.as_view()),
-    url('api/clinical_annotation_steps/(?P<clinical_annotation_step>[0-9]+)/annotations_list/',
+    url('api/clinical_annotation_steps/(?P<clinical_annotation_step>[A-Fa-f0-9\-.]+)/annotations_list/',
         ClinicalAnnotationStepAnnotationsList.as_view()),
     url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/$', SliceAnnotationList.as_view()),
-    url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+    url(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/$',
         SliceAnnotationDetail.as_view()),
     url(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/$', CoreAnnotationList.as_view()),
-    url(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+    url(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/$',
         CoreAnnotationDetail.as_view()),
     url(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/$',
         FocusRegionAnnotationList.as_view()),
-    url(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/(?P<annotation_step_id>[0-9]+)/$',
+    url(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/$',
         FocusRegionAnnotationDetail.as_view()),
 
     # ROIs annotations
@@ -101,6 +101,7 @@ urlpatterns = [
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/$', rmv.ClinicalAnnotationsDetail.as_view()),
     url(r'api/clinical_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ClinicalAnnotationDetail.as_view()),
     url(r'api/clinical_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ClinicalAnnotationStepDetail.as_view()),
+
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/$',
         rmv.ClinicalAnnotationCreation.as_view()),
     url(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/$',
