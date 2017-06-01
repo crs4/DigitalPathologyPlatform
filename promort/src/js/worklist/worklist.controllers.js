@@ -106,10 +106,10 @@
     }
     
     ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ROIsAnnotationStepService',
-        'CurrentSlideDetailsService'];
+        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
     function ROIsAnnotationController($scope, $routeParams, $location, ROIsAnnotationStepService,
-                                      CurrentSlideDetailsService) {
+                                      CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
@@ -148,6 +148,8 @@
         }
 
         function startAnnotation(annotationStep) {
+            CurrentAnnotationStepsDetailsService.setROIsAnnotationStepLabel(annotationStep.label);
+
             CurrentSlideDetailsService.getSlideByAnnotationStep(annotationStep.label, 'ROIS_ANNOTATION')
                 .then(getSlideByAnnotationStepSuccessFn, getSlideByAnnotationStepErrorFn);
 
