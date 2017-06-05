@@ -12,17 +12,18 @@
         .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
-        'ngDialog', 'Authentication', 'AnnotationsViewerService', 'ClinicalAnnotationStepService',
-        'ClinicalAnnotationStepManagerService'];
+        'ngDialog', 'AnnotationsViewerService', 'ClinicalAnnotationStepService', 'ClinicalAnnotationStepManagerService',
+        'CurrentSlideDetailsService'];
 
     function ClinicalAnnotationsManagerController($scope, $rootScope, $routeParams, $compile, $location, ngDialog,
-                                                  Authentication, AnnotationsViewerService,
-                                                  ClinicalAnnotationStepService, ClinicalAnnotationStepManagerService) {
+                                                  AnnotationsViewerService, ClinicalAnnotationStepService,
+                                                  ClinicalAnnotationStepManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
+        vm.slide_index = undefined;
         vm.case_id = undefined;
-        vm.rois_annotation_step_id = undefined;
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinial_annotation_label = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm.slices_map = undefined;
         vm.cores_map = undefined;
@@ -74,11 +75,12 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-            vm.rois_annotation_id = $routeParams.rois_annotation;
-            vm.rois_annotation_step_id = $routeParams.annotation_step;
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
+            vm.clinical_annotation_step_label = $routeParams.label;
+            vm.clinical_annotation_label = vm.clinical_annotation_step_label.split('-')[0];
+            console.log('clinical annotation label is ' + vm.clinical_annotation_label);
+            vm.slide_index = vm.clinical_annotation_step_label.split('-')[1];
 
             vm.slices_map = [];
             vm.cores_map = [];
@@ -92,13 +94,12 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
 
-            ClinicalAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(),
-                vm.rois_annotation_id, vm.slide_id)
+            ClinicalAnnotationStepService.getDetails(vm.clinical_annotation_step_label)
                 .then(getClinicalAnnotationStepSuccessFn, getClinicalAnnotationStepErrorFn);
 
             function getClinicalAnnotationStepSuccessFn(response) {
                 if (response.data.completed === true || response.data.can_be_started === false) {
-                    $location.url('worklist/' + vm.case_id);
+                    $location.url('worklist/clinical_annotations/' + vm.clinical_annotation_label);
                 }
 
                 $scope.$on('annotation_panel.closed',
@@ -357,8 +358,7 @@
 
             function confirmFn(confirm_obj) {
                 if (confirm_obj.value === true) {
-                    ClinicalAnnotationStepService.closeAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                        vm.rois_annotation_id, vm.slide_id, confirm_obj.notes)
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label)
                         .then(closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn);
                 }
 
@@ -366,7 +366,7 @@
                     if (response.data.clinical_annotation_closed === true) {
                         $location.url('worklist');
                     } else {
-                        $location.url('worklist/' + vm.case_id + '/' + vm.rois_annotation_id);
+                        $location.url('worklist/' + vm.clinical_annotation_label);
                     }
                 }
 
@@ -395,7 +395,7 @@
                         closeByDocument: false
                     });
 
-                    ClinicalAnnotationStepManagerService.clearAnnotations(vm.clinical_annotation_step_id)
+                    ClinicalAnnotationStepManagerService.clearAnnotations(vm.clinical_annotation_step_label)
                         .then(clearAnnotationsSuccessFn, clearAnnotationsErrorFn);
                 }
 
@@ -597,7 +597,7 @@
         vm.intraglandularInflammation = false;
         vm.stromalInflammation = false;
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
@@ -609,7 +609,7 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('slice_annotation.new',
                 function(event, slice_id) {
                     vm.slice_id = slice_id;
@@ -679,7 +679,7 @@
                 intraglandular_inflammation: vm.intraglandularInflammation,
                 stromal_inflammation: vm.stromalInflammation
             };
-            SliceAnnotationsManagerService.createAnnotation(vm.slice_id, vm.clinical_annotation_step_id, obj_config)
+            SliceAnnotationsManagerService.createAnnotation(vm.slice_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
             function createAnnotationSuccessFn(response) {
@@ -714,7 +714,7 @@
         vm.intraglandularInflammation = undefined;
         vm.stromalInflammation = undefined;
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm.isReadOnly = isReadOnly;
         vm.isLocked = isLocked;
@@ -724,11 +724,11 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('slice_annotation.show',
                 function(event, slice_id) {
                     vm.slice_id = slice_id;
-                    SliceAnnotationsManagerService.getAnnotation(vm.slice_id, vm.clinical_annotation_step_id)
+                    SliceAnnotationsManagerService.getAnnotation(vm.slice_id, vm.clinical_annotation_step_label)
                         .then(getSliceAnnotationSuccessFn, getSliceAnnotationErrorFn);
                 }
             );
@@ -783,7 +783,7 @@
                         closeByNavigation: false,
                         closeByDocument: false
                     });
-                    SliceAnnotationsManagerService.deleteAnnotation(vm.slice_id, vm.clinical_annotation_step_id)
+                    SliceAnnotationsManagerService.deleteAnnotation(vm.slice_id, vm.clinical_annotation_step_label)
                         .then(deleteSliceAnnotationSuccessFn, deleteSliceAnnotationErrorFn);
                 }
             }
@@ -828,7 +828,7 @@
         vm.gradeGroupWho = undefined;
         vm.gradeGroupWhoLabel = '';
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
@@ -841,7 +841,7 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('core_annotation.new',
                 function(event, core_id) {
                     vm.core_id = core_id;
@@ -934,7 +934,7 @@
                 secondary_gleason: Number(vm.secondaryGleason),
                 gleason_group: vm.gradeGroupWho
             };
-            CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_id, obj_config)
+            CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
             function createAnnotationSuccessFn(response) {
@@ -967,7 +967,7 @@
         vm.gradeGroupWhoLabel = undefined;
         vm.gleason4Percentage = undefined;
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm.locked = undefined;
 
@@ -979,12 +979,12 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('core_annotation.show',
                 function (event, core_id) {
                     vm.locked = false;
                     vm.core_id = core_id;
-                    CoreAnnotationsManagerService.getAnnotation(vm.core_id, vm.clinical_annotation_step_id)
+                    CoreAnnotationsManagerService.getAnnotation(vm.core_id, vm.clinical_annotation_step_label)
                         .then(getCoreAnnotationSuccessFn, getCoreAnnotationErrorFn);
                 }
             );
@@ -1073,7 +1073,7 @@
                         closeByNavigation: false,
                         closeByDocument: false
                     });
-                    CoreAnnotationsManagerService.deleteAnnotation(vm.core_id, vm.clinical_annotation_step_id)
+                    CoreAnnotationsManagerService.deleteAnnotation(vm.core_id, vm.clinical_annotation_step_label)
                         .then(deleteCoreAnnotationSuccessFn, deleteCoreAnnotationErrorFn);
                 }
             }
@@ -1137,7 +1137,7 @@
         vm.gleason4ElementsLabels = undefined;
         vm.displayedGleason4ElementsLabels = undefined;
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm.ruler_tool_active = false;
         vm.ruler_hidden = true;
@@ -1197,7 +1197,7 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
 
             vm.gleason4Elements = {};
             vm.gleason4ElementsLabels = [];
@@ -1658,7 +1658,7 @@
                 gleason_elements: gleason_4_elements
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
-                vm.clinical_annotation_step_id, obj_config)
+                vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
             function createAnnotationSuccessFn(response) {
@@ -1746,7 +1746,7 @@
         vm.gleason4ElementsLabels = undefined;
         vm.displayedGleason4ElementsLabels = undefined;
 
-        vm.clinical_annotation_step_id = undefined;
+        vm.clinical_annotation_step_label = undefined;
 
         vm.ruler_hidden = true;
         vm.cellular_density_helper_hidden = true;
@@ -1766,13 +1766,13 @@
         activate();
 
         function activate() {
-            vm.clinical_annotation_step_id = $routeParams.clinical_annotation_step;
+            vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('focus_region_annotation.show',
                 function (event, focus_region_id) {
                     vm.locked = false;
                     vm.focus_region_id = focus_region_id;
                     FocusRegionAnnotationsManagerService.getAnnotation(vm.focus_region_id,
-                        vm.clinical_annotation_step_id)
+                        vm.clinical_annotation_step_label)
                         .then(getFocusRegionAnnotationSuccessFn, getFocusRegionAnnotationErrorFn);
                 }
             );
@@ -1871,7 +1871,7 @@
                         closeByDocument: false
                     });
                     FocusRegionAnnotationsManagerService.deleteAnnotation(vm.focus_region_id,
-                        vm.clinical_annotation_step_id)
+                        vm.clinical_annotation_step_label)
                         .then(deleteFocusRegionAnnotationSuccessFn, deleteFocusRegionAnnotationErrorFn);
                 }
             }

@@ -17,8 +17,8 @@
 
         return ClinicalAnnotationStepManagerService;
 
-        function clearAnnotations(annotation_step_id) {
-            return $http.delete('/api/clinical_annotation_steps/' + annotation_step_id + '/annotations_list/');
+        function clearAnnotations(annotation_step_label) {
+            return $http.delete('/api/clinical_annotation_steps/' + annotation_step_label + '/annotations_list/');
         }
     }
 
@@ -33,17 +33,17 @@
 
         return SliceAnnotationsManagerService;
 
-        function getAnnotation(slice_id, annotation_step_id) {
-            return $http.get('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/');
+        function getAnnotation(slice_id, annotation_step_label) {
+            return $http.get('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_label + '/');
         }
 
-        function createAnnotation(slice_id, annotation_step_id, annotation_config) {
-            return $http.post('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/',
+        function createAnnotation(slice_id, annotation_step_label, annotation_config) {
+            return $http.post('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_label + '/',
                 annotation_config);
         }
 
-        function deleteAnnotation(slice_id, annotation_step_id) {
-            return $http.delete('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_id + '/');
+        function deleteAnnotation(slice_id, annotation_step_label) {
+            return $http.delete('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_label + '/');
         }
     }
 
@@ -58,17 +58,17 @@
 
         return CoreAnnotationsManagerService;
 
-        function getAnnotation(core_id, annotation_step_id) {
-            return $http.get('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/');
+        function getAnnotation(core_id, annotation_step_label) {
+            return $http.get('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_label +'/');
         }
 
-        function createAnnotation(core_id, annotation_step_id, annotation_config) {
-            return $http.post('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/',
+        function createAnnotation(core_id, annotation_step_label, annotation_config) {
+            return $http.post('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_label +'/',
                 annotation_config);
         }
 
-        function deleteAnnotation(core_id, annotation_step_id) {
-            return $http.delete('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_id +'/');
+        function deleteAnnotation(core_id, annotation_step_label) {
+            return $http.delete('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_label +'/');
         }
     }
 
@@ -83,20 +83,20 @@
 
         return FocusRegionAnnotationsManagerService;
 
-        function getAnnotation(focus_region_id, annotation_step_id) {
+        function getAnnotation(focus_region_id, annotation_step_label) {
             return $http.get('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
-                annotation_step_id + '/');
+                annotation_step_label + '/');
         }
 
-        function createAnnotation(focus_region_id, annotation_step_id, annotation_config) {
+        function createAnnotation(focus_region_id, annotation_step_label, annotation_config) {
             return $http.post('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
-                annotation_step_id + '/',
+                annotation_step_label + '/',
                 annotation_config);
         }
 
-        function deleteAnnotation(focus_region_id, annotation_step_id) {
+        function deleteAnnotation(focus_region_id, annotation_step_label) {
             return $http.delete('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
-                annotation_step_id + '/');
+                annotation_step_label + '/');
         }
     }
 })();

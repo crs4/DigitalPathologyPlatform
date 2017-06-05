@@ -22,31 +22,31 @@
                 templateUrl: '/static/templates/worklist/pending_reviews.html'
             })
             // ROIs annotation steps template
-            .when('/worklist/:case', {
+            .when('/worklist/rois_annotations/:label', {
                 controller: 'ROIsAnnotationController',
                 controllerAs: 'rc',
                 templateUrl: '/static/templates/worklist/rois_annotation_steps.html'
             })
             // clinical annotation steps template
-            .when('/worklist/:case/:rois_annotation_step', {
+            .when('/worklist/clinical_annotations/:label', {
                 controller: 'ClinicalAnnotationController',
                 controllerAs: 'cc',
                 templateUrl: '/static/templates/worklist/clinical_annotation_steps.html'
             })
             // slide quality control
-            .when('/worklist/:case/:slide/:annotation_step/quality_control', {
+            .when('/worklist/:label/quality_control', {
                 controller: 'QualityControlController',
                 controllerAs: 'qcc',
                 templateUrl: '/static/templates/slide_review/quality_control.html'
             })
             // ROIs manager
-            .when('/worklist/:case/:slide/:annotation_step/rois_manager', {
+            .when('/worklist/:label/rois_manager', {
                 controller: 'ROIsManagerController',
                 controllerAs: 'rmc',
                 templateUrl: '/static/templates/rois_manager/manager.html'
             })
             // clinical annotations manager
-            .when('/worklist/:case/:slide/:rois_annotation/:annotation_step/:clinical_annotation_step/annotations_manager', {
+            .when('/worklist/:label/annotations_manager', {
                 controller: 'ClinicalAnnotationsManagerController',
                 controllerAs: 'cmc',
                 templateUrl: '/static/templates/clinical_annotations_manager/manager.html'

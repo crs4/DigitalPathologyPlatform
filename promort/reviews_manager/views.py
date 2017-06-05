@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 from datetime import datetime
+from uuid import uuid4
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -75,28 +76,14 @@ class ClinicalAnnotationsDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ROIsAnnotationDetail(APIView):
+class ROIsAnnotationCreation(APIView):
     permission_classes = (IsReviewManager,)
-
-    def _find_rois_annotation(self, case_id, reviewer):
-        try:
-            reviewer_obj = User.objects.get(username=reviewer)
-            return ROIsAnnotation.objects.get(case=case_id, reviewer=reviewer_obj)
-        except User.DoesNotExist:
-            raise NotFound('There is no reviewer with username \'%s\'' % reviewer)
-        except ROIsAnnotation.DoesNotExist:
-            raise NotFound('No ROIs annotations found assigned to reviewer \'%s\' for case \'%s\'' %
-                           (reviewer, case_id))
-
-    def get(self, request, case, reviewer, format=None):
-        rois_annotation = self._find_rois_annotation(case, reviewer)
-        serializer = ROIsAnnotationDetailsSerializer(rois_annotation)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, case, reviewer, format=None):
         rois_annotation_data = {
             'reviewer': reviewer,
-            'case': case
+            'case': case,
+            'label': uuid4().hex
         }
         serializer = ROIsAnnotationSerializer(data=rois_annotation_data)
         if serializer.is_valid():
@@ -111,8 +98,23 @@ class ROIsAnnotationDetail(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, case, reviewer, format=None):
-        rois_annotation = self._find_rois_annotation(case, reviewer)
+
+class ROIsAnnotationDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_rois_annotation(self, label):
+        try:
+            return ROIsAnnotation.objects.get(label=label)
+        except ROIsAnnotation.DoesNotExist:
+            raise NotFound('No ROIs annotations with label \'%s\'', label)
+
+    def get(self, request, label, format=None):
+        rois_annotation = self._find_rois_annotation(label)
+        serializer = ROIsAnnotationDetailsSerializer(rois_annotation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, label, format=None):
+        rois_annotation = self._find_rois_annotation(label)
         action = request.data.get('action')
         if action is not None:
             action = action.upper()
@@ -146,8 +148,8 @@ class ROIsAnnotationDetail(APIView):
                 'message': 'Missing \'action\' field in request data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, case, reviewer, format=None):
-        rois_annotation = self._find_rois_annotation(case, reviewer)
+    def delete(self, request, label, format=None):
+        rois_annotation = self._find_rois_annotation(label)
         try:
             rois_annotation.delete()
         except IntegrityError:
@@ -158,27 +160,22 @@ class ROIsAnnotationDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ClinicalAnnotationDetail(APIView):
+class ClinicalAnnotationCreation(APIView):
     permission_classes = (IsReviewManager,)
 
-    def _find_clinical_annotation(self, case_id, reviewer, rois_review_id):
+    def _get_rois_review_label(self, rois_review_id, reviewer):
         try:
-            reviewer_obj = User.objects.get(username=reviewer)
-            return ClinicalAnnotation.objects.get(case=case_id, reviewer=reviewer_obj,
-                                                  rois_review=rois_review_id)
-        except User.DoesNotExist:
-            raise NotFound('There is no reviewer with username \'%s\'' % reviewer)
-        except ClinicalAnnotation.DoesNotExist:
-            raise NotFound('No clinical annotation found assigned to reviewer \'%s\' for case \'%s\'' %
-                           (reviewer, case_id))
-
-    def get(self, request, case, reviewer, rois_review, format=None):
-        clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
-        serializer = ClinicalAnnotationDetailsSerializer(clinical_annotation)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            rois_review_obj = ROIsAnnotation.objects.get(id=rois_review_id)
+            if rois_review_obj.reviewer.username == reviewer:
+                return rois_review_obj.label
+            else:
+                return uuid4().hex
+        except ROIsAnnotation.DoesNotExist:
+            raise NotFound('No ROIs review with ID \'%s\'' % rois_review_id)
 
     def post(self, request, case, reviewer, rois_review, format=None):
         clinical_annotation_data = {
+            'label': self._get_rois_review_label(rois_review, reviewer),
             'reviewer': reviewer,
             'case': case,
             'rois_review': rois_review
@@ -196,8 +193,23 @@ class ClinicalAnnotationDetail(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, case, reviewer, rois_review, format=None):
-        clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+
+class ClinicalAnnotationDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_clinical_annotation(self, label):
+        try:
+            return ClinicalAnnotation.objects.get(label=label)
+        except ClinicalAnnotation.DoesNotExist:
+            raise NotFound('No clinical annotation found with label \'%s\'' % label)
+
+    def get(self, request, label, format=None):
+        clinical_annotation = self._find_clinical_annotation(label)
+        serializer = ClinicalAnnotationDetailsSerializer(clinical_annotation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, label, format=None):
+        clinical_annotation = self._find_clinical_annotation(label)
         action = request.data.get('action')
         if action is not None:
             action = action.upper()
@@ -231,8 +243,8 @@ class ClinicalAnnotationDetail(APIView):
                 'message': 'Missing \'action\' field in request data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, case, reviewer, rois_review, format=None):
-        clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
+    def delete(self, request, label, format=None):
+        clinical_annotation = self._find_clinical_annotation(label)
         try:
             clinical_annotation.delete()
         except IntegrityError:
@@ -243,7 +255,7 @@ class ClinicalAnnotationDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ROIsAnnotationStepDetail(APIView):
+class ROIsAnnotationStepCreation(APIView):
     permission_classes = (IsReviewManager,)
 
     def _find_rois_annotation(self, case_id, reviewer):
@@ -256,22 +268,14 @@ class ROIsAnnotationStepDetail(APIView):
             raise NotFound('No ROIs annotations found assigned to reviewer \'%s\' for case \'%s\'' %
                            (case_id, reviewer))
 
-    def _find_rois_annotation_step(self, case_id, reviewer, slide_id):
-        try:
-            rois_annotation = self._find_rois_annotation(case_id, reviewer)
-            annotation_step = ROIsAnnotationStep.objects.get(rois_annotation=rois_annotation, slide=slide_id)
-            return annotation_step
-        except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('No ROIs annotation step for slide \'%s\'' % slide_id)
-
-    def get(self, request, case, reviewer, slide, format=None):
-        annotation_step = self._find_rois_annotation_step(case, reviewer, slide)
-        serializer = ROIsAnnotationStepDetailsSerializer(annotation_step)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def _get_step_label(self, rois_annotation, slide):
+        slide_index = slide.split('-')[-1]
+        return '%s-%s' % (rois_annotation.label, slide_index)
 
     def post(self, request, case, reviewer, slide, format=None):
         rois_annotation = self._find_rois_annotation(case, reviewer)
         annotation_step_data = {
+            'label': self._get_step_label(rois_annotation, slide),
             'slide': slide,
             'rois_annotation': rois_annotation.id
         }
@@ -287,8 +291,24 @@ class ROIsAnnotationStepDetail(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, case, reviewer, slide, format=None):
-        annotation_step = self._find_rois_annotation_step(case, reviewer, slide)
+
+class ROIsAnnotationStepDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_rois_annotation_step(self, label):
+        try:
+            annotation_step = ROIsAnnotationStep.objects.get(label=label)
+            return annotation_step
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step with label \'%s\'' % label)
+
+    def get(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
+        serializer = ROIsAnnotationStepDetailsSerializer(annotation_step)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
         action = request.data.get('action')
         if action is not None:
             action = action.upper()
@@ -338,8 +358,8 @@ class ROIsAnnotationStepDetail(APIView):
                 'message': 'missing \'action\' field in request data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, case, reviewer, slide, format=None):
-        annotation_step = self._find_rois_annotation_step(case, reviewer, slide)
+    def delete(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
         try:
             annotation_step.delete()
         except IntegrityError:
@@ -353,11 +373,11 @@ class ROIsAnnotationStepDetail(APIView):
 class ClinicalAnnotationStepsList(APIView):
     permission_classes = (IsReviewManager,)
 
-    def _find_rois_annotation_step(self, annotation_step_id):
+    def _find_rois_annotation_step(self, annotation_step_label):
         try:
-            return ROIsAnnotationStep.objects.get(id=annotation_step_id)
+            return ROIsAnnotationStep.objects.get(label=annotation_step_label)
         except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('No ROIs annotation step with ID %s' % annotation_step_id)
+            raise NotFound('No ROIs annotation step with label %s' % annotation_step_label)
 
     def _apply_action(self, step, action, notes):
         clinical_annotation = step.clinical_annotation
@@ -384,14 +404,14 @@ class ClinicalAnnotationStepsList(APIView):
                 clinical_annotation.completion_date = datetime.now()
                 clinical_annotation.save()
 
-    def get(self, request, pk, format=None):
-        rois_annotation_step = self._find_rois_annotation_step(pk)
+    def get(self, request, label, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(label)
         clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
         serializer = ClinicalAnnotationStepSerializer(clinical_steps, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk, format=None):
-        rois_annotation_step = self._find_rois_annotation_step(pk)
+    def put(self, request, label, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(label)
         clinical_steps = rois_annotation_step.clinical_annotation_steps.all()
         action = request.data.get('action')
         notes = request.data.get('notes')
@@ -414,7 +434,7 @@ class ClinicalAnnotationStepsList(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ClinicalAnnotationStepDetail(APIView):
+class ClinicalAnnotationStepCreation(APIView):
     permission_classes = (IsReviewManager,)
 
     def _find_clinical_annotation(self, case_id, reviewer, rois_review_id):
@@ -428,6 +448,13 @@ class ClinicalAnnotationStepDetail(APIView):
             raise NotFound('No clinical annotation found assigned to reviewer \'%s\' for case \'%s\'' %
                            (reviewer, case_id))
 
+    def _find_rois_review_step(self, rois_review_id, slide_id):
+        try:
+            return ROIsAnnotationStep.objects.get(rois_annotation=rois_review_id, slide=slide_id)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step for ROIs Annotation %s related to slide %s' %
+                           (rois_review_id, slide_id))
+
     def _find_clinical_annotation_step(self, case_id, reviewer, rois_review_id, slide_id):
         try:
             clinical_annotation = self._find_clinical_annotation(case_id, reviewer, rois_review_id)
@@ -437,22 +464,15 @@ class ClinicalAnnotationStepDetail(APIView):
         except ClinicalAnnotationStep.DoesNotExist:
             raise NotFound('No clinical annotation step for slide \'%s\'' % slide_id)
 
-    def _find_rois_review_step(self, rois_review_id, slide_id):
-        try:
-            return ROIsAnnotationStep.objects.get(rois_annotation=rois_review_id, slide=slide_id)
-        except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('No ROIs annotation step for ROIs Annotation %s related to slide %s' %
-                           (rois_review_id, slide_id))
-
-    def get(self, request, case, reviewer, rois_review, slide, format=None):
-        annotation_step = self._find_clinical_annotation_step(case, reviewer, rois_review, slide)
-        serializer = ClinicalAnnotationStepSerializer(annotation_step)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def _get_step_label(self, clinical_annotation, slide):
+        slide_index = slide.split('-')[-1]
+        return '%s-%s' % (clinical_annotation.label, slide_index)
 
     def post(self, request, case, reviewer, rois_review, slide, format=None):
         clinical_annotation = self._find_clinical_annotation(case, reviewer, rois_review)
         rois_annotation_step = self._find_rois_review_step(rois_review, slide)
         annotation_step_data = {
+            'label': self._get_step_label(clinical_annotation, slide),
             'slide': slide,
             'clinical_annotation': clinical_annotation.id,
             'rois_review_step': rois_annotation_step.id
@@ -469,8 +489,24 @@ class ClinicalAnnotationStepDetail(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, case, reviewer, rois_review, slide, format=None):
-        annotation_step = self._find_clinical_annotation_step(case, reviewer, rois_review, slide)
+
+class ClinicalAnnotationStepDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_clinical_annotation_step(self, label):
+        try:
+            annotation_step = ClinicalAnnotationStep.objects.get(label=label)
+            return annotation_step
+        except ClinicalAnnotationStep.DoesNotExist:
+            raise NotFound('No clinical annotation step with label \'%s\'' % label)
+
+    def get(self, request, label, format=None):
+        annotation_step = self._find_clinical_annotation_step(label)
+        serializer = ClinicalAnnotationStepSerializer(annotation_step)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, label, format=None):
+        annotation_step = self._find_clinical_annotation_step(label)
         action = request.data.get('action')
         if action is not None:
             action = action.upper()
@@ -521,8 +557,8 @@ class ClinicalAnnotationStepDetail(APIView):
                 'message': 'missing \'action\' field in requesta data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, case, reviewer, rois_review, slide, format=None):
-        annotation_step = self._find_clinical_annotation_step(case, reviewer, rois_review, slide)
+    def delete(self, request, label, format=None):
+        annotation_step = self._find_clinical_annotation_step(label)
         try:
             annotation_step.delete()
         except IntegrityError:

@@ -26,18 +26,17 @@ logger = logging.getLogger('promort')
 class ROIsTreeList(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, pk, format=None):
+    def get(self, request, label, format=None):
         try:
-            logger.info('Searching for ROIsAnnotationStep with ID %s' % pk)
-            obj = ROIsAnnotationStep.objects.get(pk=pk)
+            obj = ROIsAnnotationStep.objects.get(label=label)
         except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('There is no ROIsAnnotationStep with ID %s' % pk)
+            raise NotFound('There is no ROIsAnnotationStep with label %s' % label)
         serializer = ROIsAnnotationStepROIsTreeSerializer(obj)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
-    def delete(self, request, pk, format=None):
-        slices = Slice.objects.filter(annotation_step=pk)
+    def delete(self, request, label, format=None):
+        slices = Slice.objects.filter(annotation_step__label=label)
         for s in slices:
             s.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -48,9 +47,16 @@ class SliceList(GenericReadOnlyDetailView):
     model_serializer = ROIsAnnotationStepFullSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request, pk, format=None):
+    def _find_rois_annotation_step(self, label):
+        try:
+            return ROIsAnnotationStep.objects.get(label=label)
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('There is no ROIsAnnotationStep with label %s' % label)
+
+    def post(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
         slice_data = request.data
-        slice_data['annotation_step'] = pk
+        slice_data['annotation_step'] = annotation_step.id
         slice_data['author'] = request.user.username
 
         logger.debug('Serializing data %r -- Object class %r', slice_data, Slice)
@@ -62,7 +68,7 @@ class SliceList(GenericReadOnlyDetailView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated slice label %s for slide %s' % (slice_data['label'], pk)
+                    'message': 'duplicated slice label %s' % (slice_data['label'])
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)

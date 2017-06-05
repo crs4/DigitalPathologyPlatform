@@ -3,8 +3,46 @@
 
     angular
         .module('promort.viewer.services')
+        .factory('CurrentAnnotationStepsDetailsService', CurrentAnnotationStepsDetailsService)
         .factory('ViewerService', ViewerService)
         .factory('AnnotationsViewerService', AnnotationsViewerService);
+
+    CurrentAnnotationStepsDetailsService.$inject = ['$http'];
+
+    function CurrentAnnotationStepsDetailsService($http) {
+        var roisAnnotationStepLabel = undefined;
+        var clinicalAnnotationStepLabel = undefined;
+
+        var CurrentAnnotationStepsDetailsService = {
+            setROIsAnnotationStepLabel: setROIsAnnotationStepLabel,
+            setClinicalAnnotationStepLabel: setClinicalAnnotationStepLabel,
+            findROIsAnnotationStepLabelByClinicalStep: findROIsAnnotationStepLabelByClinicalStep,
+            getROIsAnnotationStepLabel: getROIsAnnotationStepLabel,
+            getClinicalAnnotationStepLabel: getClinicalAnnotationStepLabel
+        };
+
+        return CurrentAnnotationStepsDetailsService;
+
+        function setROIsAnnotationStepLabel(step_label) {
+            roisAnnotationStepLabel = step_label;
+        }
+
+        function setClinicalAnnotationStepLabel(step_label) {
+            clinicalAnnotationStepLabel = step_label;
+        }
+
+        function findROIsAnnotationStepLabelByClinicalStep(clinical_step_label) {
+            return $http.get('api/clinical_annotations/steps/' + clinical_step_label + '/');
+        }
+
+        function getROIsAnnotationStepLabel() {
+            return roisAnnotationStepLabel;
+        }
+
+        function getClinicalAnnotationStepLabel() {
+            return clinicalAnnotationStepLabel;
+        }
+    }
 
     ViewerService.$inject = ['$http'];
 

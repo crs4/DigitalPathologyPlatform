@@ -20,30 +20,30 @@
 
         return ROIsAnnotationStepManagerService;
 
-        function getSlices(step_id) {
-            return $http.get('/api/rois_annotation_steps/' + step_id + '/slices/');
+        function getSlices(step_label) {
+            return $http.get('/api/rois_annotation_steps/' + step_label + '/slices/');
         }
 
-        function createSlice(step_id, slide_id, slice_label, roi_json, total_cores) {
+        function createSlice(step_label, slide_id, slice_label, roi_json, total_cores) {
             var params = {
                 label: slice_label,
                 slide: slide_id,
                 roi_json: JSON.stringify(roi_json),
                 total_cores: total_cores
             };
-            return $http.post('/api/rois_annotation_steps/' + step_id + '/slices/', params);
+            return $http.post('/api/rois_annotation_steps/' + step_label + '/slices/', params);
         }
 
-        function getROIs(step_id, read_only, clinical_step_id) {
+        function getROIs(step_label, read_only, clinical_step_label) {
             if (!read_only) {
-                return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/');
+                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/');
             } else {
-                return $http.get('/api/rois_annotation_steps/' + step_id + '/rois_list/' + clinical_step_id + '/');
+                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/' + clinical_step_label + '/');
             }
         }
 
-        function clearROIs(step_id) {
-            return $http.delete('/api/rois_annotation_steps/' + step_id + '/rois_list/');
+        function clearROIs(step_label) {
+            return $http.delete('/api/rois_annotation_steps/' + step_label + '/rois_list/');
         }
     }
 
