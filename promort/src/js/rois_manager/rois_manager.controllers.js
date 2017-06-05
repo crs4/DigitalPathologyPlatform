@@ -445,7 +445,7 @@
                         $location.url('worklist');
                     } else {
                         // review closed, go back to case worklist
-                        $location.url('worklist/rois_annotations/' + vm.annotation_step_label);
+                        $location.url('worklist/rois_annotations/' + vm.annotation_label);
                     }
                 }
 
