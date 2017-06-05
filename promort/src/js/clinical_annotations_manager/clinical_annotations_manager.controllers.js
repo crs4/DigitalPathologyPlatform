@@ -358,7 +358,7 @@
 
             function confirmFn(confirm_obj) {
                 if (confirm_obj.value === true) {
-                    ClinicalAnnotationStepService.closeAnnotationStep(vm.annotation_step_label)
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label)
                         .then(closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn);
                 }
 
