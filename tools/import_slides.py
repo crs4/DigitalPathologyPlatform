@@ -309,8 +309,8 @@ class SlidesImporter(object):
         response = self.promort_client.get(url)
         if response.status_code == requests.codes.OK:
             for annotation in response.json():
-                reviewer = annotation['reviewer']
-                url = urljoin(self.promort_host, 'api/rois_annotations/%s/%s/' % (case_id, reviewer))
+                annotation_label = annotation['label']
+                url = urljoin(self.promort_host, 'api/rois_annotations/annotations/%s/' % annotation_label)
                 ann_response = self.promort_client.get(url)
                 if ann_response.status_code == requests.codes.OK:
                     for step in ann_response.json()['steps']:
