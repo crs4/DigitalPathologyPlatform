@@ -2,24 +2,24 @@
     <div id="worklist-panel" class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header text-center">
-                <h1>SLIDES LIST - Case {{ rc.case_id }}</h1>
+                <h1>ROIs REVIEW STEPS</h1>
             </div>
             <div id="worklist-details" ng-repeat="step in rc.annotationSteps">
                 <div class="well row">
                     <div class="col-sm-9 prm-valign">
                         <div>
-                            <p><strong>Slide ID:</strong> {{ step.slide }}</p>
+                            <p><strong>Step ID:</strong> {{ step.label }}</p>
                         </div>
                     </div><!--
                     Removing blank spaces between DIVs, this will make valign work
                  --><div class="col-sm-3 text-right prm-valign">
                         <div>
                             <a class="btn btn-success"
-                               ng-href="{{ rc.getAnnotationStepLink(step) }}"
+                               ng-click="rc.startAnnotation(step)"
                                ng-show="rc.annotationStepPending(step)">Start slide review</a>
                             <a class="btn btn-warning"
-                               ng-show="rc.annotationStepInProgress(step)"
-                               ng-href="{{ rc.getAnnotationStepLink(step) }}">Continue slide review</a>
+                               ng-click="rc.startAnnotation(step)"
+                               ng-show="rc.annotationStepInProgress(step)">Continue slide review</a>
                             <a class="btn btn-default"
                                ng-show="rc.annotationStepCompleted(step)"
                                href="#" disabled="true">Slide review completed</a>

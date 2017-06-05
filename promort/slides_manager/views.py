@@ -44,41 +44,33 @@ class SlideDetail(GenericDetailView):
 class SlideQualityControlDetail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def _find_rois_annotation_step(self, case_id, username, slide_id):
+    def _find_rois_annotation_step(self, label):
         try:
-            annotation = ROIsAnnotation.objects.get(
-                case=case_id,
-                reviewer=User.objects.get(username=username)
-            )
-            return ROIsAnnotationStep.objects.get(
-                rois_annotation=annotation,
-                slide=slide_id
-            )
-        except ROIsAnnotation.DoesNotExist:
-            raise NotFound('unable to find ROIs annotation for case %s assigned to user %s' % (case_id, username))
+            return ROIsAnnotationStep.objects.get(label=label)
         except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('unable to find ROIs annotation step for slide %s' % slide_id)
+            raise NotFound('there is no ROIs annotation step with label %s', label)
 
-    def _find_by_rois_annotation_step(self, case_id, username, slide_id):
+    def _find_by_rois_annotation_step(self, label):
         try:
-            annotation_step = self._find_rois_annotation_step(case_id, username, slide_id)
+            annotation_step = self._find_rois_annotation_step(label)
             return SlideQualityControl.objects.get(
                 rois_annotation_step=annotation_step
             )
         except SlideQualityControl.DoesNotExist:
             raise NotFound('unable to find quality control data')
 
-    def get(self, request, case, reviewer, slide, format=None):
-        qc_obj = self._find_by_rois_annotation_step(case, reviewer, slide)
+    def get(self, request, label, format=None):
+        qc_obj = self._find_by_rois_annotation_step(label)
         serializer = SlideQualityControlSerializer(qc_obj)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
-    def post(self, request, case, reviewer, slide, format=None):
+    def post(self, request, label, format=None):
+        rois_annotation_step = self._find_rois_annotation_step(label)
         qc_data = request.data
-        qc_data['reviewer'] = reviewer
-        qc_data['slide'] = slide
-        qc_data['rois_annotation_step'] = self._find_rois_annotation_step(case, reviewer, slide).id
+        qc_data['reviewer'] = request.user.username
+        qc_data['slide'] = rois_annotation_step.slide.id
+        qc_data['rois_annotation_step'] = rois_annotation_step.id
 
         logger.debug('Serializing data %r -- Object class %r', qc_data, SlideQualityControl)
 
@@ -89,15 +81,15 @@ class SlideQualityControlDetail(APIView):
             except IntegrityError:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'duplicated entry for slide %s' % slide
+                    'message': 'duplicated entry for slide %s' % rois_annotation_step.slide.id
                 }, status=status.HTTP_409_CONFLICT)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, case, reviewer, slide, format=None):
-        qc_obj = self._find_by_rois_annotation_step(case, reviewer, slide)
+    def delete(self, request, label, format=None):
+        qc_obj = self._find_by_rois_annotation_step(label)
         try:
             qc_obj.delete()
         except IntegrityError:

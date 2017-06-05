@@ -6,11 +6,13 @@
         .controller('QualityControlController', QualityControlController);
 
     QualityControlController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
-        'QualityControlService', 'ROIsAnnotationStepService', 'SlideService'];
+        'QualityControlService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService'];
 
     function QualityControlController($scope, $routeParams, $location, Authentication, QualityControlService,
-                                      ROIsAnnotationStepService, SlideService) {
+                                      ROIsAnnotationStepService, SlideService, CurrentSlideDetailsService) {
         var vm = this;
+        vm.annotation_label = undefined;
+        vm.annotation_step_label = undefined;
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.annotation_step_id = undefined;
@@ -29,11 +31,12 @@
         activate();
 
         function activate() {
-            vm.slide_id = $routeParams.slide;
-            vm.case_id = $routeParams.case;
-            vm.annotation_step_id = $routeParams.annotation_step;
+            vm.annotation_step_label = $routeParams.label;
+            vm.annotation_label = vm.annotation_step_label.split('-')[0];
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
 
-            ROIsAnnotationStepService.getDetails(vm.case_id, Authentication.getCurrentUser(), vm.slide_id)
+            ROIsAnnotationStepService.getDetails(vm.annotation_step_label)
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
             function getROIsAnnotationStepSuccessFn(response) {
@@ -58,10 +61,9 @@
                     }
                 } else {
                     if (response.data.slide_quality_control.adequate_slide) {
-                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
-                            vm.annotation_step_id + '/rois_manager');
+                        $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
                     } else {
-                        $location.url('worklist/' + vm.case_id);
+                        $location.url('worklist/' + vm.annotation_label);
                     }
                 }
             }
@@ -110,9 +112,7 @@
 
         function submitQualityControl() {
             QualityControlService.create(
-                vm.case_id,
-                Authentication.getCurrentUser(),
-                vm.slide_id,
+                vm.annotation_step_label,
                 $.parseJSON(vm.slideQualityControl.goodImageQuality),
                 vm.slideQualityControl.notAdequacyReason,
                 vm.slideQualityControl.notes
@@ -120,13 +120,12 @@
 
             function qualityControlCreationSuccessFn(response) {
                 if(vm.slideQualityControl.goodImageQuality === 'true') {
-                    ROIsAnnotationStepService.startAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                        vm.slide_id).then(startAnnotationSuccessFn, startAnnotationErrorFn);
+                    ROIsAnnotationStepService.startAnnotationStep(vm.annotation_step_label)
+                        .then(startAnnotationSuccessFn, startAnnotationErrorFn);
 
                     //noinspection JSAnnotator
                     function startAnnotationSuccessFn(response) {
-                        $location.url('worklist/' + vm.case_id + '/' + vm.slide_id + '/' +
-                            vm.annotation_step_id + '/rois_manager');
+                        $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
                     }
 
                     //noinspection JSAnnotator
@@ -136,8 +135,8 @@
 
                 } else {
                     // close the review because image quality is bad
-                    ROIsAnnotationStepService.startAndCloseAnnotationStep(vm.case_id, Authentication.getCurrentUser(),
-                        vm.slide_id).then(closeReviewSuccessFn, closeReviewErrorFn);
+                    ROIsAnnotationStepService.startAndCloseAnnotationStep(vm.annotation_step_label)
+                        .then(closeReviewSuccessFn, closeReviewErrorFn);
 
                     //noinspection JSAnnotator
                     function closeReviewSuccessFn(response) {
@@ -145,7 +144,7 @@
                         // TODO: close clinical annotation steps related to this object
                         var clinical_steps_notes = 'Automatically closed due to bad quality image';
                         ROIsAnnotationStepService.startAndCloseClinicalAnnotationSteps(
-                            vm.annotation_step_id, clinical_steps_notes)
+                            vm.annotation_step_label, clinical_steps_notes)
                             .then(closeClinicalStepsSuccessFn, closeClinicalStepsErrorFn);
 
                         function closeClinicalStepsSuccessFn(response) {
@@ -153,7 +152,7 @@
                                 $location.url('worklist');
                             } else {
                                 // review closed, go back to case worklist
-                                $location.url('worklist/' + vm.case_id);
+                                $location.url('worklist/rois_annotations/' + vm.annotation_label);
                             }
                         }
 

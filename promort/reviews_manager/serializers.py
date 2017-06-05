@@ -22,7 +22,7 @@ class ROIsAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ROIsAnnotation
 
-        fields = ('id', 'annotation_type', 'reviewer', 'case', 'started', 'completed',
+        fields = ('id', 'label', 'annotation_type', 'reviewer', 'case', 'started', 'completed',
                   'creation_date', 'start_date', 'completion_date', 'steps_count')
         read_only_fields = ('id', 'creation_date', 'steps_count', 'started',
                             'completed', 'annotation_type')
@@ -52,7 +52,7 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = ROIsAnnotationStep
 
-        fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
+        fields = ('id', 'label', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
                   'start_date', 'completion_date', 'slide_quality_control')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
@@ -75,7 +75,7 @@ class ROIsAnnotationStepFullSerializer(ROIsAnnotationStepDetailsSerializer):
     class Meta:
         model = ROIsAnnotationStep
 
-        fields = ('id', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
+        fields = ('id', 'label', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
                   'start_date', 'completion_date', 'slide_quality_control', 'slices')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
@@ -101,7 +101,7 @@ class ROIsAnnotationDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ROIsAnnotation
 
-        fields = ('id', 'annotation_type', 'reviewer', 'case', 'started', 'completed',
+        fields = ('id', 'label', 'annotation_type', 'reviewer', 'case', 'started', 'completed',
                   'creation_date', 'start_date', 'completion_date', 'steps')
         read_only_fields = ('id', 'creation_date', 'started', 'completed',
                             'annotation_type')
@@ -133,7 +133,7 @@ class ClinicalAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicalAnnotation
 
-        fields = ('id', 'annotation_type', 'reviewer', 'case', 'rois_review',
+        fields = ('id', 'label', 'annotation_type', 'reviewer', 'case', 'rois_review',
                   'started', 'completed', 'can_be_started',
                   'creation_date', 'start_date', 'completion_date', 'steps_count')
         read_only_fields = ('id', 'creation_date', 'steps_count', 'started',
@@ -164,14 +164,16 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
     can_be_started = serializers.SerializerMethodField()
+    rois_review_step_label = serializers.SerializerMethodField()
+    case = serializers.SerializerMethodField()
 
     class Meta:
         model = ClinicalAnnotationStep
 
-        fields = ('id', 'clinical_annotation', 'slide', 'rois_review_step',
-                  'started', 'completed', 'can_be_started',
+        fields = ('id', 'label', 'clinical_annotation', 'slide', 'case', 'rois_review_step',
+                  'rois_review_step_label', 'started', 'completed', 'can_be_started',
                   'creation_date', 'start_date', 'completion_date', 'notes')
-        read_only_fields = ('id', 'creation_date', 'started', 'completed',
+        read_only_fields = ('id', 'case', 'creation_date', 'started', 'completed', 'rois_review_step_label',
                             'can_be_started')
 
     @staticmethod
@@ -185,6 +187,14 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_can_be_started(obj):
         return obj.can_be_started()
+
+    @staticmethod
+    def get_rois_review_step_label(obj):
+        return obj.rois_review_step.label
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slide.case.id
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
@@ -201,7 +211,7 @@ class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicalAnnotation
 
-        fields = ('id', 'annotation_type', 'reviewer', 'case', 'rois_review',
+        fields = ('id', 'label', 'annotation_type', 'reviewer', 'case', 'rois_review',
                   'started', 'completed', 'can_be_started', 'steps',
                   'creation_date', 'start_date', 'completion_date')
         read_only_fields = ('id', 'creation_date', 'steps',

@@ -2,10 +2,10 @@
     <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
         <div class="col-sm-5 text-left prm-valign">
             <!--TODO: insert slide number-->
-            <h3>Slide {{ cmc.slide_id }} - Clinical annotation</h3>
+            <h3>Clinical annotation - Slide {{ cmc.slide_index }}</h3>
         </div><!--
      --><div class="col-sm-7 prm-valign text-right">
-            <a href="worklist/{{ cmc.case_id }}/{{ cmc.rois_annotation_id }}" role="button"
+            <a href="worklist/clinical_annotations/{{ cmc.clinical_annotation_label }}" role="button"
                class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
