@@ -45,6 +45,7 @@ class ROIsAnnotationSerializer(serializers.ModelSerializer):
 
 
 class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
+    can_reopen = serializers.SerializerMethodField()
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
     slide_quality_control = SlideQualityControlSerializer(read_only=True)
@@ -53,8 +54,12 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
         model = ROIsAnnotationStep
 
         fields = ('id', 'label', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
-                  'start_date', 'completion_date', 'slide_quality_control')
+                  'can_reopen', 'start_date', 'completion_date', 'slide_quality_control')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
+
+    @staticmethod
+    def get_can_reopen(obj):
+        return obj.can_reopen()
 
     @staticmethod
     def get_started(obj):
