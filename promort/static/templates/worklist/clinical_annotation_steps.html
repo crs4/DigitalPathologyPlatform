@@ -6,14 +6,20 @@
             </div>
             <div id="ac-worklist-details" ng-repeat="step in cc.annotationSteps">
                 <div class="well row">
-                    <div class="col-sm-9 prm-valign">
+                    <div class="col-sm-7 prm-valign">
                         <div>
                             <p><strong>Step ID:</strong> {{ step.label }}</p>
                         </div>
                     </div><!--
                     Removing blank spaces between DIVs, this will make valign work
-                 --><div class="col-sm-3 text-right prm-valign">
-                        <div>
+                 --><div class="col-sm-5 text-right prm-valign">
+                        <div class="prm-valign" ng-show="step.rois_step_reopen_permission">
+                            <a class="btn btn-danger prm-worklist-btn"
+                            ng-disabled="!step.can_reopen_rois_step"
+                            ng-click="cc.resetROIsAnnotationStep(step.rois_review_step_label)">Reopen ROIs review</a>
+                        </div><!--
+                        Removing blank spaces between DIVs, this will make valign work
+                     --><div class="prm-valign">
                             <a class="btn btn-success"
                                ng-click="cc.startAnnotationStep(step)"
                                ng-show="cc.annotationStepPending(step)">Start slide review</a>
