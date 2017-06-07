@@ -85,7 +85,8 @@ class UserWorklistClinicalAnnotation(APIView):
 
     def get(self, request, label, format=None):
         annotation_steps = self._get_clinical_annotation_details(label)
-        serializer = ClinicalAnnotationStepSerializer(annotation_steps, many=True)
+        serializer = ClinicalAnnotationStepSerializer(annotation_steps, many=True,
+                                                      context={'current_user': request.user.username})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
