@@ -313,6 +313,7 @@ class ROIsAnnotationStepReopen(APIView):
                     'message': 'ROIs annotation step %s can\'t be cancelled due to integrity error' % label
                 }, status=status.HTTP_400_BAD_REQUEST
             )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ROIsAnnotationStepDetail(APIView):
