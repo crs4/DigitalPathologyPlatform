@@ -105,10 +105,10 @@
         }
     }
     
-    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ROIsAnnotationStepService',
-        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
+    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ngDialog',
+        'ROIsAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
-    function ROIsAnnotationController($scope, $routeParams, $location, ROIsAnnotationStepService,
+    function ROIsAnnotationController($scope, $routeParams, $location, ngDialog, ROIsAnnotationStepService,
                                       CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
         vm.annotationSteps = [];
@@ -117,6 +117,7 @@
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
         vm.startAnnotation = startAnnotation;
+        vm.resetROIsAnnotationStep = resetROIsAnnotationStep;
 
         activate();
 
@@ -147,7 +148,34 @@
             return annotationStep.completed;
         }
 
-        function startAnnotation(annotationStep) {
+        function resetROIsAnnotationStep(annotationStep) {
+            var dialog = ngDialog.openConfirm({
+                template: '/static/templates/dialogs/restart_rois_step_confirm.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    ROIsAnnotationStepService.resetAnnotationStep(annotationStep.label)
+                        .then(reopenStepSuccessFn, reopenStepErrorFn);
+                }
+
+                function reopenStepSuccessFn(response) {
+                    vm.startAnnotation(annotationStep, true);
+                }
+
+                function reopenStepErrorFn(response) {
+                    console.error('Reopen step failed');
+                    console.error(response);
+                }
+            }
+        }
+
+        function startAnnotation(annotationStep, skip_quality_control) {
+            var skip_qc = (typeof skip_quality_control === 'undefined') ? false : skip_quality_control;
             CurrentAnnotationStepsDetailsService.setROIsAnnotationStepLabel(annotationStep.label);
 
             CurrentSlideDetailsService.getSlideByAnnotationStep(annotationStep.label, 'ROIS_ANNOTATION')
@@ -157,7 +185,11 @@
                 CurrentSlideDetailsService.registerCurrentSlide(
                     response.data.slide.id, response.data.slide.case
                 );
-                $location.url('worklist/' + annotationStep.label + '/quality_control');
+                if (skip_qc === true) {
+                    $location.url('worklist/' + annotationStep.label + '/quality_control');
+                } else {
+                    $location.url('worklist/' + annotationStep.label + '/rois_manager');
+                }
             }
 
             function getSlideByAnnotationStepErrorFn(response) {
