@@ -36,6 +36,10 @@ button.prm-btn-sm {
     width: 100px;
 }
 
+.prm-worklist-btn {
+    margin-right: 15px;
+}
+
 #nav_worklist, #nav_send_report, #nav_logout, #nav_login {
     padding: 7px;
     margin-left: 10px;
