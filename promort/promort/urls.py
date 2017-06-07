@@ -83,6 +83,7 @@ urlpatterns = [
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/$', rmv.ROIsAnnotationsDetail.as_view()),
     url(r'api/rois_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/$', rmv.ROIsAnnotationDetail.as_view()),
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ROIsAnnotationStepDetail.as_view()),
+    url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/reset/$', rmv.ROIsAnnotationStepReopen.as_view()),
 
     # quality control
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/quality_control/$',

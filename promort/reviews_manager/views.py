@@ -292,6 +292,29 @@ class ROIsAnnotationStepCreation(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ROIsAnnotationStepReopen(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_rois_annotation_step(self, label):
+        try:
+            annotation_step = ROIsAnnotationStep.objects.get(label=label)
+            return annotation_step
+        except ROIsAnnotationStep.DoesNotExist:
+            raise NotFound('No ROIs annotation step with label \'%s\'' % label)
+
+    def put(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
+        try:
+            annotation_step.reopen()
+        except IntegrityError:
+            return Response(
+                {
+                    'status': 'ERROR',
+                    'message': 'ROIs annotation step %s can\'t be cancelled due to integrity error' % label
+                }, status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class ROIsAnnotationStepDetail(APIView):
     permission_classes = (IsReviewManager,)
 
@@ -319,7 +342,7 @@ class ROIsAnnotationStepDetail(APIView):
                     return Response({
                         'status': 'ERROR',
                         'message': 'ROIs annotation step can\'t be started'
-                    }, status=status.HTTP_409_CONFLICT)
+                    }, status=status.HTTP_400_BAD_REQUEST)
             elif action == 'FINISH':
                 if not annotation_step.is_completed():
                     annotation_step.completion_date = datetime.now()
@@ -327,7 +350,7 @@ class ROIsAnnotationStepDetail(APIView):
                     return Response({
                         'status': 'ERROR',
                         'message': 'ROIs annotation step can\'t be closed'
-                    }, status=status.HTTP_409_CONFLICT)
+                    }, status=status.HTTP_400_BAD_REQUEST)
             elif action == 'START_AND_FINISH':
                 if not annotation_step.is_started():
                     annotation_step.start_date = datetime.now()
