@@ -59,6 +59,9 @@ class ROIsAnnotationStep(models.Model):
     def is_completed(self):
         return not(self.completion_date is None)
 
+    def has_reopen_permission(self, username):
+        return self.rois_annotation.reviewer.username == username
+
     def can_reopen(self):
         if not self.is_completed():
             return False
