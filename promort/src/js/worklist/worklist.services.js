@@ -64,7 +64,8 @@
             startAnnotationStep: startAnnotationStep,
             closeAnnotationStep: closeAnnotationStep,
             startAndCloseAnnotationStep: startAndCloseAnnotationStep,
-            startAndCloseClinicalAnnotationSteps: startAndCloseClinicalAnnotationSteps
+            startAndCloseClinicalAnnotationSteps: startAndCloseClinicalAnnotationSteps,
+            resetAnnotationStep: resetAnnotationStep
         };
 
         return ROIsAnnotationStepService;
@@ -111,6 +112,10 @@
         function startAndCloseClinicalAnnotationSteps(annotation_step_label, notes) {
             return _relatedClinicalAnnotationStepsAction(annotation_step_label,
                 'START_AND_FINISH', notes);
+        }
+
+        function resetAnnotationStep(label) {
+            return $http.put('api/rois_annotations/steps/' + label + '/reset/');
         }
     }
 
