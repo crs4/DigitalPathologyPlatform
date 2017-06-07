@@ -85,13 +85,13 @@ urlpatterns = [
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/$', rmv.ROIsAnnotationStepDetail.as_view()),
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/reset/$', rmv.ROIsAnnotationStepReopen.as_view()),
 
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
-    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
-        rmv.ROIsAnnotationStepCreation.as_view()),
-
     # quality control
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/quality_control/$',
         SlideQualityControlDetail.as_view()),
+
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
+    url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',
+        rmv.ROIsAnnotationStepCreation.as_view()),
 
     # clinical annotations
     url(r'api/clinical_annotations/$', rmv.ClinicalAnnotationsList.as_view()),
