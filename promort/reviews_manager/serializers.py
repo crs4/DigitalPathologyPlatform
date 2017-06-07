@@ -171,13 +171,16 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     can_be_started = serializers.SerializerMethodField()
     rois_review_step_label = serializers.SerializerMethodField()
     case = serializers.SerializerMethodField()
+    rois_step_reopen_permission = serializers.SerializerMethodField()
+    can_reopen_rois_step = serializers.SerializerMethodField()
 
     class Meta:
         model = ClinicalAnnotationStep
 
         fields = ('id', 'label', 'clinical_annotation', 'slide', 'case', 'rois_review_step',
                   'rois_review_step_label', 'started', 'completed', 'can_be_started',
-                  'creation_date', 'start_date', 'completion_date', 'notes')
+                  'creation_date', 'start_date', 'completion_date', 'notes',
+                  'rois_step_reopen_permission', 'can_reopen_rois_step')
         read_only_fields = ('id', 'case', 'creation_date', 'started', 'completed', 'rois_review_step_label',
                             'can_be_started')
 
@@ -200,6 +203,14 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_case(obj):
         return obj.slide.case.id
+
+    def get_rois_step_reopen_permission(self, obj):
+        username = self.context.get('current_user')
+        return obj.rois_review_step.has_reopen_permission(username)
+
+    @staticmethod
+    def get_can_reopen_rois_step(obj):
+        return obj.rois_review_step.can_reopen()
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
