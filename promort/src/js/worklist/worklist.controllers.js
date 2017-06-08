@@ -277,13 +277,12 @@
 
                     function startStepErrorFn(response) {
                         if (response.status === 403) {
-                            $scope.$on('ngDialog.closed', function () {
-                                $location.url('worklist');
-                                $scope.$apply();
-}                           );
-
                             ngDialog.open({
-                                template: '/static/templates/dialogs/clinical_step_cant_start.html'
+                                template: '/static/templates/dialogs/clinical_step_cant_start.html',
+                                preCloseCallback: function() {
+                                    $location.url('worklist');
+                                    $route.reload();
+                                }
                             });
                         } else if (response.status === 409) {
                             // continue an already opened review
