@@ -185,7 +185,7 @@
                 CurrentSlideDetailsService.registerCurrentSlide(
                     response.data.slide.id, response.data.slide.case
                 );
-                if (skip_qc === true) {
+                if (skip_qc === false) {
                     $location.url('worklist/' + annotationStep.label + '/quality_control');
                 } else {
                     $location.url('worklist/' + annotationStep.label + '/rois_manager');
@@ -199,13 +199,13 @@
         }
     }
 
-    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ClinicalAnnotationStepService',
-        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService', 'ROIsAnnotationStepService',
-        'ngDialog'];
+    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$route', 'ngDialog',
+        'ClinicalAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService',
+        'ROIsAnnotationStepService'];
 
-    function ClinicalAnnotationController($scope, $routeParams, $location, ClinicalAnnotationStepService,
-                                          CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService,
-                                          ROIsAnnotationStepService, ngDialog) {
+    function ClinicalAnnotationController($scope, $routeParams, $location, $route, ngDialog,
+                                          ClinicalAnnotationStepService, CurrentSlideDetailsService,
+                                          CurrentAnnotationStepsDetailsService, ROIsAnnotationStepService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
@@ -263,18 +263,39 @@
                     .then(getSlideByAnnotationStepSuccessFn, getSlideByAnnotationStepErrorFn);
 
                 function getSlideByAnnotationStepSuccessFn(response) {
-                    console.log(response.data);
                     CurrentSlideDetailsService.registerCurrentSlide(
                         response.data.slide, response.data.case
                     );
-                    var url = vm.getAnnotationStepLink(annotationStep);
-                    $location.url(url);
+
+                    ClinicalAnnotationStepService.startAnnotationStep(annotationStep.label)
+                        .then(startStepSuccessFn, startStepErrorFn);
+
+                    function startStepSuccessFn(response) {
+                        var url = vm.getAnnotationStepLink(annotationStep);
+                        $location.url(url);
+                    }
+
+                    function startStepErrorFn(response) {
+                        if (response.status === 403) {
+                            ngDialog.open({
+                                template: '/static/templates/dialogs/clinical_step_cant_start.html',
+                                preCloseCallback: function() {
+                                    $location.url('worklist');
+                                    $route.reload();
+                                }
+                            });
+                        } else if (response.status === 409) {
+                            // continue an already opened review
+                            var url = vm.getAnnotationStepLink(annotationStep);
+                            $location.url(url);
+                        }
+                    }
                 }
 
-            function getSlideByAnnotationStepErrorFn(response) {
-                console.log(response.error);
-                $location.url('404');
-            }
+                function getSlideByAnnotationStepErrorFn(response) {
+                    console.log(response.error);
+                    $location.url('404');
+                }
             }
 
             function findROIsAnnotationLabelErrorFn(response) {
@@ -284,7 +305,6 @@
         }
 
         function startAnnotationStep(annotationStep) {
-            ClinicalAnnotationStepService.startAnnotationStep(annotationStep.label);
             vm._goToAnnotationStep(annotationStep);
         }
 
@@ -315,8 +335,12 @@
                 }
 
                 function reopenStepErrorFn(response) {
-                    console.error('Reopen step failed');
-                    console.error(response);
+                    ngDialog.open({
+                        template: '/static/templates/dialogs/reopen_rois_step_failed.html',
+                        preCloseCallback: function() {
+                            $route.reload();
+                        }
+                    })
                 }
             }
         }

@@ -366,7 +366,7 @@
                     if (response.data.clinical_annotation_closed === true) {
                         $location.url('worklist');
                     } else {
-                        $location.url('worklist/' + vm.clinical_annotation_label);
+                        $location.url('worklist/clinical_annotations/' + vm.clinical_annotation_label);
                     }
                 }
 
