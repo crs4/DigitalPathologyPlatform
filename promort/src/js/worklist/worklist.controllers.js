@@ -185,7 +185,7 @@
                 CurrentSlideDetailsService.registerCurrentSlide(
                     response.data.slide.id, response.data.slide.case
                 );
-                if (skip_qc === true) {
+                if (skip_qc === false) {
                     $location.url('worklist/' + annotationStep.label + '/quality_control');
                 } else {
                     $location.url('worklist/' + annotationStep.label + '/rois_manager');
