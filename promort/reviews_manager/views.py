@@ -534,6 +534,13 @@ class ClinicalAnnotationStepDetail(APIView):
         action = request.data.get('action')
         if action is not None:
             action = action.upper()
+            # check if annotation_step can really be started
+            if action in ('START', 'START_AND_FINISH'):
+                if not annotation_step.can_be_started():
+                    return Response({
+                        'status': 'ERROR',
+                        'message': 'clinical annotation step can\'t be started because ROIs annotation is not completed'
+                    }, status=status.HTTP_403_FORBIDDEN)
             if action == 'START':
                 if not annotation_step.is_started():
                     annotation_step.start_date = datetime.now()
