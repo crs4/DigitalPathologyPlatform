@@ -263,18 +263,40 @@
                     .then(getSlideByAnnotationStepSuccessFn, getSlideByAnnotationStepErrorFn);
 
                 function getSlideByAnnotationStepSuccessFn(response) {
-                    console.log(response.data);
                     CurrentSlideDetailsService.registerCurrentSlide(
                         response.data.slide, response.data.case
                     );
-                    var url = vm.getAnnotationStepLink(annotationStep);
-                    $location.url(url);
+
+                    ClinicalAnnotationStepService.startAnnotationStep(annotationStep.label)
+                        .then(startStepSuccessFn, startStepErrorFn);
+
+                    function startStepSuccessFn(response) {
+                        var url = vm.getAnnotationStepLink(annotationStep);
+                        $location.url(url);
+                    }
+
+                    function startStepErrorFn(response) {
+                        if (response.status === 403) {
+                            $scope.$on('ngDialog.closed', function () {
+                                $location.url('worklist');
+                                $scope.$apply();
+}                           );
+
+                            ngDialog.open({
+                                template: '/static/templates/dialogs/clinical_step_cant_start.html'
+                            });
+                        } else if (response.status === 409) {
+                            // continue an already opened review
+                            var url = vm.getAnnotationStepLink(annotationStep);
+                            $location.url(url);
+                        }
+                    }
                 }
 
-            function getSlideByAnnotationStepErrorFn(response) {
-                console.log(response.error);
-                $location.url('404');
-            }
+                function getSlideByAnnotationStepErrorFn(response) {
+                    console.log(response.error);
+                    $location.url('404');
+                }
             }
 
             function findROIsAnnotationLabelErrorFn(response) {
@@ -284,7 +306,6 @@
         }
 
         function startAnnotationStep(annotationStep) {
-            ClinicalAnnotationStepService.startAnnotationStep(annotationStep.label);
             vm._goToAnnotationStep(annotationStep);
         }
 
