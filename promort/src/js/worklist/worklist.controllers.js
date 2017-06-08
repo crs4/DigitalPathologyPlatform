@@ -199,13 +199,13 @@
         }
     }
 
-    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ClinicalAnnotationStepService',
-        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService', 'ROIsAnnotationStepService',
-        'ngDialog'];
+    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$route', 'ngDialog',
+        'ClinicalAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService',
+        'ROIsAnnotationStepService'];
 
-    function ClinicalAnnotationController($scope, $routeParams, $location, ClinicalAnnotationStepService,
-                                          CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService,
-                                          ROIsAnnotationStepService, ngDialog) {
+    function ClinicalAnnotationController($scope, $routeParams, $location, $route, ngDialog,
+                                          ClinicalAnnotationStepService, CurrentSlideDetailsService,
+                                          CurrentAnnotationStepsDetailsService, ROIsAnnotationStepService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
@@ -336,8 +336,12 @@
                 }
 
                 function reopenStepErrorFn(response) {
-                    console.error('Reopen step failed');
-                    console.error(response);
+                    ngDialog.open({
+                        template: '/static/templates/dialogs/reopen_rois_step_failed.html',
+                        preCloseCallback: function() {
+                            $route.reload();
+                        }
+                    })
                 }
             }
         }
