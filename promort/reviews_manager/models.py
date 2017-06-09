@@ -119,6 +119,12 @@ class ClinicalAnnotation(models.Model):
 
 
 class ClinicalAnnotationStep(models.Model):
+    REJECTION_REASONS_CHOICES = (
+        ('BAD_QUALITY', 'Bad image quality'),
+        ('BAD_ROIS', 'Wrong or inaccurate ROIs'),
+        ('OTHER', 'Other (see notes)')
+    )
+
     label = models.CharField(unique=True, blank=False, null=False,
                              max_length=40)
     clinical_annotation = models.ForeignKey(ClinicalAnnotation, on_delete=models.PROTECT,
@@ -132,6 +138,11 @@ class ClinicalAnnotationStep(models.Model):
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
                                            default=None)
+    rejected = models.BooleanField(default=False)
+    rejection_reason = models.CharField(
+        max_length=20, choices=REJECTION_REASONS_CHOICES,
+        blank=True, null=True, default=None
+    )
     notes = models.TextField(blank=True, null=True, default=None)
 
     class Meta:
