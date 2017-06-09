@@ -20,7 +20,7 @@ It is the very first page that the user sees after a successful login. Here, the
 
 The “Worklist” page can always be reached using the dedicated button on the top bar.  
 
-![worklist](./img/3.worklist.png)
+![worklist](./img/3.in_worklist.png)
 
 ## Send Feedback
 Users can, from any point of the application, send a message to the system administrators to report any experienced problem or give a suggestion to enhance the interface or the workflow in relation to that specific page.
