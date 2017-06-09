@@ -84,8 +84,6 @@ A **video tutorial** for this operations is available [here](./video_page.html).
 ![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area_1.png)
 ![cl_ann_ed_g4_a](./img/42.cl_ann_edit_gleason4_area_2.png)
 
-
-
 ![cl_ann_ed_g4_cc](./img/43.cl_ann_edit_gleason4_count.png)
 
 In the read-only mode of the focus region both the cells counter boxes and the Gleason 4 area can be turned off/on using the corresponding eye-buttons.
@@ -101,6 +99,13 @@ After saving a focus region that contains Gleason 4 area(s), the form of the par
 Except for the slice, all the tumor-negative ROIs can be viewed as soon as the Clinical Annotation Step start by selecting them in the ROIs list. Any clinical information is required to the User for negative cores and focus regions. 
 
 ![reg_vo](./img/46.focus_reg_viewonly.png)
+
+## Delete a single ROI Clinical Review
+When a ROI is selected, it can be deleted with the “Delete” button under the clinical annotation form.
+
+<span style="color:red">❗</span> This operation is **irreversible**.
+  
+![del_rev](./img/47.delete_roi_rev.png)
 
 ## Delete Slide Clinical Review
 The red button in the upper right corner of the page deletes all the clinical annotations made bringing the user to the initial state. 
