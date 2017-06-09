@@ -15,7 +15,7 @@ In the worklist page, pending ROIs Annotations have one of these buttons beside:
 
 By clicking one of those buttons, users can access to the ROIs Annotations phase.
 
-![confirm_rois](./img/29.continue_clin_ann.png)
+![confirm_rois](./img/3.1.worklist_rois_ed.png)
 
 ## ROIs Review Steps
 This page which shows the list of all the slides related to the selected case. Depending on the status of the slide reviews, users can:
