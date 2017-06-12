@@ -18,3 +18,20 @@ section {
 footer {
   width:200px;
 }
+
+.bootstrap_well {
+    min-height: 20px;
+    padding: 10px;
+    margin-bottom:40px;
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+}
+
+.p_well{
+	font-size: 11px;
+	margin:0px;
+	text-align: center;	
+}

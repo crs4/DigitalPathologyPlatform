@@ -31,16 +31,22 @@
           
        
       {{ content }}
-
+       
       </section>
       <footer>
+         <div class="bootstrap_well" >
+          <p class="p_well"> Please be aware that any clinical statements in this tutorial are purely illustrative.</p>
+          </div>
+          
         <p class="view"><a href="https://github.com/crs4/ProMort">View the Project on GitHub <small>{{ github_name }}</small></a></p>
         {% if site.github.is_project_page %}
         <p>This tutorial is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a> and <a href="https://github.com/lucalianas/">lucalianas</a> </p>
         {% endif %}
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+          
       </footer>
     </div>
+    
     <script src="{{ '/assets/js/scale.fix.js' | relative_url }}"></script>
 
 
@@ -55,5 +61,9 @@
         ga('send', 'pageview');
     </script>
   {% endif %}
-  </body>
+      
+    
+      
+    </body>
+    
 </html>
