@@ -5,7 +5,7 @@ title: ROIs Annotations
 # ROIs Annotations
 
 ## Audience
-This section of the tutorial is intended for the users of the <span style="color:red">First Reviewers</span> group, which are allowed to draw regions of interest and take measures on the images.
+This section of the tutorial is intended for the users of the <span style="color:red">ROIs Reviewers</span> group, which are allowed to draw regions of interest and take measures on the images.
 
 ## Worklist
 In the worklist page, pending ROIs Annotations have one of these buttons beside:
@@ -24,7 +24,7 @@ This page which shows the list of all the slides related to the selected case. D
 - **continue** the review with the blue "Continue slide review" button, if the review has been already initiated; 
 - **reopen** an already completed review with the yellow "Reopen review" button. 
 
-<span style="color:red">❗</span> The Reopen operation is available **only if** any Clinical Annotation Step for that slide has been started yet by a Second Reviewer.
+<span style="color:red">❗</span> The Reopen operation is available **only if** any Clinical Annotation Step for that slide has been started yet by a Clinical Reviewer.
 
 In case of slides classified as "bad quality", the ROIs review can not be reopened and it is marked with the grey disabled "Slide review completed" button.
 
@@ -153,5 +153,5 @@ By confirming the ROIs the user closes the editing phase, and he/she will be red
 ![confirm_rois](./img/28.confirm_rois.png)
 
 ## ROIs annotations completed
-After completing the last ROIs review in the slide list of a case, the ROIs annotation for the case is completed and the user is redirected to the Worklist page. From this point on, the Clinical Annotations phase for that case can start for both the <span style="color:red">First</span> and the <span style="color:blue">Second</span> reviewers.
+After completing the last ROIs review in the slide list of a case, the ROIs annotation for the case is completed and the user is redirected to the Worklist page. From this point on, the Clinical Annotations phase for that case can start for both the <span style="color:red">ROIs</span> and the <span style="color:blue">Clinical</span> Reviewers.
 

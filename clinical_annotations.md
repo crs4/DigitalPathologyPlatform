@@ -6,7 +6,7 @@ title: ROIs Clinical Annotations
 # ROIs Clinical Annotations 
 
 ## Audience
-This section of the tutorial is addressed to all the different kind of users (<span style="color:red">First</span>, <span style="color:blue">Second</span>, and <span style="color:green">Third</span> Reviewers).
+This section of the tutorial is addressed to both the <span style="color:red">ROIs Reviewers</span> and the <span style="color:blue">Clinical Reviewers</span>).
 
 ## Worklist
 In the worklist page, pending Clinical Annotations have one of these buttons beside:
@@ -22,9 +22,9 @@ By clicking one of those buttons, users can access to the Clinical Annotations p
 ## Clinical Annotation Steps
 This page gives the list of the clinical annotation steps for the specific case. The only available slides for clinical review have a green button beside, while the others have a grey label to says that the clinical review is closed. This happens both for already closed review and for slides marked as bad quality images.
 
-<span style="color:red">[First Reviewer]</span>: Only the reviewer who did the ROIs Annotation phase for that specific case is allowed to reopen the ROIs Review through the red button that says "Reopen ROIs review".
+<span style="color:red">[ROIs Reviewer]</span>: Only the reviewer who did the ROIs Annotation phase for that specific case is allowed to reopen the ROIs Review through the red button that says "Reopen ROIs review".
 
-<span style="color:red">❗</span> The Reopen operation is available **only if** any Clinical Annotation for that slide has been started yet by a Second Reviewer. Note that reopening the Review Step will **irreversibly delete** any Clinical Annotation data for that specific slide.
+<span style="color:red">❗</span> The Reopen operation is available **only if** any Clinical Annotation for that slide has been started yet by a Clinical Reviewer. Note that reopening the Review Step will **irreversibly delete** any Clinical Annotation data for that specific slide.
 
 ![cl_ann_wl](./img/30.clinical_annotation_worklist.png)
 
