@@ -22,7 +22,7 @@
             </span>
             <select class="form-control" id="rejection_reasons" ng-model="crc.rejectionReason">
                 <option value="" disabled selected> -- Specify rejection reason</option>
-                <option value="{{ s.value }}" ng-repeat="s in crc.rejection_reasons">{{ s.text }}</option>
+                <option value="{{ s.value }}" ng-repeat="s in crc.rejection_reasons" required>{{ s.text }}</option>
             </select>
         </div>
         <div class="form-group">
@@ -33,11 +33,11 @@
                       name="stepRejectionNotes" rows="5" ng-model="confirmRejectionCtrl.notes"></textarea>
         </div>
     </div>
-    <div class="ngdialog-buttons prm-ngdialog-buttons">
-        <button type="button" class="ngdialog-button ngdialog-button-primary" ng-show="crc.canSend()"
+    <div class="ngdialog-buttons prm-ngdialog-buttons text-center">
+        <button type="button" class="btn btn-primary" ng-disabled="!crc.canSend()"
                 ng-click="confirm({value: true, notes: confirmRejectionCtrl.notes})">Yes
         </button>
-        <button type="button" class="ngdialog-button ngdialog-button-secondary"
+        <button type="button" class="btn btn-default"
                 ng-click="confirm({value: false, notes: undeinfed})">No
         </button>
     </div>
