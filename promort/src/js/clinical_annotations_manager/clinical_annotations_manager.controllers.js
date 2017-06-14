@@ -59,6 +59,7 @@
         vm.closeAnnotation = closeAnnotation;
         vm.canClearAnnotations = canClearAnnotations;
         vm.clearAnnotations = clearAnnotations;
+        vm.rejectAnnotation = rejectAnnotation;
         vm.allModesOff = allModesOff;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
@@ -419,6 +420,38 @@
                     console.error('unable to clear existing annotations');
                     console.error(response);
                     dialog.close();
+                }
+            }
+        }
+
+        function rejectAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/reject_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                controller: 'RejectClinicalAnnotationStepController',
+                controllerAs: 'crc'
+            }).then(confirmFn);
+
+            function confirmFn(confirm_obj) {
+                if (confirm_obj.value === true) {
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label,
+                        confirm_obj.notes, true).then(rejectClinicalAnnotationStepSuccessFn,
+                                                      rejectClinicalAnnotationStepErrorFn);
+                }
+
+                function rejectClinicalAnnotationStepSuccessFn(response) {
+                    if (response.data.clinical_annotation_closed === true) {
+                        $location.url('worklist');
+                    } else {
+                        $location.url('worklist/clinical_annotations/' + vm.clinical_annotation_label);
+                    }
+                }
+
+                function rejectClinicalAnnotationStepErrorFn(response) {
+                    console.error(response.error);
                 }
             }
         }
