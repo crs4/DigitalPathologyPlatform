@@ -4,6 +4,7 @@
     angular
         .module('promort.clinical_annotations_manager.controllers')
         .controller('ClinicalAnnotationsManagerController', ClinicalAnnotationsManagerController)
+        .controller('RejectClinicalAnnotationStepController', RejectClinicalAnnotationStepController)
         .controller('NewSliceAnnotationController', NewSliceAnnotationController)
         .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
         .controller('NewCoreAnnotationController', NewCoreAnnotationController)
@@ -577,6 +578,31 @@
 
         function showFocusRegionAnnotationModeActive() {
             return vm.ui_active_modes['show_focus_region'];
+        }
+    }
+
+    RejectClinicalAnnotationStepController.$inject = ['$scope', 'ClinicalAnnotationStepManagerService'];
+
+    function RejectClinicalAnnotationStepController($scope, ClinicalAnnotationStepManagerService) {
+        var vm = this;
+        vm.$scope = {};
+        vm.rejection_reasons = undefined;
+        vm.rejectionReason = undefined;
+        vm.canSend = canSend;
+
+        activate();
+
+        function activate() {
+            ClinicalAnnotationStepManagerService.fetchRejectionReasons()
+                .then(fetchRejectionReasonsSuccessFn);
+
+            function fetchRejectionReasonsSuccessFn(response) {
+                vm.rejection_reasons = response.data;
+            }
+        }
+
+        function canSend() {
+            return (typeof vm.rejectionReason !== 'undefined') && (vm.rejectionReason !== '');
         }
     }
 
