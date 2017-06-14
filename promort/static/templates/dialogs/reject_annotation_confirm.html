@@ -30,15 +30,15 @@
                 You can also attach a short text to the annotation to explain the reasons of the rejection.
             </span>
             <textarea class="form-control" id="step_rejection_notes"
-                      name="stepRejectionNotes" rows="5" ng-model="confirmRejectionCtrl.notes"></textarea>
+                      name="stepRejectionNotes" rows="5" ng-model="crc.notes"></textarea>
         </div>
     </div>
     <div class="ngdialog-buttons prm-ngdialog-buttons text-center">
         <button type="button" class="btn btn-primary" ng-disabled="!crc.canSend()"
-                ng-click="confirm({value: true, notes: confirmRejectionCtrl.notes})">Yes
+                ng-click="confirm({value: true, notes: crc.notes, reason:crc.rejectionReason})">Yes
         </button>
         <button type="button" class="btn btn-default"
-                ng-click="confirm({value: false, notes: undeinfed})">No
+                ng-click="confirm({value: false, notes: undeinfed, reason:undefined})">No
         </button>
     </div>
 </div>
