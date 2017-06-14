@@ -322,23 +322,23 @@
                     closeByNavigation: false,
                     closeByDocument: false
                 }).then(confirmFn);
+            }
 
-                function confirmFn(confirm_value) {
-                    if (confirm_value) {
-                        ROIsAnnotationStepService.resetAnnotationStep(annotationStep.rois_review_label)
-                            .then(reopenStepSuccessFn, reopenStepErrorFn);
-                    }
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    ROIsAnnotationStepService.resetAnnotationStep(annotationStep.rois_review_label)
+                        .then(reopenStepSuccessFn, reopenStepErrorFn);
+                }
 
-                    function reopenStepSuccessFn(response) {
-                        var roisAnnotationLabel = annotationStep.rois_review_label.split('-')[0];
-                        var url = 'worklist/rois_annotations/' + roisAnnotationLabel;
-                        $location.url(url);
-                    }
+                function reopenStepSuccessFn(response) {
+                    var roisAnnotationLabel = annotationStep.rois_review_label.split('-')[0];
+                    var url = 'worklist/rois_annotations/' + roisAnnotationLabel;
+                    $location.url(url);
+                }
 
-                    function reopenStepErrorFn(response) {
-                        console.error('Reopen step failed');
-                        console.error(response);
-                    }
+                function reopenStepErrorFn(response) {
+                    console.error('Reopen step failed');
+                    console.error(response);
                 }
             }
         }
