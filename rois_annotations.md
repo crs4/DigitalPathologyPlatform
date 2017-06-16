@@ -105,7 +105,7 @@ The User can add a focus region just like he/she did with the core. Note that a 
 ![new_focus_region](./img/19.new_focus_region.png)
 ![new_focus_region_tools](./img/20.new_focus_region_tools.png)
 
-If the focus region is drawn partially outside the core, the system automatically save only the intersection of the shapes.
+If the focus region is drawn partially outside the core, the system will automatically save only the intersection of the shapes.
 
 ![inters_1](./img/19.fr_inters_1.png)
 ![inters_2](./img/19.fr_inters_2.png)

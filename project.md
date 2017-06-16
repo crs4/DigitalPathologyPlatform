@@ -14,7 +14,7 @@ The system consists of two main parts:
 - the **ROIs annotation** phase, where users draw ROIs and take measures on the images;
 - the **Clinical annotation** phase, where users perform the clinical review on each ROIs.
  
-Users may belong to one or both these possible groups: *ROIs Reviewers* and *Clinical Reviewrs*. *ROIs Reviewers* can perform both the **ROIs** and the **Clinical annotation** phases, while *Clinical Reviewers* can work only on the **Clinical annotation**. 
+Users may belong to one or both these possible groups: *ROIs Reviewers* and *Clinical Reviwers*. *ROIs Reviewers* can perform both the **ROIs** and the **Clinical annotation** phases, while *Clinical Reviewers* can work only on the **Clinical annotation**. 
 
 The system keeps the anonymity of each case and the blindness between users through the application of a unique anonymised label to each review step different for each reviewer.  
 
