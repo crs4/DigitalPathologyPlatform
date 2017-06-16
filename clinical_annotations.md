@@ -36,6 +36,14 @@ The page for the clinical annotation maintains the same structure used for the e
 
 ![cl_ann_hm](./img/31.clinical_annotation_home.png)
 
+## Reject Slide Review
+The red "Reject slide review" button in the upper right corner of the page is to reject and close the Clinial annotation step for the current slide. The Clinical Reviewer can use this option if he/she believes that the ROIs Review is not adequate to perform the clinical evaluation. This button is always available during the clinical review phase, and it generates a pop-up where the User shall specify a reason and, optionally, add comments.
+
+<span style="color:red">❗</span> This operation is **irreversible**.
+
+![conf_rev](./img/49.reject_slide_rev.png)
+
+
 ## Slices
 The form for the annotation of a clinical slice contains some information derived automatically from the editing phase followed by a list of clinical observation to be checked if the clinical condition is present. Note that the form has no constraints, so it can be also saved empty. 
 
@@ -108,14 +116,14 @@ When a ROI is selected, it can be deleted with the “Delete” button under the
 ![del_rev](./img/47.delete_roi_rev.png)
 
 ## Delete Slide Clinical Review
-The red button in the upper right corner of the page deletes all the clinical annotations made bringing the user to the initial state. 
+The red "Delete slide review" button in the upper right corner of the page deletes all the clinical annotations made bringing the user to the initial state. 
 
 <span style="color:red">❗</span> This operation is **irreversible**.
   
 ![del_rev](./img/47.delete_slide_rev.png)
 
 ## Confirm Slide Clinical Review
-The green button in the upper right corner of the page is to confirm and close the Annotation Step for the current slide. This operation is available only if all the ROIs have been annotated (i.e. they all have the “✔” icon beside in the ROIs list). After confirming that, the user won't be able to edit the annotation anymore. Before moving on, the User can type a comment for the review step. 
+The green "Confirm slide review" button in the upper right corner of the page is to confirm and close the Annotation Step for the current slide. This operation is available only if all the ROIs have been annotated (i.e. they all have the “✔” icon beside in the ROIs list). After confirming that, the user won't be able to edit the annotation anymore. Before moving on, the User can type a comment for the review step. 
 
 <span style="color:red">❗</span> This operation is **irreversible**.
 
