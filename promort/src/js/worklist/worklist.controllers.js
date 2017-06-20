@@ -314,7 +314,7 @@
 
         function resetROIsAnnotationStep(annotationStep) {
             if (annotationStep.can_reopen_rois_step) {
-                console.log('RESET ROIs annotation step: ' + annotationStep.rois_review_label);
+                console.log('RESET ROIs annotation step: ' + annotationStep.rois_review_step_label);
                 var dialog = ngDialog.openConfirm({
                     template: '/static/templates/dialogs/reopen_rois_step_confirm.html',
                     showClose: false,
@@ -326,12 +326,12 @@
 
             function confirmFn(confirm_value) {
                 if (confirm_value) {
-                    ROIsAnnotationStepService.resetAnnotationStep(annotationStep.rois_review_label)
+                    ROIsAnnotationStepService.resetAnnotationStep(annotationStep.rois_review_step_label)
                         .then(reopenStepSuccessFn, reopenStepErrorFn);
                 }
 
                 function reopenStepSuccessFn(response) {
-                    var roisAnnotationLabel = annotationStep.rois_review_label.split('-')[0];
+                    var roisAnnotationLabel = annotationStep.rois_review_step_label.split('-')[0];
                     var url = 'worklist/rois_annotations/' + roisAnnotationLabel;
                     $location.url(url);
                 }
