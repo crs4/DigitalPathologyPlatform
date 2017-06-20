@@ -553,6 +553,9 @@ class ClinicalAnnotationStepDetail(APIView):
                 if not annotation_step.is_completed():
                     annotation_step.completion_date = datetime.now()
                     annotation_step.notes = request.data.get('notes')
+                    if not request.data.get('rejected') is None:
+                        annotation_step.rejected = request.data.get('rejected')
+                    annotation_step.rejection_reason = request.data.get('rejection_reason')
                 else:
                     return Response({
                         'status': 'ERROR',
@@ -564,6 +567,9 @@ class ClinicalAnnotationStepDetail(APIView):
                 if not annotation_step.is_completed():
                     annotation_step.completion_date = datetime.now()
                     annotation_step.notes = request.data.get('notes')
+                    if not request.data.get('rejected') is None:
+                        annotation_step.rejected = request.data.get('rejected')
+                    annotation_step.rejection_reason = request.data.get('rejection_reason')
             else:
                 return Response({
                     'status': 'ERROR',

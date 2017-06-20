@@ -1,0 +1,44 @@
+<div>
+    <div class="text-center">
+        <h3 class="prm-dialog-container">
+            <i class="icon-warning icon2x prm-warning-icon"></i>
+        </h3>
+        <h4>
+            <span>
+                Do you want to reject this clinical annotation?
+                <br>
+                All annotations eventually acquired will remain on the database but won't be considered.
+                <br>
+                Annotation rejection can't be undone.
+            </span>
+        </h4>
+        <br>
+        <br>
+    </div>
+    <div>
+        <div class="form-group">
+            <span>
+                Please, specify a reason for the rejection of this slide.
+            </span>
+            <select class="form-control" id="rejection_reasons" ng-model="crc.rejectionReason">
+                <option value="" disabled selected> -- Specify rejection reason</option>
+                <option value="{{ s.value }}" ng-repeat="s in crc.rejection_reasons" required>{{ s.text }}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <span>
+                You can also attach a short text to the annotation to explain the reasons of the rejection.
+            </span>
+            <textarea class="form-control" id="step_rejection_notes"
+                      name="stepRejectionNotes" rows="5" ng-model="crc.notes"></textarea>
+        </div>
+    </div>
+    <div class="ngdialog-buttons prm-ngdialog-buttons text-center">
+        <button type="button" class="btn btn-primary" ng-disabled="!crc.canSend()"
+                ng-click="confirm({value: true, notes: crc.notes, reason:crc.rejectionReason})">Yes
+        </button>
+        <button type="button" class="btn btn-default"
+                ng-click="confirm({value: false, notes: undeinfed, reason:undefined})">No
+        </button>
+    </div>
+</div>

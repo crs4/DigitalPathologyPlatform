@@ -140,10 +140,16 @@
             return $http.get('/api/clinical_annotations/steps/' + annotation_step_label + '/');
         }
 
-        function _annotationStepAction(annotation_step_label, action, notes) {
+        function _annotationStepAction(annotation_step_label, action, notes, rejected, rejection_reason) {
             var params = {action: action};
             if (typeof notes !== 'undefined') {
                 params.notes = notes;
+            }
+            if (typeof rejected !== 'undefined') {
+                params.rejected = rejected;
+            }
+            if (typeof rejection_reason !== 'undefined') {
+                params.rejection_reason = rejection_reason
             }
             return $http.put(
                 '/api/clinical_annotations/steps/' + annotation_step_label + '/',
@@ -155,11 +161,11 @@
             return _annotationStepAction(annotation_step_label, 'START');
         }
 
-        function closeAnnotationStep(annotation_step_label, notes) {
-            return _annotationStepAction(annotation_step_label, 'FINISH', notes);
+        function closeAnnotationStep(annotation_step_label, notes, rejected, rejection_reason) {
+            return _annotationStepAction(annotation_step_label, 'FINISH', notes, rejected, rejection_reason);
         }
 
-        function startAndCloseAnnotationStep(annotation_step_label) {
+        function startAndCloseAnnotationStep(annotation_step_label, notes) {
             return _annotationStepAction(annotation_step_label, 'START_AND_FINISH', notes);
         }
     }

@@ -12,13 +12,18 @@
 
     function ClinicalAnnotationStepManagerService($http) {
         var ClinicalAnnotationStepManagerService = {
-            clearAnnotations: clearAnnotations
+            clearAnnotations: clearAnnotations,
+            fetchRejectionReasons: fetchRejectionReasons
         };
 
         return ClinicalAnnotationStepManagerService;
 
         function clearAnnotations(annotation_step_label) {
             return $http.delete('/api/clinical_annotation_steps/' + annotation_step_label + '/annotations_list/');
+        }
+
+        function fetchRejectionReasons() {
+            return $http.get('api/utils/clinical_step_rejection_reasons/');
         }
     }
 
