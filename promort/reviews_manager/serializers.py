@@ -179,8 +179,8 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'label', 'clinical_annotation', 'slide', 'case', 'rois_review_step',
                   'rois_review_step_label', 'started', 'completed', 'can_be_started',
-                  'creation_date', 'start_date', 'completion_date', 'notes',
-                  'rois_step_reopen_permission', 'can_reopen_rois_step')
+                  'creation_date', 'start_date', 'completion_date', 'rejected', 'rejection_reason',
+                  'notes', 'rois_step_reopen_permission', 'can_reopen_rois_step')
         read_only_fields = ('id', 'case', 'creation_date', 'started', 'completed', 'rois_review_step_label',
                             'can_be_started')
 

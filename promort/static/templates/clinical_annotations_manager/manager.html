@@ -9,6 +9,9 @@
                class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
+            <button class="btn btn-danger" ng-click="cmc.rejectAnnotation()">
+                <i class="icon-cancel_circle"></i> Reject slide review
+            </button>
             <button class="btn btn-success" ng-disabled="!cmc.canCloseAnnotation()"
                     ng-click="cmc.closeAnnotation()">
                 <i class="icon-check_circle"></i> Confirm slide review

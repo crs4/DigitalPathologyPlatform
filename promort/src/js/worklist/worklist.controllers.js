@@ -312,35 +312,33 @@
             vm._goToAnnotationStep(annotationStep);
         }
 
-        function resetROIsAnnotationStep(roisAnnotationStepLabel) {
-            console.log('RESET ROIs annotation step: ' + roisAnnotationStepLabel);
-            var dialog = ngDialog.openConfirm({
-                template: '/static/templates/dialogs/reopen_rois_step_confirm.html',
-                showClose: false,
-                closeByEscape: false,
-                closeByNavigation: false,
-                closeByDocument: false
-            }).then(confirmFn);
+        function resetROIsAnnotationStep(annotationStep) {
+            if (annotationStep.can_reopen_rois_step) {
+                console.log('RESET ROIs annotation step: ' + annotationStep.rois_review_step_label);
+                var dialog = ngDialog.openConfirm({
+                    template: '/static/templates/dialogs/reopen_rois_step_confirm.html',
+                    showClose: false,
+                    closeByEscape: false,
+                    closeByNavigation: false,
+                    closeByDocument: false
+                }).then(confirmFn);
+            }
 
             function confirmFn(confirm_value) {
                 if (confirm_value) {
-                    ROIsAnnotationStepService.resetAnnotationStep(roisAnnotationStepLabel)
+                    ROIsAnnotationStepService.resetAnnotationStep(annotationStep.rois_review_step_label)
                         .then(reopenStepSuccessFn, reopenStepErrorFn);
                 }
 
                 function reopenStepSuccessFn(response) {
-                    var roisAnnotationLabel = roisAnnotationStepLabel.split('-')[0];
+                    var roisAnnotationLabel = annotationStep.rois_review_step_label.split('-')[0];
                     var url = 'worklist/rois_annotations/' + roisAnnotationLabel;
                     $location.url(url);
                 }
 
                 function reopenStepErrorFn(response) {
-                    ngDialog.open({
-                        template: '/static/templates/dialogs/reopen_rois_step_failed.html',
-                        preCloseCallback: function() {
-                            $route.reload();
-                        }
-                    })
+                    console.error('Reopen step failed');
+                    console.error(response);
                 }
             }
         }

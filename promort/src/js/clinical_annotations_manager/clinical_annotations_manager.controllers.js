@@ -4,6 +4,7 @@
     angular
         .module('promort.clinical_annotations_manager.controllers')
         .controller('ClinicalAnnotationsManagerController', ClinicalAnnotationsManagerController)
+        .controller('RejectClinicalAnnotationStepController', RejectClinicalAnnotationStepController)
         .controller('NewSliceAnnotationController', NewSliceAnnotationController)
         .controller('ShowSliceAnnotationController', ShowSliceAnnotationController)
         .controller('NewCoreAnnotationController', NewCoreAnnotationController)
@@ -58,6 +59,7 @@
         vm.closeAnnotation = closeAnnotation;
         vm.canClearAnnotations = canClearAnnotations;
         vm.clearAnnotations = clearAnnotations;
+        vm.rejectAnnotation = rejectAnnotation;
         vm.allModesOff = allModesOff;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
@@ -358,8 +360,9 @@
 
             function confirmFn(confirm_obj) {
                 if (confirm_obj.value === true) {
-                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label)
-                        .then(closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn);
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label,
+                        confirm_obj.notes).then(closeClinicalAnnotationStepSuccessFn,
+                                                closeClinicalAnnotationStepErrorFn);
                 }
 
                 function closeClinicalAnnotationStepSuccessFn(response) {
@@ -417,6 +420,38 @@
                     console.error('unable to clear existing annotations');
                     console.error(response);
                     dialog.close();
+                }
+            }
+        }
+
+        function rejectAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/reject_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                controller: 'RejectClinicalAnnotationStepController',
+                controllerAs: 'crc'
+            }).then(confirmFn);
+
+            function confirmFn(confirm_obj) {
+                if (confirm_obj.value === true) {
+                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label,
+                        confirm_obj.notes, true, confirm_obj.reason)
+                        .then(rejectClinicalAnnotationStepSuccessFn, rejectClinicalAnnotationStepErrorFn);
+                }
+
+                function rejectClinicalAnnotationStepSuccessFn(response) {
+                    if (response.data.clinical_annotation_closed === true) {
+                        $location.url('worklist');
+                    } else {
+                        $location.url('worklist/clinical_annotations/' + vm.clinical_annotation_label);
+                    }
+                }
+
+                function rejectClinicalAnnotationStepErrorFn(response) {
+                    console.error(response.error);
                 }
             }
         }
@@ -576,6 +611,31 @@
 
         function showFocusRegionAnnotationModeActive() {
             return vm.ui_active_modes['show_focus_region'];
+        }
+    }
+
+    RejectClinicalAnnotationStepController.$inject = ['$scope', 'ClinicalAnnotationStepManagerService'];
+
+    function RejectClinicalAnnotationStepController($scope, ClinicalAnnotationStepManagerService) {
+        var vm = this;
+        vm.$scope = {};
+        vm.rejection_reasons = undefined;
+        vm.rejectionReason = undefined;
+        vm.canSend = canSend;
+
+        activate();
+
+        function activate() {
+            ClinicalAnnotationStepManagerService.fetchRejectionReasons()
+                .then(fetchRejectionReasonsSuccessFn);
+
+            function fetchRejectionReasonsSuccessFn(response) {
+                vm.rejection_reasons = response.data;
+            }
+        }
+
+        function canSend() {
+            return (typeof vm.rejectionReason !== 'undefined') && (vm.rejectionReason !== '');
         }
     }
 
