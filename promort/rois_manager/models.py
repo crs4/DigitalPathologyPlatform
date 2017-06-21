@@ -17,6 +17,13 @@ class Slice(models.Model):
     class Meta:
         unique_together = ('label', 'annotation_step')
 
+    def get_positive_cores_count(self):
+        positive_cores_counter = 0
+        for core in self.cores.all():
+            if core.is_positive():
+                positive_cores_counter += 1
+        return positive_cores_counter
+
 
 class Core(models.Model):
     label = models.CharField(max_length=10, blank=False)
@@ -39,6 +46,12 @@ class Core(models.Model):
             if focus_region.cancerous_region:
                 total_cancerous_area += focus_region.area
         return ((self.area - total_cancerous_area) / self.area) * 100.0
+
+    def is_positive(self):
+        for fr in self.focus_regions.all():
+            if fr.cancerous_region:
+                return True
+        return False
 
 
 class FocusRegion(models.Model):
