@@ -7,11 +7,11 @@ from csv import DictWriter
 
 from rois_manager.models import Slice, Core, FocusRegion
 from slides_manager.models import SlideQualityControl
-from reviews_manager.models import ROIsAnnotationStep
 from clinical_annotations_manager.models import GleasonElement
 
 
 logger = logging.getLogger('promort_commands')
+
 
 class Command(BaseCommand):
     help = 'export annotations data to CSV files'
