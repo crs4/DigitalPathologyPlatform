@@ -30,12 +30,7 @@ class SliceSerializer(serializers.ModelSerializer):
         return obj.cores.count()
 
     def get_positive_cores_count(self, obj):
-        positive_cores_counter = 0
-        cores = CoreSerializer(obj.cores.all(), many=True)
-        for core in cores.data:
-            if core['positive']:
-                positive_cores_counter += 1
-        return positive_cores_counter
+        return obj.get_positive_cores_count()
 
     def validate_roi_json(self, value):
         try:
@@ -66,10 +61,7 @@ class CoreSerializer(serializers.ModelSerializer):
         return obj.focus_regions.count()
 
     def get_positive(self, obj):
-        for fr in obj.focus_regions.all():
-            if fr.cancerous_region:
-                return True
-        return False
+        return obj.is_positive()
 
     def validate_roi_json(self, value):
         try:

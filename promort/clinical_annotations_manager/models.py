@@ -90,6 +90,12 @@ class FocusRegionAnnotation(models.Model):
     def get_gleason_4_elements(self):
         return self.gleason_elements.filter(gleason_type='G4')
 
+    def get_gleason_4_percentage(self):
+        g4_area = 0
+        for g4 in self.get_gleason_4_elements():
+            g4_area += g4.area
+        return (g4_area / self.focus_region.area) * 100.0
+
 
 class GleasonElement(models.Model):
     GLEASON_TYPES = (
