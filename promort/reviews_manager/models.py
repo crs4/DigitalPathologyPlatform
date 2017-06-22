@@ -36,6 +36,12 @@ class ROIsAnnotation(models.Model):
         self.completion_date = None
         self.save()
 
+    def clinical_annotations_completed(self):
+        for annotation in self.clinical_annotations.all():
+            if not annotation.is_completed():
+                return False
+        return True
+
 
 class ROIsAnnotationStep(models.Model):
     label = models.CharField(unique=True, blank=False, null=False,
