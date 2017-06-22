@@ -92,7 +92,7 @@ class ClinicalAnnotation(models.Model):
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False)
     rois_review = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
-                                    blank=False)
+                                    blank=False, related_name='clinical_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
