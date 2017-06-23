@@ -36,6 +36,12 @@ class ROIsAnnotation(models.Model):
         self.completion_date = None
         self.save()
 
+    def clinical_annotations_completed(self):
+        for annotation in self.clinical_annotations.all():
+            if not annotation.is_completed():
+                return False
+        return True
+
 
 class ROIsAnnotationStep(models.Model):
     label = models.CharField(unique=True, blank=False, null=False,
@@ -92,7 +98,7 @@ class ClinicalAnnotation(models.Model):
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False)
     rois_review = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
-                                    blank=False)
+                                    blank=False, related_name='clinical_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
