@@ -173,3 +173,28 @@ class ClinicalAnnotationStep(models.Model):
         self.completion_date = None
         self.start_date = None
         self.save()
+
+
+class ReviewsComparison(models.Model):
+    review_1 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT,
+                                    blank=False, null=False, related_name='first_review')
+    review_2 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT,
+                                    blank=False, null=False, related_name='second_review')
+    creation_date = models.DateTimeField(default=timezone.now)
+    start_date = models.DateTimeField(blank=True, null=True, default=None)
+    completion_date = models.DateTimeField(blank=True, null=True, default=None)
+    positive_match = models.NullBooleanField(blank=True, null=True, default=None)
+    review_3 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT, blank=True,
+                                    null=True, default=None, related_name='gold_standard')
+
+    def can_be_started(self):
+        if self.is_started() or self.is_completed():
+            return False
+        return self.review_1.clinical_annotation.is_completed() and \
+               self.review_2.clinical_annotation.is_completed()
+
+    def is_started(self):
+        return not(self.start_date is None)
+
+    def is_completed(self):
+        return not(self.completion_date is None)
