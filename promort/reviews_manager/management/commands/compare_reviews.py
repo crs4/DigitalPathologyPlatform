@@ -1,0 +1,111 @@
+from django.core.management.base import BaseCommand
+from reviews_manager.models import ReviewsComparison
+from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation,\
+    FocusRegionAnnotation
+
+import logging
+
+logger = logging.getLogger('promort_commands')
+
+
+class Command(BaseCommand):
+    help = 'perform comparison between clinical reviews'
+
+    def _get_processable_reviews_comparisons(self):
+        # get all opened ReviewsComparison objects
+        review_comparison = ReviewsComparison.objects.filter(completion_date__isnull=False)
+        return [rc for rc in review_comparison if rc.can_be_started()]
+
+    def _check_reviews_rejection(self, review1, review2):
+        return review1.rejected or review2.rejected
+
+    def _compare_slice_annotations(self, sl_ann_1, sl_ann_2):
+        return True
+
+    def _check_slices(self, review1, review2):
+        r1_slices = SliceAnnotation.objects.filter(annotation_step=review1)
+        r2_slices = SliceAnnotation.objects.filter(annotation_step=review2)
+        slices_map = dict()
+        for x in (r1_slices, r2_slices):
+            for sl in x:
+                slices_map.setdefault(sl.slice.label, []).append(sl)
+        for label, annotations in slices_map.iteritems():
+            logger.info('Comparing annotations for slice %s', label)
+            result = self._compare_slice_annotations(*annotations)
+            if not result:
+                logger.info('Annotations for slice %s don\'t match', label)
+                return False
+            else:
+                logger.debug('Annotations for slice %s match', label)
+        return True
+
+    def _compare_core_annotations(self, cr_ann_1, cr_ann_2):
+        return True
+
+    def _check_cores(self, review1, review2):
+        r1_cores = CoreAnnotation.objects.filter(annotation_step=review1)
+        r2_cores = CoreAnnotation.objects.filter(annotation_step=review2)
+        cores_map = dict()
+        for x in (r1_cores, r2_cores):
+            for cr in x:
+                cores_map.setdefault(cr.core.label, []).append(cr)
+        for label, annotations in cores_map.iteritems():
+            logger.info('Comparing annotations for core %s', label)
+            result = self._compare_core_annotations(*annotations)
+            if not result:
+                logger.info('Annotations for core %s don\'t match', label)
+                return False
+            else:
+                logger.debug('Annotations for core %s match', label)
+        return True
+
+    def _compare_focus_region_annotations(self, fr_ann_1, fr_ann_2):
+        return True
+
+    def _check_focus_regions(self, review1, review2):
+        r1_focus_regions = FocusRegionAnnotation.objects.filter(annotation_step=review1)
+        r2_focus_regions = FocusRegionAnnotation.objects.filter(annotation_step=review2)
+        focus_regions_map = dict()
+        for x in (r1_focus_regions, r2_focus_regions):
+            for fr in x:
+                focus_regions_map.setdefault(fr.focus_region.label, []).append(fr)
+        for label, annotations in focus_regions_map.iteritems():
+            logger.info('Comparing annotations for focus region %s', label)
+            result = self._compare_focus_region_annotations(*annotations)
+            if not result:
+                logger.info('Annotations for focus region %s don\'t match', label)
+                return False
+            else:
+                logger.debug('Annotations for focus region %s match', label)
+        return True
+
+    def _run_reviews_comparison(self, reviews_comparison_obj):
+        review_1 = reviews_comparison_obj.review_1
+        review_2 = reviews_comparison_obj.review_2
+        # first of all, check if at least one of the two reviews was rejected
+        rejected = self._check_reviews_rejection(review_1, review_2)
+        if rejected:
+            return False
+        else:
+            good_match = self._compare_slice_annotations(review_1, review_2)
+            if good_match:
+                good_match = self._compare_core_annotations(review_1, review_2)
+                if good_match:
+                    good_match = self._compare_focus_region_annotations(review_1, review_2)
+                    if good_match:
+                        return True
+        return False
+
+    def _close_comparison(self, reviews_comparison_obj, rejected):
+        reviews_comparison_obj.close(positive_match=(not rejected))
+
+    def handle(self, *args, **opts):
+        logger.info('Collecting reviews comparisons that can be processed')
+        processable_comparisons = self._get_processable_reviews_comparisons()
+        if len(processable_comparisons) > 0:
+            logger.info('Processing %d reviews comparisons', len(processable_comparisons))
+            for comp in processable_comparisons:
+                review_rejected = self._run_reviews_comparison(comp)
+                self._close_comparison(comp, rejected=review_rejected)
+        else:
+            logger.info('No reviews comparisons to process, exit')
