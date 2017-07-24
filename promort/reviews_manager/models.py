@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from slides_manager.models import Case, Slide
 
+from datetime import datetime
+
 
 class ROIsAnnotation(models.Model):
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT,
@@ -198,3 +200,12 @@ class ReviewsComparison(models.Model):
 
     def is_completed(self):
         return not(self.completion_date is None)
+
+    def link_review_3(self, review_obj):
+        self.review_3 = review_obj
+        self.save()
+
+    def close(self, positive_match):
+        self.positive_match = positive_match
+        self.completion_date = datetime.now()
+        self.save()
