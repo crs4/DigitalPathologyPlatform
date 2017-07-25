@@ -186,6 +186,7 @@ class ReviewsComparison(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, default=None)
     completion_date = models.DateTimeField(blank=True, null=True, default=None)
     positive_match = models.NullBooleanField(blank=True, null=True, default=None)
+    positive_quality_control = models.NullBooleanField(blank=True, null=True, default=None)
     review_3 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT, blank=True,
                                     null=True, default=None, related_name='gold_standard')
 
@@ -205,7 +206,8 @@ class ReviewsComparison(models.Model):
         self.review_3 = review_obj
         self.save()
 
-    def close(self, positive_match):
+    def close(self, positive_match, positive_quality_control):
         self.positive_match = positive_match
+        self.positive_quality_control = positive_quality_control
         self.completion_date = datetime.now()
         self.save()
