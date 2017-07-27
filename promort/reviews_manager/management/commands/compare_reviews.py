@@ -13,8 +13,11 @@ class Command(BaseCommand):
 
     def _get_processable_reviews_comparisons(self):
         # get all opened ReviewsComparison objects
-        review_comparison = ReviewsComparison.objects.filter(completion_date__isnull=False)
+        review_comparison = ReviewsComparison.objects.filter(completion_date__isnull=True)
         return [rc for rc in review_comparison if rc.can_be_started()]
+
+    def _check_quality_control(self, review1, review2):
+        return review1.rois_review_step.slide_quality_control.adequate_slide
 
     def _check_reviews_rejection(self, review1, review2):
         return review1.rejected or review2.rejected
@@ -82,10 +85,14 @@ class Command(BaseCommand):
     def _run_reviews_comparison(self, reviews_comparison_obj):
         review_1 = reviews_comparison_obj.review_1
         review_2 = reviews_comparison_obj.review_2
-        # first of all, check if at least one of the two reviews was rejected
+        # check if slides passed quality control
+        qc_passed = self._check_quality_control(review_1, review_2)
+        if not qc_passed:
+            return False, qc_passed
+        # check if at least one of the two reviews was rejected
         rejected = self._check_reviews_rejection(review_1, review_2)
         if rejected:
-            return False
+            return False, qc_passed
         else:
             good_match = self._compare_slice_annotations(review_1, review_2)
             if good_match:
@@ -93,11 +100,12 @@ class Command(BaseCommand):
                 if good_match:
                     good_match = self._compare_focus_region_annotations(review_1, review_2)
                     if good_match:
-                        return True
-        return False
+                        return True, qc_passed
+        return False, qc_passed
 
-    def _close_comparison(self, reviews_comparison_obj, rejected):
-        reviews_comparison_obj.close(positive_match=(not rejected))
+    def _close_comparison(self, reviews_comparison_obj, comparison_passed, quality_control_passed):
+        reviews_comparison_obj.close(positive_match=comparison_passed,
+                                     positive_quality_control=quality_control_passed)
 
     def handle(self, *args, **opts):
         logger.info('Collecting reviews comparisons that can be processed')
@@ -105,7 +113,9 @@ class Command(BaseCommand):
         if len(processable_comparisons) > 0:
             logger.info('Processing %d reviews comparisons', len(processable_comparisons))
             for comp in processable_comparisons:
-                review_rejected = self._run_reviews_comparison(comp)
-                self._close_comparison(comp, rejected=review_rejected)
+                comparison_passed, quality_control_passed = self._run_reviews_comparison(comp)
+                logger.info('COMPARISON STATUS --- comparison_passed: %s - quality_control_passed: %s',
+                            comparison_passed, quality_control_passed)
+                self._close_comparison(comp, comparison_passed, quality_control_passed)
         else:
             logger.info('No reviews comparisons to process, exit')
