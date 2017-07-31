@@ -192,6 +192,9 @@ DEFAULT_GROUPS = {
     },
     'gold_standard': {
         'name': 'GOLD_STANDARDS',
+    },
+    'odin_members': {
+        'name': 'ODIN_USERS'
     }
 }
 
