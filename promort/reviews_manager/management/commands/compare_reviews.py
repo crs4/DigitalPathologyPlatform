@@ -94,11 +94,11 @@ class Command(BaseCommand):
         if rejected:
             return False, qc_passed
         else:
-            good_match = self._compare_slice_annotations(review_1, review_2)
+            good_match = self._check_slices(review_1, review_2)
             if good_match:
-                good_match = self._compare_core_annotations(review_1, review_2)
+                good_match = self._check_cores(review_1, review_2)
                 if good_match:
-                    good_match = self._compare_focus_region_annotations(review_1, review_2)
+                    good_match = self._check_focus_regions(review_1, review_2)
                     if good_match:
                         return True, qc_passed
         return False, qc_passed
