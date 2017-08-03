@@ -43,7 +43,8 @@ class Command(BaseCommand):
         return True
 
     def _compare_core_annotations(self, cr_ann_1, cr_ann_2):
-        return True
+        return cr_ann_1.primary_gleason == cr_ann_2.primary_gleason \
+               and cr_ann_1.secondary_gleason == cr_ann_2.secondary_gleason
 
     def _check_cores(self, review1, review2):
         r1_cores = CoreAnnotation.objects.filter(annotation_step=review1)
@@ -88,10 +89,12 @@ class Command(BaseCommand):
         # check if slides passed quality control
         qc_passed = self._check_quality_control(review_1, review_2)
         if not qc_passed:
+            logger.info('Bad quality for review 1, stopping comparison')
             return False, qc_passed
         # check if at least one of the two reviews was rejected
         rejected = self._check_reviews_rejection(review_1, review_2)
         if rejected:
+            logger.info('Al least one review was rejected, stopping comparison')
             return False, qc_passed
         else:
             good_match = self._check_slices(review_1, review_2)
@@ -112,10 +115,12 @@ class Command(BaseCommand):
         processable_comparisons = self._get_processable_reviews_comparisons()
         if len(processable_comparisons) > 0:
             logger.info('Processing %d reviews comparisons', len(processable_comparisons))
-            for comp in processable_comparisons:
+            for i, comp in enumerate(processable_comparisons):
+                logger.info('### Analysing review comparison %d (of %d) ###', i+1, len(processable_comparisons))
                 comparison_passed, quality_control_passed = self._run_reviews_comparison(comp)
                 logger.info('COMPARISON STATUS --- comparison_passed: %s - quality_control_passed: %s',
                             comparison_passed, quality_control_passed)
                 self._close_comparison(comp, comparison_passed, quality_control_passed)
+                logger.info('#### Analysis completed ###')
         else:
             logger.info('No reviews comparisons to process, exit')
