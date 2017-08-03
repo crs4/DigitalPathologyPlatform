@@ -14,8 +14,10 @@ class Command(BaseCommand):
     help = 'build third reviewer worklist based on the reviews comparisons status'
 
     def _get_pending_comparisons(self):
-        # get all rejected review comparisons that don't have a related third review order
-        return ReviewsComparison.objects.filter(positive_match=False, review_3__isnull=True)
+        # get all rejected review comparisons that don't have a related third review order and with
+        # a positive quality control
+        return ReviewsComparison.objects.filter(positive_match=False, positive_quality_control=True,
+                                                review_3__isnull=True)
 
     def _verify(self, review_comparison_obj):
         # check if review1 and review2 are properly linked to the same rois_annotation step
