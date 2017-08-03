@@ -31,6 +31,7 @@ from rois_manager.views import SliceList, SliceDetail, CoreList, \
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList,\
     SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
     FocusRegionAnnotationList, FocusRegionAnnotationDetail
+import odin.views as od
 import utils.views as promort_utils
 
 urlpatterns = [
@@ -116,6 +117,11 @@ urlpatterns = [
     url(r'api/utils/slide_not_adequacy_reasons/$', promort_utils.get_slide_qc_not_adequacy_reasons),
     url(r'api/utils/clinical_step_rejection_reasons/$', promort_utils.get_clinical_step_rejection_reasons),
     url(r'api/utils/send_report/$', promort_utils.send_user_report),
+
+    # odin backend
+    url(r'api/odin/check_permissions/$', od.CheckAccessPrivileges.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<roi_type>[\w]+)/(?P<roi_label>[\w]+)/$',
+        od.GetROIDetails.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
