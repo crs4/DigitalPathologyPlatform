@@ -12,7 +12,7 @@ logger = logging.getLogger('promort_commands')
 
 
 class Command(BaseCommand):
-    help = 'build first reviewer worklist based on the existing cases and slides'
+    help = 'build first reviewers worklist based on the existing cases and slides'
 
     def _get_rois_manager_users(self):
         rois_manager_group = Group.objects.get(name=DEFAULT_GROUPS['rois_manager']['name'])
