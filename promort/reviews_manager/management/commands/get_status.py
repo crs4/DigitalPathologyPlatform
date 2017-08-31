@@ -29,9 +29,9 @@ class Command(BaseCommand):
                         reviewers_counter[cl_annotation.clinical_annotation.reviewer.username] += 1
         logger.info('Data collected')
         logger.info('############################')
-        logger.info('ROIs annotations count: %d', stats_counter['review_comparisons'])
-        logger.info('Completed ROIs annotation(s): %d', stats_counter['completed_review_comparisons'])
-        logger.info('Unfinished ROIs annotation(s): %d', stats_counter['not_completed_review_comparisons'])
+        logger.info('Slides count: %d', stats_counter['review_comparisons'])
+        logger.info('Completed Slide annotation(s): %d', stats_counter['completed_review_comparisons'])
+        logger.info('Unfinished Slide annotation(s): %d', stats_counter['not_completed_review_comparisons'])
         if stats_counter['not_completed_review_comparisons'] > 0:
             logger.info('--- Stats for each reviewer ---')
             for reviewer, counter in reviewers_counter.iteritems():
