@@ -35,8 +35,8 @@ class Command(BaseCommand):
             if rc.is_completed():
                 s = self._get_slide(rc, opts['linked_only'])
                 if s is not None:
-                    completed_slides_list.extend(s)
-        logger.info('%d slides related to a completed review workflow', len(completed_slides_list))
+                    completed_slides_list.append(s)
+        logger.info('%d slides related to completed review workflows', len(completed_slides_list))
         if len(completed_slides_list) > 0:
             logger.info('Writing output file')
             with open(opts['out_file'], 'w') as ofile:
