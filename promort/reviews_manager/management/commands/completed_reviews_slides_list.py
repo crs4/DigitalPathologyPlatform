@@ -1,6 +1,10 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-from reviews_manager.models import ROIsAnnotation
+from reviews_manager.models import ReviewsComparison
+
+import logging
+
+logger = logging.getLogger('promort_commands')
 
 
 class Command(BaseCommand):
@@ -9,16 +13,38 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='out_file', type=str, required=True,
                             help='the output file for the slides list')
+        parser.add_argument('--linked_only', action='store_true',
+                            help='write in the output file only slides linked to images on the OMERO server')
 
-    def _get_slides_list(self, annotation):
-        return [step.slide.id for step in annotation.steps.all()]
+    def _get_slide(self, reviews_comparison, ome_link_active):
+        # check if all related ClinicalAnnotation objects were closed
+        if not reviews_comparison.linked_reviews_completed():
+            return None
+        # review_1 and review_2 point to the same rois_review_step so it is safe to use review_1's
+        # slide field to extract the ID
+        slide = reviews_comparison.review_1.slide
+        if ome_link_active:
+            if slide.omero_id is not None:
+                return slide.id
+            else:
+                return None
+        else:
+            return slide.id
 
     def handle(self, *args, **opts):
+        logger.info('=== Exporting list of slides with a complete review workflow ===')
         completed_slides_list = []
-        rois_annotations = ROIsAnnotation.objects.all()
-        for annotation in rois_annotations:
-            if annotation.clinical_annotations_completed():
-                completed_slides_list.extend(self._get_slides_list(annotation))
-        with open(opts['out_file'], 'w') as ofile:
-            for slide in completed_slides_list:
-                ofile.write('%s\n' % slide)
+        review_comparions = ReviewsComparison.objects.all()
+        logger.info('Loaded %d ReviewsComparison objects', len(review_comparions))
+        for rc in review_comparions:
+            if rc.is_completed() and not rc.is_evaluation_pending():
+                s = self._get_slide(rc, opts['linked_only'])
+                if s is not None:
+                    completed_slides_list.append(s)
+        logger.info('%d slides related to completed review workflows', len(completed_slides_list))
+        if len(completed_slides_list) > 0:
+            logger.info('Writing output file')
+            with open(opts['out_file'], 'w') as ofile:
+                for slide in completed_slides_list:
+                    ofile.write('%s\n' % slide)
+        logger.info('=== Export complete ===')

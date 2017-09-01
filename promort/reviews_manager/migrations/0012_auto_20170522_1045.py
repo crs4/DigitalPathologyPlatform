@@ -11,8 +11,8 @@ def _get_slide_index(slide_label):
 
 
 def update_rois_annotations(apps, schema_editor):
-    ROIsAnnotations = apps.get_model('reviews_manager', 'ROIsAnnotation')
-    for annotation in ROIsAnnotations.objects.all():
+    ROIsAnnotation = apps.get_model('reviews_manager', 'ROIsAnnotation')
+    for annotation in ROIsAnnotation.objects.all():
         annotation_label = uuid4().hex
         annotation.label = annotation_label
         annotation.save()

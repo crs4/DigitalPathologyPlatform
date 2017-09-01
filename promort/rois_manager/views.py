@@ -42,7 +42,7 @@ class ROIsTreeList(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SliceList(GenericReadOnlyDetailView):
+class SliceList(APIView):
     model = ROIsAnnotationStep
     model_serializer = ROIsAnnotationStepFullSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -52,6 +52,11 @@ class SliceList(GenericReadOnlyDetailView):
             return ROIsAnnotationStep.objects.get(label=label)
         except ROIsAnnotationStep.DoesNotExist:
             raise NotFound('There is no ROIsAnnotationStep with label %s' % label)
+
+    def get(self, request, label, format=None):
+        annotation_step = self._find_rois_annotation_step(label)
+        serializer = self.model_serializer(annotation_step)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, label, format=None):
         annotation_step = self._find_rois_annotation_step(label)
