@@ -103,7 +103,7 @@ class GetROIDetails(APIView):
         roi_obj = self._get_roi(annotation_step_obj, roi_type, roi_label)
         serializers_map = {
             'slice': SliceSerializer,
-            'core:': CoreSerializer,
+            'core': CoreSerializer,
             'focus_region': FocusRegionSerializer
         }
         serializer = serializers_map[roi_type](roi_obj)
