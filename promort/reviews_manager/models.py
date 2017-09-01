@@ -199,6 +199,9 @@ class ReviewsComparison(models.Model):
     def is_started(self):
         return not(self.start_date is None)
 
+    def is_evaluation_pending(self):
+        return self.positive_match is None
+
     def is_completed(self):
         return not(self.completion_date is None)
 
@@ -211,3 +214,11 @@ class ReviewsComparison(models.Model):
         self.positive_quality_control = positive_quality_control
         self.completion_date = datetime.now()
         self.save()
+
+    def linked_reviews_completed(self):
+        completed = self.review_1.clinical_annotation.is_completed() \
+                    and self.review_2.clinical_annotation.is_completed()
+        if self.review_3 is not None:
+            return completed and self.review_3.clinical_annotation.is_completed()
+        else:
+            return completed

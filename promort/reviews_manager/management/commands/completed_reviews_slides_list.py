@@ -17,12 +17,17 @@ class Command(BaseCommand):
                             help='write in the output file only slides linked to images on the OMERO server')
 
     def _get_slide(self, reviews_comparison, ome_link_active):
+        # check if all related ClinicalAnnotation objects were closed
+        if not reviews_comparison.linked_reviews_completed():
+            return None
         # review_1 and review_2 point to the same rois_review_step so it is safe to use review_1's
         # slide field to extract the ID
         slide = reviews_comparison.review_1.slide
         if ome_link_active:
             if slide.omero_id is not None:
                 return slide.id
+            else:
+                return None
         else:
             return slide.id
 
@@ -32,7 +37,7 @@ class Command(BaseCommand):
         review_comparions = ReviewsComparison.objects.all()
         logger.info('Loaded %d ReviewsComparison objects', len(review_comparions))
         for rc in review_comparions:
-            if rc.is_completed():
+            if rc.is_completed() and not rc.is_evaluation_pending():
                 s = self._get_slide(rc, opts['linked_only'])
                 if s is not None:
                     completed_slides_list.append(s)
