@@ -9,10 +9,6 @@ class Case(models.Model):
     def __unicode__(self):
         return 'Case %s' % self.id
 
-    def _get_slides_list(self):
-        return self.slide_set.all()
-    slides = property(_get_slides_list)
-
 
 class Slide(models.Model):
     STAINING = (
