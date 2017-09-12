@@ -120,8 +120,13 @@ urlpatterns = [
 
     # odin backend
     url(r'api/odin/check_permissions/$', od.CheckAccessPrivileges.as_view()),
-    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<roi_type>[\w]+)/(?P<roi_label>[\w]+)/$',
-        od.GetROIDetails.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/$', od.GetCaseDetails.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/$', od.GetSlideDetails.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', od.GetReviewerDetails.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
+        r'(?P<roi_type>slice|core|focus_region)/$', od.GetDetailsByROIType.as_view()),
+    url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
+        r'(?P<roi_type>slice|core|focus_region)/(?P<roi_label>[\w]+)/$', od.GetROIDetails.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
