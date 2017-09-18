@@ -5,11 +5,11 @@ from rest_framework.exceptions import NotFound
 
 from odin.permissions import CanEnterGodMode
 
-from slides_manager.models import Slide, Case
+from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
-from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
-from reviews_manager.models import ClinicalAnnotation, ClinicalAnnotationStep,\
-    ROIsAnnotation, ROIsAnnotationStep
+from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer,\
+    CoreDetailsSerializer
+from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep
 
 from itertools import chain
 import logging
@@ -26,11 +26,17 @@ class CheckAccessPrivileges(APIView):
 class ROIDetailsAPI(APIView):
     permission_classes = (CanEnterGodMode,)
 
+    def _get_slide(self, slide):
+        try:
+            return Slide.objects.get(id=slide)
+        except Slide.DoesNotExist:
+            raise NotFound('There is no Slide with label %s' % slide)
+
     def _get_rois_annotations(self, case):
         try:
             return ROIsAnnotation.objects.filter(case__id=case)
-        except Slide.DoesNotExist:
-            raise ROIsAnnotation.DoesNotExist('There are no ROI annotations related to case %s' % case)
+        except ROIsAnnotation.DoesNotExist:
+            raise NotFound('There are no ROI annotations related to case %s' % case)
 
     def _get_rois_annotation(self, case, reviewer):
         try:
@@ -183,3 +189,18 @@ class GetROIDetails(ROIDetailsAPI):
         annotation_step_obj = self._get_rois_annotation_step(rois_annotation_obj, slide)
         roi_obj = self._get_roi(annotation_step_obj, roi_type, roi_label)
         return Response(self._serialize_roi_obj(roi_obj), status=status.HTTP_200_OK)
+
+
+class GetCoresDetails(ROIDetailsAPI):
+
+    def _get_cores(self, slide_obj):
+        try:
+            return Core.objects.filter(slice__in=Slice.objects.filter(slide=slide_obj))
+        except (Slice.DoesNotExist, Core.DoesNotExist):
+            raise NotFound('There are no cores for slide %s' % slide_obj.id)
+
+    def get(self, request, slide, format=None):
+        slide_obj = self._get_slide(slide)
+        cores = self._get_cores(slide_obj)
+        return Response([CoreDetailsSerializer(core).data for core in cores],
+                        status=status.HTTP_200_OK)

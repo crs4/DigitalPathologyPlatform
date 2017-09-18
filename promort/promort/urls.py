@@ -121,6 +121,7 @@ urlpatterns = [
     # odin backend
     url(r'api/odin/check_permissions/$', od.CheckAccessPrivileges.as_view()),
     url(r'api/odin/(?P<case>[\w\-.]+)/$', od.GetCaseDetails.as_view()),
+    url(r'api/odin/(?P<slide>[\w\-.]+)/cores/', od.GetCoresDetails.as_view()),
     url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/$', od.GetSlideDetails.as_view()),
     url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', od.GetReviewerDetails.as_view()),
     url(r'api/odin/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
