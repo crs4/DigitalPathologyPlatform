@@ -134,15 +134,25 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    case = serializers.SerializerMethodField()
+    slide = serializers.SerializerMethodField()
     focus_regions = FocusRegionSerializer(many=True, read_only=True)
     positive = serializers.SerializerMethodField()
     normal_tissue_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json', 'length',
+        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_date', 'roi_json', 'length',
                   'area', 'tumor_length', 'positive', 'focus_regions', 'normal_tissue_percentage')
-        read_only_fields = ('id', 'creation_date', 'positive', 'normal_tissue_percentage')
+        read_only_fields = ('id', 'case', 'slide', 'creation_date', 'positive', 'normal_tissue_percentage')
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slice.slide.case.id
+
+    @staticmethod
+    def get_slide(obj):
+        return obj.slice.slide.id
 
     def get_positive(self, obj):
         for fr in obj.focus_regions.all():
