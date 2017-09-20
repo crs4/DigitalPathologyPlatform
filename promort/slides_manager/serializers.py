@@ -2,18 +2,29 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from slides_manager.models import Case, Slide, \
-    SlideQualityControl
+from slides_manager.models import Laboratory, Case, Slide, SlideQualityControl
 from reviews_manager.models import ROIsAnnotationStep
 
 
+class LaboratorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Laboratory
+
+        fields = ('label',)
+
+
 class CaseSerializer(serializers.ModelSerializer):
+    laboratory = serializers.SlugRelatedField(
+        slug_field='label',
+        queryset=Laboratory.objects.all(),
+    )
     slides = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Case
 
-        fields = ('id', 'import_date', 'slides')
+        fields = ('id', 'import_date', 'laboratory', 'slides')
         read_only_fields = ('import_date', 'slides')
 
 
