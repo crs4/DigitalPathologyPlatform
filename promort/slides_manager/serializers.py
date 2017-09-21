@@ -59,6 +59,16 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
         read_only_fields = ('acquisition_date',)
 
 
+class LaboratoryDetailSerializer(serializers.ModelSerializer):
+    cases = CaseSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Laboratory
+
+        fields = ('label', 'cases')
+        read_only_fields = ('cases',)
+
+
 class CaseDetailedSerializer(serializers.ModelSerializer):
     slides = SlideSerializer(many=True, read_only=True)
 
