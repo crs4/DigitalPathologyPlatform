@@ -19,7 +19,6 @@ class CaseSerializer(serializers.ModelSerializer):
         slug_field='label',
         queryset=Laboratory.objects.all(),
     )
-    slides = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Case
