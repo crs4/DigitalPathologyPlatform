@@ -11,7 +11,7 @@ logger = logging.getLogger('promort_commands')
 
 
 class Command(BaseCommand):
-    help ="""
+    help = """
     Import slides from a running OMERO server (with ome_seadragon plugin) to ProMort and create
     related Case and Slide objects
     """
