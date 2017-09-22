@@ -97,13 +97,16 @@ class Command(BaseCommand):
             logger.info('Al least one review was rejected, stopping comparison')
             return False, qc_passed
         else:
-            good_match = self._check_slices(review_1, review_2)
+            # good_match = self._check_slices(review_1, review_2)
+            # if good_match:
+            #     good_match = self._check_cores(review_1, review_2)
+            #     if good_match:
+            #         good_match = self._check_focus_regions(review_1, review_2)
+            #         if good_match:
+            #             return True, qc_passed
+            good_match = self._check_cores(review_1, review_2)
             if good_match:
-                good_match = self._check_cores(review_1, review_2)
-                if good_match:
-                    good_match = self._check_focus_regions(review_1, review_2)
-                    if good_match:
-                        return True, qc_passed
+                return True, qc_passed
         return False, qc_passed
 
     def _close_comparison(self, reviews_comparison_obj, comparison_passed, quality_control_passed):
