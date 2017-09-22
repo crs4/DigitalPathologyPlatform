@@ -21,8 +21,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from promort.views import IndexView
 from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
-from slides_manager.views import CaseList, CaseDetail, \
-    SlideList, SlideDetail, SlideQualityControlDetail
+from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
+    CaseList, CaseDetail, SlideList, SlideDetail, SlideQualityControlDetail
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
@@ -43,7 +43,10 @@ urlpatterns = [
     url(r'api/groups/$', GroupListView.as_view()),
     url(r'api/groups/(?P<group>rois_manager|clinical_manager|gold_standard)/$', GroupDetailsView.as_view()),
 
-    # cases and slides
+    # laboratories, cases and slides
+    url(r'^api/laboratories/$', LaboratoryList.as_view()),
+    url(r'^api/laboratories/(?P<pk>[\w\-.]+)/$', LaboratoryDetail.as_view()),
+    url(r'^api/laboratories/(?P<laboratory>[\w\-.]+)/(?P<case>[\w\-.]+)/$', LaboratoryCaseLink.as_view()),
     url(r'^api/cases/$', CaseList.as_view()),
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),

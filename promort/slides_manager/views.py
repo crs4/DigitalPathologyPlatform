@@ -3,18 +3,54 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
-from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from view_templates.views import GenericDetailView, GenericListView
 
-from slides_manager.models import Case, Slide, SlideQualityControl
-from slides_manager.serializers import CaseSerializer, CaseDetailedSerializer,\
-    SlideSerializer, SlideDetailSerializer, SlideQualityControlSerializer
-from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep
+from slides_manager.models import Laboratory, Case, Slide, SlideQualityControl
+from slides_manager.serializers import LaboratorySerializer, LaboratoryDetailSerializer, \
+    CaseSerializer, CaseDetailedSerializer, SlideSerializer, SlideDetailSerializer, SlideQualityControlSerializer
+from reviews_manager.models import ROIsAnnotationStep
 
 import logging
 logger = logging.getLogger('promort')
+
+
+class LaboratoryList(GenericListView):
+    model = Laboratory
+    model_serializer = LaboratorySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class LaboratoryDetail(GenericDetailView):
+    model = Laboratory
+    model_serializer = LaboratoryDetailSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class LaboratoryCaseLink(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def _find_laboratory(self, label):
+        try:
+            return Laboratory.objects.get(label__iexact=label)
+        except Laboratory.DoesNotExist:
+            raise NotFound('There is no Laboratory with label %s' % label)
+
+    def _find_case(self, id):
+        try:
+            return Case.objects.get(pk=id)
+        except Case.DoesNotExist:
+            raise NotFound('There is no case with ID %s' % id)
+
+    def put(self, request, laboratory, case, format=None):
+        lab_obj = self._find_laboratory(laboratory)
+        case_obj = self._find_case(case)
+        # laboratory is case insensitive now
+        serializer = CaseSerializer(case_obj, data={'laboratory': lab_obj.label}, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CaseList(GenericListView):
@@ -48,7 +84,7 @@ class SlideQualityControlDetail(APIView):
         try:
             return ROIsAnnotationStep.objects.get(label=label)
         except ROIsAnnotationStep.DoesNotExist:
-            raise NotFound('there is no ROIs annotation step with label %s', label)
+            raise NotFound('There is no ROIs annotation step with label %s', label)
 
     def _find_by_rois_annotation_step(self, label):
         try:
@@ -57,7 +93,7 @@ class SlideQualityControlDetail(APIView):
                 rois_annotation_step=annotation_step
             )
         except SlideQualityControl.DoesNotExist:
-            raise NotFound('unable to find quality control data')
+            raise NotFound('Unable to find quality control data')
 
     def get(self, request, label, format=None):
         qc_obj = self._find_by_rois_annotation_step(label)

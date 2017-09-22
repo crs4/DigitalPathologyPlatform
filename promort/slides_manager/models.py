@@ -2,13 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Laboratory(models.Model):
+    label = models.CharField(max_length=30, primary_key=True)
+
+    @staticmethod
+    def related_cases_count(obj):
+        return len(obj.cases.all())
+
+
 class Case(models.Model):
     id = models.CharField(max_length=10, primary_key=True)
     import_date = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return 'Case %s' % self.id
-
+    laboratory = models.ForeignKey(Laboratory, on_delete=models.PROTECT, related_name='cases',
+                                   default=None, blank=True, null=True)
 
 class Slide(models.Model):
     STAINING = (
@@ -28,10 +34,6 @@ class Slide(models.Model):
         max_length=5, choices=STAINING, blank=True,
         null=True, default=None
     )
-
-    def __unicode__(self):
-        return 'Slide %s [img type: %s --- OMERO id: %r]' % (self.id, self.image_type,
-                                                             self.omero_id)
 
 
 class SlideQualityControl(models.Model):
@@ -56,9 +58,3 @@ class SlideQualityControl(models.Model):
     notes = models.TextField(blank=True, null=True)
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     acquisition_date = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        if self.adequate_slide:
-            return 'Adequate'
-        else:
-            return 'Not adequate (reason: %s)' % self.get_not_adequacy_reason_display()
