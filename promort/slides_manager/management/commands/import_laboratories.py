@@ -35,4 +35,3 @@ class Command(BaseCommand):
         for lab in labs_list:
             self._save_lab(lab)
         logger.info('=== Import job completed ===')
-
