@@ -16,21 +16,16 @@ class SliceSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    case = serializers.SerializerMethodField()
     cores_count = serializers.SerializerMethodField()
     positive_cores_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Slice
-        fields = ('id', 'label', 'slide', 'author', 'annotation_step', 'creation_date', 'roi_json',
+        fields = ('id', 'label', 'case', 'slide', 'author', 'annotation_step', 'creation_date', 'roi_json',
                   'total_cores', 'positive_cores_count', 'cores_count')
-        read_only_fields = ('id', 'creation_date', 'positive_cores_count', 'cores_count')
+        read_only_fields = ('id', 'case', 'creation_date', 'positive_cores_count', 'cores_count')
         write_only_fields = ('annotation_step',)
-
-    def get_cores_count(self, obj):
-        return obj.cores.count()
-
-    def get_positive_cores_count(self, obj):
-        return obj.get_positive_cores_count()
 
     def validate_roi_json(self, value):
         try:
@@ -38,6 +33,18 @@ class SliceSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slide.case.id
+
+    @staticmethod
+    def get_cores_count(obj):
+        return obj.cores.count()
+
+    @staticmethod
+    def get_positive_cores_count(obj):
+        return obj.get_positive_cores_count()
 
 
 class CoreSerializer(serializers.ModelSerializer):
@@ -45,23 +52,19 @@ class CoreSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    case = serializers.SerializerMethodField()
+    slide = serializers.SerializerMethodField()
     focus_regions_count = serializers.SerializerMethodField()
     positive = serializers.SerializerMethodField()
     normal_tissue_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json',
+        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_date', 'roi_json',
                   'length', 'area', 'tumor_length', 'positive', 'focus_regions_count',
                   'normal_tissue_percentage')
-        read_only_fields = ('id', 'creation_date', 'positive', 'focus_regions_count',
+        read_only_fields = ('id', 'case', 'slide', 'creation_date', 'positive', 'focus_regions_count',
                             'normal_tissue_percentage')
-
-    def get_focus_regions_count(self, obj):
-        return obj.focus_regions.count()
-
-    def get_positive(self, obj):
-        return obj.is_positive()
 
     def validate_roi_json(self, value):
         try:
@@ -69,6 +72,22 @@ class CoreSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slice.slide.case.id
+
+    @staticmethod
+    def get_slide(obj):
+        return obj.slice.slide.id
+
+    @staticmethod
+    def get_focus_regions_count(obj):
+        return obj.focus_regions.count()
+
+    @staticmethod
+    def get_positive(obj):
+        return obj.is_positive()
 
     @staticmethod
     def get_normal_tissue_percentage(obj):
@@ -80,13 +99,15 @@ class FocusRegionSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    case = serializers.SerializerMethodField()
+    slide = serializers.SerializerMethodField()
     core_coverage_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = FocusRegion
-        fields = ('id', 'label', 'core', 'author', 'creation_date', 'roi_json',
+        fields = ('id', 'label', 'case', 'slide', 'core', 'author', 'creation_date', 'roi_json',
                   'length', 'area', 'cancerous_region', 'core_coverage_percentage')
-        read_only_fields = ('id', 'creation_date', 'core_coverage_percentage')
+        read_only_fields = ('id', 'case', 'slide', 'creation_date', 'core_coverage_percentage')
 
     def validate_roi_json(self, value):
         try:
@@ -94,6 +115,14 @@ class FocusRegionSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'roi_json\' field')
+
+    @staticmethod
+    def get_case(obj):
+        return obj.core.slice.slide.case.id
+
+    @staticmethod
+    def get_slide(obj):
+        return obj.core.slice.slide.id
 
     @staticmethod
     def get_core_coverage_percentage(obj):
@@ -105,15 +134,25 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    case = serializers.SerializerMethodField()
+    slide = serializers.SerializerMethodField()
     focus_regions = FocusRegionSerializer(many=True, read_only=True)
     positive = serializers.SerializerMethodField()
     normal_tissue_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'slice', 'author', 'creation_date', 'roi_json', 'length',
+        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_date', 'roi_json', 'length',
                   'area', 'tumor_length', 'positive', 'focus_regions', 'normal_tissue_percentage')
-        read_only_fields = ('id', 'creation_date', 'positive', 'normal_tissue_percentage')
+        read_only_fields = ('id', 'case', 'slide', 'creation_date', 'positive', 'normal_tissue_percentage')
+
+    @staticmethod
+    def get_case(obj):
+        return obj.slice.slide.case.id
+
+    @staticmethod
+    def get_slide(obj):
+        return obj.slice.slide.id
 
     def get_positive(self, obj):
         for fr in obj.focus_regions.all():
