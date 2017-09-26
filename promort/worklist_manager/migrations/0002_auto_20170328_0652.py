@@ -26,11 +26,14 @@ def rename_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
     for group_desc in groups_map:
         logger.info('Getting group %s', group_desc['old_name'])
-        group_obj = Group.objects.get(name=group_desc['old_name'])
-        logger.info('Setting new name %s', group_desc['new_name'])
-        group_obj.name = group_desc['new_name']
-        group_obj.save()
-        logger.info('Group name updated')
+        try:
+            group_obj = Group.objects.get(name=group_desc['old_name'])
+            logger.info('Setting new name %s', group_desc['new_name'])
+            group_obj.name = group_desc['new_name']
+            group_obj.save()
+            logger.info('Group name updated')
+        except Group.DoesNotExist:
+            logger.warn('No group with name %s, no need to update', group_desc['old_name'])
 
 
 class Migration(migrations.Migration):

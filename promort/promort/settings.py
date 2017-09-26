@@ -44,7 +44,8 @@ INSTALLED_APPS = (
     'reviews_manager',
     'worklist_manager',
     'rois_manager',
-    'clinical_annotations_manager'
+    'clinical_annotations_manager',
+    'odin'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -191,6 +192,9 @@ DEFAULT_GROUPS = {
     },
     'gold_standard': {
         'name': 'GOLD_STANDARDS',
+    },
+    'odin_members': {
+        'name': 'ODIN_USERS'
     }
 }
 
