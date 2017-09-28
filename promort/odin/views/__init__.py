@@ -1,2 +1,3 @@
-from rois_extraction import CheckAccessPrivileges, GetCaseDetails, GetSlideDetails, GetReviewerDetails, \
+from utils import CheckAccessPrivileges
+from rois_extraction import GetCaseDetails, GetSlideDetails, GetReviewerDetails, \
     GetDetailsByROIType, GetROIDetails, GetCoresDetails
