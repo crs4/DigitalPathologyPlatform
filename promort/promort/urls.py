@@ -135,6 +135,8 @@ urlpatterns = [
         r'(?P<roi_type>slice|core|focus_region)/$', od.GetDetailsByROIType.as_view()),
     url(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
         r'(?P<roi_type>slice|core|focus_region)/(?P<roi_label>[\w]+)/$', od.GetROIDetails.as_view()),
+    # clinical reviews report tools
+    url(r'api/odin/reviews/(?P<case>[\w\-.]+)/score/', od.CaseReviewResults.as_view()),
 
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
