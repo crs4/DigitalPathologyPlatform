@@ -83,6 +83,25 @@ class CaseReviewResults(APIView):
         return Response(scores, status=status.HTTP_200_OK)
 
 
+class CaseReviewResultsDetails(CaseReviewResults):
 
-# class CaseReviewResultsDetails(CaseReviewResults):
-#     pass
+    def _get_details(self, clinical_annotation_steps):
+        clinical_annotation_details = dict()
+        for step in clinical_annotation_steps:
+            clinical_annotation_details[step.slide.id] = [
+                {
+                    'core_label': core_ann.core.label,
+                    'primary_gleason_score': core_ann.primary_gleason,
+                    'secondary_gleason_score': core_ann.secondary_gleason
+                } for core_ann in step.core_annotations.all()
+            ]
+        return clinical_annotation_details
+
+    def _get_scores(self, reviews_map):
+        reviews_scores = dict()
+        for r_ann_obj, c_ann_objs in reviews_map.iteritems():
+            reviews_scores[r_ann_obj.label] = {
+                'overall_score': self._get_overall_score(c_ann_objs),
+                'slides_details': self._get_details(c_ann_objs)
+            }
+        return reviews_scores
