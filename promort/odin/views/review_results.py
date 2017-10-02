@@ -69,10 +69,12 @@ class CaseReviewResults(APIView):
         }
 
     def _get_scores(self, reviews_map):
-        return dict(
-            (r_ann_obj.label, self._get_overall_score(c_ann_objs))
-            for (r_ann_obj, c_ann_objs) in reviews_map.iteritems()
-        )
+        scores = dict()
+        for (r_ann_obj, c_ann_objs) in reviews_map.iteritems():
+            oscore = self._get_overall_score(c_ann_objs)
+            if len(oscore) > 0:
+                scores[r_ann_obj.label] = oscore
+        return scores
 
     def get(self, request, case, format=None):
         case_obj = self._get_case(case)
