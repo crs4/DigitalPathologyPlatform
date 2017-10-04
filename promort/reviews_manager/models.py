@@ -12,7 +12,7 @@ class ROIsAnnotation(models.Model):
     label = models.CharField(unique=True, blank=False, null=False,
                              max_length=40)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
-                             blank=False)
+                             blank=False, related_name='roi_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
@@ -51,7 +51,7 @@ class ROIsAnnotationStep(models.Model):
     rois_annotation = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
                                         blank=False, related_name='steps')
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
-                              blank=False)
+                              blank=False, related_name='roi_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True,
                                       default=None)
@@ -98,7 +98,7 @@ class ClinicalAnnotation(models.Model):
     label = models.CharField(unique=True, blank=False, null=False,
                              max_length=40)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
-                             blank=False)
+                             blank=False, related_name='clinical_annotations')
     rois_review = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
                                     blank=False, related_name='clinical_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
@@ -138,7 +138,7 @@ class ClinicalAnnotationStep(models.Model):
     clinical_annotation = models.ForeignKey(ClinicalAnnotation, on_delete=models.PROTECT,
                                             blank=False, related_name='steps')
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
-                              blank=False)
+                              blank=False, related_name='clinical_annotations')
     rois_review_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
                                          blank=False, related_name='clinical_annotation_steps')
     creation_date = models.DateTimeField(default=timezone.now)
@@ -222,3 +222,9 @@ class ReviewsComparison(models.Model):
             return completed and self.review_3.clinical_annotation.is_completed()
         else:
             return completed
+
+    def get_case(self):
+        return self.review_1.clinical_annotation.case
+
+    def get_slide(self):
+        return self.review_1.slide
