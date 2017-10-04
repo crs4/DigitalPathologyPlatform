@@ -16,13 +16,6 @@ import logging
 logger = logging.getLogger('promort')
 
 
-class CheckAccessPrivileges(APIView):
-    permission_classes = (CanEnterGodMode,)
-
-    def get(self, request, format=None):
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class ROIDetailsAPI(APIView):
     permission_classes = (CanEnterGodMode,)
 
@@ -181,7 +174,7 @@ class GetROIDetails(ROIDetailsAPI):
             cores_ids = self._get_cores_ids(self._get_slices_ids(rois_annotation_step_obj))
             return self._get_focus_region(cores_ids, roi_label)
         else:
-            # raise error
+            # TODO: raise error
             pass
 
     def get(self, request, case, slide, reviewer, roi_type, roi_label, format=None):
