@@ -76,7 +76,7 @@ class CaseReviewResults(APIView):
         for clinical_annotation_step in clinical_annotation_steps:
             core_annotations = clinical_annotation_step.core_annotations.all()
             if len(core_annotations) == 0:
-                break
+                continue
             for c_ann in core_annotations:
                 primary_gleason_scores[c_ann.primary_gleason] += 1
                 secondary_gleason_scores.add(c_ann.secondary_gleason)
