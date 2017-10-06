@@ -101,6 +101,8 @@ class CaseReviewResults(APIView):
         if len(reviews_map) == 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         scores = self._get_scores(reviews_map)
+        if len(scores) == 0:
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(scores, status=status.HTTP_200_OK)
 
 
