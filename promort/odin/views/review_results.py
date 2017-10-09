@@ -1,5 +1,4 @@
 from collections import Counter
-import operator
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -8,8 +7,8 @@ from rest_framework.exceptions import NotFound
 
 from odin.permissions import CanEnterGodMode
 
-from slides_manager.models import Case, Slide
-from reviews_manager.models import ClinicalAnnotation, ReviewsComparison
+from slides_manager.models import Case
+from reviews_manager.models import ReviewsComparison
 
 import logging
 logger = logging.getLogger('promort')
