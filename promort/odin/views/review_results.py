@@ -1,5 +1,4 @@
 from collections import Counter
-import operator
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -8,8 +7,8 @@ from rest_framework.exceptions import NotFound
 
 from odin.permissions import CanEnterGodMode
 
-from slides_manager.models import Case, Slide
-from reviews_manager.models import ClinicalAnnotation, ReviewsComparison
+from slides_manager.models import Case
+from reviews_manager.models import ReviewsComparison
 
 import logging
 logger = logging.getLogger('promort')
@@ -24,28 +23,45 @@ class CaseReviewResults(APIView):
         except Case.DoesNotExist:
             raise NotFound('There is no Case with label %s' % case)
 
-    # group ReviewComparison objects by ROIsAnnotation
+    def _filter_not_compared(self, review_comparisons_map):
+        to_be_removed = []
+        for r_ann, comparisons in review_comparisons_map.iteritems():
+            for comp in comparisons:
+                if comp.is_evaluation_pending() or \
+                        (not comp.positive_match and comp.positive_quality_control and comp.review_3 is None):
+                    to_be_removed.append(r_ann)
+                    break
+        for x in to_be_removed:
+            review_comparisons_map.pop(x)
+
+    def _filter_by_quality_control(self, reviews_comparisons):
+        return [rc for rc in reviews_comparisons if rc.positive_quality_control]
+
+    def _get_final_review(self, reviews_comparison_obj):
+        if reviews_comparison_obj.review_3:
+            return reviews_comparison_obj.review_3
+        else:
+            return reviews_comparison_obj.review_1
+
     def _get_final_reviews_map(self, case):
         review_comparisons = ReviewsComparison.objects.filter(
-            review_1__slide__in=(
-                Slide.objects.filter(case=case)
-            )
+            review_1__slide__in=(case.slides.all())
         )
-        # filter, keep only review comparisons linked to completed reviews
-        review_comparisons = [
-            rc for rc in review_comparisons if
-            (
-                rc.linked_reviews_completed() and
-                not rc.is_evaluation_pending()
-                and rc.positive_quality_control
-            )
-        ]
         rc_map = dict()
         for rc in review_comparisons:
-            rc_map.setdefault(rc.review_1.rois_review_step.rois_annotation, []).append(
-                rc.review_3 if rc.review_3 else rc.review_1
-            )
-        return rc_map
+            rc_map.setdefault(rc.review_1.rois_review_step.rois_annotation, []).append(rc)
+        for ann in rc_map.keys():
+            if not ann.clinical_annotations_completed():
+                rc_map.pop(ann)
+        self._filter_not_compared(rc_map)
+        for r_ann in rc_map.keys():
+            rc_map[r_ann] = self._filter_by_quality_control(rc_map[r_ann])
+        reviews_map = dict()
+        for r_ann, rcs in rc_map.iteritems():
+            for rc in rcs:
+                reviews_map.setdefault(r_ann, []).append(self._get_final_review(rc))
+        logger.info(reviews_map)
+        return reviews_map
 
     def _get_max(self, primary_scores_counter):
         ct2 = dict()
@@ -59,10 +75,12 @@ class CaseReviewResults(APIView):
         for clinical_annotation_step in clinical_annotation_steps:
             core_annotations = clinical_annotation_step.core_annotations.all()
             if len(core_annotations) == 0:
-                return dict()
+                continue
             for c_ann in core_annotations:
                 primary_gleason_scores[c_ann.primary_gleason] += 1
                 secondary_gleason_scores.add(c_ann.secondary_gleason)
+        if len(primary_gleason_scores) == 0 and len(secondary_gleason_scores) == 0:
+            return dict()
         return {
             'primary_score': self._get_max(primary_gleason_scores),
             'secondary_score': max(secondary_gleason_scores)
@@ -82,6 +100,8 @@ class CaseReviewResults(APIView):
         if len(reviews_map) == 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         scores = self._get_scores(reviews_map)
+        if len(scores) == 0:
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(scores, status=status.HTTP_200_OK)
 
 
