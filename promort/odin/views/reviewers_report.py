@@ -1,4 +1,6 @@
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -8,7 +10,7 @@ from odin.permissions import CanEnterGodMode
 
 from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation
 
-from promort.settings import DEFAULT_GROUPS
+from promort.settings import DEFAULT_GROUPS, EMAIL_HOST_USER, REPORT_RECIPIENTS
 
 from collections import Counter
 
@@ -65,3 +67,68 @@ class ReviewersDetails(APIView):
     def get(self, request, format=None):
         infos_map = self._get_reviewers_details()
         return Response(infos_map, status=status.HTTP_200_OK)
+
+
+class ReviewersDetailsReport(ReviewersDetails):
+
+    def _get_user_details(self, username):
+        user_obj = User.objects.get(username=username)
+        return {
+            'name': user_obj.first_name,
+            'surname': user_obj.last_name,
+            'email': user_obj.email
+        }
+
+
+    def _get_template_context(self, user_details, reviews_details):
+        tmpl_ctx = {
+            'assigned_rois_reviews': reviews_details['roi_annotations']['assigned_reviews'],
+            'assigned_clinical_reviews': reviews_details['clinical_annotations']['assigned_reviews']
+        }
+        if tmpl_ctx['assigned_rois_reviews'] > 0:
+            tmpl_ctx.update({
+                'completed_rois_reviews': reviews_details['roi_annotations']['completed_reviews'],
+                'not_completed_rois_reviews': reviews_details['roi_annotations']['not_completed_reviews'],
+                'rois_annotated_slides': reviews_details['roi_annotations']['slides_details']['completed'],
+                'rois_not_annotated_slides': reviews_details['roi_annotations']['slides_details']['not_completed']
+            })
+        if tmpl_ctx['assigned_clinical_reviews'] > 0:
+            tmpl_ctx.update({
+                'completed_completed_reviews': reviews_details['clinical_annotations']['completed_reviews'],
+                'not_completed_clinical_reviews': reviews_details['clinical_annotations']['not_completed_reviews'],
+                'clinical_annotated_slides': reviews_details['clinical_annotations']['slides_details']['completed'],
+                'clinical_not_annotated_slides':
+                    reviews_details['clinical_annotations']['slides_details']['not_completed']
+            })
+        tmpl_ctx.update(user_details)
+        return tmpl_ctx
+
+    def _send_mail(self, reviewer, reviews_details, mail_template):
+        usr_details = self._get_user_details(reviewer)
+        destination_mail = usr_details.pop('email')
+        template_ctx = self._get_template_context(usr_details, reviews_details)
+
+        subject = '[ProMort] Reviewer activity report'
+        from_email = EMAIL_HOST_USER
+        bcc_mails = REPORT_RECIPIENTS
+
+        msg = EmailMultiAlternatives(subject=subject, body='', from_email=from_email, to=[destination_mail],
+                               bcc=bcc_mails)
+        msg.attach_alternative(mail_template.render(template_ctx), 'text/html')
+        logger.info('Sending mail to %s', destination_mail)
+        msg.send()
+
+    def get(self, request, format=None):
+        mail_template = get_template('reviewer_report.html')
+
+        send_mail_status = dict()
+
+        reviews_map = self._get_reviewers_details()
+        for reviewer, annotations_details in reviews_map.iteritems():
+            try:
+                self._send_mail(reviewer, annotations_details, mail_template)
+                send_mail_status[reviewer] = True
+            except:
+                send_mail_status[reviewer] = False
+
+        return Response(send_mail_status, status=status.HTTP_200_OK)
