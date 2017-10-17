@@ -1,0 +1,36 @@
+<p>
+    Dear {{ name }} {{ surname }},<br>
+    this is an automatically generated message containing the report of your reviews
+    on the ProMort system.
+</p>
+<p>
+    This is the state of your reviews, generated on {% now "d/m/Y H:i" %}
+    <br>
+    <br>
+    {%  if assigned_rois_reviews > 0 %}
+    <div>
+        <strong>ROIs Reviews</strong>
+        <ul>
+            <li>Assigned reviews: {{ assigned_rois_reviews }}</li>
+            <li>Completed reviews: {{ completed_rois_reviews }}</li>
+            <li>Not completed reviews: {{ not_completed_rois_reviews }}</li>
+            <li>Annotated slides: {{ rois_annotated_slides }}</li>
+            <li>Not annotated slides: {{ rois_not_annotated_slides }}</li>
+        </ul>
+    </div>
+    <br>
+    {% endif %}
+
+    {%  if assigned_clinical_reviews > 0 %}
+    <div>
+        <strong>Clinical Reviews</strong>
+        <ul>
+            <li>Assigned reviews: {{ assigned_clinical_reviews }}</li>
+            <li>Completed reviews: {{ completed_clinical_reviews }}</li>
+            <li>Not completed reviews: {{ not_completed_clinical_reviews }}</li>
+            <li>Annotated slides: {{ clinical_annotated_slides }}</li>
+            <li>Not annotated slides: {{ clinical_not_annotated_slides }}</li>
+        </ul>
+    </div>
+    {% endif %}
+</p>
