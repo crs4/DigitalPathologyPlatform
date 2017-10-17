@@ -103,7 +103,7 @@ class ReviewersDetailsReport(ReviewersDetails):
         tmpl_ctx.update(user_details)
         return tmpl_ctx
 
-    def _send_mail(self, reviewer, reviews_details, mail_template):
+    def _send_mail(self, reviewer, reviews_details, text_mail_template, html_mail_template):
         usr_details = self._get_user_details(reviewer)
         destination_mail = usr_details.pop('email')
         template_ctx = self._get_template_context(usr_details, reviews_details)
@@ -112,21 +112,22 @@ class ReviewersDetailsReport(ReviewersDetails):
         from_email = EMAIL_HOST_USER
         bcc_mails = REPORT_RECIPIENTS
 
-        msg = EmailMultiAlternatives(subject=subject, body='', from_email=from_email, to=[destination_mail],
-                               bcc=bcc_mails)
-        msg.attach_alternative(mail_template.render(template_ctx), 'text/html')
+        msg = EmailMultiAlternatives(subject=subject, body=text_mail_template.render(template_ctx),
+                                     from_email=from_email, to=[destination_mail], bcc=bcc_mails)
+        msg.attach_alternative(html_mail_template.render(template_ctx), 'text/html')
         logger.info('Sending mail to %s', destination_mail)
         msg.send()
 
     def get(self, request, format=None):
-        mail_template = get_template('reviewer_report.html')
+        text_template = get_template('reviewer_report.txt')
+        html_template = get_template('reviewer_report.html')
 
         send_mail_status = dict()
 
         reviews_map = self._get_reviewers_details()
         for reviewer, annotations_details in reviews_map.iteritems():
             try:
-                self._send_mail(reviewer, annotations_details, mail_template)
+                self._send_mail(reviewer, annotations_details, text_template, html_template)
                 send_mail_status[reviewer] = True
             except:
                 send_mail_status[reviewer] = False
