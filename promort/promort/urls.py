@@ -139,7 +139,11 @@ urlpatterns = [
     # clinical reviews report tools
     url(r'api/odin/reviews/(?P<case>[\w\-.]+)/score/$', od.CaseReviewResults.as_view()),
     url(r'api/odin/reviews/(?P<case>[\w\-.]+)/score/details/$', od.CaseReviewResultsDetails.as_view()),
-    
+
+    # reviewers activity report
+    url(r'api/odin/reviewers_report/$', od.ReviewersDetails.as_view()),
+    url(r'api/odin/reviewers_report/send/$', od.ReviewersDetailsReport.as_view()),
+
     # Django admin
     url(r'^admin/', include(admin.site.urls)),
 

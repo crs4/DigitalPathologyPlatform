@@ -1,0 +1,25 @@
+Dear {{ name }} {{ surname }},
+
+this is an automatically generated message containing the report of your reviews on the ProMort system.
+
+This is the state of your reviews, generated on {% now "d/m/Y H:i" %}
+
+{%  if assigned_rois_reviews > 0 %}
+ROIs Reviews
+
+* Assigned reviews: {{ assigned_rois_reviews }}
+* Completed reviews: {{ completed_rois_reviews }}
+* Not completed reviews: {{ not_completed_rois_reviews }}
+* Annotated slides: {{ rois_annotated_slides }}
+* Not annotated slides: {{ rois_not_annotated_slides }}
+{% endif %}
+
+{%  if assigned_clinical_reviews > 0 %}
+Clinical Reviews
+
+* Assigned reviews: {{ assigned_clinical_reviews }}
+* Completed reviews: {{ completed_clinical_reviews }}
+* Not completed reviews: {{ not_completed_clinical_reviews }}
+* Annotated slides: {{ clinical_annotated_slides }}
+* Not annotated slides: {{ clinical_not_annotated_slides }}
+{% endif %}
