@@ -22,6 +22,9 @@ class Command(BaseCommand):
     def _check_reviews_rejection(self, review1, review2):
         return review1.rejected or review2.rejected
 
+    def _is_positive_slide(self, rois_annotation_step):
+        return rois_annotation_step.is_positive()
+
     def _compare_slice_annotations(self, sl_ann_1, sl_ann_2):
         return True
 
@@ -91,19 +94,16 @@ class Command(BaseCommand):
         if not qc_passed:
             logger.info('Bad quality for review 1, stopping comparison')
             return False, qc_passed
+        # check if there is tumor presence on the slide
+        if not self._is_positive_slide(review_1.rois_review_step):
+            logger.info('Negative slide, no need for 3rd review')
+            return True, qc_passed
         # check if at least one of the two reviews was rejected
         rejected = self._check_reviews_rejection(review_1, review_2)
         if rejected:
             logger.info('Al least one review was rejected, stopping comparison')
             return False, qc_passed
         else:
-            # good_match = self._check_slices(review_1, review_2)
-            # if good_match:
-            #     good_match = self._check_cores(review_1, review_2)
-            #     if good_match:
-            #         good_match = self._check_focus_regions(review_1, review_2)
-            #         if good_match:
-            #             return True, qc_passed
             good_match = self._check_cores(review_1, review_2)
             if good_match:
                 return True, qc_passed

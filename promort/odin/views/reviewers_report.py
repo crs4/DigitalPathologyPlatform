@@ -94,7 +94,7 @@ class ReviewersDetailsReport(ReviewersDetails):
             })
         if tmpl_ctx['assigned_clinical_reviews'] > 0:
             tmpl_ctx.update({
-                'completed_completed_reviews': reviews_details['clinical_annotations']['completed_reviews'],
+                'completed_clinical_reviews': reviews_details['clinical_annotations']['completed_reviews'],
                 'not_completed_clinical_reviews': reviews_details['clinical_annotations']['not_completed_reviews'],
                 'clinical_annotated_slides': reviews_details['clinical_annotations']['slides_details']['completed'],
                 'clinical_not_annotated_slides':

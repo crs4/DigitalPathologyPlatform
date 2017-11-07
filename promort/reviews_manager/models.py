@@ -91,6 +91,12 @@ class ROIsAnnotationStep(models.Model):
         else:
             raise IntegrityError('ROIs annotation step can\'t be reopened')
 
+    def is_positive(self):
+        for slice in self.slices.all():
+            if slice.is_positive():
+                return True
+        return False
+
 
 class ClinicalAnnotation(models.Model):
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT,
