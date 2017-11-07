@@ -17,6 +17,12 @@ class Slice(models.Model):
     class Meta:
         unique_together = ('label', 'annotation_step')
 
+    def is_positive(self):
+        for core in self.cores.all():
+            if core.is_positive():
+                return True
+        return False
+
     def get_positive_cores_count(self):
         positive_cores_counter = 0
         for core in self.cores.all():
