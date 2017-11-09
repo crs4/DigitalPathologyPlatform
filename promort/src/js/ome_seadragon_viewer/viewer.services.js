@@ -76,6 +76,7 @@
             startPolygonsTool: startPolygonsTool,
             disableActiveTool: disableActiveTool,
             shapeIdAvailable: shapeIdAvailable,
+            getFirstAvailableLabel: getFirstAvailableLabel,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             startFreehandDrawingTool: startFreehandDrawingTool,
@@ -146,6 +147,10 @@
 
         function shapeIdAvailable(shape_label) {
             return this.roisManager.shapeIdAvailable(shape_label);
+        }
+
+        function getFirstAvailableLabel(shape_label_prefix) {
+            return this.roisManager.getFirstAvailableLabel(shape_label_prefix);
         }
         function saveTemporaryPolygon(label_prefix) {
             console.log('Saving temporary polygon');
