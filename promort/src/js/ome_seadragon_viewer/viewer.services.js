@@ -75,6 +75,7 @@
             extendRulerConfig: extendRulerConfig,
             startPolygonsTool: startPolygonsTool,
             disableActiveTool: disableActiveTool,
+            shapeIdAvailable: shapeIdAvailable,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             startFreehandDrawingTool: startFreehandDrawingTool,
@@ -143,6 +144,9 @@
             this.roisManager.disableMouseEvents();
         }
 
+        function shapeIdAvailable(shape_label) {
+            return this.roisManager.shapeIdAvailable(shape_label);
+        }
         function saveTemporaryPolygon(label_prefix) {
             console.log('Saving temporary polygon');
             this.roisManager.saveTemporaryPolygon(label_prefix);
