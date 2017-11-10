@@ -481,6 +481,7 @@
             vm.allModesOff();
             vm._lockRoisTree();
             vm.ui_active_modes['new_core'] = true;
+            $rootScope.$broadcast('core.creation_mode');
         }
 
         function newCoreModeActive() {
@@ -607,7 +608,6 @@
             vm.annotation_step_label = $routeParams.label;
             $scope.$on('slice.creation_mode',
                 function() {
-                    console.log('Getting new shape label');
                     vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('slice');
                 }
             );
@@ -741,8 +741,6 @@
             var $canvas = $('#' + canvas_label);
             $canvas.on('polygon_saved',
                 function(event, polygon_label) {
-                    console.log('Created new shape with label ' + polygon_label);
-                    console.log('Assigned shape label will be ' + vm.shape_label);
                     if (vm.shape_label !== polygon_label) {
                         AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
                         vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
@@ -797,7 +795,7 @@
         function formValid() {
             return (typeof vm.shape !== 'undefined') &&
                 (vm.shape_label.length >= 3 && vm.shape_label.length <= 25) &&
-                ! vm.isEditLabelModeActive();
+                !vm.isEditLabelModeActive();
         }
 
         function save() {
@@ -934,6 +932,7 @@
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.parentSlice = undefined;
+        vm.shape_label = undefined;
         vm.shape = undefined;
         vm.coreLength = undefined;
         vm.coreArea = undefined;
@@ -974,6 +973,12 @@
 
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
+        vm.activateEditLabelMode = activateEditLabelMode;
+        vm.setNewLabel = setNewLabel;
+        vm.deactivateEditLabelMode = deactivateEditLabelMode;
+        vm.abortEditLabelMode = abortEditLabelMode;
+        vm.resetLabel = resetLabel;
+        vm.isEditLabelModeActive = isEditLabelModeActive;
         vm._updateCoreData = _updateCoreData;
         vm.initializeRuler = initializeRuler;
         vm.initializeTumorRuler = initializeTumorRuler;
@@ -987,6 +992,7 @@
         vm.isRulerToolActive = isRulerToolActive;
         vm.isTumorRulerToolActive = isTumorRulerToolActive;
         vm.temporaryShapeExists = temporaryShapeExists;
+        vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.temporaryRulerExists = temporaryRulerExists;
         vm.coreLengthExists = coreLengthExists;
@@ -1025,6 +1031,12 @@
                     vm.initializeTumorRuler();
                 }
             );
+
+            $scope.$on('core.creation_mode',
+                function() {
+                    vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
+                }
+            );
         }
 
         function newPolygon() {
@@ -1056,9 +1068,13 @@
                         if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
                             AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
                             AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            console.log('FREEHAND SAVED ' + vm.shape);
-                            vm._updateCoreData(polygon_label, slices[s]);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
+                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
                             break;
                         }
                     }
@@ -1151,6 +1167,50 @@
             vm.active_tool = vm.TUMOR_RULER_TOOL;
         }
 
+        function activateEditLabelMode() {
+            vm.edit_shape_label = true;
+            vm.previuos_shape_label = vm.shape_label;
+        }
+
+        function setNewLabel() {
+            if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
+                console.log('Label available, assigning to new shape');
+                vm.deactivateEditLabelMode();
+            } else {
+                console.log('Label in use, restoring previous label');
+                vm.abortEditLabelMode();
+                ngDialog.open({
+                    'template': '/static/templates/dialogs/invalid_label.html'
+                });
+            }
+        }
+
+        function deactivateEditLabelMode() {
+            vm.previuos_shape_label = undefined;
+            vm.edit_shape_label = false;
+            // if a shape already exists, change its name
+            if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
+                console.log('updating shape id');
+                AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
+                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                console.log('new shape id is: ' + vm.shape.shape_id);
+            }
+        }
+
+        function abortEditLabelMode() {
+            vm.shape_label = vm.previuos_shape_label;
+            vm.deactivateEditLabelMode();
+        }
+
+        function resetLabel() {
+            vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
+            vm.deactivateEditLabelMode();
+        }
+
+        function isEditLabelModeActive() {
+            return vm.edit_shape_label;
+        }
+
         function isReadOnly() {
             return false;
         }
@@ -1177,6 +1237,11 @@
 
         function temporaryShapeExists() {
             return vm.tmp_shape_exists;
+        }
+
+        function drawInProgress() {
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive()
+                || vm.isRulerToolActive() || vm.isTumorRulerToolActive();
         }
 
         function shapeExists() {
@@ -1221,8 +1286,13 @@
                         if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
                             AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
                             AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            vm._updateCoreData(polygon_label, slices[s]);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
+                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
                             break;
                         }
                     }
@@ -1254,6 +1324,7 @@
             vm.deleteShape(destroy_shape);
             vm.deleteRuler();
             vm.deleteTumorRuler();
+            vm.shape_label = undefined;
         }
 
         function abortTool() {
@@ -1348,7 +1419,9 @@
             }
             // if shape exists, we also have the parent slice and the shape area, we only need to check
             // for coreLength to decide if the form is valid
-            return ((typeof vm.shape !== 'undefined') && (typeof vm.coreLength !== 'undefined'));
+            return (typeof vm.shape !== 'undefined') && (typeof vm.coreLength !== 'undefined') &&
+                (vm.shape_label.length >= 3 && vm.shape_label.length <=25) &&
+                !vm.isEditLabelModeActive();
         }
 
         function save() {

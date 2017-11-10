@@ -3,8 +3,42 @@
         <h4 class="text-right">NEW CORE</h4>
     </div>
     <div class="prm-form-header" ng-show="rmCtrl.isReadOnly()">
-        <!-- TODO: put real core label here -->
         <h4 class="text-right">{{ rmCtrl.label }}</h4>
+    </div>
+    <div class="form-group row" ng-hide="rmCtrl.isReadOnly()">
+        <div class="prm-label-elem">
+            <label>Label</label>
+        </div>
+        <div class="prm-row-elem">
+            <input class="form-control prm-text-input" type="text"  ng-model="rmCtrl.shape_label"
+                   ng-readonly="!rmCtrl.isEditLabelModeActive()">
+        </div>
+    </div>
+    <div class="form-group row" ng-hide="rmCtrl.isEditLabelModeActive() || rmCtrl.isReadOnly()">
+        <div class="prm-row-elem input-group-btn text-right">
+            <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                    ng-click="rmCtrl.activateEditLabelMode()"
+                    ng-disabled="rmCtrl.drawInProgress()">
+                <i class="icon-pen"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                    ng-click="rmCtrl.resetLabel()"
+                    ng-disabled="rmCtrl.drawInProgress()">
+                <i class="icon-trash_can"></i>
+            </button>
+        </div>
+    </div>
+    <div class="form-group row" ng-show="rmCtrl.isEditLabelModeActive() && !rmCtrl.isReadOnly()">
+        <div class="prm-row-elem input-group-btn text-right">
+            <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                    ng-click="rmCtrl.abortEditLabelMode()">
+                <i class="icon-cross_mark"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                ng-click="rmCtrl.setNewLabel()">
+                <i class="icon-check"></i>
+            </button>
+        </div>
     </div>
     <div class="form-group row"
          ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
@@ -13,11 +47,15 @@
             <label>Draw core</label>
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newPolygon()"
+            <button class="btn btn-default prm-icon-btn"
+                    ng-click="rmCtrl.newPolygon()"
+                    ng-disabled="rmCtrl.isEditLabelModeActive()"
                     title="Draw the shape using the polygon drawing tool">
                 <i class="icon-vector"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.newFreehand()"
+            <button class="btn btn-default prm-icon-btn"
+                    ng-click="rmCtrl.newFreehand()"
+                    ng-disabled="rmCtrl.isEditLabelModeActive()"
                     title="Draw the shape using the freehand drawing tool">
                 <i class="icon-vector_pen"></i>
             </button>
@@ -52,12 +90,14 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
-                    ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isTumorRulerToolActive()"
+                    ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isTumorRulerToolActive()
+                     || rmCtrl.isEditLabelModeActive()"
                     ng-hide="rmCtrl.isReadOnly()" title="Delete the shape">
                 <i class="icon-trash_can"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.focusOnShape()"
-                    ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isTumorRulerToolActive()"
+                    ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isTumorRulerToolActive()
+                    || rmCtrl.isEditLabelModeActive()"
                     title="Adapt the viewer to show the shape at the maximum size">
                 <i class="icon-eye"></i>
             </button>
@@ -104,7 +144,8 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button id="core_ruler_on" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.startRuler()"
-                    ng-disabled="rmCtrl.isTumorRulerToolActive()"  title="Use the ruler tool to measure core's length">
+                    ng-disabled="rmCtrl.isTumorRulerToolActive() || rmCtrl.isEditLabelModeActive()"
+                    title="Use the ruler tool to measure core's length">
                 <i class="icon-measure"></i>
             </button>
         </div>
@@ -124,7 +165,7 @@
             <div class="input-group-btn">
                 <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-hide="rmCtrl.isRulerToolActive() || rmCtrl.isReadOnly()"
-                        ng-disabled="rmCtrl.isTumorRulerToolActive()"
+                        ng-disabled="rmCtrl.isTumorRulerToolActive() || rmCtrl.isEditLabelModeActive()"
                         ng-click="rmCtrl.deleteRuler()" title="Delete the measure">
                     <i class="icon-trash_can"></i>
                 </button>
@@ -155,7 +196,8 @@
         </div><!--
      --><div class="col-sm-6 prm-valign prm-form-elem">
             <button id="tumor_ruler_on" class="btn btn-default prm-icon-btn" ng-click="rmCtrl.startTumorRuler()"
-                    ng-disabled="rmCtrl.isRulerToolActive()" title="Use the ruler tool to measure tumor's length">
+                    ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isEditLabelModeActive()"
+                    title="Use the ruler tool to measure tumor's length">
                 <i class="icon-measure"></i>
             </button>
         </div>
@@ -175,7 +217,8 @@
             <div class="input-group-btn">
                 <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-hide="rmCtrl.isTumorRulerToolActive() || rmCtrl.isReadOnly()"
-                        ng-disabled="rmCtrl.isRulerToolActive()" ng-click="rmCtrl.deleteTumorRuler()"
+                        ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isEditLabelModeActive()"
+                        ng-click="rmCtrl.deleteTumorRuler()"
                         title="Delete the measure">
                     <i class="icon-trash_can"></i>
                 </button>
