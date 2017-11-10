@@ -502,6 +502,7 @@
             vm.allModesOff();
             vm._lockRoisTree();
             vm.ui_active_modes['new_focus_region'] = true;
+            $rootScope.$broadcast('focus_region.creation_mode');
         }
 
         function newFocusRegionModeActive() {
@@ -1629,6 +1630,7 @@
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.parentCore = undefined;
+        vm.shape_label = undefined;
         vm.shape = undefined;
         vm.regionLength = undefined;
         vm.regionArea = undefined;
@@ -1669,6 +1671,12 @@
         vm.switchShapeColor = switchShapeColor;
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
+        vm.activateEditLabelMode = activateEditLabelMode;
+        vm.setNewLabel = setNewLabel;
+        vm.deactivateEditLabelMode = deactivateEditLabelMode;
+        vm.abortEditLabelMode = abortEditLabelMode;
+        vm.resetLabel = resetLabel;
+        vm.isEditLabelModeActive = isEditLabelModeActive;
         vm._updateFocusRegionData = _updateFocusRegionData;
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
@@ -1679,6 +1687,7 @@
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isRulerToolActive = isRulerToolActive;
         vm.temporaryShapeExists = temporaryShapeExists;
+        vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.temporaryRulerExists = temporaryRulerExists;
         vm.regionLengthExists = regionLengthExists;
@@ -1708,6 +1717,12 @@
             $scope.$on('viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
+                }
+            );
+
+            $scope.$on('focus_region.creation_mode',
+                function() {
+                    vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
                 }
             );
         }
@@ -1758,8 +1773,13 @@
                         if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
                             AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
                             AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            vm._updateFocusRegionData(polygon_label, cores[c]);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
+                            vm._updateFocusRegionData(vm.shape.shape_id, cores[c]);
                             break;
                         }
                     }
@@ -1817,6 +1837,50 @@
             vm.active_tool = vm.RULER_TOOL;
         }
 
+        function activateEditLabelMode() {
+            vm.edit_shape_label = true;
+            vm.previuos_shape_label = vm.shape_label;
+        }
+
+        function setNewLabel() {
+            if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
+                console.log('Label available, assigning to new shape');
+                vm.deactivateEditLabelMode();
+            } else {
+                console.log('Label in use, restoring previous label');
+                vm.abortEditLabelMode();
+                ngDialog.open({
+                    'template': '/static/templates/dialogs/invalid_label.html'
+                });
+            }
+        }
+
+        function deactivateEditLabelMode() {
+            vm.previuos_shape_label = undefined;
+            vm.edit_shape_label = false;
+            // if a shape already exists, change its name
+            if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
+                console.log('updating shape id');
+                AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
+                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                console.log('new shape id is: ' + vm.shape.shape_id);
+            }
+        }
+
+        function abortEditLabelMode() {
+            vm.shape_label = vm.previuos_shape_label;
+            vm.deactivateEditLabelMode();
+        }
+
+        function resetLabel() {
+            vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
+            vm.deactivateEditLabelMode();
+        }
+
+        function isEditLabelModeActive() {
+            return vm.edit_shape_label;
+        }
+
         function isReadOnly() {
             return false;
         }
@@ -1843,6 +1907,11 @@
 
         function shapeExists() {
             return vm.shape !== undefined;
+        }
+
+        function drawInProgress() {
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive()
+                || vm.isRulerToolActive();
         }
 
         function temporaryRulerExists() {
@@ -1873,7 +1942,12 @@
                         if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
                             AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
                             AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
                             vm._updateFocusRegionData(polygon_label, cores[c]);
                             break;
                         }
@@ -1899,6 +1973,7 @@
             vm.deleteShape(destroy_shape);
             vm.deleteRuler();
             vm.isTumor = false;
+            vm.shape_label = undefined;
         }
 
         function abortTool() {
@@ -1994,7 +2069,9 @@
             if (vm.isRulerToolActive()) {
                 return false;
             }
-            return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined'));
+            return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined')) &&
+                (vm.shape_label.length >= 3 && vm.shape_label.length <= 40) &&
+                !vm.isEditLabelModeActive();
         }
 
         function updateRegionArea() {
