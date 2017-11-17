@@ -556,6 +556,7 @@
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.annotation_step_label = undefined;
+        vm.default_shape_label = undefined;
         vm.shape_label = undefined;
         vm.shape = undefined;
         vm.totalCores = 0;
@@ -609,7 +610,8 @@
             vm.annotation_step_label = $routeParams.label;
             $scope.$on('slice.creation_mode',
                 function() {
-                    vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('slice');
+                    vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('slice');
+                    vm.shape_label = vm.default_shape_label;
                 }
             );
         }
@@ -691,7 +693,7 @@
         }
 
         function resetLabel() {
-            vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('slice');
+            vm.shape_label = vm.default_shape_label;
             vm.deactivateEditLabelMode();
         }
 
@@ -758,6 +760,7 @@
             vm.deleteShape(destroy_shape);
             vm.totalCores = 0;
             vm.shape_label = undefined;
+            vm.default_shape_label = undefined;
         }
 
         function abortTool() {
@@ -934,6 +937,7 @@
         vm.case_id = undefined;
         vm.parentSlice = undefined;
         vm.shape_label = undefined;
+        vm.default_shape_label = undefined;
         vm.shape = undefined;
         vm.coreLength = undefined;
         vm.coreArea = undefined;
@@ -1035,7 +1039,8 @@
 
             $scope.$on('core.creation_mode',
                 function() {
-                    vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
+                    vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
+                    vm.shape_label = vm.default_shape_label;
                 }
             );
         }
@@ -1204,7 +1209,7 @@
         }
 
         function resetLabel() {
-            vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
+            vm.shape_label = vm.default_shape_label;
             vm.deactivateEditLabelMode();
         }
 
@@ -1326,6 +1331,7 @@
             vm.deleteRuler();
             vm.deleteTumorRuler();
             vm.shape_label = undefined;
+            vm.default_shape_label = undefined;
         }
 
         function abortTool() {
@@ -1631,6 +1637,7 @@
         vm.case_id = undefined;
         vm.parentCore = undefined;
         vm.shape_label = undefined;
+        vm.default_shape_label = undefined;
         vm.shape = undefined;
         vm.regionLength = undefined;
         vm.regionArea = undefined;
@@ -1722,7 +1729,8 @@
 
             $scope.$on('focus_region.creation_mode',
                 function() {
-                    vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
+                    vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
+                    vm.shape_label = vm.default_shape_label;
                 }
             );
         }
@@ -1873,7 +1881,7 @@
         }
 
         function resetLabel() {
-            vm.shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
+            vm.shape_label = vm.default_shape_label;
             vm.deactivateEditLabelMode();
         }
 
@@ -1974,6 +1982,7 @@
             vm.deleteRuler();
             vm.isTumor = false;
             vm.shape_label = undefined;
+            vm.default_shape_label = undefined;
         }
 
         function abortTool() {
