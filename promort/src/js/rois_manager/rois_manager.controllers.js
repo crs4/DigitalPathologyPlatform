@@ -663,15 +663,20 @@
         }
 
         function setNewLabel() {
-            if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                console.log('Label available, assigning to new shape');
+            if (vm.shape_label === vm.shape.shape_id) {
+                console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
-                console.log('Label in use, restoring previous label');
-                vm.abortEditLabelMode();
-                ngDialog.open({
-                    'template': '/static/templates/dialogs/invalid_label.html'
-                });
+                if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
+                    console.log('Label available, assigning to new shape');
+                    vm.deactivateEditLabelMode();
+                } else {
+                    console.log('Label in use, restoring previous label');
+                    vm.abortEditLabelMode();
+                    ngDialog.open({
+                        'template': '/static/templates/dialogs/invalid_label.html'
+                    });
+                }
             }
         }
 
@@ -1179,15 +1184,20 @@
         }
 
         function setNewLabel() {
-            if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                console.log('Label available, assigning to new shape');
+            if (vm.shape_label === vm.shape.shape_id ){
+                console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
-                console.log('Label in use, restoring previous label');
-                vm.abortEditLabelMode();
-                ngDialog.open({
-                    'template': '/static/templates/dialogs/invalid_label.html'
-                });
+                if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
+                    console.log('Label available, assigning to new shape');
+                    vm.deactivateEditLabelMode();
+                } else {
+                    console.log('Label in use, restoring previous label');
+                    vm.abortEditLabelMode();
+                    ngDialog.open({
+                        'template': '/static/templates/dialogs/invalid_label.html'
+                    });
+                }
             }
         }
 
@@ -1851,15 +1861,20 @@
         }
 
         function setNewLabel() {
-            if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                console.log('Label available, assigning to new shape');
+            if (vm.shape_label === vm.shape.shape_id) {
+                console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
-                console.log('Label in use, restoring previous label');
-                vm.abortEditLabelMode();
-                ngDialog.open({
-                    'template': '/static/templates/dialogs/invalid_label.html'
-                });
+                if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
+                    console.log('Label available, assigning to new shape');
+                    vm.deactivateEditLabelMode();
+                } else {
+                    console.log('Label in use, restoring previous label');
+                    vm.abortEditLabelMode();
+                    ngDialog.open({
+                        'template': '/static/templates/dialogs/invalid_label.html'
+                    });
+                }
             }
         }
 
