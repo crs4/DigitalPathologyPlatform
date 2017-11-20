@@ -579,6 +579,7 @@
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm.activateEditLabelMode = activateEditLabelMode;
+        vm.labelValid = labelValid;
         vm.setNewLabel = setNewLabel;
         vm.deactivateEditLabelMode = deactivateEditLabelMode;
         vm.abortEditLabelMode = abortEditLabelMode;
@@ -660,6 +661,11 @@
         function activateEditLabelMode() {
             vm.edit_shape_label = true;
             vm.previuos_shape_label = vm.shape_label;
+        }
+
+        function labelValid() {
+            return ((typeof vm.shape_label !== 'undefined') &&
+                (vm.shape_label.length > 0 && vm.shape_label.length <= 25));
         }
 
         function setNewLabel() {
@@ -802,9 +808,7 @@
         }
 
         function formValid() {
-            return (typeof vm.shape !== 'undefined') &&
-                (vm.shape_label.length >= 3 && vm.shape_label.length <= 25) &&
-                !vm.isEditLabelModeActive();
+            return (typeof vm.shape !== 'undefined') && !vm.isEditLabelModeActive();
         }
 
         function save() {
@@ -984,6 +988,7 @@
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm.activateEditLabelMode = activateEditLabelMode;
+        vm.labelValid = labelValid;
         vm.setNewLabel = setNewLabel;
         vm.deactivateEditLabelMode = deactivateEditLabelMode;
         vm.abortEditLabelMode = abortEditLabelMode;
@@ -1181,6 +1186,11 @@
         function activateEditLabelMode() {
             vm.edit_shape_label = true;
             vm.previuos_shape_label = vm.shape_label;
+        }
+
+        function labelValid() {
+            return ((typeof vm.shape_label !== 'undefined') &&
+                (vm.shape_label.length > 0 && vm.shape_label.length <= 25));
         }
 
         function setNewLabel() {
@@ -1437,7 +1447,6 @@
             // if shape exists, we also have the parent slice and the shape area, we only need to check
             // for coreLength to decide if the form is valid
             return (typeof vm.shape !== 'undefined') && (typeof vm.coreLength !== 'undefined') &&
-                (vm.shape_label.length >= 3 && vm.shape_label.length <=25) &&
                 !vm.isEditLabelModeActive();
         }
 
@@ -1689,6 +1698,7 @@
         vm.newPolygon = newPolygon;
         vm.newFreehand = newFreehand;
         vm.activateEditLabelMode = activateEditLabelMode;
+        vm.labelValid = labelValid;
         vm.setNewLabel = setNewLabel;
         vm.deactivateEditLabelMode = deactivateEditLabelMode;
         vm.abortEditLabelMode = abortEditLabelMode;
@@ -1858,6 +1868,11 @@
         function activateEditLabelMode() {
             vm.edit_shape_label = true;
             vm.previuos_shape_label = vm.shape_label;
+        }
+
+        function labelValid() {
+            return ((typeof vm.shape_label !== 'undefined') &&
+                (vm.shape_label.length > 0 && vm.shape_label.length <= 40));
         }
 
         function setNewLabel() {
@@ -2094,7 +2109,6 @@
                 return false;
             }
             return ((typeof vm.shape !== 'undefined') && (typeof vm.regionLength !== 'undefined')) &&
-                (vm.shape_label.length >= 3 && vm.shape_label.length <= 40) &&
                 !vm.isEditLabelModeActive();
         }
 

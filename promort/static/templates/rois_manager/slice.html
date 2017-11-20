@@ -35,7 +35,8 @@
                 <i class="icon-cross_mark"></i>
             </button>
             <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
-                ng-click="rmCtrl.setNewLabel()">
+                    ng-disabled="!rmCtrl.labelValid()"
+                    ng-click="rmCtrl.setNewLabel()">
                 <i class="icon-check"></i>
             </button>
         </div>
