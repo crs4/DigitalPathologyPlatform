@@ -669,7 +669,7 @@
         }
 
         function setNewLabel() {
-            if (vm.shape_label === vm.shape.shape_id) {
+            if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
                 console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
@@ -1194,7 +1194,7 @@
         }
 
         function setNewLabel() {
-            if (vm.shape_label === vm.shape.shape_id ){
+            if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id){
                 console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
@@ -1876,7 +1876,7 @@
         }
 
         function setNewLabel() {
-            if (vm.shape_label === vm.shape.shape_id) {
+            if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
                 console.log('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
