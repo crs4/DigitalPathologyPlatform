@@ -35,7 +35,7 @@ AnnotationsEventsController.prototype.initializeCellularCountHelperTool = functi
 
         this.annotation_controller.serializeHelperBox = function () {
             var helper_box_json = this.getShapeJSON(this.tmp_helper_id);
-            helper_box_json.shape_id = this._getShapeId('cc_helper');
+            helper_box_json.shape_id = this.getFirstAvailableLabel('cc_helper');
             this.deleteHelperBox();
             $("#" + this.canvas_id).trigger('cellular_count_helper.saved',
                 [helper_box_json]);
