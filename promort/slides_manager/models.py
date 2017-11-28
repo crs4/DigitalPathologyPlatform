@@ -16,6 +16,7 @@ class Case(models.Model):
     laboratory = models.ForeignKey(Laboratory, on_delete=models.PROTECT, related_name='cases',
                                    default=None, blank=True, null=True)
 
+
 class Slide(models.Model):
     STAINING = (
         ('HE', 'H&E'),

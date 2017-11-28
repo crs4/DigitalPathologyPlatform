@@ -19,9 +19,6 @@ class ROIsAnnotation(models.Model):
     completion_date = models.DateTimeField(blank=True, null=True,
                                            default=None)
 
-    class Meta:
-        unique_together = ('reviewer', 'case')
-
     def is_started(self):
         return not(self.start_date is None)
 

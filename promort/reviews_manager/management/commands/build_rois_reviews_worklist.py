@@ -23,15 +23,16 @@ class Command(BaseCommand):
         return Case.objects.all()
 
     def _create_rois_annotation(self, case_obj, reviewer_obj):
-        logger.info('Assigning review to user %s', reviewer_obj.username)
-        annotation_obj = ROIsAnnotation(case=case_obj, reviewer=reviewer_obj,
-                                        label=uuid4().hex)
         try:
+            annotation_obj = ROIsAnnotation.objects.get(case=case_obj)
+            logger.info('There is already a ROIs Annotation object (label %s) and it\'s assigned to %s',
+                        annotation_obj.label, annotation_obj.reviewer.username)
+        except ROIsAnnotation.DoesNotExist:
+            annotation_obj = ROIsAnnotation(case=case_obj, reviewer=reviewer_obj,
+                                            label=uuid4().hex)
             annotation_obj.save()
-            logger.info('Saved new ROIs Annotation with label %s', annotation_obj.label)
-        except IntegrityError:
-            annotation_obj = ROIsAnnotation.objects.get(case=case_obj, reviewer=reviewer_obj)
-            logger.info('There is already a ROIs Annotation object (label %s)', annotation_obj.label)
+            logger.info('Saved new ROIs Annotation with label %s and assigne to %s',
+                        annotation_obj.label, reviewer_obj.username)
         return annotation_obj
 
     def _get_annotation_step_label(self, annotation_label, slide_label):
