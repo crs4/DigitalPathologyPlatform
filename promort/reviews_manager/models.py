@@ -58,6 +58,20 @@ class ROIsAnnotationStep(models.Model):
     class Meta:
         unique_together = ('rois_annotation', 'slide')
 
+    @property
+    def cores(self):
+        cores = []
+        for slice in self.slices.all():
+            cores.extend(slice.cores.all())
+        return cores
+
+    @property
+    def focus_regions(self):
+        focus_regions = []
+        for core in self.cores:
+            focus_regions.extend(core.focus_regions.all())
+        return focus_regions
+
     def is_started(self):
         return not(self.start_date is None)
 
