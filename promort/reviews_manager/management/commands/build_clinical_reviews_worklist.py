@@ -42,7 +42,7 @@ class Command(BaseCommand):
         clinical_annotation_obj = ClinicalAnnotation(label=annotation_label, reviewer=reviewer_obj,
                                                      case=rois_annotation_obj.case, rois_review=rois_annotation_obj)
         clinical_annotation_obj.save()
-        logger.info('Save Clinical Anntoation with label %s', clinical_annotation_obj.label)
+        logger.info('Saved Clinical Annotation with label %s', clinical_annotation_obj.label)
         return clinical_annotation_obj
 
     def _get_annotation_step_label(self, annotation_label, slide_label):
