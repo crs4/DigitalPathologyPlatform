@@ -19,7 +19,6 @@ class Command(BaseCommand):
         return rois_manager_group.user_set.all()
 
     def _get_cases_list(self):
-        # TODO: check if filtering is needed at this point
         return Case.objects.all()
 
     def _create_rois_annotation(self, case_obj, reviewer_obj):

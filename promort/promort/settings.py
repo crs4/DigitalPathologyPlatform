@@ -45,7 +45,8 @@ INSTALLED_APPS = (
     'worklist_manager',
     'rois_manager',
     'clinical_annotations_manager',
-    'odin'
+    'odin',
+    'utils'
 )
 
 MIDDLEWARE_CLASSES = (
