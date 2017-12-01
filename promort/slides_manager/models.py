@@ -59,3 +59,34 @@ class SlideQualityControl(models.Model):
     notes = models.TextField(blank=True, null=True)
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     acquisition_date = models.DateTimeField(auto_now_add=True)
+
+
+class SlideEvaluation(models.Model):
+    from reviews_manager.models import ROIsAnnotationStep
+
+    NOT_ADEQUACY_REASONS_CHOICES = (
+        ('BAD_TILES', 'Bad tiles stitching'),
+        ('BAD_FOCUS', 'Non uniform focus'),
+        ('DMG_SMP', 'Damaged samples'),
+        ('OTHER', 'Other (see notes)')
+    )
+
+    STAINING_CHOICES = (
+        ('HE', 'H&E'),
+        ('TRI', 'Trichrome')
+    )
+
+    slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
+                              blank=False, unique=False)
+    rois_annotation_step = models.OneToOneField(ROIsAnnotationStep, on_delete=models.PROTECT,
+                                                blank=False, unique=True)
+                                                # related_name='slide_quality_control')
+    staining = models.CharField(max_length=3, choices=STAINING_CHOICES, blank=False)
+    adequate_slide = models.BooleanField(blank=False)
+    not_adequacy_reason = models.CharField(
+        max_length=10, choices=NOT_ADEQUACY_REASONS_CHOICES,
+        blank=True, null=True, default=None
+    )
+    notes = models.TextField(blank=True, null=True)
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
+    acquisition_date = models.DateTimeField(auto_now_add=True)
