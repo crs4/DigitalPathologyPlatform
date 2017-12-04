@@ -79,8 +79,8 @@ class SlideEvaluation(models.Model):
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
                               blank=False, unique=False)
     rois_annotation_step = models.OneToOneField(ROIsAnnotationStep, on_delete=models.PROTECT,
-                                                blank=False, unique=True)
-                                                # related_name='slide_quality_control')
+                                                blank=False, unique=True,
+                                                related_name='slide_evaluation')
     staining = models.CharField(max_length=3, choices=STAINING_CHOICES, blank=False)
     adequate_slide = models.BooleanField(blank=False)
     not_adequacy_reason = models.CharField(

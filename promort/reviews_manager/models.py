@@ -84,7 +84,7 @@ class ROIsAnnotationStep(models.Model):
     def can_reopen(self):
         if not self.is_completed():
             return False
-        if not self.slide_quality_control.adequate_slide:
+        if not self.slide_evaluation.adequate_slide:
             return False
         for cs in self.clinical_annotation_steps.all():
             if cs.label != self.label and cs.is_started():
