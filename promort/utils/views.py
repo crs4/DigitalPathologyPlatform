@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 import promort.settings as prs
-from slides_manager.models import Slide, SlideQualityControl
+from slides_manager.models import Slide, SlideEvaluation
 from clinical_annotations_manager.models import ClinicalAnnotationStep
 
 import logging
@@ -40,7 +40,7 @@ def get_slide_qc_not_adequacy_reasons(request):
         {
             'value': ch[0],
             'text': ch[1]
-        } for ch in SlideQualityControl.NOT_ADEQUACY_REASONS_CHOICES
+        } for ch in SlideEvaluation.NOT_ADEQUACY_REASONS_CHOICES
     ]
     return Response(not_adequacy_reasons_map, status=status.HTTP_200_OK)
 
