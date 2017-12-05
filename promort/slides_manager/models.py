@@ -18,10 +18,6 @@ class Case(models.Model):
 
 
 class Slide(models.Model):
-    STAINING = (
-        ('HE', 'H&E'),
-        ('TRI', 'Trichrome')
-    )
     id = models.CharField(max_length=25, primary_key=True)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False, related_name='slides')
@@ -31,13 +27,9 @@ class Slide(models.Model):
     image_type = models.CharField(max_length=15, blank=True,
                                   null=True)
     image_microns_per_pixel = models.FloatField(default=0.0)
-    staining = models.CharField(
-        max_length=5, choices=STAINING, blank=True,
-        null=True, default=None
-    )
 
 
-class SlideQualityControl(models.Model):
+class SlideEvaluation(models.Model):
     from reviews_manager.models import ROIsAnnotationStep
 
     NOT_ADEQUACY_REASONS_CHOICES = (
@@ -46,11 +38,18 @@ class SlideQualityControl(models.Model):
         ('DMG_SMP', 'Damaged samples'),
         ('OTHER', 'Other (see notes)')
     )
+
+    STAINING_CHOICES = (
+        ('HE', 'H&E'),
+        ('TRI', 'Trichrome')
+    )
+
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
                               blank=False, unique=False)
     rois_annotation_step = models.OneToOneField(ROIsAnnotationStep, on_delete=models.PROTECT,
                                                 blank=False, unique=True,
-                                                related_name='slide_quality_control')
+                                                related_name='slide_evaluation')
+    staining = models.CharField(max_length=3, choices=STAINING_CHOICES, blank=False)
     adequate_slide = models.BooleanField(blank=False)
     not_adequacy_reason = models.CharField(
         max_length=10, choices=NOT_ADEQUACY_REASONS_CHOICES,

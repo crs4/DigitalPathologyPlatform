@@ -103,8 +103,8 @@
                     $location.url('worklist/rois_annotations/' + vm.annotation_label);
                 }
 
-                if (response.data.slide_quality_control !== null &&
-                    response.data.slide_quality_control.adequate_slide) {
+                if (response.data.slide_evaluation !== null &&
+                    response.data.slide_evaluation.adequate_slide) {
 
                     // shut down creation forms when specific events occur
                     $scope.$on('tool.destroyed',

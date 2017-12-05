@@ -6,7 +6,7 @@ import logging
 from csv import DictWriter
 
 from rois_manager.models import Slice, Core, FocusRegion
-from slides_manager.models import SlideQualityControl
+from slides_manager.models import SlideEvaluation
 from clinical_annotations_manager.models import GleasonElement
 
 
@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
     def _export_bad_quality_slides(self, output_folder):
         logger.info('Loading quality control data')
-        bad_qc = SlideQualityControl.objects.filter(adequate_slide=False)
+        bad_qc = SlideEvaluation.objects.filter(adequate_slide=False)
         logger.debug('Bad Quality control found: %d', len(bad_qc))
         logger.info('Saving bad quality control data')
         with open(os.path.join(output_folder, 'bad_quality_control.csv'), 'w') as ofile:

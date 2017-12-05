@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from slides_manager.models import Laboratory, Case, Slide, SlideQualityControl
+from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation
 from reviews_manager.models import ROIsAnnotationStep
 
 
@@ -33,11 +33,11 @@ class SlideSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 
 
-class SlideQualityControlSerializer(serializers.ModelSerializer):
+class SlideEvaluationSerializer(serializers.ModelSerializer):
     reviewer = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all(),
@@ -52,9 +52,9 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = SlideQualityControl
+        model = SlideEvaluation
 
-        fields = ('slide', 'rois_annotation_step', 'adequate_slide', 'not_adequacy_reason',
+        fields = ('slide', 'rois_annotation_step', 'staining', 'adequate_slide', 'not_adequacy_reason',
                   'reviewer', 'acquisition_date', 'notes')
         read_only_fields = ('acquisition_date',)
 
@@ -86,6 +86,6 @@ class SlideDetailSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 

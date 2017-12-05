@@ -5,7 +5,7 @@
         .module('promort.slides_manager.services')
         .factory('CurrentSlideDetailsService', CurrentSlideDetailsService)
         .factory('SlideService', SlideService)
-        .factory('QualityControlService', QualityControlService);
+        .factory('SlideEvaluationService', SlideEvaluationService);
 
     CurrentSlideDetailsService.$inject = ['$http'];
 
@@ -53,9 +53,7 @@
 
     function SlideService($http) {
         var SlideService = {
-            get: get,
-            fetchStainings: fetchStainings,
-            updateSliceStaining: updateSliceStaining
+            get: get
         };
 
         return SlideService;
@@ -63,41 +61,36 @@
         function get(slide_id) {
             return $http.get('api/slides/' + slide_id + '/');
         }
-
-        function fetchStainings() {
-            return $http.get('api/utils/slide_stainings/');
-        }
-
-        function updateSliceStaining(slide_id, staining) {
-            var params = {
-                staining: staining
-            };
-            return $http.put('api/slides/' + slide_id + '/', params);
-        }
     }
 
-    QualityControlService.$inject = ['$http'];
+    SlideEvaluationService.$inject = ['$http'];
 
-    function QualityControlService($http) {
-        var QualityControlService = {
+    function SlideEvaluationService($http) {
+        var SlideEvaluationService = {
             get: get,
             create: create,
+            fetchStainings: fetchStainings,
             fetchNotAdequacyReasons: fetchNotAdequacyReasons
         };
 
-        return QualityControlService;
+        return SlideEvaluationService;
 
         function get(annotation_step_label) {
-            return $http.get('api/rois_annotations/steps/' + annotation_step_label + '/quality_control/');
+            return $http.get('api/rois_annotations/steps/' + annotation_step_label + '/slide_evaluation/');
+        }
+
+        function fetchStainings() {
+            return $http.get('api/utils/slide_stainings/');
         }
         
         function fetchNotAdequacyReasons() {
             return $http.get('api/utils/slide_not_adequacy_reasons/');
         }
 
-        function create(annotation_step_label, adequacy, not_adequancy_reason, notes) {
+        function create(annotation_step_label, staining, adequacy, not_adequancy_reason, notes) {
             var params = {
-                adequate_slide: adequacy
+                adequate_slide: adequacy,
+                staining: staining
             };
             if (not_adequancy_reason) {
                 params.not_adequacy_reason = not_adequancy_reason;
@@ -106,7 +99,7 @@
                 params.notes = notes;
             }
             console.log(params);
-            return $http.post('api/rois_annotations/steps/' + annotation_step_label + '/quality_control/',
+            return $http.post('api/rois_annotations/steps/' + annotation_step_label + '/slide_evaluation/',
                 params);
         }
     }

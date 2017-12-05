@@ -22,7 +22,7 @@ from promort.views import IndexView
 from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
-    CaseList, CaseDetail, SlideList, SlideDetail, SlideQualityControlDetail
+    CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
@@ -90,8 +90,8 @@ urlpatterns = [
     url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/reset/$', rmv.ROIsAnnotationStepReopen.as_view()),
 
     # quality control
-    url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/quality_control/$',
-        SlideQualityControlDetail.as_view()),
+    url(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/slide_evaluation/$',
+        SlideEvaluationDetail.as_view()),
 
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$', rmv.ROIsAnnotationCreation.as_view()),
     url(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/$',

@@ -7,9 +7,9 @@ from django.db import IntegrityError
 
 from view_templates.views import GenericDetailView, GenericListView
 
-from slides_manager.models import Laboratory, Case, Slide, SlideQualityControl
+from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation
 from slides_manager.serializers import LaboratorySerializer, LaboratoryDetailSerializer, \
-    CaseSerializer, CaseDetailedSerializer, SlideSerializer, SlideDetailSerializer, SlideQualityControlSerializer
+    CaseSerializer, CaseDetailedSerializer, SlideSerializer, SlideDetailSerializer, SlideEvaluationSerializer
 from reviews_manager.models import ROIsAnnotationStep
 
 import logging
@@ -77,7 +77,7 @@ class SlideDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class SlideQualityControlDetail(APIView):
+class SlideEvaluationDetail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def _find_rois_annotation_step(self, label):
@@ -89,28 +89,28 @@ class SlideQualityControlDetail(APIView):
     def _find_by_rois_annotation_step(self, label):
         try:
             annotation_step = self._find_rois_annotation_step(label)
-            return SlideQualityControl.objects.get(
+            return SlideEvaluation.objects.get(
                 rois_annotation_step=annotation_step
             )
-        except SlideQualityControl.DoesNotExist:
+        except SlideEvaluation.DoesNotExist:
             raise NotFound('Unable to find quality control data')
 
     def get(self, request, label, format=None):
-        qc_obj = self._find_by_rois_annotation_step(label)
-        serializer = SlideQualityControlSerializer(qc_obj)
+        evaluation_obj = self._find_by_rois_annotation_step(label)
+        serializer = SlideEvaluationSerializer(evaluation_obj)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
     def post(self, request, label, format=None):
         rois_annotation_step = self._find_rois_annotation_step(label)
-        qc_data = request.data
-        qc_data['reviewer'] = request.user.username
-        qc_data['slide'] = rois_annotation_step.slide.id
-        qc_data['rois_annotation_step'] = rois_annotation_step.id
+        evaluation_data = request.data
+        evaluation_data['reviewer'] = request.user.username
+        evaluation_data['slide'] = rois_annotation_step.slide.id
+        evaluation_data['rois_annotation_step'] = rois_annotation_step.id
 
-        logger.debug('Serializing data %r -- Object class %r', qc_data, SlideQualityControl)
+        logger.debug('Serializing data %r -- Object class %r', evaluation_data, SlideEvaluation)
 
-        serializer = SlideQualityControlSerializer(data=qc_data)
+        serializer = SlideEvaluationSerializer(data=evaluation_data)
         if serializer.is_valid():
             try:
                 serializer.save()
