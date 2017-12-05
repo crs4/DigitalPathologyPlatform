@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 import promort.settings as prs
-from slides_manager.models import Slide, SlideEvaluation
+from slides_manager.models import SlideEvaluation
 from clinical_annotations_manager.models import ClinicalAnnotationStep
 
 import logging
@@ -28,7 +28,7 @@ def get_slide_stainings(request):
         {
             'value': st[0],
             'text': st[1]
-        } for st in Slide.STAINING
+        } for st in SlideEvaluation.STAINING_CHOICES
     ]
     return Response(staining_map, status=status.HTTP_200_OK)
 

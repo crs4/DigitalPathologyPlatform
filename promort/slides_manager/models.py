@@ -18,10 +18,6 @@ class Case(models.Model):
 
 
 class Slide(models.Model):
-    STAINING = (
-        ('HE', 'H&E'),
-        ('TRI', 'Trichrome')
-    )
     id = models.CharField(max_length=25, primary_key=True)
     case = models.ForeignKey(Case, on_delete=models.PROTECT,
                              blank=False, related_name='slides')
@@ -31,10 +27,6 @@ class Slide(models.Model):
     image_type = models.CharField(max_length=15, blank=True,
                                   null=True)
     image_microns_per_pixel = models.FloatField(default=0.0)
-    staining = models.CharField(
-        max_length=5, choices=STAINING, blank=True,
-        null=True, default=None
-    )
 
 
 class SlideEvaluation(models.Model):
