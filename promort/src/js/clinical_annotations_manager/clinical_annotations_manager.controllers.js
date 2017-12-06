@@ -2033,7 +2033,7 @@
                     vm.focus_region_label = response.data.label;
                     vm.focusRegionArea = response.data.area;
                     vm.updateRegionArea();
-                    vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
+                    vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage)
                         .toFixed(3));
                     vm.cancerousRegion = response.data.cancerous_region;
                     vm.focusRegionLength = response.data.length;
