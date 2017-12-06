@@ -23,7 +23,7 @@
         vm.slide_id = undefined;
         vm.slide_index = undefined;
         vm.case_id = undefined;
-        vm.annotation_label;
+        vm.annotation_label = undefined;
         vm.annotation_step_label = undefined;
 
         vm.slices_map = undefined;

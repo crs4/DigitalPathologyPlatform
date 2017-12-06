@@ -66,7 +66,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/core_annotation.html',
             controller: 'NewCoreAnnotationController',
-            controllerAs: 'cmCtrl'
+            controllerAs: 'cmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
@@ -88,7 +93,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/core_annotation.html',
             controller: 'ShowCoreAnnotationController',
-            controllerAs: 'cmCtrl'
+            controllerAs: 'cmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
@@ -112,6 +122,9 @@
             controller: 'NewFocusRegionAnnotationController',
             controllerAs: 'cmCtrl',
             link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
                 $("#spinner").TouchSpin({
                     min: 0,
                     step: 1,
@@ -146,7 +159,12 @@
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/focus_region_annotation.html',
             controller: 'ShowFocusRegionAnnotationController',
-            controllerAs: 'cmCtrl'
+            controllerAs: 'cmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
         };
         return directive;
     }
