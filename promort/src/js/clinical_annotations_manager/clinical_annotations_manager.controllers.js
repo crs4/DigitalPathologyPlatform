@@ -1275,6 +1275,21 @@
         vm.cellularDensity = undefined;
         vm.cellsCount = undefined;
 
+        vm.scaledRegionLength = undefined;
+        vm.regionLengthScaleFactor = undefined;
+        vm.scaledRegionArea = undefined;
+        vm.regionAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
         vm.gleason4ModeActive = false;
 
         vm.tmpG4Shape = undefined;
@@ -1343,10 +1358,15 @@
         vm._showGleason4Element = _showGleason4Element;
         vm.showHideGleason4Element = showHideGleason4Element;
         vm.deleteGleason4Element = deleteGleason4Element;
+        vm.updateRegionLength = updateRegionLength;
+        vm.updateRegionArea = updateRegionArea;
 
         activate();
 
         function activate() {
+            vm.regionAreaScaleFactor = vm.areaUOM[0];
+            vm.regionLengthScaleFactor = vm.lengthUOM[0];
+
             vm.clinical_annotation_step_label = $routeParams.label;
 
             vm.gleason4Elements = {};
@@ -1364,7 +1384,9 @@
             function getFocusRegionSuccessFn(response) {
                 vm.focus_region_label = response.data.label;
                 vm.focusRegionArea = response.data.area;
+                vm.updateRegionArea();
                 vm.focusRegionLength = response.data.length;
+                vm.updateRegionLength();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.cancerousRegion = response.data.cancerous_region;
             }
@@ -1865,6 +1887,18 @@
             removeItemFromArray(element_id, vm.gleason4ElementsLabels);
             delete(vm.gleason4Elements[element_id]);
         }
+
+        function updateRegionArea() {
+            vm.scaledRegionArea = formatDecimalNumber(
+                (vm.focusRegionArea * vm.regionAreaScaleFactor.id), 3
+            );
+        }
+
+        function updateRegionLength() {
+            vm.scaledRegionLength = formatDecimalNumber(
+                (vm.focusRegionLength * vm.regionLengthScaleFactor.id), 3
+            );
+        }
     }
 
     ShowFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
@@ -1892,6 +1926,21 @@
         vm.cellularDensityHelperShape = undefined;
         vm.cellsCount = undefined;
 
+        vm.scaledRegionLength = undefined;
+        vm.regionLengthScaleFactor = undefined;
+        vm.scaledRegionArea = undefined;
+        vm.regionAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
         vm.gleason4Elements = undefined;
         vm.gleason4ElementsLabels = undefined;
         vm.displayedGleason4ElementsLabels = undefined;
@@ -1912,10 +1961,15 @@
         vm._hideGleason4Element = _hideGleason4Element;
         vm._showGleason4Element = _showGleason4Element;
         vm.showHideGleason4Element = showHideGleason4Element;
+        vm.updateRegionLength = updateRegionLength;
+        vm.updateRegionArea = updateRegionArea;
 
         activate();
 
         function activate() {
+            vm.regionAreaScaleFactor = vm.areaUOM[0];
+            vm.regionLengthScaleFactor = vm.lengthUOM[0];
+
             vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('focus_region_annotation.show',
                 function (event, focus_region_id) {
@@ -1930,10 +1984,12 @@
             function getFocusRegionAnnotationSuccessFn(response) {
                 vm.focus_region_label = response.data.focus_region.label;
                 vm.focusRegionArea  = response.data.focus_region.area;
+                vm.updateRegionArea();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
                     .toFixed(3));
                 vm.cancerousRegion = response.data.focus_region.cancerous_region;
                 vm.focusRegionLength = response.data.focus_region.length;
+                vm.updateRegionLength();
                 vm.perineuralInvolvement = response.data.perineural_involvement;
                 vm.intraductalCarcinoma = response.data.intraductal_carcinoma;
                 vm.ductalCarcinoma = response.data.ductal_carcinoma;
@@ -1976,9 +2032,11 @@
                 function getFocusRegionSuccessFn(response) {
                     vm.focus_region_label = response.data.label;
                     vm.focusRegionArea = response.data.area;
+                    vm.updateRegionArea();
                     vm.coreCoveragePercentage = response.data.core_coverage_percentage;
                     vm.cancerousRegion = response.data.cancerous_region;
                     vm.focusRegionLength = response.data.length;
+                    vm.updateRegionLength();
                     vm.locked = true;
                 }
 
@@ -2123,6 +2181,18 @@
                 // show element
                 vm._showGleason4Element(element_id);
             }
+        }
+
+        function updateRegionArea() {
+            vm.scaledRegionArea = formatDecimalNumber(
+                (vm.focusRegionArea * vm.regionAreaScaleFactor.id), 3
+            );
+        }
+
+        function updateRegionLength() {
+            vm.scaledRegionLength = formatDecimalNumber(
+                (vm.focusRegionLength * vm.regionLengthScaleFactor.id), 3
+            );
         }
     }
 })();
