@@ -1,6 +1,5 @@
 <div>
     <div class="prm-form-header">
-        <!-- TODO: put real core label here -->
         <h4 class="text-right">{{ cmCtrl.core_label }}</h4>
     </div>
     <div class="form-group row">
@@ -8,9 +7,12 @@
             <label>Core area</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.coreArea"
+            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.scaledCoreArea"
                    readonly>
-            <!--TODO: unit of measure selector -->
+            <select ng-model="cmCtrl.coreAreaScaleFactor"
+                    ng-options="x.unit_of_measure for x in cmCtrl.areaUOM"
+                    ng-change="cmCtrl.updateCoreArea()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div class="form-group row">
@@ -18,9 +20,12 @@
             <label>Core length</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.coreLength"
+            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.scaledCoreLength"
                    readonly>
-            <!--TODO: unit of measure selector -->
+            <select ng-model="cmCtrl.coreLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in cmCtrl.lengthUOM"
+                    ng-change="cmCtrl.updateCoreLength()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div class="form-group row">
@@ -28,9 +33,12 @@
             <label>Tumor length</label>
         </div>
         <div class="input-group prm-row-elem">
-            <input class="form-control prm-text-input" type="number" ng-model="cmCtrl.tumorLength"
-                   readonly>
-            <!--TODO: unit of measure selector -->
+            <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
+                   ng-model="cmCtrl.scaledTumorLength">
+            <select ng-model="cmCtrl.tumorLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in cmCtrl.lengthUOM"
+                    ng-change="cmCtrl.updateTumorLength()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div class="form-group row" ng-show="cmCtrl.isReadOnly()">

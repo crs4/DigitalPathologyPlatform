@@ -16,8 +16,11 @@
         </div>
         <div class="input-group prm-row-elem">
             <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
-                   ng-model="cmCtrl.focusRegionArea">
-            <!--TODO: unit of measure selector -->
+                   ng-model="cmCtrl.scaledRegionArea">
+            <select ng-model="cmCtrl.regionAreaScaleFactor"
+                    ng-options="x.unit_of_measure for x in cmCtrl.areaUOM"
+                    ng-change="cmCtrl.updateRegionArea()"
+                    required class="selectpicker"></select>
         </div>
     </div>
     <div class="form-group row">
@@ -38,8 +41,11 @@
         </div>
         <div class="input-group prm-row-elem">
             <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
-                   ng-model="cmCtrl.focusRegionLength">
-            <!-- TODO: insert unit of measure selector -->
+                   ng-model="cmCtrl.scaledRegionLength">
+            <select ng-model="cmCtrl.regionLengthScaleFactor"
+                    ng-options="x.unit_of_measure for x in cmCtrl.lengthUOM"
+                    ng-change="cmCtrl.updateRegionLength()"
+                    required class="selectpicker"></select>
         </div>
     </div>
 
