@@ -208,6 +208,12 @@ h3.prm-dialog-container {
     color: #bbbbbb;
 }
 
+.prm-imq-header {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;
