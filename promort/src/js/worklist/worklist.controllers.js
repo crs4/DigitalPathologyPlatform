@@ -113,6 +113,8 @@
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
+        vm.annotationQualityControlExists = annotationQualityControlExists;
+        vm.annotationQualityControlPassed = annotationQualityControlPassed;
         vm.annotationStepPending = annotationStepPending;
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
@@ -134,6 +136,14 @@
                 console.error(response.error);
                 $location.url('404');
             }
+        }
+
+        function annotationQualityControlExists(annotationStep) {
+            return annotationStep.slide_evaluation !== null;
+        }
+
+        function annotationQualityControlPassed(annotationStep) {
+            return annotationStep.slide_evaluation.adequate_slide;
         }
 
         function annotationStepPending(annotationStep) {

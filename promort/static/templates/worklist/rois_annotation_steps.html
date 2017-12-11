@@ -9,6 +9,21 @@
                     <div class="col-sm-7 prm-valign">
                         <div>
                             <p><strong>Step ID:</strong> {{ step.label }}</p>
+                            <p>
+                                <strong>Quality check: </strong>
+                                <span class="prm-not-available-label"
+                                      ng-show="!rc.annotationQualityControlExists(step)">
+                                    NOT AVAILABLE
+                                </span>
+                                <span class="prm-qc-passed-label"
+                                      ng-show="rc.annotationQualityControlExists(step) && rc.annotationQualityControlPassed(step)">
+                                    PASSED
+                                </span>
+                                <span class="prm-qc-not-passed-label"
+                                      ng-show="rc.annotationQualityControlExists(step) && !rc.annotationQualityControlPassed(step)">
+                                    NOT PASSED
+                                </span>
+                            </p>
                         </div>
                     </div><!--
                     Removing blank spaces between DIVs, this will make valign work
