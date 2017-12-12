@@ -219,6 +219,7 @@
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
+        vm.annotationQualityControlPassed = annotationQualityControlPassed;
         vm.annotationStepPending = annotationStepPending;
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
@@ -243,6 +244,10 @@
                 console.error(response.error);
                 $location.url('404');
             }
+        }
+
+        function annotationQualityControlPassed(annotationStep) {
+            return annotationStep.slide_evaluation.adequate_slide;
         }
 
         function annotationStepPending(annotationStep) {
