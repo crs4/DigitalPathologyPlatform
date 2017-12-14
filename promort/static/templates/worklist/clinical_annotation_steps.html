@@ -17,7 +17,7 @@
                                 </span>
                                 <span class="prm-qc-not-passed-label"
                                       ng-show="!cc.annotationQualityControlPassed(step)">
-                                    NOT PASSED
+                                    NOT PASSED -- {{ step.slide_evaluation.not_adequacy_reason_text }}
                                 </span>
                             </p>
                         </div>
