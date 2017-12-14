@@ -50,13 +50,18 @@ class SlideEvaluationSerializer(serializers.ModelSerializer):
         write_only=True,
         queryset=ROIsAnnotationStep.objects.all()
     )
+    not_adequacy_reason_text = serializers.SerializerMethodField()
 
     class Meta:
         model = SlideEvaluation
 
         fields = ('slide', 'rois_annotation_step', 'staining', 'adequate_slide', 'not_adequacy_reason',
-                  'reviewer', 'acquisition_date', 'notes')
-        read_only_fields = ('acquisition_date',)
+                  'not_adequacy_reason_text', 'reviewer', 'acquisition_date', 'notes')
+        read_only_fields = ('acquisition_date', 'not_adequacy_reason_text')
+
+    @staticmethod
+    def get_not_adequacy_reason_text(obj):
+        return obj.get_not_adequacy_reason_text()
 
 
 class LaboratoryDetailSerializer(serializers.ModelSerializer):
