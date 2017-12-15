@@ -115,6 +115,7 @@
         vm.label = undefined;
         vm.annotationQualityControlExists = annotationQualityControlExists;
         vm.annotationQualityControlPassed = annotationQualityControlPassed;
+        vm.slideEvaluationNotesExist = slideEvaluationNotesExist;
         vm.annotationStepPending = annotationStepPending;
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
@@ -144,6 +145,14 @@
 
         function annotationQualityControlPassed(annotationStep) {
             return annotationStep.slide_evaluation.adequate_slide;
+        }
+
+        function slideEvaluationNotesExist(annotationStep) {
+            if (vm.annotationQualityControlExists(annotationStep)) {
+                return annotationStep.slide_evaluation.notes !== null;
+            } else {
+                return false;
+            }
         }
 
         function annotationStepPending(annotationStep) {
@@ -220,6 +229,7 @@
         vm.annotationSteps = [];
         vm.label = undefined;
         vm.annotationQualityControlPassed = annotationQualityControlPassed;
+        vm.slideEvaluationNotesExist = slideEvaluationNotesExist;
         vm.annotationStepPending = annotationStepPending;
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
@@ -248,6 +258,10 @@
 
         function annotationQualityControlPassed(annotationStep) {
             return annotationStep.slide_evaluation.adequate_slide;
+        }
+
+        function slideEvaluationNotesExist(annotationStep) {
+            return annotationStep.slide_evaluation.notes !== null;
         }
 
         function annotationStepPending(annotationStep) {
