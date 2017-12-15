@@ -230,6 +230,7 @@
         vm.label = undefined;
         vm.annotationQualityControlPassed = annotationQualityControlPassed;
         vm.slideEvaluationNotesExist = slideEvaluationNotesExist;
+        vm.stepNotesExist = stepNotesExist;
         vm.annotationStepPending = annotationStepPending;
         vm.annotationStepInProgress = annotationStepInProgress;
         vm.annotationStepCompleted = annotationStepCompleted;
@@ -262,6 +263,10 @@
 
         function slideEvaluationNotesExist(annotationStep) {
             return annotationStep.slide_evaluation.notes !== null;
+        }
+
+        function stepNotesExist(annotationStep) {
+            return annotationStep.notes !== null;
         }
 
         function annotationStepPending(annotationStep) {

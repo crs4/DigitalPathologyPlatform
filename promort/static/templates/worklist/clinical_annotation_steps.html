@@ -8,7 +8,15 @@
                 <div class="well row">
                     <div class="col-sm-7 prm-valign">
                         <div>
-                            <p><strong>Step ID:</strong> {{ step.label }}</p>
+                            <p>
+                                <span>
+                                    <strong>Step ID:</strong> {{ step.label }}
+                                </span>
+                                <span ng-show="cc.stepNotesExist(step)">
+                                    <i class="icon-sheet" tooltip-notes data-toggle="tooltip-notes"
+                                       data-placement="right" title="{{ step.notes }}"></i>
+                                </span>
+                            </p>
                             <p>
                                 <strong>Quality check: </strong>
                                 <span class="prm-qc-passed-label"
@@ -20,7 +28,7 @@
                                     NOT PASSED -- {{ step.slide_evaluation.not_adequacy_reason_text }}
                                 </span>
                                 <span ng-show="!cc.annotationQualityControlPassed(step) && cc.slideEvaluationNotesExist(step)">
-                                    <i class="icon-sheet" tooltip_notes data-toggle="tooltip_notes"
+                                    <i class="icon-sheet" tooltip-notes data-toggle="tooltip-notes"
                                         data-placement="right" title="{{  step.slide_evaluation.notes }}"></i>
                                 </span>
                             </p>
