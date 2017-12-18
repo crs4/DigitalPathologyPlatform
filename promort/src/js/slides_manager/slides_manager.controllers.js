@@ -6,9 +6,9 @@
         .controller('QualityControlController', QualityControlController);
 
     QualityControlController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
-        'QualityControlService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService'];
+        'SlideEvaluationService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService'];
 
-    function QualityControlController($scope, $routeParams, $location, Authentication, QualityControlService,
+    function QualityControlController($scope, $routeParams, $location, Authentication, SlideEvaluationService,
                                       ROIsAnnotationStepService, SlideService, CurrentSlideDetailsService) {
         var vm = this;
         vm.annotation_label = undefined;
@@ -18,12 +18,9 @@
         vm.annotation_step_id = undefined;
         vm.stainings = undefined;
         vm.not_adequacy_reasons = undefined;
-        vm.checkStainingFormSubmission = checkStainingFormSubmission;
-        vm.checkQCFormSubmission = checkQCFormSubmission;
-        vm.submitStaining = submitStaining;
-        vm.submitQualityControl = submitQualityControl;
+        vm.checkEvaluationFormSubmission = checkEvaluationFormSubmission;
+        vm.submitSlideEvaluation = submitSlideEvaluation;
 
-        vm.slideStainingSubmitted = false;
         vm.slideStaining = undefined;
         vm.slideQualityControl = {};
         vm.reviewNotes = '';
@@ -40,27 +37,23 @@
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
             function getROIsAnnotationStepSuccessFn(response) {
-                if (response.data.slide_quality_control === null) {
+                if (response.data.slide_evaluation === null) {
                     // initialize not_adequacy_reason
-                    QualityControlService.fetchNotAdequacyReasons()
+                    SlideEvaluationService.fetchNotAdequacyReasons()
                         .then(fetchNotAdequacyReasonSuccessFn);
                     //noinspection JSAnnotator
                     function fetchNotAdequacyReasonSuccessFn(response) {
                         vm.not_adequacy_reasons = response.data;
                     }
                     //initialize staining
-                    SlideService.fetchStainings()
+                    SlideEvaluationService.fetchStainings()
                         .then(fetchStainingSuccessFn);
                     //noinspection JSAnnotator
                     function fetchStainingSuccessFn(response) {
                         vm.stainings = response.data;
                     }
-                    if (response.data.slide.staining !== null) {
-                        vm.slideStaining = response.data.slide.staining;
-                        vm.slideStainingSubmitted = true;
-                    }
                 } else {
-                    if (response.data.slide_quality_control.adequate_slide) {
+                    if (response.data.slide_evaluation.adequate_slide) {
                         $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
                     } else {
                         $location.url('worklist/' + vm.annotation_label);
@@ -74,45 +67,32 @@
             }
         }
 
-        function checkStainingFormSubmission() {
-            return !(typeof vm.slideStaining === 'undefined');
-        }
-
-        function checkQCFormSubmission() {
-            if (!vm.slideStainingSubmitted) {
+        function checkEvaluationFormSubmission() {
+            if (typeof vm.slideStaining === 'undefined') {
+                return false;
+            } else {
+                if (
+                    (
+                        vm.slideQualityControl.goodImageQuality &&
+                        vm.slideQualityControl.goodImageQuality === 'true'
+                    )
+                    ||
+                    (
+                        vm.slideQualityControl.goodImageQuality &&
+                        vm.slideQualityControl.goodImageQuality === 'false' &&
+                        vm.slideQualityControl.notAdequacyReason
+                    )
+                ) {
+                    return true;
+                }
                 return false;
             }
-            if (vm.slideQualityControl.goodImageQuality &&
-                vm.slideQualityControl.goodImageQuality === 'true') {
-                return true;
-            }
-            if (vm.slideQualityControl.goodImageQuality &&
-                vm.slideQualityControl.goodImageQuality === 'false' &&
-                vm.slideQualityControl.notAdequacyReason) {
-                return true;
-            }
-            return false;
         }
 
-        function submitStaining() {
-            SlideService.updateSliceStaining(
-                vm.slide_id,
-                vm.slideStaining
-            ).then(slideStainingUpdateSuccessFn, slideStainingUpdateErrorFn);
-
-            function slideStainingUpdateSuccessFn(response) {
-                vm.slideStainingSubmitted = true;
-            }
-
-            function slideStainingUpdateErrorFn(response) {
-                console.error('Unable to update slide staining');
-                console.error(response);
-            }
-        }
-
-        function submitQualityControl() {
-            QualityControlService.create(
+        function submitSlideEvaluation() {
+            SlideEvaluationService.create(
                 vm.annotation_step_label,
+                vm.slideStaining,
                 $.parseJSON(vm.slideQualityControl.goodImageQuality),
                 vm.slideQualityControl.notAdequacyReason,
                 vm.slideQualityControl.notes

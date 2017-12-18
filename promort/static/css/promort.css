@@ -208,6 +208,27 @@ h3.prm-dialog-container {
     color: #bbbbbb;
 }
 
+.prm-imq-header {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
+.prm-not-available-label {
+    color: darkgray;
+    font-weight: bold;
+}
+
+.prm-qc-passed-label {
+    color: green;
+    font-weight: bold;
+}
+
+.prm-qc-not-passed-label {
+    color: red;
+    font-weight: bold;
+}
+
 /* Hidden placeholder*/
 select option[disabled]:first-child {
     display: none;

@@ -5,7 +5,7 @@ from reviews_manager.models import ROIsAnnotationStep
 
 
 class Slice(models.Model):
-    label = models.CharField(max_length=10, blank=False)
+    label = models.CharField(max_length=25, blank=False)
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT, blank=False)
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
@@ -32,7 +32,7 @@ class Slice(models.Model):
 
 
 class Core(models.Model):
-    label = models.CharField(max_length=10, blank=False)
+    label = models.CharField(max_length=25, blank=False)
     slice = models.ForeignKey(Slice, on_delete=models.CASCADE,
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
@@ -61,7 +61,7 @@ class Core(models.Model):
 
 
 class FocusRegion(models.Model):
-    label = models.CharField(max_length=20, blank=False)
+    label = models.CharField(max_length=40, blank=False)
     core = models.ForeignKey(Core, on_delete=models.CASCADE,
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,

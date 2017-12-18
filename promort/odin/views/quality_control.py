@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from odin.permissions import CanEnterGodMode
 
-from slides_manager.models import SlideQualityControl
+from slides_manager.models import SlideEvaluation
 
 import logging
 logger = logging.getLogger('promort')
@@ -14,10 +14,10 @@ class BadSlideDetails(APIView):
     permission_classes = (CanEnterGodMode,)
 
     def _load_bad_quality_controls(self):
-        return SlideQualityControl.objects.filter(adequate_slide=False)
+        return SlideEvaluation.objects.filter(adequate_slide=False)
 
     def _get_not_adequacy_reason(self, coded_string):
-        choices_map = dict((x[0], x[1]) for x in SlideQualityControl.NOT_ADEQUACY_REASONS_CHOICES)
+        choices_map = dict((x[0], x[1]) for x in SlideEvaluation.NOT_ADEQUACY_REASONS_CHOICES)
         return choices_map[coded_string]
 
     def _get_laboratory(self, bad_quality_obj):

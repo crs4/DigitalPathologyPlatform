@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import Group
 from promort.settings import DEFAULT_GROUPS
-from slides_manager.models import SlideQualityControl
+from slides_manager.models import SlideEvaluation
 from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation, ClinicalAnnotationStep, ReviewsComparison
 
 from uuid import uuid4
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         clinical_annotation_obj = ClinicalAnnotation(label=annotation_label, reviewer=reviewer_obj,
                                                      case=rois_annotation_obj.case, rois_review=rois_annotation_obj)
         clinical_annotation_obj.save()
-        logger.info('Save Clinical Anntoation with label %s', clinical_annotation_obj.label)
+        logger.info('Saved Clinical Annotation with label %s', clinical_annotation_obj.label)
         return clinical_annotation_obj
 
     def _get_annotation_step_label(self, annotation_label, slide_label):
@@ -57,8 +57,8 @@ class Command(BaseCommand):
         )
         # check ROIs Annotation Step quality control
         try:
-            adequate_slide = rois_annotation_step_obj.slide_quality_control.adequate_slide
-        except SlideQualityControl.DoesNotExist:
+            adequate_slide = rois_annotation_step_obj.slide_evaluation.adequate_slide
+        except SlideEvaluation.DoesNotExist:
             adequate_slide = True
         if not adequate_slide:
             logger.info('BAD QUALITY CONTROL')

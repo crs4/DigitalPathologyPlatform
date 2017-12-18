@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
     ClinicalAnnotation, ClinicalAnnotationStep
-from slides_manager.serializers import SlideSerializer, SlideQualityControlSerializer
+from slides_manager.serializers import SlideSerializer, SlideEvaluationSerializer
 from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
 from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
 
@@ -48,13 +48,13 @@ class ROIsAnnotationStepSerializer(serializers.ModelSerializer):
     can_reopen = serializers.SerializerMethodField()
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
-    slide_quality_control = SlideQualityControlSerializer(read_only=True)
+    slide_evaluation = SlideEvaluationSerializer(read_only=True)
 
     class Meta:
         model = ROIsAnnotationStep
 
         fields = ('id', 'label', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
-                  'can_reopen', 'start_date', 'completion_date', 'slide_quality_control')
+                  'can_reopen', 'start_date', 'completion_date', 'slide_evaluation')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
     @staticmethod
@@ -81,7 +81,7 @@ class ROIsAnnotationStepFullSerializer(ROIsAnnotationStepDetailsSerializer):
         model = ROIsAnnotationStep
 
         fields = ('id', 'label', 'rois_annotation', 'slide', 'creation_date', 'started', 'completed',
-                  'start_date', 'completion_date', 'slide_quality_control', 'slices')
+                  'start_date', 'completion_date', 'slide_evaluation', 'slices')
         read_only_fields = ('id', 'creation_date', 'started', 'completed')
 
 
@@ -173,6 +173,7 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     case = serializers.SerializerMethodField()
     rois_step_reopen_permission = serializers.SerializerMethodField()
     can_reopen_rois_step = serializers.SerializerMethodField()
+    slide_evaluation = serializers.SerializerMethodField()
 
     class Meta:
         model = ClinicalAnnotationStep
@@ -180,9 +181,9 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'clinical_annotation', 'slide', 'case', 'rois_review_step',
                   'rois_review_step_label', 'started', 'completed', 'can_be_started',
                   'creation_date', 'start_date', 'completion_date', 'rejected', 'rejection_reason',
-                  'notes', 'rois_step_reopen_permission', 'can_reopen_rois_step')
+                  'notes', 'rois_step_reopen_permission', 'can_reopen_rois_step', 'slide_evaluation')
         read_only_fields = ('id', 'case', 'creation_date', 'started', 'completed', 'rois_review_step_label',
-                            'can_be_started')
+                            'can_be_started', 'slide_evaluation')
 
     @staticmethod
     def get_started(obj):
@@ -211,6 +212,10 @@ class ClinicalAnnotationStepSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_can_reopen_rois_step(obj):
         return obj.rois_review_step.can_reopen()
+
+    @staticmethod
+    def get_slide_evaluation(obj):
+        return SlideEvaluationSerializer(obj.rois_review_step.slide_evaluation).data
 
 
 class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):

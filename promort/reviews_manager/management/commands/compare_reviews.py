@@ -17,7 +17,7 @@ class Command(BaseCommand):
         return [rc for rc in review_comparison if rc.can_be_started()]
 
     def _check_quality_control(self, review1, review2):
-        return review1.rois_review_step.slide_quality_control.adequate_slide
+        return review1.rois_review_step.slide_evaluation.adequate_slide
 
     def _check_reviews_rejection(self, review1, review2):
         return review1.rejected or review2.rejected

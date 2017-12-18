@@ -18,29 +18,17 @@
         <div id="qc_form_container" class="col-sm-3 col-md-3">
             <viewer-navigation-panel></viewer-navigation-panel>
             <div class="well">
-                <h4 class="text-center">Slide classification</h4>
-                <form novalidate role="form" ng-submit="qcc.submitStaining()">
+                <form novalidate role="form" ng-submit="qcc.submitSlideEvaluation()">
+                    <h4 class="text-center">Slide classification</h4>
                     <fieldset class="form-group">
                         <label for="staining">Staining</label>
-                        <select class="form-control" id="staining" ng-model="qcc.slideStaining"
-                                ng-disabled="qcc.slideStainingSubmitted">
+                        <select class="form-control" id="staining" ng-model="qcc.slideStaining">
                             <option value="" disabled selected> -- Specify staining</option>
-                            <option value="{{ s.value }}"
+                            <option value="{{  s.value }}"
                                     ng-repeat="s in qcc.stainings">{{ s.text }}</option>
                         </select>
                     </fieldset>
-                    <div class="text-center" ng-hide="qcc.slideStainingSubmitted">
-                        <button type="submit" class="btn btn-primary prm-btn-sm"
-                                ng-disabled="!qcc.checkStainingFormSubmission()">
-                            <i class="icon-cloud_upload"></i>
-                            <span>Save</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="well">
-                <h4 class="text-center">Image quality</h4>
-                <form novalidate role="form" ng-submit="qcc.submitQualityControl()">
+                    <h4 class="text-center prm-imq-header">Image quality</h4>
                     <div class="radio">
                         <label>
                             <input type="radio" name="qualityRadios" id="goodQuality"
@@ -73,7 +61,7 @@
                     </fieldset>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary prm-btn-sm"
-                                ng-disabled="!qcc.checkQCFormSubmission()">
+                                ng-disabled="!qcc.checkEvaluationFormSubmission()">
                             <i class="icon-cloud_upload"></i>
                             <span>Save</span>
                         </button>

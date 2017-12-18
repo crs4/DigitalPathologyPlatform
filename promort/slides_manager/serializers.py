@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from slides_manager.models import Laboratory, Case, Slide, SlideQualityControl
+from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation
 from reviews_manager.models import ROIsAnnotationStep
 
 
@@ -33,11 +33,11 @@ class SlideSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 
 
-class SlideQualityControlSerializer(serializers.ModelSerializer):
+class SlideEvaluationSerializer(serializers.ModelSerializer):
     reviewer = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all(),
@@ -50,13 +50,18 @@ class SlideQualityControlSerializer(serializers.ModelSerializer):
         write_only=True,
         queryset=ROIsAnnotationStep.objects.all()
     )
+    not_adequacy_reason_text = serializers.SerializerMethodField()
 
     class Meta:
-        model = SlideQualityControl
+        model = SlideEvaluation
 
-        fields = ('slide', 'rois_annotation_step', 'adequate_slide', 'not_adequacy_reason',
-                  'reviewer', 'acquisition_date', 'notes')
-        read_only_fields = ('acquisition_date',)
+        fields = ('slide', 'rois_annotation_step', 'staining', 'adequate_slide', 'not_adequacy_reason',
+                  'not_adequacy_reason_text', 'reviewer', 'acquisition_date', 'notes')
+        read_only_fields = ('acquisition_date', 'not_adequacy_reason_text')
+
+    @staticmethod
+    def get_not_adequacy_reason_text(obj):
+        return obj.get_not_adequacy_reason_text()
 
 
 class LaboratoryDetailSerializer(serializers.ModelSerializer):
@@ -86,6 +91,6 @@ class SlideDetailSerializer(serializers.ModelSerializer):
         model = Slide
 
         fields = ('id', 'case', 'import_date', 'omero_id',
-                  'image_type', 'image_microns_per_pixel', 'staining')
+                  'image_type', 'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 
