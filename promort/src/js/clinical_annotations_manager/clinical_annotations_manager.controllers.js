@@ -1161,8 +1161,11 @@
                 function getCoreSuccessFn(response) {
                     vm.core_label = response.data.label;
                     vm.coreArea = response.data.area;
+                    vm.updateCoreArea();
                     vm.coreLength = response.data.length;
+                    vm.updateCoreLength();
                     vm.tumorLength = response.data.tumor_length;
+                    vm.updateTumorLength();
                     vm.normalTissuePercentage = response.data.normal_tissue_percentage;
                     vm.locked = true;
                 }
