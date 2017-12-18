@@ -58,3 +58,8 @@ class SlideEvaluation(models.Model):
     notes = models.TextField(blank=True, null=True)
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     acquisition_date = models.DateTimeField(auto_now_add=True)
+
+    def get_not_adequacy_reason_text(self):
+        for choice in self.NOT_ADEQUACY_REASONS_CHOICES:
+            if choice[0] == self.not_adequacy_reason:
+                return choice[1]
