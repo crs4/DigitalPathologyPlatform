@@ -310,18 +310,9 @@
         }
 
         function canCloseAnnotation() {
-            for (var x in vm.slices_edit_mode) {
-                if (vm.slices_edit_mode[x] === true) {
-                    return false;
-                }
-            }
+            // only cores annotation is mandatory
             for (var x in vm.cores_edit_mode) {
                 if (vm.cores_edit_mode[x] === true) {
-                    return false;
-                }
-            }
-            for (var x in vm.focus_regions_edit_mode) {
-                if (vm.focus_regions_edit_mode[x] === true) {
                     return false;
                 }
             }
