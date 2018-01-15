@@ -219,6 +219,11 @@ h3.prm-dialog-container {
     font-weight: bold;
 }
 
+.prm-staining-label {
+    color: darkblue;
+    font-weight: bold;
+}
+
 .prm-qc-passed-label {
     color: green;
     font-weight: bold;
