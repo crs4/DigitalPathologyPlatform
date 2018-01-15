@@ -201,3 +201,6 @@ DEFAULT_GROUPS = {
 
 OME_SEADRAGON_BASE_URL = 'http://localhost:8080/ome_seadragon/'
 OME_SEADRAGON_STATIC_FILES_URL = 'http://localhost:8080/static/'
+# app version
+with open(os.path.join(BASE_DIR, 'VERSION')) as f:
+    VERSION = f.readline()
