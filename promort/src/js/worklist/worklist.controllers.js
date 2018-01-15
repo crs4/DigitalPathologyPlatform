@@ -72,15 +72,6 @@
         }
         
         function getAnnotationLink(annotation) {
-            // ========================================
-            // disabled until all the steps for the
-            // annotations workflow are completed
-            // ========================================
-            // if (vm.checkPendingAnnotations()) {
-            //     if (!vm.annotationsInProgress(annotation)) {
-            //         return '';
-            //     }
-            // }
             if (vm.isROIsAnnotation(annotation)) {
                 return 'worklist/rois_annotations/' + annotation.label;
             } else if (vm.isClinicalAnnotation(annotation)) {
