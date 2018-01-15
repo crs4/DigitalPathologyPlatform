@@ -8,6 +8,7 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
     ome_seadragon_base_url = settings.OME_SEADRAGON_STATIC_FILES_URL
+    promort_version = settings.VERSION
 
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, request, *args, **kwargs):
