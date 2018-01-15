@@ -12,18 +12,18 @@
                             <p>
                                 <strong>Quality check: </strong>
                                 <span class="prm-not-available-label"
-                                      ng-show="!rc.annotationQualityControlExists(step)">
+                                      ng-show="!rc.annotationSlideEvaluationExists(step)">
                                     NOT AVAILABLE
                                 </span>
                                 <span class="prm-qc-passed-label"
-                                      ng-show="rc.annotationQualityControlExists(step) && rc.annotationQualityControlPassed(step)">
+                                      ng-show="rc.annotationSlideEvaluationExists(step) && rc.annotationQualityControlPassed(step)">
                                     PASSED
                                 </span>
                                 <span class="prm-qc-not-passed-label"
-                                      ng-show="rc.annotationQualityControlExists(step) && !rc.annotationQualityControlPassed(step)">
+                                      ng-show="rc.annotationSlideEvaluationExists(step) && !rc.annotationQualityControlPassed(step)">
                                     NOT PASSED -- {{ step.slide_evaluation.not_adequacy_reason_text }}
                                 </span>
-                                <span ng-show="rc.annotationQualityControlExists(step) && rc.slideEvaluationNotesExist(step)">
+                                <span ng-show="rc.annotationSlideEvaluationExists(step) && rc.slideEvaluationNotesExist(step)">
                                     <i class="icon-sheet" tooltip-notes data-toggle="tooltip-notes"
                                         data-placement="right" title="{{  step.slide_evaluation.notes }}"></i>
                                 </span>

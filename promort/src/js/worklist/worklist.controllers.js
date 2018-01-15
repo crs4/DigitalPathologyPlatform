@@ -104,7 +104,7 @@
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
-        vm.annotationQualityControlExists = annotationQualityControlExists;
+        vm.annotationSlideEvaluationExists = annotationSlideEvaluationExists;
         vm.annotationQualityControlPassed = annotationQualityControlPassed;
         vm.slideEvaluationNotesExist = slideEvaluationNotesExist;
         vm.annotationStepPending = annotationStepPending;
@@ -130,7 +130,7 @@
             }
         }
 
-        function annotationQualityControlExists(annotationStep) {
+        function annotationSlideEvaluationExists(annotationStep) {
             return annotationStep.slide_evaluation !== null;
         }
 
@@ -139,7 +139,7 @@
         }
 
         function slideEvaluationNotesExist(annotationStep) {
-            if (vm.annotationQualityControlExists(annotationStep)) {
+            if (vm.annotationSlideEvaluationExists(annotationStep)) {
                 return annotationStep.slide_evaluation.notes !== null;
             } else {
                 return false;
