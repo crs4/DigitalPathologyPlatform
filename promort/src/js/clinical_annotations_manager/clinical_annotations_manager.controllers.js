@@ -61,6 +61,7 @@
         vm.clearAnnotations = clearAnnotations;
         vm.rejectAnnotation = rejectAnnotation;
         vm.allModesOff = allModesOff;
+        vm.newClinicalAnnotationModeActive = newClinicalAnnotationModeActive;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
         vm.activateShowSliceAnnotationMode = activateShowSliceAnnotationMode;
@@ -559,6 +560,14 @@
                 vm.ui_active_modes[mode] = false;
             }
             vm._unlockRoisTree();
+        }
+
+        function newClinicalAnnotationModeActive() {
+            return (
+                vm.ui_active_modes['annotate_slice']
+                || vm.ui_active_modes['annotate_core']
+                || vm.ui_active_modes['annotate_focus_region']
+            );
         }
 
         function activateNewSliceAnnotationMode(slice_id) {
