@@ -72,15 +72,6 @@
         }
         
         function getAnnotationLink(annotation) {
-            // ========================================
-            // disabled until all the steps for the
-            // annotations workflow are completed
-            // ========================================
-            // if (vm.checkPendingAnnotations()) {
-            //     if (!vm.annotationsInProgress(annotation)) {
-            //         return '';
-            //     }
-            // }
             if (vm.isROIsAnnotation(annotation)) {
                 return 'worklist/rois_annotations/' + annotation.label;
             } else if (vm.isClinicalAnnotation(annotation)) {
@@ -113,7 +104,7 @@
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
-        vm.annotationQualityControlExists = annotationQualityControlExists;
+        vm.annotationSlideEvaluationExists = annotationSlideEvaluationExists;
         vm.annotationQualityControlPassed = annotationQualityControlPassed;
         vm.slideEvaluationNotesExist = slideEvaluationNotesExist;
         vm.annotationStepPending = annotationStepPending;
@@ -139,7 +130,7 @@
             }
         }
 
-        function annotationQualityControlExists(annotationStep) {
+        function annotationSlideEvaluationExists(annotationStep) {
             return annotationStep.slide_evaluation !== null;
         }
 
@@ -148,7 +139,7 @@
         }
 
         function slideEvaluationNotesExist(annotationStep) {
-            if (vm.annotationQualityControlExists(annotationStep)) {
+            if (vm.annotationSlideEvaluationExists(annotationStep)) {
                 return annotationStep.slide_evaluation.notes !== null;
             } else {
                 return false;

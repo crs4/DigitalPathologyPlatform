@@ -61,6 +61,7 @@
         vm.clearAnnotations = clearAnnotations;
         vm.rejectAnnotation = rejectAnnotation;
         vm.allModesOff = allModesOff;
+        vm.newClinicalAnnotationModeActive = newClinicalAnnotationModeActive;
         vm.activateNewSliceAnnotationMode = activateNewSliceAnnotationMode;
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
         vm.activateShowSliceAnnotationMode = activateShowSliceAnnotationMode;
@@ -310,18 +311,9 @@
         }
 
         function canCloseAnnotation() {
-            for (var x in vm.slices_edit_mode) {
-                if (vm.slices_edit_mode[x] === true) {
-                    return false;
-                }
-            }
+            // only cores annotation is mandatory
             for (var x in vm.cores_edit_mode) {
                 if (vm.cores_edit_mode[x] === true) {
-                    return false;
-                }
-            }
-            for (var x in vm.focus_regions_edit_mode) {
-                if (vm.focus_regions_edit_mode[x] === true) {
                     return false;
                 }
             }
@@ -348,6 +340,25 @@
         }
 
         function closeAnnotation() {
+            var missingSlices = 0;
+            for (var x in vm.slices_edit_mode) {
+                if (vm.slices_edit_mode[x] === true) {
+                    missingSlices += 1;
+                }
+            }
+
+            var missingFocusRegions = 0;
+            for (var x in vm.focus_regions_edit_mode) {
+                if (vm.focus_regions_edit_mode[x] === true) {
+                    missingFocusRegions += 1;
+                }
+            }
+
+            var dialogData = {
+                'missing_slices': missingSlices,
+                'missing_focus_regions': missingFocusRegions
+            };
+
             ngDialog.openConfirm({
                 template: '/static/templates/dialogs/accept_clinical_annotation_confirm.html',
                 showClose: false,
@@ -355,7 +366,8 @@
                 closeByNavigation: false,
                 closeByDocument: false,
                 controller: 'NewScopeController',
-                controllerAs: 'confirmCtrl'
+                controllerAs: 'confirmCtrl',
+                data: dialogData
             }).then(confirmFn);
 
             function confirmFn(confirm_obj) {
@@ -548,6 +560,14 @@
                 vm.ui_active_modes[mode] = false;
             }
             vm._unlockRoisTree();
+        }
+
+        function newClinicalAnnotationModeActive() {
+            return (
+                vm.ui_active_modes['annotate_slice']
+                || vm.ui_active_modes['annotate_core']
+                || vm.ui_active_modes['annotate_focus_region']
+            );
         }
 
         function activateNewSliceAnnotationMode(slice_id) {

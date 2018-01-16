@@ -63,3 +63,8 @@ class SlideEvaluation(models.Model):
         for choice in self.NOT_ADEQUACY_REASONS_CHOICES:
             if choice[0] == self.not_adequacy_reason:
                 return choice[1]
+
+    def get_staining_text(self):
+        for choice in self.STAINING_CHOICES:
+            if choice[0] == self.staining:
+                return choice[1]

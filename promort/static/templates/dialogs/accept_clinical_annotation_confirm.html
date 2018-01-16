@@ -8,12 +8,27 @@
                 Do you want to accept all the ROIs annotations and close the annotation step?
                 <br>
                 <br>
-                You won't be able to edit these data anymore.
+                <strong>You won't be able to edit these data anymore.</strong>
             </span>
         </h4>
-        <br>
-        <br>
     </div>
+    <br>
+    <div ng-show="ngDialogData.missing_slices > 0 || ngDialogData.missing_focus_regions > 0">
+        <h4>
+            <span>
+                <strong>NOTE WELL</strong> there are non mandatory ROIs that were not annotated:
+            </span>
+        </h4>
+        <ul>
+            <li ng-show="ngDialogData.missing_slices > 0">
+                {{ ngDialogData.missing_slices }} slice(s)
+            </li>
+            <li ng-show="ngDialogData.missing_focus_regions > 0">
+                {{ ngDialogData.missing_focus_regions }} positive focus region(s)
+            </li>
+        </ul>
+    </div>
+    <br>
     <div>
         <div class="form-group">
             <span>
