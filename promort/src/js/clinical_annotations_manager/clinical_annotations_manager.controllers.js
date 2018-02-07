@@ -1345,7 +1345,7 @@
         vm.save = save;
         vm.startGleason4Tool = startGleason4Tool;
         vm.stopGleason4Tool = stopGleason4Tool;
-        vm.abortGleason4Tool = abortGleaon4Tool;
+        vm.abortGleason4Tool = abortGleason4Tool;
         vm.gleason4ToolActive = gleason4ToolActive;
         vm.gleason4DataValid = gleason4DataValid;
         vm.initializeRuler = initializeRuler;
@@ -1469,7 +1469,7 @@
             vm.gleason4ModeActive = false;
         }
 
-        function abortGleaon4Tool(g4_shape_id, g4_cc_helper_shape_id) {
+        function abortGleason4Tool(g4_shape_id, g4_cc_helper_shape_id) {
             vm.abortRuler();
             vm.clearRuler(g4_shape_id, g4_cc_helper_shape_id);
             vm.abortG4CellularDensityHelper();
