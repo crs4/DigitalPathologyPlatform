@@ -81,6 +81,13 @@
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             startFreehandDrawingTool: startFreehandDrawingTool,
+            activatePreviewMode: activatePreviewMode,
+            deactivatePreviewMode: deactivatePreviewMode,
+            isPreviewModeActive: isPreviewModeActive,
+            saveTemporaryFreehandShape: saveTemporaryFreehandShape,
+            clearTemporaryFreehandShape: clearTemporaryFreehandShape,
+            shapeHistoryExist: shapeHistoryExist,
+            rollbackTemporaryFreehandShape: rollbackTemporaryFreehandShape,
             setFreehandToolLabelPrefix: setFreehandToolLabelPrefix,
             deleteShape: deleteShape,
             clear: clear,
@@ -168,6 +175,34 @@
 
         function startFreehandDrawingTool() {
             this.toolsManager.activateTool(AnnotationsEventsController.FREEHAND_DRAWING_TOOL);
+        }
+
+        function activatePreviewMode() {
+            this.roisManager.activatePreviewMode();
+        }
+
+        function deactivatePreviewMode() {
+            this.roisManager.deactivatePreviewMode();
+        }
+
+        function isPreviewModeActive() {
+            return this.roisManager.previewModeActive();
+        }
+
+        function saveTemporaryFreehandShape() {
+            this.roisManager.saveTemporaryFreehandPath();
+        }
+
+        function clearTemporaryFreehandShape() {
+            this.roisManager.clearTemporaryFreehandPath();
+        }
+
+        function shapeHistoryExist() {
+            return this.roisManager.shapeHistoryExist();
+        }
+
+        function rollbackTemporaryFreehandShape() {
+            return this.roisManager.rollbackFreehandPath();
         }
 
         function setFreehandToolLabelPrefix(label_prefix) {
