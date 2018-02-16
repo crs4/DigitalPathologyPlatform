@@ -1,4 +1,5 @@
 <div>
+    <!-- LABEL -->
     <div class="prm-form-header" ng-hide="rmCtrl.isReadOnly()">
         <h4 class="text-right">NEW FOCUS REGION</h4>
     </div>
@@ -41,13 +42,15 @@
             </button>
         </div>
     </div>
+    <!-- END OF LABEL -->
+    <!-- NEW SHAPE CONTROLS -->
     <div class="form-group row"
          ng-hide="rmCtrl.isReadOnly() || rmCtrl.isPolygonToolActive() ||
           rmCtrl.isFreehandToolActive() || rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Draw focus region</label>
         </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
+     --><div class="col-sm-6 prm-valign prm-form-elem text-right">
             <button class="btn btn-default prm-icon-btn"
                     ng-click="rmCtrl.newPolygon()"
                     ng-disabled="rmCtrl.isEditLabelModeActive()"
@@ -62,11 +65,13 @@
             </button>
         </div>
     </div>
+    <!-- END OF NEW SHAPE CONTROLS -->
+    <!-- NEW POLYGON TOOL CONTROLS -->
     <div class="form-group row" ng-show="rmCtrl.isPolygonToolActive()">
-        <div class="col-sm-6 prm-valign prm-label-elem">
+        <div class="prm-label-elem">
             <label>Polygon tool</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
+        </div>
+        <div class="prm-form-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
                     ng-click="rmCtrl.pausePolygonTool()"
                     title="Put the tool on pause">
@@ -87,11 +92,13 @@
             </button>
         </div>
     </div>
+    <!-- ENF OF NEW POLYGON TOOL CONTROLS -->
+    <!-- EXISTING SHAPE CONTROLS -->
     <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Focus region</label>
         </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
+     --><div class="col-sm-6 prm-valign prm-form-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.deleteShape(true)"
                     ng-disabled="rmCtrl.isRulerToolActive() || rmCtrl.isEditLabelModeActive()"
                     ng-hide="rmCtrl.isReadOnly()" title="Delete the shape">
@@ -104,18 +111,41 @@
             </button>
         </div>
     </div>
+    <!-- END OF EXISTING SHAPE CONTROLS -->
+    <!-- NEW FREEHAND DRAWING CONTROLS -->
     <div class="form-group row" ng-show="rmCtrl.isFreehandToolActive()">
-        <div class="col-sm-6 prm-valign prm-label-elem">
+        <div class="prm-label-elem">
             <label>Freehand tool</label>
-        </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
+        </div>
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.pauseFreehandTool()"
+                    ng-hide="rmCtrl.isFreehandToolPaused()"
+                    title="Pause freehand drawing tool">
+                <i class="icon-pause"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.unpauseFreehandTool()"
+                    ng-show="rmCtrl.isFreehandToolPaused()"
+                    title="Resume freehand drawing tool">
+                <i class="icon-play"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmFreehandShape()"
+                    ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeExists()"
+                    title="Accept the shape">
+                <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.rollbackFreehandShape()"
+                    ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeExists()"
+                    title="Restore previous step">
+                <i class="icon-reply"></i>
+            </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
                     title="Abort tool">
                 <i class="icon-cross_mark"></i>
             </button>
         </div>
-
     </div>
+    <!-- END OF NEW FREEHAND DRAWING CONTROLS -->
+    <!--  PARENT SLICE INFO -->
     <div class="form-group row" ng-show="rmCtrl.shapeExists() && !rmCtrl.isReadOnly()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Parent core</label>
@@ -125,6 +155,8 @@
                    ng-model="rmCtrl.parentCore.label">
         </div>
     </div>
+    <!-- END OF PARENT SLICE INFO -->
+    <!-- AREA INFO -->
     <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="prm-label-elem">
             <label>Focus region area</label>
@@ -150,13 +182,14 @@
             </div>
         </div>
     </div>
+    <!-- END OF AREA INFO -->
     <div id="acquire_region_measure" class="form-group row"
          ng-hide="rmCtrl.regionLengthExists() || rmCtrl.isRulerToolActive()
             || !rmCtrl.shapeExists() || rmCtrl.isReadOnly()">
         <div class="col-sm-6 prm-valign prm-label-elem">
             <label>Focus region length</label>
         </div><!--
-     --><div class="col-sm-6 prm-valign prm-form-elem">
+     --><div class="col-sm-6 prm-valign prm-form-elem text-right">
             <button id="focus_region_ruler_on" class="btn btn-default prm-icon-btn"
                     ng-click="rmCtrl.startRuler()" ng-disabled="rmCtrl.isEditLabelModeActive()"
                     title="Use the ruler tool to measure focus region's length">

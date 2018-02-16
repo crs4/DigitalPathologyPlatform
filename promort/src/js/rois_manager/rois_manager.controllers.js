@@ -1469,6 +1469,7 @@
             vm.polygon_tool_paused = false;
             vm.tmp_shape_exists = false;
             vm.tmp_ruler_exists = false;
+            vm.freehand_tool_paused = false;
         }
 
         function destroy() {
@@ -1776,6 +1777,7 @@
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
+        vm.freehand_tool_paused = false;
 
         vm.tmp_shape_exists = false;
         vm.tmp_ruler_exists = false;
@@ -1808,6 +1810,7 @@
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isFreehandToolPaused = isFreehandToolPaused;
         vm.isRulerToolActive = isRulerToolActive;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.drawInProgress = drawInProgress;
@@ -1816,7 +1819,11 @@
         vm.regionLengthExists = regionLengthExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
+        vm.pauseFreehandTool = pauseFreehandTool;
+        vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
+        vm.confirmFreehandShape = confirmFreehandShape;
+        vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.stopRuler = stopRuler;
         vm.abortTool = abortTool;
         vm.clear = clear;
@@ -1890,30 +1897,11 @@
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
-            $canvas.on('freehand_polygon_saved',
-                function(event, polygon_label){
-                    var cores = $rootScope.cores;
-                    for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
-                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            }
-                            vm._updateFocusRegionData(vm.shape.shape_id, cores[c]);
-                            break;
-                        }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_focus_region.html'
-                        });
-                    }
-                    vm.abortTool();
+            $canvas.on('freehand_polygon_paused',
+                function(event, polygon_label) {
+                    AnnotationsViewerService.disableActiveTool();
+                    vm.freehand_tool_paused = true;
+                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -2035,6 +2023,10 @@
             return vm.polygon_tool_paused;
         }
 
+        function isFreehandToolPaused() {
+            return vm.freehand_tool_paused;
+        }
+
         function temporaryShapeExists() {
             return vm.tmp_shape_exists;
         }
@@ -2044,8 +2036,8 @@
         }
 
         function drawInProgress() {
-            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive()
-                || vm.isRulerToolActive();
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive() ||
+                vm.isFreehandToolPaused() || vm.isRulerToolActive();
         }
 
         function temporaryRulerExists() {
@@ -2064,6 +2056,22 @@
         function unpausePolygonTool() {
             AnnotationsViewerService.startPolygonsTool();
             vm.polygon_tool_paused = false;
+        }
+
+        function pauseFreehandTool() {
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.deactivatePreviewMode();
+            }
+            vm.freehand_tool_paused = true;
+        }
+
+        function unpauseFreehandTool() {
+            AnnotationsViewerService.startFreehandDrawingTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.activatePreviewMode();
+            }
+            vm.freehand_tool_paused = false;
         }
 
         function confirmPolygon() {
@@ -2098,6 +2106,45 @@
             AnnotationsViewerService.saveTemporaryPolygon('focus_region');
         }
 
+        function confirmFreehandShape() {
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label){
+                    var cores = $rootScope.cores;
+                    for (var c in cores) {
+                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
+                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
+                            vm._updateFocusRegionData(polygon_label, cores[c]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            template: '/static/templates/dialogs/invalid_focus_region.html'
+                        });
+                    }
+                    vm.abortTool();
+                }
+            );
+            AnnotationsViewerService.saveTemporaryFreehandShape();
+        }
+
+        function rollbackFreehandShape() {
+            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
+            if (stop_rollback) {
+                this.abortTool();
+            }
+        }
+
         function stopRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
@@ -2117,7 +2164,10 @@
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
             }
             if (vm.active_tool === vm.FREEHAND_TOOL) {
-                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('freehand_polygon_saved');
+                AnnotationsViewerService.clearTemporaryFreehandShape();
+                $("#" + AnnotationsViewerService.getCanvasLabel())
+                    .unbind('freehand_polygon_saved')
+                    .unbind('freehand_polygon_paused');
             }
             if (vm.active_tool === vm.RULER_TOOL) {
                 vm.deleteRuler();
@@ -2127,6 +2177,7 @@
             vm.polygon_tool_paused = false;
             vm.tmp_shape_exists = false;
             vm.tmp_ruler_exists = false;
+            vm.freehand_tool_paused = false;
         }
 
         function destroy() {
