@@ -567,6 +567,7 @@
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
+        vm.freehand_tool_paused = false;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
@@ -590,12 +591,17 @@
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isFreehandToolPaused =isFreehandToolPaused;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
+        vm.pauseFreehandTool = pauseFreehandTool;
+        vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
+        vm.confirmFreehandShape = confirmFreehandShape;
+        vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.abortTool = abortTool;
         vm.clear = clear;
         vm.focusOnShape = focusOnShape;
@@ -619,7 +625,6 @@
 
         function newPolygon() {
             console.log('Start polygon drawing tool');
-            console.log(vm.shape_label);
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
@@ -641,17 +646,11 @@
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $('#' + canvas_label);
-            $canvas.on('freehand_polygon_saved',
+            $canvas.on('freehand_polygon_paused',
                 function(event, polygon_label) {
-                    if (vm.shape_label !== polygon_label) {
-                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                    } else {
-                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                    }
-                    // calling the click event of the button will also refresh page and apply
-                    // proper angular.js controller rules
-                    vm.abortTool();
+                    AnnotationsViewerService.disableActiveTool();
+                    vm.freehand_tool_paused = true;
+                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -728,12 +727,17 @@
             return vm.active_tool === vm.FREEHAND_TOOL;
         }
 
+        function isFreehandToolPaused() {
+            return vm.freehand_tool_paused;
+        }
+
         function temporaryShapeExists() {
             return vm.tmp_shape_exists;
         }
 
         function drawInProgress() {
-            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive();
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() ||
+                vm.isFreehandToolActive() || vm.isFreehandToolPaused();
         }
 
         function shapeExists() {
@@ -748,6 +752,22 @@
         function unpausePolygonTool() {
             AnnotationsViewerService.startPolygonsTool();
             vm.polygon_tool_paused = false;
+        }
+
+        function pauseFreehandTool() {
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.deactivatePreviewMode();
+            }
+            vm.freehand_tool_paused = true;
+        }
+
+        function unpauseFreehandTool() {
+            AnnotationsViewerService.startFreehandDrawingTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.activatePreviewMode();
+            }
+            vm.freehand_tool_paused = false;
         }
 
         function confirmPolygon() {
@@ -767,6 +787,30 @@
             AnnotationsViewerService.saveTemporaryPolygon('slice');
         }
 
+        function confirmFreehandShape() {
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label) {
+                    if (vm.shape_label !== polygon_label) {
+                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                    } else {
+                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                    }
+                    vm.abortTool();
+                }
+             );
+            AnnotationsViewerService.saveTemporaryFreehandShape();
+        }
+
+        function rollbackFreehandShape() {
+            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
+            if (stop_rollback) {
+                this.abortTool();
+            }
+        }
+
         function clear(destroy_shape) {
             vm.deleteShape(destroy_shape);
             vm.totalCores = 0;
@@ -780,12 +824,16 @@
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
             }
             if (vm.active_tool === vm.FREEHAND_TOOL) {
-                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('freehand_polygon_saved');
+                AnnotationsViewerService.clearTemporaryFreehandShape();
+                $("#" + AnnotationsViewerService.getCanvasLabel())
+                    .unbind('freehand_polygon_saved')
+                    .unbind('freehand_polygon_paused');
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
             vm.tmp_shape_exists = false;
+            vm.freehand_tool_paused = false;
         }
 
         function destroy() {
