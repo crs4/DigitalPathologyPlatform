@@ -1022,6 +1022,7 @@
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
+        vm.freehand_tool_paused = false;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
@@ -1052,6 +1053,7 @@
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isFreehandToolPaused =isFreehandToolPaused;
         vm.isRulerToolActive = isRulerToolActive;
         vm.isTumorRulerToolActive = isTumorRulerToolActive;
         vm.temporaryShapeExists = temporaryShapeExists;
@@ -1062,7 +1064,11 @@
         vm.tumorLengthExists = tumorLengthExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
+        vm.pauseFreehandTool = pauseFreehandTool;
+        vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
+        vm.confirmFreehandShape = confirmFreehandShape;
+        vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.stopRuler = stopRuler;
         vm.stopTumorRuler = stopTumorRuler;
         vm.abortTool = abortTool;
@@ -1124,31 +1130,11 @@
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
-            $canvas.on('freehand_polygon_saved',
+            $canvas.on('freehand_polygon_paused',
                 function(event, polygon_label) {
-                    // check if new core is contained inside an existing slide
-                    var slices = $rootScope.slices;
-                    for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
-                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            }
-                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
-                            break;
-                        }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_core.html'
-                        });
-                    }
-                    vm.abortTool();
+                    AnnotationsViewerService.disableActiveTool();
+                    vm.freehand_tool_paused = true;
+                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -1309,13 +1295,17 @@
             return vm.polygon_tool_paused;
         }
 
+        function isFreehandToolPaused() {
+            return vm.freehand_tool_paused;
+        }
+
         function temporaryShapeExists() {
             return vm.tmp_shape_exists;
         }
 
         function drawInProgress() {
-            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive()
-                || vm.isRulerToolActive() || vm.isTumorRulerToolActive();
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive() ||
+                vm.isFreehandToolPaused() || vm.isRulerToolActive() || vm.isTumorRulerToolActive();
         }
 
         function shapeExists() {
@@ -1350,6 +1340,22 @@
             vm.polygon_tool_paused = false;
         }
 
+        function pauseFreehandTool() {
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.deactivatePreviewMode();
+            }
+            vm.freehand_tool_paused = true;
+        }
+
+        function unpauseFreehandTool() {
+            AnnotationsViewerService.startFreehandDrawingTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.activatePreviewMode();
+            }
+            vm.freehand_tool_paused = false;
+        }
+
         function confirmPolygon() {
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
@@ -1382,6 +1388,45 @@
             AnnotationsViewerService.saveTemporaryPolygon('core');
         }
 
+        function confirmFreehandShape() {
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $('#' + canvas_label);
+            $canvas.on('freehand_polygon_saved',
+                function(event, polygon_label){
+                    var slices = $rootScope.slices;
+                    for (var s in slices) {
+                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
+                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
+                            if (vm.shape_label !== polygon_label) {
+                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            } else {
+                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                            }
+                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
+                            break;
+                        }
+                    }
+                    if (typeof vm.shape === 'undefined') {
+                        AnnotationsViewerService.deleteShape(polygon_label);
+                        ngDialog.open({
+                            template: '/static/templates/dialogs/invalid_core.html'
+                        });
+                    }
+                    vm.abortTool();
+                }
+            );
+            AnnotationsViewerService.saveTemporaryFreehandShape();
+        }
+
+        function rollbackFreehandShape() {
+            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
+            if (stop_rollback) {
+                this.abortTool();
+            }
+        }
+
         function stopRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
@@ -1408,7 +1453,10 @@
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
             }
             if (vm.active_tool === vm.FREEHAND_TOOL) {
-                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('freehand_polygon_saved');
+                AnnotationsViewerService.clearTemporaryFreehandShape();
+                $("#" + AnnotationsViewerService.getCanvasLabel())
+                    .unbind('freehand_polygon_saved')
+                    .unbind('freehand_polygon_paused');
             }
             if (vm.active_tool === vm.RULER_TOOL) {
                 vm.deleteRuler();
