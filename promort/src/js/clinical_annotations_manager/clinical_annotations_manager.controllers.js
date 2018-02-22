@@ -1329,6 +1329,8 @@
 
         vm.ruler_tool_active = false;
         vm.ruler_hidden = true;
+        vm.area_ruler_tool_paused = false;
+        vm.tmp_ruler_exists = false;
 
         vm.cellular_density_helper_active = false;
         vm.g4_cellular_density_helper_active = false;
@@ -1352,6 +1354,12 @@
         vm.startRuler = startRuler;
         vm.rulerToolActive = rulerToolActive;
         vm.rulerExists = rulerExists;
+        vm.temporaryRulerExists = temporaryRulerExists;
+        vm.confirmRuler = confirmRuler;
+        vm.pauseRuler = pauseRuler;
+        vm.unpauseRuler = unpauseRuler;
+        vm.isRulerPaused = isRulerPaused;
+        vm.rollbackRuler = rollbackRuler;
         vm.abortRuler = abortRuler;
         vm.clearRuler = clearRuler;
         vm.showRuler = showRuler;
@@ -1514,6 +1522,14 @@
             var $ruler_out = $("#gleason_4_area_output");
             AnnotationsViewerService.bindAreaRulerToShape(vm.focus_region_label);
             $ruler_out
+                .on('area_ruler_paused',
+                    function() {
+                        AnnotationsViewerService.disableActiveTool();
+                        vm.tmp_ruler_exists = true;
+                        vm.area_ruler_tool_paused = true;
+                        $scope.$apply();
+                    }
+                )
                 .on('area_ruler_updated',
                     function() {
                         vm.tmpG4ShapeArea = $ruler_out.data('measure');
@@ -1525,9 +1541,12 @@
                         vm.ruler_tool_active = false;
                         $ruler_out.unbind('area_ruler_cleared')
                             .unbind('area_ruler_updated')
-                            .unbind('area_ruler_empty_intersection');
+                            .unbind('area_ruler_empty_intersection')
+                            .unbind('area_ruler_paused');
                         vm.tmpG4Shape = undefined;
                         vm.tmpG4ShapeArea = undefined;
+                        vm.tmp_ruler_exists = false;
+                        vm.area_ruler_tool_paused = false;
                         AnnotationsViewerService.disableActiveTool();
                         $scope.$apply();
                         ngDialog.open({
@@ -1536,20 +1555,62 @@
                     }
                 )
                 .on('area_ruler_cleared',
-                    function() {
+                    function(event, ruler_saved) {
                         $ruler_out.unbind('area_ruler_cleared')
                             .unbind('area_ruler_updated')
-                            .unbind('area_ruler_empty_intersection');
+                            .unbind('area_ruler_empty_intersection')
+                            .unbind('area_ruler_paused');
                         vm.ruler_tool_active = false;
+                        vm.tmp_ruler_exists = false;
+                        vm.area_ruler_tool_paused = false;
                         AnnotationsViewerService.disableActiveTool();
-                        vm.showRuler();
-                        $scope.$apply();
+                        if (ruler_saved) {
+                            vm.showRuler();
+                        }
                     }
                 );
             vm.ruler_tool_active = true;
         }
 
+        function temporaryRulerExists() {
+            return vm.tmp_ruler_exists;
+        }
+
+        function confirmRuler() {
+            AnnotationsViewerService.saveAreaRuler();
+        }
+
+        function pauseRuler() {
+            console.log('G4 ruler paused');
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryRulerExists()) {
+                AnnotationsViewerService.deactivateAreaRulerPreviewMode();
+            }
+            vm.area_ruler_tool_paused = true;
+        }
+
+        function unpauseRuler() {
+            console.log('G4 ruler unpaused');
+            AnnotationsViewerService.startAreaRulerTool();
+            if (vm.temporaryRulerExists()) {
+                AnnotationsViewerService.activateAreaRulerPreviewMode();
+            }
+            vm.area_ruler_tool_paused = false;
+        }
+
+        function isRulerPaused() {
+            return vm.area_ruler_tool_paused;
+        }
+
+        function rollbackRuler() {
+            var stop_rollback = AnnotationsViewerService.rollbackAreaRuler();
+            if (stop_rollback) {
+                this.abortRuler();
+            }
+        }
+
         function abortRuler() {
+            AnnotationsViewerService.clearAreaRuler();
             var $ruler_out = $("#gleason_4_area_output");
             $ruler_out
                 .unbind('area_ruler_updated')

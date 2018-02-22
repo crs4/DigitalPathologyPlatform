@@ -160,12 +160,30 @@
         <!-- GLEASON 4 TOOL ACTIVE -->
         <div class="form-group row" ng-show="cmCtrl.rulerToolActive()"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerExists() || !cmCtrl.rulerToolActive()">
-            <div class="col-sm-7 prm-valign prm-label-elem">
+            <div class="prm-label-elem">
                 <label>Pattern 4 tool</label>
-            </div><!--
-         --><div class="col-sm-5 prm-valign prm-form-elem">
+            </div>
+            <div class="prm-form-elem text-right">
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.pauseRuler()"
+                        ng-hide="cmCtrl.isRulerPaused()" title="Pause Gleason 4 tool">
+                    <i class="icon-pause"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.unpauseRuler()"
+                        ng-show="cmCtrl.isRulerPaused()" title="Resume Gleason 4 tool">
+                    <i class="icon-play"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmRuler()"
+                        ng-disabled="!cmCtrl.isRulerPaused() || !cmCtrl.temporaryRulerExists()"
+                        title="Accept temporary Gleason 4">
+                    <i class="icon-check"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.rollbackRuler()"
+                        ng-disabled="!cmCtrl.isRulerPaused() || !cmCtrl.temporaryRulerExists()"
+                        title="Restore previous step">
+                    <i class="icon-reply"></i>
+                </button>
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortRuler()"
-                        title="Discharge shape and abort tool">
+                        title="Abort tool">
                     <i class="icon-cross_mark"></i>
                 </button>
             </div>
@@ -261,8 +279,7 @@
         <!------------------------------->
 
         <!-- TEMPORARY GLEASON 4 CONTROLS -->
-        <div class="form-group row"
-             ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
+        <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
             <div class="col-sm-12 prm-row-elem text-right">
                 <button class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.acceptTemporaryGleason4()"
