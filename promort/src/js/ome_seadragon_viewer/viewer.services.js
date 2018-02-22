@@ -103,6 +103,12 @@
             createAreaRulerBindings: createAreaRulerBindings,
             clearAreaRuler: clearAreaRuler,
             bindAreaRulerToShape: bindAreaRulerToShape,
+            startAreaRulerTool: startAreaRulerTool,
+            activateAreaRulerPreviewMode: activateAreaRulerPreviewMode,
+            deactivateAreaRulerPreviewMode: deactivateAreaRulerPreviewMode,
+            isAreaRulerPreviewModeActive: isAreaRulerPreviewModeActive,
+            rollbackAreaRuler: rollbackAreaRuler,
+            saveAreaRuler: saveAreaRuler,
             getAreaCoverage: getAreaCoverage,
             setShapeStrokeColor: setShapeStrokeColor
         };
@@ -265,8 +271,32 @@
             this.roisManager.bindAreaRulerToShape(shape_id);
         }
 
+        function startAreaRulerTool() {
+            this.toolsManager.activateTool(AnnotationsEventsController.AREA_MEASURING_TOOL);
+        }
+
+        function activateAreaRulerPreviewMode() {
+            this.roisManager.activateAreaRulerPreviewMode();
+        }
+
+        function deactivateAreaRulerPreviewMode() {
+            this.roisManager.deactivateAreaRulerPreviewMode();
+        }
+
+        function isAreaRulerPreviewModeActive() {
+            return this.roisManager.areaRulerPreviewModeActive();
+        }
+
+        function rollbackAreaRuler() {
+            return this.roisManager.rollbackAreaRulerPath();
+        }
+
+        function saveAreaRuler() {
+            this.roisManager.saveAreaRuler();
+        }
+
         function clearAreaRuler() {
-            this.roisManager.clearAreaRuler(true);
+            this.roisManager.clearAreaRuler(false);
         }
 
         function getAreaCoverage(shape_1_label, shape_2_label) {
