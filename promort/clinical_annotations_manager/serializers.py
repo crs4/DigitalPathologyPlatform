@@ -90,6 +90,8 @@ class GleasonElementSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_cellular_density_helper_json(value):
+        if value is None:
+            return value
         try:
             json.loads(value)
             return value

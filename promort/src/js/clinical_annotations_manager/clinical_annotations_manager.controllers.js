@@ -1489,7 +1489,7 @@
         }
 
         function gleason4DataValid() {
-            return (typeof (vm.tmpG4Shape) !== 'undefined') && (typeof (vm.tmpG4CellsCount) !== 'undefined');
+            return typeof (vm.tmpG4Shape) !== 'undefined';
         }
 
         function initializeRuler() {
@@ -1839,11 +1839,11 @@
 
         function acceptTemporaryGleason4() {
             var old_gleason_4_shape_id = vm.tmpG4Shape.shape_id;
-            var old_cc_helper_shape_id = vm.tmpG4CellularDensityHelperShape.shape_id;
+            // var old_cc_helper_shape_id = vm.tmpG4CellularDensityHelperShape.shape_id;
             var gleason_4_shape_id = 'g4_element_' + vm._getG4ElementIndexLabel();
-            var cc_helper_shape_id = 'g4_cc_help_' + vm._getG4ElementIndexLabel();
+            // var cc_helper_shape_id = 'g4_cc_help_' + vm._getG4ElementIndexLabel();
             vm.tmpG4Shape.shape_id = gleason_4_shape_id;
-            vm.tmpG4CellularDensityHelperShape.shape_id = cc_helper_shape_id;
+            // vm.tmpG4CellularDensityHelperShape.shape_id = cc_helper_shape_id;
             var tmp_g4_object = {
                 json_path: vm.tmpG4Shape,
                 area: vm.tmpG4ShapeArea,
@@ -1854,7 +1854,8 @@
             };
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
-            vm.abortGleason4Tool(old_gleason_4_shape_id, old_cc_helper_shape_id);
+            // vm.abortGleason4Tool(old_gleason_4_shape_id, old_cc_helper_shape_id);
+            vm.abortGleason4Tool(old_gleason_4_shape_id);
             vm._showGleason4Element(gleason_4_shape_id);
         }
 
@@ -1935,9 +1936,9 @@
             AnnotationsViewerService.deleteShape(
                 vm.gleason4Elements[element_id].json_path.shape_id
             );
-            AnnotationsViewerService.deleteShape(
-                vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
-            );
+            // AnnotationsViewerService.deleteShape(
+            //     vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
+            // );
             $("#" + element_id).addClass('prm-pale-icon');
             removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
         }
@@ -1946,9 +1947,9 @@
             AnnotationsViewerService.drawShape(
                 vm.gleason4Elements[element_id].json_path
             );
-            AnnotationsViewerService.drawShape(
-                vm.gleason4Elements[element_id].cellular_density_helper_json
-            );
+            // AnnotationsViewerService.drawShape(
+            //     vm.gleason4Elements[element_id].cellular_density_helper_json
+            // );
             $("#" + element_id).removeClass('prm-pale-icon');
             vm.displayedGleason4ElementsLabels.push(element_id);
         }
@@ -2240,9 +2241,9 @@
             AnnotationsViewerService.deleteShape(
                 vm.gleason4Elements[element_id].json_path.shape_id
             );
-            AnnotationsViewerService.deleteShape(
-                vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
-            );
+            // AnnotationsViewerService.deleteShape(
+            //     vm.gleason4Elements[element_id].cellular_density_helper_json.shape_id
+            // );
             $("#" + element_id + "_ro").addClass('prm-pale-icon');
             removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
         }
@@ -2251,9 +2252,9 @@
             AnnotationsViewerService.drawShape(
                 vm.gleason4Elements[element_id].json_path
             );
-            AnnotationsViewerService.drawShape(
-                vm.gleason4Elements[element_id].cellular_density_helper_json
-            );
+            // AnnotationsViewerService.drawShape(
+            //     vm.gleason4Elements[element_id].cellular_density_helper_json
+            // );
             $("#" + element_id + "_ro").removeClass('prm-pale-icon');
             vm.displayedGleason4ElementsLabels.push(element_id);
         }
