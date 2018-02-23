@@ -54,7 +54,7 @@
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Region cells count</label>
         </div><!--
-     --><div class="col-sm-5 prm-valign prm-form-elem">
+     --><div class="col-sm-5 prm-valign prm-form-elem text-right">
             <button id="cell_counter_activate" class="btn btn-default prm-icon-btn"
                     ng-click="cmCtrl.startCellularDensityHelper()"
                     ng-disabled="cmCtrl.g4CellularDensityHelperActive() || cmCtrl.gleason4ToolActive()"
@@ -68,7 +68,7 @@
         <div class="col-sm-7 prm-valign prm-label-elem">
             <label>Region cells count</label>
         </div><!--
-     --><div class="prm-valign prm-form-elem">
+     --><div class="col-sm-5 prm-valign prm-form-elem text-right">
             <button class="btn btn-default prm-icon-btn" title="Discharge shape and abort tool"
                     ng-click="cmCtrl.abortCellularDensityHelper()">
                 <i class="icon-cross_mark"></i>
@@ -146,7 +146,7 @@
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Draw region</label>
             </div><!--
-         --><div class="col-sm-5 prm-valign prm-form-elem">
+         --><div class="col-sm-5 prm-valign prm-form-elem text-right">
                 <button id="area_ruler_switch_on" class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.startRuler()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
@@ -223,7 +223,7 @@
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Cells count</label>
             </div><!--
-         --><div class="col-sm-5 prm-valign prm-form-elem">
+         --><div class="col-sm-5 prm-valign prm-form-elem text-right">
                 <button id="g4_cell_counter_activate" class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.startG4CellularDensityHelper()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.rulerToolActive() ||
@@ -239,7 +239,7 @@
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Cells count</label>
             </div><!--
-         --><div class="prm-valign prm-form-elem">
+         --><div class="col-sm-5 prm-valign prm-form-elem text-right">
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortG4CellularDensityHelper()">
                     <i class="icon-cross_mark"></i>
                 </button>
