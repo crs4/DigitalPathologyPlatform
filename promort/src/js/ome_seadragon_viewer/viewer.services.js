@@ -86,8 +86,11 @@
             isPreviewModeActive: isPreviewModeActive,
             saveTemporaryFreehandShape: saveTemporaryFreehandShape,
             clearTemporaryFreehandShape: clearTemporaryFreehandShape,
-            shapeHistoryExist: shapeHistoryExist,
+            tmpFreehandPathExists: tmpFreehandPathExists,
+            shapeUndoHistoryExists: shapeUndoHistoryExists,
+            shapeRestoreHistoryExists: shapeRestoreHistoryExists,
             rollbackTemporaryFreehandShape: rollbackTemporaryFreehandShape,
+            restoreTemporaryFreehandShape: restoreTemporaryFreehandShape,
             setFreehandToolLabelPrefix: setFreehandToolLabelPrefix,
             deleteShape: deleteShape,
             clear: clear,
@@ -100,6 +103,9 @@
             adaptToContainer: adaptToContainer,
             createRulerBindings: createRulerBindings,
             clearRuler: clearRuler,
+            tmpAreaRulerExists: tmpAreaRulerExists,
+            areaRulerUndoHistoryExists: areaRulerUndoHistoryExists,
+            areaRulerRedoHistoryExists: areaRulerRedoHistoryExists,
             createAreaRulerBindings: createAreaRulerBindings,
             clearAreaRuler: clearAreaRuler,
             bindAreaRulerToShape: bindAreaRulerToShape,
@@ -108,6 +114,7 @@
             deactivateAreaRulerPreviewMode: deactivateAreaRulerPreviewMode,
             isAreaRulerPreviewModeActive: isAreaRulerPreviewModeActive,
             rollbackAreaRuler: rollbackAreaRuler,
+            restoreAreaRuler: restoreAreaRuler,
             saveAreaRuler: saveAreaRuler,
             getAreaCoverage: getAreaCoverage,
             setShapeStrokeColor: setShapeStrokeColor
@@ -203,12 +210,30 @@
             this.roisManager.clearTemporaryFreehandPath();
         }
 
-        function shapeHistoryExist() {
-            return this.roisManager.shapeHistoryExist();
+        function tmpFreehandPathExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpFreehandPathExists();
+            }
+        }
+
+        function shapeUndoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.shapeUndoHistoryExists();
+            }
+        }
+
+        function shapeRestoreHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.shapeRedoHistoryExists();
+            }
         }
 
         function rollbackTemporaryFreehandShape() {
-            return this.roisManager.rollbackFreehandPath();
+            this.roisManager.rollbackFreehandPath();
+        }
+
+        function restoreTemporaryFreehandShape() {
+            this.roisManager.restoreFreehandPath();
         }
 
         function setFreehandToolLabelPrefix(label_prefix) {
@@ -263,6 +288,24 @@
             this.roisManager.clearRuler(true);
         }
 
+        function tmpAreaRulerExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpAreaRulerExists();
+            }
+        }
+
+        function areaRulerUndoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.areaRulerUndoHistoryExists();
+            }
+        }
+
+        function areaRulerRedoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.areaRulerRedoHistoryExists();
+            }
+        }
+
         function createAreaRulerBindings(on_switch, output) {
             this.roisManager.bindToAreaRuler(on_switch, output);
         }
@@ -288,7 +331,11 @@
         }
 
         function rollbackAreaRuler() {
-            return this.roisManager.rollbackAreaRulerPath();
+            this.roisManager.rollbackAreaRulerPath();
+        }
+
+        function restoreAreaRuler() {
+            this.roisManager.restoreAreaRulerPath();
         }
 
         function saveAreaRuler() {
