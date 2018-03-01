@@ -561,7 +561,6 @@
         vm.shape = undefined;
         vm.totalCores = 0;
 
-        vm.tmp_shape_exists = false;
         vm.edit_shape_label = false;
         vm.previuos_shape_label = undefined;
 
@@ -635,7 +634,6 @@
             var $canvas = $('#' + canvas_label);
             $canvas.on('polygon_created',
                 function() {
-                    vm.tmp_shape_exists = true;
                     $canvas.unbind('polygon_created');
                     $scope.$apply();
                 }
@@ -653,7 +651,6 @@
                 function(event, polygon_label) {
                     AnnotationsViewerService.disableActiveTool();
                     vm.freehand_tool_paused = true;
-                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -735,7 +732,7 @@
         }
 
         function temporaryShapeExists() {
-            return vm.tmp_shape_exists;
+            return AnnotationsViewerService.tmpFreehandPathExists();
         }
 
         function drawInProgress() {
@@ -845,7 +842,6 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
-            vm.tmp_shape_exists = false;
             vm.freehand_tool_paused = false;
         }
 
@@ -1030,7 +1026,6 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
-        vm.tmp_shape_exists = false;
         vm.tmp_ruler_exists  =false;
 
         vm.active_tool = undefined;
@@ -1133,7 +1128,6 @@
             var $canvas = $("#" + canvas_label);
             $canvas.on('polygon_created',
                 function() {
-                    vm.tmp_shape_exists = true;
                     $canvas.unbind('polygon_created');
                     $scope.$apply();
                 }
@@ -1150,7 +1144,6 @@
                 function(event, polygon_label) {
                     AnnotationsViewerService.disableActiveTool();
                     vm.freehand_tool_paused = true;
-                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -1316,7 +1309,7 @@
         }
 
         function temporaryShapeExists() {
-            return vm.tmp_shape_exists;
+            return AnnotationsViewerService.tmpFreehandPathExists();
         }
 
         function drawInProgress() {
@@ -1493,7 +1486,6 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
-            vm.tmp_shape_exists = false;
             vm.tmp_ruler_exists = false;
             vm.freehand_tool_paused = false;
         }
@@ -1805,7 +1797,6 @@
         vm.polygon_tool_paused = false;
         vm.freehand_tool_paused = false;
 
-        vm.tmp_shape_exists = false;
         vm.tmp_ruler_exists = false;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
@@ -1912,7 +1903,6 @@
             var $canvas = $("#" + canvas_label);
             $canvas.on('polygon_created',
                 function() {
-                    vm.tmp_shape_exists = true;
                     $canvas.unbind('polygon_created');
                     $scope.$apply();
                 }
@@ -1930,7 +1920,6 @@
                 function(event, polygon_label) {
                     AnnotationsViewerService.disableActiveTool();
                     vm.freehand_tool_paused = true;
-                    vm.tmp_shape_exists = true;
                     $scope.$apply();
                 }
             );
@@ -2057,7 +2046,7 @@
         }
 
         function temporaryShapeExists() {
-            return vm.tmp_shape_exists;
+            return AnnotationsViewerService.tmpFreehandPathExists();
         }
 
         function shapeExists() {
@@ -2214,7 +2203,6 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
-            vm.tmp_shape_exists = false;
             vm.tmp_ruler_exists = false;
             vm.freehand_tool_paused = false;
         }
