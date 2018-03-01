@@ -128,15 +128,21 @@
                     title="Resume freehand drawing tool">
                 <i class="icon-play"></i>
             </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="rmCtrl.rollbackFreehandShape()"
+                    ng-disabled="!rmCtrl.shapeRollbackPossible() || !rmCtrl.isFreehandToolPaused()"
+                    title="Restore previous step">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="rmCtrl.restoreFreehandShape()"
+                    ng-disabled="!rmCtrl.shapeRestorePossible() || !rmCtrl.isFreehandToolPaused()"
+                    title="Revert last undone step">
+                <i class="icon-reply"></i>
+            </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmFreehandShape()"
                     ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeExists()"
                     title="Accept the shape">
                 <i class="icon-check"></i>
-            </button>
-            <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.rollbackFreehandShape()"
-                    ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeExists()"
-                    title="Restore previous step">
-                <i class="icon-reply"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
                     title="Abort tool">

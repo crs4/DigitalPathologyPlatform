@@ -601,7 +601,10 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.shapeRollbackPossible = shapeRollbackPossible;
+        vm.shapeRestorePossible = shapeRestorePossible;
         vm.rollbackFreehandShape = rollbackFreehandShape;
+        vm.restoreFreehandShape = restoreFreehandShape;
         vm.abortTool = abortTool;
         vm.clear = clear;
         vm.focusOnShape = focusOnShape;
@@ -804,11 +807,21 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function shapeRollbackPossible() {
+            return (AnnotationsViewerService.tmpFreehandPathExists() ||
+                AnnotationsViewerService.shapeUndoHistoryExists());
+        }
+
+        function shapeRestorePossible() {
+            return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
         function rollbackFreehandShape() {
-            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
-            if (stop_rollback) {
-                this.abortTool();
-            }
+            AnnotationsViewerService.rollbackTemporaryFreehandShape();
+        }
+
+        function restoreFreehandShape() {
+            AnnotationsViewerService.restoreTemporaryFreehandShape();
         }
 
         function clear(destroy_shape) {
@@ -1068,7 +1081,10 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.shapeRollbackPossible = shapeRollbackPossible;
+        vm.shapeRestorePossible = shapeRestorePossible;
         vm.rollbackFreehandShape = rollbackFreehandShape;
+        vm.restoreFreehandShape = restoreFreehandShape;
         vm.stopRuler = stopRuler;
         vm.stopTumorRuler = stopTumorRuler;
         vm.abortTool = abortTool;
@@ -1420,11 +1436,21 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function shapeRollbackPossible() {
+            return (AnnotationsViewerService.tmpFreehandPathExists() ||
+                AnnotationsViewerService.shapeUndoHistoryExists());
+        }
+
+        function shapeRestorePossible() {
+            return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
         function rollbackFreehandShape() {
-            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
-            if (stop_rollback) {
-                this.abortTool();
-            }
+            AnnotationsViewerService.rollbackTemporaryFreehandShape();
+        }
+
+        function restoreFreehandShape() {
+            AnnotationsViewerService.restoreTemporaryFreehandShape();
         }
 
         function stopRuler() {
@@ -1823,7 +1849,10 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.shapeRollbackPossible = shapeRollbackPossible;
+        vm.shapeRestorePossible = shapeRestorePossible;
         vm.rollbackFreehandShape = rollbackFreehandShape;
+        vm.restoreFreehandShape = restoreFreehandShape;
         vm.stopRuler = stopRuler;
         vm.abortTool = abortTool;
         vm.clear = clear;
@@ -2138,11 +2167,21 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function shapeRollbackPossible() {
+            return (AnnotationsViewerService.tmpFreehandPathExists() ||
+                AnnotationsViewerService.shapeUndoHistoryExists());
+        }
+
+        function shapeRestorePossible() {
+            return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
         function rollbackFreehandShape() {
-            var stop_rollback = AnnotationsViewerService.rollbackTemporaryFreehandShape();
-            if (stop_rollback) {
-                this.abortTool();
-            }
+            AnnotationsViewerService.rollbackTemporaryFreehandShape();
+        }
+
+        function restoreFreehandShape() {
+            AnnotationsViewerService.restoreTemporaryFreehandShape();
         }
 
         function stopRuler() {

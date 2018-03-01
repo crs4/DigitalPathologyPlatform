@@ -1359,7 +1359,10 @@
         vm.pauseRuler = pauseRuler;
         vm.unpauseRuler = unpauseRuler;
         vm.isRulerPaused = isRulerPaused;
+        vm.rulerRollbackPossible = rulerRollbackPossible;
+        vm.rulerRestorePossible = rulerRestorePossible;
         vm.rollbackRuler = rollbackRuler;
+        vm.restoreRuler = restoreRuler;
         vm.abortRuler = abortRuler;
         vm.clearRuler = clearRuler;
         vm.showRuler = showRuler;
@@ -1602,11 +1605,21 @@
             return vm.area_ruler_tool_paused;
         }
 
+        function rulerRollbackPossible() {
+            return (AnnotationsViewerService.tmpAreaRulerExists() ||
+                AnnotationsViewerService.areaRulerUndoHistoryExists());
+        }
+
+        function rulerRestorePossible() {
+            return AnnotationsViewerService.areaRulerRedoHistoryExists();
+        }
+
         function rollbackRuler() {
-            var stop_rollback = AnnotationsViewerService.rollbackAreaRuler();
-            if (stop_rollback) {
-                this.abortRuler();
-            }
+            AnnotationsViewerService.rollbackAreaRuler();
+        }
+
+        function restoreRuler() {
+            AnnotationsViewerService.restoreAreaRuler();
         }
 
         function abortRuler() {
