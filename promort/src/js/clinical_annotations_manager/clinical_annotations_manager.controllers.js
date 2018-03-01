@@ -1330,7 +1330,6 @@
         vm.ruler_tool_active = false;
         vm.ruler_hidden = true;
         vm.area_ruler_tool_paused = false;
-        vm.tmp_ruler_exists = false;
 
         vm.cellular_density_helper_active = false;
         vm.g4_cellular_density_helper_active = false;
@@ -1528,7 +1527,6 @@
                 .on('area_ruler_paused',
                     function() {
                         AnnotationsViewerService.disableActiveTool();
-                        vm.tmp_ruler_exists = true;
                         vm.area_ruler_tool_paused = true;
                         $scope.$apply();
                     }
@@ -1548,7 +1546,6 @@
                             .unbind('area_ruler_paused');
                         vm.tmpG4Shape = undefined;
                         vm.tmpG4ShapeArea = undefined;
-                        vm.tmp_ruler_exists = false;
                         vm.area_ruler_tool_paused = false;
                         AnnotationsViewerService.disableActiveTool();
                         $scope.$apply();
@@ -1564,7 +1561,6 @@
                             .unbind('area_ruler_empty_intersection')
                             .unbind('area_ruler_paused');
                         vm.ruler_tool_active = false;
-                        vm.tmp_ruler_exists = false;
                         vm.area_ruler_tool_paused = false;
                         AnnotationsViewerService.disableActiveTool();
                         if (ruler_saved) {
@@ -1576,7 +1572,7 @@
         }
 
         function temporaryRulerExists() {
-            return vm.tmp_ruler_exists;
+            return AnnotationsViewerService.tmpAreaRulerExists();
         }
 
         function confirmRuler() {
