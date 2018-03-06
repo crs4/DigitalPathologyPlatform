@@ -73,17 +73,24 @@
         </div>
         <div class="prm-form-elem text-right">
             <button class="btn btn-default prm-icon-btn" ng-hide="rmCtrl.isPolygonToolPaused()"
-                    ng-click="rmCtrl.pausePolygonTool()"
-                    title="Put the tool on pause">
+                    ng-click="rmCtrl.pausePolygonTool()" title="Put the tool on pause">
                 <i class="icon-pause"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-show="rmCtrl.isPolygonToolPaused()"
-                    ng-click="rmCtrl.unpausePolygonTool()"
-                    title="Resume the tool">
+                    ng-click="rmCtrl.unpausePolygonTool()" title="Resume the tool">
                 <i class="icon-play"></i>
             </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="rmCtrl.rollbackPolygon()"
+                    ng-disabled="!rmCtrl.polygonRollbackPossible()" title="Remove last point">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="rmCtrl.restorePolygon()" title="Restore last removed point"
+                    ng-disabled="!rmCtrl.polygonRestorePossible()">
+                <i class="icon-reply"></i>
+            </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()"
-                    ng-disabled="!rmCtrl.temporaryShapeExists()" title="Accept the shape">
+                    ng-disabled="!rmCtrl.temporaryPolygonExists()" title="Accept the shape">
                 <i class="icon-check"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"

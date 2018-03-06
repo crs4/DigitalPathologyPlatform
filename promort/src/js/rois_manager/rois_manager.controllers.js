@@ -591,6 +591,7 @@
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isFreehandToolPaused =isFreehandToolPaused;
+        vm.temporaryPolygonExists = temporaryPolygonExists;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
@@ -600,8 +601,12 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.polygonRollbackPossible = polygonRollbackPossible;
+        vm.polygonRestorePossible = polygonRestorePossible;
         vm.shapeRollbackPossible = shapeRollbackPossible;
         vm.shapeRestorePossible = shapeRestorePossible;
+        vm.rollbackPolygon = rollbackPolygon;
+        vm.restorePolygon = restorePolygon;
         vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.restoreFreehandShape = restoreFreehandShape;
         vm.abortTool = abortTool;
@@ -632,12 +637,18 @@
             vm.active_tool = vm.POLYGON_TOOL;
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $('#' + canvas_label);
-            $canvas.on('polygon_created',
-                function() {
-                    $canvas.unbind('polygon_created');
-                    $scope.$apply();
-                }
-            );
+            $canvas
+                .on('polygon_created',
+                    function() {
+                        $canvas.unbind('polygon_created');
+                        $scope.$apply();
+                    }
+                )
+                .on('polygon_add_point',
+                    function() {
+                        $scope.$apply();
+                    }
+                );
         }
 
         function newFreehand() {
@@ -731,6 +742,10 @@
             return vm.freehand_tool_paused;
         }
 
+        function temporaryPolygonExists() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
         }
@@ -804,6 +819,14 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function polygonRollbackPossible() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
+        function polygonRestorePossible() {
+            return AnnotationsViewerService.polygonRestoreHistoryExists();
+        }
+
         function shapeRollbackPossible() {
             return (AnnotationsViewerService.tmpFreehandPathExists() ||
                 AnnotationsViewerService.shapeUndoHistoryExists());
@@ -811,6 +834,14 @@
 
         function shapeRestorePossible() {
             return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
+        function rollbackPolygon() {
+            AnnotationsViewerService.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            AnnotationsViewerService.restorePolygon();
         }
 
         function rollbackFreehandShape() {
@@ -1064,6 +1095,7 @@
         vm.isFreehandToolPaused =isFreehandToolPaused;
         vm.isRulerToolActive = isRulerToolActive;
         vm.isTumorRulerToolActive = isTumorRulerToolActive;
+        vm.temporaryPolygonExists = temporaryPolygonExists;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
@@ -1076,8 +1108,12 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.polygonRollbackPossible = polygonRollbackPossible;
+        vm.polygonRestorePossible = polygonRestorePossible;
         vm.shapeRollbackPossible = shapeRollbackPossible;
         vm.shapeRestorePossible = shapeRestorePossible;
+        vm.rollbackPolygon = rollbackPolygon;
+        vm.restorePolygon = restorePolygon;
         vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.restoreFreehandShape = restoreFreehandShape;
         vm.stopRuler = stopRuler;
@@ -1129,6 +1165,11 @@
             $canvas.on('polygon_created',
                 function() {
                     $canvas.unbind('polygon_created');
+                    $scope.$apply();
+                }
+            )
+            .on('polygon_add_point',
+                function() {
                     $scope.$apply();
                 }
             );
@@ -1308,6 +1349,10 @@
             return vm.freehand_tool_paused;
         }
 
+        function temporaryPolygonExists() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
         }
@@ -1429,6 +1474,14 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function polygonRollbackPossible() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
+        function polygonRestorePossible() {
+            return AnnotationsViewerService.polygonRestoreHistoryExists();
+        }
+
         function shapeRollbackPossible() {
             return (AnnotationsViewerService.tmpFreehandPathExists() ||
                 AnnotationsViewerService.shapeUndoHistoryExists());
@@ -1436,6 +1489,14 @@
 
         function shapeRestorePossible() {
             return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
+        function rollbackPolygon() {
+            AnnotationsViewerService.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            AnnotationsViewerService.restorePolygon();
         }
 
         function rollbackFreehandShape() {
@@ -1829,6 +1890,7 @@
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isFreehandToolPaused = isFreehandToolPaused;
         vm.isRulerToolActive = isRulerToolActive;
+        vm.temporaryPolygonExists = temporaryPolygonExists;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
@@ -1840,8 +1902,12 @@
         vm.unpauseFreehandTool = unpauseFreehandTool;
         vm.confirmPolygon = confirmPolygon;
         vm.confirmFreehandShape = confirmFreehandShape;
+        vm.polygonRollbackPossible = polygonRollbackPossible;
+        vm.polygonRestorePossible = polygonRestorePossible;
         vm.shapeRollbackPossible = shapeRollbackPossible;
         vm.shapeRestorePossible = shapeRestorePossible;
+        vm.rollbackPolygon = rollbackPolygon;
+        vm.restorePolygon = restorePolygon;
         vm.rollbackFreehandShape = rollbackFreehandShape;
         vm.restoreFreehandShape = restoreFreehandShape;
         vm.stopRuler = stopRuler;
@@ -1901,12 +1967,18 @@
             vm.active_tool = vm.POLYGON_TOOL;
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
-            $canvas.on('polygon_created',
-                function() {
-                    $canvas.unbind('polygon_created');
-                    $scope.$apply();
-                }
-            );
+            $canvas
+                .on('polygon_created',
+                    function() {
+                        $canvas.unbind('polygon_created');
+                        $scope.$apply();
+                    }
+                )
+                .on('polygon_add_point',
+                    function() {
+                        $scope.$apply();
+                    }
+                );
         }
 
         function newFreehand() {
@@ -2045,6 +2117,10 @@
             return vm.freehand_tool_paused;
         }
 
+        function temporaryPolygonExists() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
         }
@@ -2156,6 +2232,14 @@
             AnnotationsViewerService.saveTemporaryFreehandShape();
         }
 
+        function polygonRollbackPossible() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
+        function polygonRestorePossible() {
+            return AnnotationsViewerService.polygonRestoreHistoryExists();
+        }
+
         function shapeRollbackPossible() {
             return (AnnotationsViewerService.tmpFreehandPathExists() ||
                 AnnotationsViewerService.shapeUndoHistoryExists());
@@ -2163,6 +2247,14 @@
 
         function shapeRestorePossible() {
             return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
+        function rollbackPolygon() {
+            AnnotationsViewerService.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            AnnotationsViewerService.restorePolygon();
         }
 
         function rollbackFreehandShape() {

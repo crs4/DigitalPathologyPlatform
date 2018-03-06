@@ -80,6 +80,10 @@
             changeShapeId: changeShapeId,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
+            temporaryPolygonExists: temporaryPolygonExists,
+            polygonRestoreHistoryExists: polygonRestoreHistoryExists,
+            rollbackPolygon: rollbackPolygon,
+            restorePolygon: restorePolygon,
             startFreehandDrawingTool: startFreehandDrawingTool,
             activatePreviewMode: activatePreviewMode,
             deactivatePreviewMode: deactivatePreviewMode,
@@ -184,6 +188,26 @@
 
         function clearTemporaryPolygon() {
             this.roisManager.clearTemporaryPolygon();
+        }
+
+        function temporaryPolygonExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.temporaryPolygonExists();
+            }
+        }
+
+        function polygonRestoreHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.polygonRedoHistoryExists();
+            }
+        }
+
+        function rollbackPolygon() {
+            this.roisManager.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            this.roisManager.restorePolygon();
         }
 
         function startFreehandDrawingTool() {
