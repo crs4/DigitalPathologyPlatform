@@ -1547,12 +1547,14 @@
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.tmp_ruler_exists = false;
+            vm.ruler_tool_paused = false;
         }
 
         function stopTumorRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.tmp_ruler_exists = false;
+            vm.tumor_ruler_tool_paused = false;
         }
 
         function clear(destroy_shape) {
@@ -1585,6 +1587,8 @@
             vm.polygon_tool_paused = false;
             vm.tmp_ruler_exists = false;
             vm.freehand_tool_paused = false;
+            vm.ruler_tool_paused = false;
+            vm.tumor_ruler_tool_paused = false;
         }
 
         function destroy() {
@@ -2322,6 +2326,8 @@
         function stopRuler() {
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
+            vm.ruler_tool_paused = false;
         }
 
         function clear(destroy_shape) {
@@ -2351,6 +2357,7 @@
             vm.polygon_tool_paused = false;
             vm.tmp_ruler_exists = false;
             vm.freehand_tool_paused = false;
+            vm.ruler_tool_paused = false;
         }
 
         function destroy() {
