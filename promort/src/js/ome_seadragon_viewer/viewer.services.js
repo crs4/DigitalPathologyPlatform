@@ -106,6 +106,7 @@
             checkContainment: checkContainment,
             adaptToContainer: adaptToContainer,
             createRulerBindings: createRulerBindings,
+            startRuler: startRuler,
             clearRuler: clearRuler,
             tmpAreaRulerExists: tmpAreaRulerExists,
             areaRulerUndoHistoryExists: areaRulerUndoHistoryExists,
@@ -306,6 +307,10 @@
 
         function createRulerBindings(on_switch, off_switch, output) {
             this.roisManager.bindToRuler(on_switch, off_switch, output);
+        }
+
+        function startRuler() {
+            this.toolsManager.activateTool(AnnotationsEventsController.MEASURING_TOOL);
         }
 
         function clearRuler() {

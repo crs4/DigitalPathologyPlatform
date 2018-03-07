@@ -193,7 +193,7 @@ h3.prm-dialog-container {
 }
 
 .prm-right_margin_mini {
-    margin-right: 5px;
+    margin-right: 5px !important;
 }
 
 .prm-selectpicker {

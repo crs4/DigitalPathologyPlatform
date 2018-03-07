@@ -1062,6 +1062,8 @@
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
         vm.freehand_tool_paused = false;
+        vm.ruler_tool_paused = false;
+        vm.tumor_ruler_tool_paused = false;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
@@ -1086,7 +1088,13 @@
         vm.initializeRuler = initializeRuler;
         vm.initializeTumorRuler = initializeTumorRuler;
         vm.startRuler = startRuler;
+        vm.pauseRulerTool = pauseRulerTool;
+        vm.resumeRulerTool = resumeRulerTool;
+        vm.isRulerToolPaused = isRulerToolPaused;
         vm.startTumorRuler = startTumorRuler;
+        vm.pauseTumorRulerTool = pauseTumorRulerTool;
+        vm.resumeTumorRulerTool = resumeTumorRulerTool;
+        vm.isTumorRulerToolPaused = isTumorRulerToolPaused;
         vm.save = save;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
@@ -1237,6 +1245,20 @@
             vm.active_tool = vm.RULER_TOOL;
         }
 
+        function pauseRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.ruler_tool_paused = true;
+        }
+
+        function resumeRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.ruler_tool_paused = false;
+        }
+
+        function isRulerToolPaused() {
+            return vm.ruler_tool_paused;
+        }
+
         function startTumorRuler() {
             var $tumor_ruler_out = $("#tumor_ruler_output");
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
@@ -1265,6 +1287,20 @@
                 }
             );
             vm.active_tool = vm.TUMOR_RULER_TOOL;
+        }
+
+        function pauseTumorRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.tumor_ruler_tool_paused = true;
+        }
+
+        function resumeTumorRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.tumor_ruler_tool_paused = false;
+        }
+
+        function isTumorRulerToolPaused() {
+            return vm.tumor_ruler_tool_paused;
         }
 
         function activateEditLabelMode() {
@@ -1857,6 +1893,7 @@
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
         vm.freehand_tool_paused = false;
+        vm.ruler_tool_paused = false;
 
         vm.tmp_ruler_exists = false;
 
@@ -1883,6 +1920,9 @@
         vm._updateFocusRegionData = _updateFocusRegionData;
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
+        vm.pauseRulerTool = pauseRulerTool;
+        vm.resumeRulerTool = resumeRulerTool;
+        vm.isRulerToolPaused = isRulerToolPaused;
         vm.save = save;
         vm.isReadOnly = isReadOnly;
         vm.isPolygonToolActive = isPolygonToolActive;
@@ -2037,6 +2077,20 @@
                 }
             );
             vm.active_tool = vm.RULER_TOOL;
+        }
+
+        function pauseRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.ruler_tool_paused = true;
+        }
+
+        function resumeRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.ruler_tool_paused = false;
+        }
+
+        function isRulerToolPaused() {
+            return vm.ruler_tool_paused;
         }
 
         function activateEditLabelMode() {

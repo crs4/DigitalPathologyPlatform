@@ -236,6 +236,16 @@
     <div class="form-group row" ng-show="rmCtrl.isRulerToolActive()">
         <div class="input-group prm-row-elem text-right">
             <div class="input-group-btn">
+                <button class="btn btn-default prm-icon-btn prm-right_margin_mini" ng-click="rmCtrl.pauseRulerTool()"
+                        ng-hide="rmCtrl.isRulerToolPaused()" ng-disabled="!rmCtrl.temporaryRulerExists()"
+                        title="Pause ruler tool">
+                    <i class="icon-pause"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn prm-right_margin_mini" ng-click="rmCtrl.resumeRulerTool()"
+                        ng-show="rmCtrl.isRulerToolPaused()"
+                        title="Resume ruler tool">
+                    <i class="icon-play"></i>
+                </button>
                 <button id="focus_region_ruler_abort" class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
                         ng-click="rmCtrl.abortTool()"
                         title="Discharge measure and abort tool">
@@ -253,7 +263,7 @@
         <div class="prm-label-elem checkbox prm-checkbox">
             <label>
                 <input type="checkbox" ng-model="rmCtrl.isTumor" ng-click="rmCtrl.switchShapeColor()"
-                       ng-disabled="rmCtrl.isReadOnly()">Tumor Area
+                       ng-disabled="rmCtrl.isReadOnly() || rmCtrl.isRulerToolActive()">Tumor Area
             </label>
         </div>
     </div>
