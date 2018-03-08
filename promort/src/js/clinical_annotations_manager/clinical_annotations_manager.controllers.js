@@ -1460,6 +1460,7 @@
             vm.hypernephroidPattern = false;
             vm.mucinous = false;
             vm.comedoNecrosis = false;
+            vm.cellsCount = undefined;
 
             vm.gleason4Elements = {};
             vm.gleason4ElementsLabels = [];
@@ -2047,6 +2048,7 @@
         vm.locked = undefined;
 
         vm.isReadOnly = isReadOnly;
+        vm.isCancerousRegion = isCancerousRegion;
         vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
@@ -2144,6 +2146,10 @@
 
         function isReadOnly() {
             return true;
+        }
+
+        function isCancerousRegion() {
+            return vm.cancerousRegion;
         }
 
         function isLocked() {

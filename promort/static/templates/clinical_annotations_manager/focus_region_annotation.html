@@ -23,10 +23,10 @@
         </div>
     </div>
     <div class="form-group row">
-        <div class="col-sm-4 prm-valign prm-label-elem">
+        <div class="prm-label-elem">
             <label>ROI/Core</label>
-        </div><!--
-      --><div class="col-sm-8 prm-valign prm-form-elem">
+        </div>
+        <div class="prm-form-elem">
             <div class="input-group">
                 <input class="form-control prm-text-input" type="number" readonly placeholder="0.00"
                        ng-model="cmCtrl.coreCoveragePercentage">
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="form-group row">
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly() && !cmCtrl.isCancerousRegion()">
         <div class="prm-label-elem">
             <label>Region cells count</label>
         </div>
