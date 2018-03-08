@@ -224,7 +224,10 @@ class FocusRegionAnnotationDetail(ClinicalAnnotationStepObject):
     def _prepare_gleason_elements(self, gleason_elements):
         for element in gleason_elements:
             element['json_path'] = json.dumps(element['json_path'])
-            element['cellular_density_helper_json'] = json.dumps(element['cellular_density_helper_json'])
+            try:
+                element['cellular_density_helper_json'] = json.dumps(element['cellular_density_helper_json'])
+            except KeyError:
+                element['cellular_density_helper_json'] = None
         return gleason_elements
 
     def post(self, request, focus_region_id, label, format=None):

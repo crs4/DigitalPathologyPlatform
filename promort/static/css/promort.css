@@ -183,9 +183,17 @@ h3.prm-dialog-container {
     font-variant: small-caps;
 }
 
-.prm-lateral_margin{
+.prm-lateral_margin {
     margin-left: 20px;
     margin-right: 20px;
+}
+
+.prm-left_margin_mini {
+    margin-left: 5px;
+}
+
+.prm-right_margin_mini {
+    margin-right: 5px !important;
 }
 
 .prm-selectpicker {
@@ -232,6 +240,14 @@ h3.prm-dialog-container {
 .prm-qc-not-passed-label {
     color: red;
     font-weight: bold;
+}
+
+.prm-y-mirror {
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
 }
 
 /* Hidden placeholder*/
