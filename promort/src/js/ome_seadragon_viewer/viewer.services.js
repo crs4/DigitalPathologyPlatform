@@ -80,7 +80,21 @@
             changeShapeId: changeShapeId,
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
+            temporaryPolygonExists: temporaryPolygonExists,
+            polygonRestoreHistoryExists: polygonRestoreHistoryExists,
+            rollbackPolygon: rollbackPolygon,
+            restorePolygon: restorePolygon,
             startFreehandDrawingTool: startFreehandDrawingTool,
+            activatePreviewMode: activatePreviewMode,
+            deactivatePreviewMode: deactivatePreviewMode,
+            isPreviewModeActive: isPreviewModeActive,
+            saveTemporaryFreehandShape: saveTemporaryFreehandShape,
+            clearTemporaryFreehandShape: clearTemporaryFreehandShape,
+            tmpFreehandPathExists: tmpFreehandPathExists,
+            shapeUndoHistoryExists: shapeUndoHistoryExists,
+            shapeRestoreHistoryExists: shapeRestoreHistoryExists,
+            rollbackTemporaryFreehandShape: rollbackTemporaryFreehandShape,
+            restoreTemporaryFreehandShape: restoreTemporaryFreehandShape,
             setFreehandToolLabelPrefix: setFreehandToolLabelPrefix,
             deleteShape: deleteShape,
             clear: clear,
@@ -92,10 +106,21 @@
             checkContainment: checkContainment,
             adaptToContainer: adaptToContainer,
             createRulerBindings: createRulerBindings,
+            startRuler: startRuler,
             clearRuler: clearRuler,
+            tmpAreaRulerExists: tmpAreaRulerExists,
+            areaRulerUndoHistoryExists: areaRulerUndoHistoryExists,
+            areaRulerRedoHistoryExists: areaRulerRedoHistoryExists,
             createAreaRulerBindings: createAreaRulerBindings,
             clearAreaRuler: clearAreaRuler,
             bindAreaRulerToShape: bindAreaRulerToShape,
+            startAreaRulerTool: startAreaRulerTool,
+            activateAreaRulerPreviewMode: activateAreaRulerPreviewMode,
+            deactivateAreaRulerPreviewMode: deactivateAreaRulerPreviewMode,
+            isAreaRulerPreviewModeActive: isAreaRulerPreviewModeActive,
+            rollbackAreaRuler: rollbackAreaRuler,
+            restoreAreaRuler: restoreAreaRuler,
+            saveAreaRuler: saveAreaRuler,
             getAreaCoverage: getAreaCoverage,
             setShapeStrokeColor: setShapeStrokeColor
         };
@@ -166,8 +191,74 @@
             this.roisManager.clearTemporaryPolygon();
         }
 
+        function temporaryPolygonExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.temporaryPolygonExists();
+            }
+        }
+
+        function polygonRestoreHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.polygonRedoHistoryExists();
+            }
+        }
+
+        function rollbackPolygon() {
+            this.roisManager.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            this.roisManager.restorePolygon();
+        }
+
         function startFreehandDrawingTool() {
             this.toolsManager.activateTool(AnnotationsEventsController.FREEHAND_DRAWING_TOOL);
+        }
+
+        function activatePreviewMode() {
+            this.roisManager.activatePreviewMode();
+        }
+
+        function deactivatePreviewMode() {
+            this.roisManager.deactivatePreviewMode();
+        }
+
+        function isPreviewModeActive() {
+            return this.roisManager.previewModeActive();
+        }
+
+        function saveTemporaryFreehandShape() {
+            this.roisManager.saveTemporaryFreehandPath();
+        }
+
+        function clearTemporaryFreehandShape() {
+            this.roisManager.clearTemporaryFreehandPath();
+        }
+
+        function tmpFreehandPathExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpFreehandPathExists();
+            }
+        }
+
+        function shapeUndoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.shapeUndoHistoryExists();
+            }
+        }
+
+        function shapeRestoreHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.shapeRedoHistoryExists();
+            }
+        }
+
+        function rollbackTemporaryFreehandShape() {
+            this.roisManager.rollbackFreehandPath();
+        }
+
+        function restoreTemporaryFreehandShape() {
+            this.roisManager.restoreFreehandPath();
         }
 
         function setFreehandToolLabelPrefix(label_prefix) {
@@ -218,8 +309,30 @@
             this.roisManager.bindToRuler(on_switch, off_switch, output);
         }
 
+        function startRuler() {
+            this.toolsManager.activateTool(AnnotationsEventsController.MEASURING_TOOL);
+        }
+
         function clearRuler() {
             this.roisManager.clearRuler(true);
+        }
+
+        function tmpAreaRulerExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpAreaRulerExists();
+            }
+        }
+
+        function areaRulerUndoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.areaRulerUndoHistoryExists();
+            }
+        }
+
+        function areaRulerRedoHistoryExists() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.areaRulerRedoHistoryExists();
+            }
         }
 
         function createAreaRulerBindings(on_switch, output) {
@@ -230,8 +343,36 @@
             this.roisManager.bindAreaRulerToShape(shape_id);
         }
 
+        function startAreaRulerTool() {
+            this.toolsManager.activateTool(AnnotationsEventsController.AREA_MEASURING_TOOL);
+        }
+
+        function activateAreaRulerPreviewMode() {
+            this.roisManager.activateAreaRulerPreviewMode();
+        }
+
+        function deactivateAreaRulerPreviewMode() {
+            this.roisManager.deactivateAreaRulerPreviewMode();
+        }
+
+        function isAreaRulerPreviewModeActive() {
+            return this.roisManager.areaRulerPreviewModeActive();
+        }
+
+        function rollbackAreaRuler() {
+            this.roisManager.rollbackAreaRulerPath();
+        }
+
+        function restoreAreaRuler() {
+            this.roisManager.restoreAreaRulerPath();
+        }
+
+        function saveAreaRuler() {
+            this.roisManager.saveAreaRuler();
+        }
+
         function clearAreaRuler() {
-            this.roisManager.clearAreaRuler(true);
+            this.roisManager.clearAreaRuler(false);
         }
 
         function getAreaCoverage(shape_1_label, shape_2_label) {
