@@ -81,6 +81,7 @@
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             temporaryPolygonExists: temporaryPolygonExists,
+            temporaryPolygonValid: temporaryPolygonValid,
             polygonRestoreHistoryExists: polygonRestoreHistoryExists,
             rollbackPolygon: rollbackPolygon,
             restorePolygon: restorePolygon,
@@ -91,6 +92,7 @@
             saveTemporaryFreehandShape: saveTemporaryFreehandShape,
             clearTemporaryFreehandShape: clearTemporaryFreehandShape,
             tmpFreehandPathExists: tmpFreehandPathExists,
+            tmpFreehandPathValid: tmpFreehandPathValid,
             shapeUndoHistoryExists: shapeUndoHistoryExists,
             shapeRestoreHistoryExists: shapeRestoreHistoryExists,
             rollbackTemporaryFreehandShape: rollbackTemporaryFreehandShape,
@@ -109,6 +111,7 @@
             startRuler: startRuler,
             clearRuler: clearRuler,
             tmpAreaRulerExists: tmpAreaRulerExists,
+            tmpAreaRulerValid: tmpAreaRulerValid,
             areaRulerUndoHistoryExists: areaRulerUndoHistoryExists,
             areaRulerRedoHistoryExists: areaRulerRedoHistoryExists,
             createAreaRulerBindings: createAreaRulerBindings,
@@ -197,6 +200,12 @@
             }
         }
 
+        function temporaryPolygonValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.temporaryPolygonValid();
+            }
+        }
+
         function polygonRestoreHistoryExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.polygonRedoHistoryExists();
@@ -238,6 +247,12 @@
         function tmpFreehandPathExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.tmpFreehandPathExists();
+            }
+        }
+
+        function tmpFreehandPathValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpFreehandPathValid();
             }
         }
 
@@ -320,6 +335,12 @@
         function tmpAreaRulerExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.tmpAreaRulerExists();
+            }
+        }
+
+        function tmpAreaRulerValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpAreaRulerValid();
             }
         }
 

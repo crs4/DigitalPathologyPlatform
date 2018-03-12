@@ -90,7 +90,7 @@
                 <i class="icon-reply"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmPolygon()"
-                    ng-disabled="!rmCtrl.temporaryPolygonExists()" title="Accept the shape">
+                    ng-disabled="!rmCtrl.temporaryPolygonValid()" title="Accept the shape">
                 <i class="icon-check"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.abortTool()"
@@ -149,7 +149,7 @@
                 <i class="icon-reply"></i>
             </button>
             <button class="btn btn-default prm-icon-btn" ng-click="rmCtrl.confirmFreehandShape()"
-                    ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeExists()"
+                    ng-disabled="!rmCtrl.isFreehandToolPaused() || !rmCtrl.temporaryShapeValid()"
                     title="Accept the shape">
                 <i class="icon-check"></i>
             </button>

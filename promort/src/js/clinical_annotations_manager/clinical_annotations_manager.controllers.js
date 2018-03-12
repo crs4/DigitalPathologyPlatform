@@ -1347,6 +1347,7 @@
         vm.rulerToolActive = rulerToolActive;
         vm.rulerExists = rulerExists;
         vm.temporaryRulerExists = temporaryRulerExists;
+        vm.temporaryRulerValid = temporaryRulerValid;
         vm.confirmRuler = confirmRuler;
         vm.pauseRuler = pauseRuler;
         vm.unpauseRuler = unpauseRuler;
@@ -1546,6 +1547,11 @@
 
         function temporaryRulerExists() {
             return AnnotationsViewerService.tmpAreaRulerExists();
+        }
+
+        function temporaryRulerValid() {
+            console.log('TEMPORARY G4 SHAPE VALID: ' + AnnotationsViewerService.tmpAreaRulerValid());
+            return AnnotationsViewerService.tmpAreaRulerValid();
         }
 
         function confirmRuler() {

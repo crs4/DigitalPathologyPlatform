@@ -592,7 +592,9 @@
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isFreehandToolPaused =isFreehandToolPaused;
         vm.temporaryPolygonExists = temporaryPolygonExists;
+        vm.temporaryPolygonValid = temporaryPolygonValid;
         vm.temporaryShapeExists = temporaryShapeExists;
+        vm.temporaryShapeValid = temporaryShapeValid;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.pausePolygonTool = pausePolygonTool;
@@ -746,8 +748,16 @@
             return AnnotationsViewerService.temporaryPolygonExists();
         }
 
+        function temporaryPolygonValid() {
+            return AnnotationsViewerService.temporaryPolygonValid();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
+        }
+
+        function temporaryShapeValid() {
+            return AnnotationsViewerService.tmpFreehandPathValid();
         }
 
         function drawInProgress() {
@@ -1104,7 +1114,9 @@
         vm.isRulerToolActive = isRulerToolActive;
         vm.isTumorRulerToolActive = isTumorRulerToolActive;
         vm.temporaryPolygonExists = temporaryPolygonExists;
+        vm.temporaryPolygonValid = temporaryPolygonValid;
         vm.temporaryShapeExists = temporaryShapeExists;
+        vm.temporaryShapeValid = temporaryShapeValid;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.temporaryRulerExists = temporaryRulerExists;
@@ -1389,8 +1401,16 @@
             return AnnotationsViewerService.temporaryPolygonExists();
         }
 
+        function temporaryPolygonValid() {
+            return AnnotationsViewerService.temporaryPolygonValid();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
+        }
+
+        function temporaryShapeValid() {
+            return AnnotationsViewerService.tmpFreehandPathValid();
         }
 
         function drawInProgress() {
@@ -1935,7 +1955,9 @@
         vm.isFreehandToolPaused = isFreehandToolPaused;
         vm.isRulerToolActive = isRulerToolActive;
         vm.temporaryPolygonExists = temporaryPolygonExists;
+        vm.temporaryPolygonValid = temporaryPolygonValid;
         vm.temporaryShapeExists = temporaryShapeExists;
+        vm.temporaryShapeValid = temporaryShapeValid;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
         vm.temporaryRulerExists = temporaryRulerExists;
@@ -2179,8 +2201,16 @@
             return AnnotationsViewerService.temporaryPolygonExists();
         }
 
+        function temporaryPolygonValid() {
+            return AnnotationsViewerService.temporaryPolygonValid();
+        }
+
         function temporaryShapeExists() {
             return AnnotationsViewerService.tmpFreehandPathExists();
+        }
+
+        function temporaryShapeValid() {
+            return AnnotationsViewerService.tmpFreehandPathValid();
         }
 
         function shapeExists() {
