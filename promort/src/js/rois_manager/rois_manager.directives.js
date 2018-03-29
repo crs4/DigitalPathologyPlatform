@@ -18,7 +18,9 @@
         .directive('newFocusRegionForm', newFocusRegionForm)
         .directive('newFocusRegionButtons', newFocusRegionButtons)
         .directive('showFocusRegionDetails', showFocusRegionDetails)
-        .directive('showFocusRegionButtons', showFocusRegionButtons);
+        .directive('showFocusRegionButtons', showFocusRegionButtons)
+        .directive('editFocusRegionForm', editFocusRegionForm)
+        .directive('editFocusRegionButtons', editFocusRegionButtons);
 
     function newSliceForm() {
         var directive = {
@@ -232,6 +234,33 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
             controller: 'ShowFocusRegionController',
+            controllerAs: 'rmCtrl'
+        };
+        return directive;
+    }
+
+    function editFocusRegionForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/focus_region.html',
+            controller: 'EditFocusRegionController',
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
+        };
+        return directive;
+    }
+
+    function editFocusRegionButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'EditFocusRegionController',
             controllerAs: 'rmCtrl'
         };
         return directive;

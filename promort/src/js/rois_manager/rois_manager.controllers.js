@@ -12,6 +12,7 @@
         .controller('EditCoreController', EditCoreController)
         .controller('ShowCoreController', ShowCoreController)
         .controller('NewFocusRegionController', NewFocusRegionController)
+        .controller('EditFocusRegionController', EditFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
@@ -2138,6 +2139,410 @@
                 (vm.coreArea * vm.coreAreaScaleFactor.id), 3
             );
         }
+
+        function getRulerOnId() {
+            return vm.ruler_on_id;
+        }
+
+        function getRulerOffId() {
+            return vm.ruler_off_id;
+        }
+
+        function getRulerOutputId() {
+            return vm.ruler_output_id;
+        }
+
+        function getTumorRulerOnId() {
+            return vm.tumor_ruler_on_id;
+        }
+
+        function getTumorRulerOffId() {
+            return vm.tumor_ruler_off_id;
+        }
+
+        function getTumorRulerOutputId() {
+            return vm.tumor_ruler_output_id;
+        }
+
+        function initializeRuler() {
+            AnnotationsViewerService.createRulerBindings(vm.getRulerOnId(), vm.getRulerOffId(),
+                vm.getRulerOutputId());
+        }
+
+        function initializeTumorRuler() {
+            AnnotationsViewerService.createRulerBindings(vm.getTumorRulerOnId(), vm.getTumorRulerOffId(),
+                vm.getTumorRulerOutputId());
+        }
+
+        function startRuler() {
+            var $ruler_out = $('#' + vm.getRulerOutputId());
+            AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $ruler_out.on('ruler_created',
+                function() {
+                    if (vm.isRulerToolActive()) {
+                        vm.tmp_ruler_exists = true;
+                        $ruler_out.unbind('ruler_created');
+                        $scope.$apply();
+                    }
+                }
+            );
+            $ruler_out.on('ruler_updated',
+                function() {
+                    vm.coreLength = $ruler_out.data('measure');
+                    vm.updateCoreLength();
+                    $scope.$apply();
+                }
+            );
+            $ruler_out.on('ruler_cleared',
+                function(event, ruler_saved) {
+                    if (ruler_saved) {
+                        $ruler_out.unbind('ruler_cleared');
+                        $ruler_out.unbind('ruler_updated');
+                    }
+                }
+            );
+            vm.active_tool = vm.RULER_TOOL;
+        }
+
+        function pauseRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.ruler_tool_paused = true;
+        }
+
+        function resumeRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.ruler_tool_paused = false;
+        }
+
+        function isRulerToolPaused() {
+            return vm.ruler_tool_paused;
+        }
+
+        function startTumorRuler() {
+            var $tumor_ruler_out = $('#' + vm.getTumorRulerOutputId());
+            AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $tumor_ruler_out.on('ruler_created',
+                function() {
+                    if (vm.isTumorRulerToolActive()) {
+                        vm.tmp_ruler_exists = true;
+                        $tumor_ruler_out.unbind('ruler_created');
+                        $scope.$apply();
+                    }
+                }
+            );
+            $tumor_ruler_out.on('ruler_updated',
+                function() {
+                    vm.tumorLength = $tumor_ruler_out.data('measure');
+                    vm.updateTumorLength();
+                    $scope.$apply();
+                }
+            );
+            $tumor_ruler_out.on('ruler_cleared',
+                function(event, ruler_saved){
+                    if (ruler_saved) {
+                        $tumor_ruler_out.unbind('ruler_cleared');
+                        $tumor_ruler_out.unbind('ruler_updated');
+                    }
+                }
+            );
+            vm.active_tool = vm.TUMOR_RULER_TOOL;
+        }
+
+        function pauseTumorRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.tumor_ruler_tool_paused = true;
+        }
+
+        function resumeTumorRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.tumor_ruler_tool_paused = false;
+        }
+
+        function isTumorRulerToolPaused() {
+            return vm.tumor_ruler_tool_paused;
+        }
+
+        function isRulerToolActive() {
+            return vm.active_tool === vm.RULER_TOOL;
+        }
+
+        function isTumorRulerToolActive() {
+            return vm.active_tool === vm.TUMOR_RULER_TOOL;
+        }
+
+        function coreLengthExists() {
+            return (vm.coreLength !== undefined && vm.coreLength !== null);
+        }
+
+        function tumorLengthExists() {
+            return (vm.tumorLength !== undefined && vm.tumorLength !== null);
+        }
+
+        function temporaryRulerExists() {
+            if (vm.active_tool === vm.RULER_TOOL) {
+                return vm.tmp_ruler_exists && vm.coreLength > 0;
+            } else if (vm.active_tool === vm.TUMOR_RULER_TOOL) {
+                return vm.tmp_ruler_exists && vm.tumorLength > 0;
+            } else {
+                return false;
+            }
+        }
+
+        function stopRuler() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
+            vm.ruler_tool_paused = false;
+        }
+
+        function stopTumorRuler() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
+            vm.tumor_ruler_tool_paused = false;
+        }
+
+        function abortTool() {
+            if (vm.active_tool === vm.RULER_TOOL) {
+                vm.deleteRuler();
+            }
+            if (vm.active_tool === vm.TUMOR_RULER_TOOL) {
+                vm.deleteTumorRuler();
+            }
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
+            vm.ruler_tool_paused = false;
+            vm.tumor_ruler_tool_paused = false;
+        }
+
+        function _unbindRulers() {
+            $("#core_ruler_output")
+                .unbind('ruler_cleared')
+                .unbind('ruler_updated');
+            $("#tumor_ruler_output")
+                .unbind('ruler_cleared')
+                .unbind('ruler_updated');
+        }
+
+        function deleteRuler() {
+            var $ruler_out = $('#core_ruler_output');
+            $ruler_out.unbind('ruler_updated');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
+            if (typeof vm.coreLength !== 'undefined') {
+                $ruler_out.removeData('ruler_json')
+                    .removeData('measure');
+                vm.coreLength = undefined;
+                vm.scaledCoreLength = undefined;
+            }
+            vm.tmp_ruler_exists = false;
+        }
+
+        function deleteTumorRuler() {
+            var $tumor_ruler_out = $("#tumor_ruler_output");
+            $tumor_ruler_out.unbind('ruler_updated');
+            $tumor_ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
+            if (typeof vm.tumorLength !== 'undefined') {
+                $tumor_ruler_out.removeData('ruler_json')
+                    .removeData('measure');
+                vm.tumorLength = undefined;
+                vm.scaledTumorLength = undefined;
+            }
+            vm.tmp_ruler_exists = false;
+        }
+
+        function formValid() {
+            // if tumor ruler tool is active, "Save" button should be disabled
+            if (vm.isTumorRulerToolActive() || vm.isRulerToolActive()) {
+                return false;
+            }
+            return typeof vm.coreLength !== 'undefined';
+        }
+
+        function abortEdit() {
+            vm._unbindRulers();
+            $rootScope.$broadcast('core.show', vm.core_id);
+            vm.core_id = undefined;
+            vm.label = undefined;
+            vm.shape_id = undefined;
+            vm.coreArea = undefined;
+            vm.coreLength = undefined;
+            vm.tumorLength = undefined;
+        }
+
+        function updateROI() {
+            var tumor_length = typeof vm.tumorLength !== 'undefined' ? vm.tumorLength : null;
+            CoresManagerService.update(vm.core_id, vm.coreLength, tumor_length)
+                .then(updateCoreSuccessFn, updateCoreErrorFn);
+
+            function updateCoreSuccessFn(response) {
+                vm.abortEdit();
+            }
+
+            function updateCoreErrorFn(response) {
+                console.error('unable to update core data');
+                console.error(response);
+            }
+        }
+    }
+
+
+    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
+        'AnnotationsViewerService'];
+
+    function ShowCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.core_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.coreArea = undefined;
+        vm.coreLength = undefined;
+        vm.tumorLength = undefined;
+
+        vm.scaledCoreLength = undefined;
+        vm.coreLengthScaleFactor = undefined;
+        vm.scaledTumorLength = undefined;
+        vm.tumorLengthScaleFactor = undefined;
+        vm.scaledCoreArea = undefined;
+        vm.coreAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
+        vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
+        vm.shapeExists = shapeExists;
+        vm.focusOnShape = focusOnShape;
+        vm.editROI = editROI;
+        vm.deleteShape = deleteShape;
+        vm.updateTumorLength = updateTumorLength;
+        vm.updateCoreLength = updateCoreLength;
+        vm.updateCoreArea = updateCoreArea;
+
+        activate();
+
+        function activate() {
+            vm.coreLengthScaleFactor = vm.lengthUOM[0];
+            vm.tumorLengthScaleFactor = vm.lengthUOM[0];
+            vm.coreAreaScaleFactor = vm.areaUOM[0];
+
+            $scope.$on('core.load',
+                function(event, core_id) {
+                    console.log('Show core ' + core_id);
+                    vm.core_id = core_id;
+                    CoresManagerService.get(core_id)
+                        .then(getCoreSuccessFn, getCoreErrorFn);
+                }
+            );
+
+            function getCoreSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.coreArea = response.data.area;
+                vm.updateCoreArea();
+                vm.coreLength = response.data.length;
+                vm.updateCoreLength();
+                vm.tumorLength = response.data.tumor_length;
+                vm.updateTumorLength();
+            }
+
+            function getCoreErrorFn(response) {
+                console.error('Unable to load core data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
+
+        function isEditMode() {
+            return false;
+        }
+
+        function shapeExists() {
+            return (typeof vm.shape_id !== 'undefined');
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function editROI() {
+            $rootScope.$broadcast('edit.activate', {'roi_type': 'core', 'roi_id': vm.core_id});
+        }
+
+        function deleteShape() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_roi_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            var dialog = undefined;
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    dialog = ngDialog.open({
+                        'template': '/static/templates/dialogs/deleting_data.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                    CoresManagerService.cascadeDelete(vm.core_id)
+                        .then(deleteCoreSuccessFn, deleteCoreErrorFn)
+                }
+            }
+
+            function deleteCoreSuccessFn(response) {
+                $rootScope.$broadcast('core.deleted', vm.core_id);
+                vm.core_id = undefined;
+                vm.label = undefined;
+                vm.shape_id = undefined;
+                vm.coreArea = undefined;
+                vm.scaledCoreArea = undefined;
+                vm.coreLength = undefined;
+                vm.scaledCoreLength = undefined;
+                vm.tumorLength = undefined;
+                vm.scaledTumorLength = undefined;
+                dialog.close();
+            }
+
+            function deleteCoreErrorFn(response) {
+                console.error('Unable to delete core');
+                console.error(response);
+                dialog.close();
+            }
+        }
+
+        function updateCoreLength() {
+            vm.scaledCoreLength = formatDecimalNumber(
+                (vm.coreLength * vm.coreLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateTumorLength() {
+            vm.scaledTumorLength = formatDecimalNumber(
+                (vm.tumorLength * vm.tumorLengthScaleFactor.id), 3
+            );
+        }
+
+        function updateCoreArea() {
+            vm.scaledCoreArea = formatDecimalNumber(
+                (vm.coreArea * vm.coreAreaScaleFactor.id), 3
+            );
+        }
     }
 
     NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
@@ -2172,6 +2577,10 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
+        vm.ruler_on_id = 'new_focus_region_ruler_on';
+        vm.ruler_off_id = 'new_focus_region_ruler_off';
+        vm.ruler_output_id = 'new_focus_region_ruler_output';
+
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
         vm.freehand_tool_paused = false;
@@ -2200,6 +2609,9 @@
         vm.resetLabel = resetLabel;
         vm.isEditLabelModeActive = isEditLabelModeActive;
         vm._updateFocusRegionData = _updateFocusRegionData;
+        vm.getRulerOnId = getRulerOnId;
+        vm.getRulerOffId = getRulerOffId;
+        vm.getRulerOutputId = getRulerOutputId;
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
         vm.pauseRulerTool = pauseRulerTool;
@@ -2329,13 +2741,24 @@
             vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parentCore.label, polygon_label);
         }
 
+        function getRulerOnId() {
+            return vm.ruler_on_id;
+        }
+
+        function getRulerOffId() {
+            return vm.ruler_off_id;
+        }
+
+        function getRulerOutputId() {
+            return vm.ruler_output_id;
+        }
+
         function initializeRuler() {
-            AnnotationsViewerService.createRulerBindings('focus_region_ruler_on', 'focus_region_ruler_off',
-                'focus_region_ruler_output');
+            AnnotationsViewerService.createRulerBindings(vm.getRulerOnId(), vm.getRulerOffId(), vm.getRulerOutputId());
         }
 
         function startRuler() {
-            var $ruler_out = $('#focus_region_ruler_output');
+            var $ruler_out = $('#' + vm.getRulerOutputId());
             vm._updateShapeConfig();
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
             $ruler_out.on('ruler_created',
@@ -2740,6 +3163,327 @@
         }
     }
 
+    EditFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
+        'AnnotationsViewerService', 'FocusRegionsManagerService'];
+
+    function EditFocusRegionController($scope, $rootScope, $routeParams, ngDialog, AnnotationsViewerService,
+                                      FocusRegionsManagerService) {
+        var vm = this;
+        vm.focus_region_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.parent_shape_id = undefined;
+        vm.regionLength = undefined;
+        vm.regionArea = undefined;
+        vm.coreCoverage = undefined;
+        vm.isTumor = false;
+
+        vm.scaledRegionLength = undefined;
+        vm.regionLengthScaleFactor = undefined;
+        vm.scaledRegionArea = undefined;
+        vm.regionAreaScaleFactor = undefined;
+
+        vm.lengthUOM = [
+            { id: 1, unit_of_measure: 'μm' },
+            { id: Math.pow(10, -3), unit_of_measure: 'mm' }
+        ];
+
+        vm.areaUOM = [
+            { id: 1, unit_of_measure: 'μm²'},
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+        ];
+
+        vm.ruler_on_id = 'edit_focus_region_ruler_on';
+        vm.ruler_off_id = 'edit_focus_region_ruler_off';
+        vm.ruler_output_id = 'edit_focus_region_output';
+
+        vm.active_tool = undefined;
+        vm.polygon_tool_paused = false;
+        vm.freehand_tool_paused = false;
+        vm.ruler_tool_paused = false;
+
+        vm.tmp_ruler_exists = false;
+
+        vm.RULER_TOOL = 'ruler_tool';
+
+        vm.shape_config = {
+            'stroke_color': '#00ff00',
+            'stroke_width': 20
+        };
+
+        vm._updateShapeConfig = _updateShapeConfig;
+        vm.switchShapeColor = switchShapeColor;
+        vm._updateFocusRegionData = _updateFocusRegionData;
+        vm.getRulerOnId = getRulerOnId;
+        vm.getRulerOffId = getRulerOffId;
+        vm.getRulerOutputId = getRulerOutputId;
+        vm.initializeRuler = initializeRuler;
+        vm.startRuler = startRuler;
+        vm.pauseRulerTool = pauseRulerTool;
+        vm.resumeRulerTool = resumeRulerTool;
+        vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
+        vm.isRulerToolActive = isRulerToolActive;
+        vm.isRulerToolPaused = isRulerToolPaused;
+        vm.shapeExists = shapeExists;
+        vm.temporaryRulerExists = temporaryRulerExists;
+        vm.regionLengthExists = regionLengthExists;
+        vm.stopRuler = stopRuler;
+        vm.abortTool = abortTool;
+        vm.clear = clear;
+        vm.focusOnShape = focusOnShape;
+        vm.deleteRuler = deleteRuler;
+        vm.formValid = formValid;
+        vm.updateRegionLength = updateRegionLength;
+        vm.updateRegionArea = updateRegionArea;
+        vm.abortEdit = abortEdit;
+        vm.updateROI = updateROI;
+
+        activate();
+
+        function activate() {
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    vm.initializeRuler();
+                }
+            );
+
+            $scope.$on('focus_region.edit',
+                function (event, focus_region_id, parent_shape_id) {
+                    vm.regionAreaScaleFactor = vm.areaUOM[0];
+                    vm.regionLengthScaleFactor = vm.lengthUOM[0];
+
+                    vm.focus_region_id = focus_region_id;
+                    vm.parent_shape_id = parent_shape_id;
+                    FocusRegionsManagerService.get(focus_region_id)
+                        .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
+                }
+            );
+
+            function getFocusRegionSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.regionArea = response.data.area;
+                vm.updateRegionArea();
+                vm.regionLength = response.data.length;
+                vm.updateRegionLength();
+                vm.isTumor = response.data.cancerous_region;
+                vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
+                vm._updateShapeConfig();
+            }
+
+            function getFocusRegionErrorFn(response) {
+                console.error('Unable to load focus region data');
+                console.error(response);
+            }
+        }
+
+        function _updateShapeConfig() {
+            if (vm.isTumor) {
+                vm.shape_config.stroke_color = '#ff0000';
+            } else {
+                vm.shape_config.stroke_color = '#32fc46';
+            }
+        }
+
+        function switchShapeColor() {
+            if (typeof vm.shape_id !== 'undefined') {
+                vm._updateShapeConfig();
+                AnnotationsViewerService.setShapeStrokeColor(vm.shape_id, vm.shape_config.stroke_color);
+                // vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_id);
+            }
+        }
+
+        function _updateFocusRegionData(polygon_label, parent_core) {
+            vm.parentCore = parent_core;
+            vm.regionArea = AnnotationsViewerService.getShapeArea(polygon_label);
+            vm.updateRegionArea();
+            vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parentCore.label, polygon_label);
+        }
+
+        function getRulerOnId() {
+            return vm.ruler_on_id;
+        }
+
+        function getRulerOffId() {
+            return vm.ruler_off_id;
+        }
+
+        function getRulerOutputId() {
+            return vm.ruler_output_id;
+        }
+
+        function initializeRuler() {
+            AnnotationsViewerService.createRulerBindings(vm.getRulerOnId(), vm.getRulerOffId(), vm.getRulerOutputId());
+        }
+
+        function startRuler() {
+            var $ruler_out = $('#' + vm.getRulerOutputId());
+            vm._updateShapeConfig();
+            AnnotationsViewerService.extendRulerConfig(vm.shape_config);
+            $ruler_out.on('ruler_created',
+                function() {
+                    vm.tmp_ruler_exists = true;
+                    $ruler_out.unbind('ruler_created');
+                    $scope.$apply();
+                }
+            );
+            $ruler_out.on('ruler_updated',
+                function() {
+                    vm.regionLength = $ruler_out.data('measure');
+                    vm.updateRegionLength();
+                    $scope.$apply();
+                }
+            );
+            $ruler_out.on('ruler_cleared',
+                function(event, ruler_saved) {
+                    if (ruler_saved) {
+                        $ruler_out.unbind('ruler_updated');
+                        $ruler_out.unbind('ruler_cleared');
+                    }
+                }
+            );
+            vm.active_tool = vm.RULER_TOOL;
+        }
+
+        function pauseRulerTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.ruler_tool_paused = true;
+        }
+
+        function resumeRulerTool() {
+            AnnotationsViewerService.startRuler();
+            vm.ruler_tool_paused = false;
+        }
+
+        function isRulerToolPaused() {
+            return vm.ruler_tool_paused;
+        }
+
+        function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
+            return true;
+        }
+
+        function isRulerToolActive() {
+            return vm.active_tool === vm.RULER_TOOL;
+        }
+
+        function shapeExists() {
+            return vm.shape_id !== undefined;
+        }
+
+        function temporaryRulerExists() {
+            return vm.tmp_ruler_exists && vm.regionLength > 0;
+        }
+
+        function regionLengthExists() {
+            return vm.regionLength !== undefined;
+        }
+
+        function stopRuler() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.tmp_ruler_exists = false;
+            vm.ruler_tool_paused = false;
+        }
+
+        function clear(destroy_shape) {
+            vm.deleteShape(destroy_shape);
+            vm.deleteRuler();
+            vm.isTumor = false;
+            vm.shape_label = undefined;
+            vm.default_shape_label = undefined;
+        }
+
+        function abortTool() {
+            if (vm.active_tool === vm.POLYGON_TOOL) {
+                AnnotationsViewerService.clearTemporaryPolygon();
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
+            }
+            if (vm.active_tool === vm.FREEHAND_TOOL) {
+                AnnotationsViewerService.clearTemporaryFreehandShape();
+                $("#" + AnnotationsViewerService.getCanvasLabel())
+                    .unbind('freehand_polygon_saved')
+                    .unbind('freehand_polygon_paused');
+            }
+            if (vm.active_tool === vm.RULER_TOOL) {
+                vm.deleteRuler();
+            }
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
+            vm.tmp_ruler_exists = false;
+            vm.freehand_tool_paused = false;
+            vm.ruler_tool_paused = false;
+        }
+
+        function deleteRuler() {
+            var $ruler_out = $('#' + vm.getRulerOutputId());
+            $ruler_out.unbind('ruler_updated');
+            $ruler_out.unbind('ruler_cleared');
+            AnnotationsViewerService.clearRuler();
+            if (typeof vm.regionLength !== 'undefined') {
+                $ruler_out.removeData('ruler_json')
+                    .removeData('measure');
+                vm.regionLength = undefined;
+                vm.scaledRegionLength = undefined;
+            }
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+        }
+
+        function formValid() {
+            if (vm.isRulerToolActive()) {
+                return false;
+            }
+            return typeof vm.regionLength !== 'undefined';
+        }
+
+        function updateRegionArea() {
+            vm.scaledRegionArea = formatDecimalNumber(
+                (vm.regionArea * vm.regionAreaScaleFactor.id), 3
+            );
+        }
+
+        function updateRegionLength() {
+            vm.scaledRegionLength = formatDecimalNumber(
+                (vm.regionLength * vm.regionLengthScaleFactor.id), 3
+            );
+        }
+
+        function abortEdit() {
+            $rootScope.$broadcast('focus_region.show', vm.focus_region_id, vm.parent_shape_id);
+            vm.focus_region_id = undefined;
+            vm.parent_shape_id = undefined;
+            vm.label = undefined;
+            vm.shape_id = undefined;
+            vm.regionLength = undefined;
+            vm.regionArea = undefined;
+            vm.coreCoverage = undefined;
+            vm.isTumor = false;
+        }
+
+        function updateROI() {
+            FocusRegionsManagerService.update(vm.focus_region_id, vm.regionLength, vm.isTumor)
+                .then(updateFocusRegionSuccessFn, updateFocusRegionErrorFn);
+
+            function updateFocusRegionSuccessFn(response) {
+                vm.abortEdit();
+            }
+
+            function updateFocusRegionErrorFn(response) {
+                console.error('unable to update focus region');
+                console.error(response);
+            }
+        }
+    }
+
     ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'ngDialog',
         'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
@@ -2770,12 +3514,20 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
+        vm.shape_config = {
+            'stroke_color': '#00ff00',
+            'stroke_width': 20
+        };
+
+        vm._updateShapeConfig = _updateShapeConfig;
+        vm.switchShapeColor = switchShapeColor;
         vm.isReadOnly = isReadOnly;
         vm.shapeExists = shapeExists;
         vm.focusOnShape = focusOnShape;
         vm.deleteShape = deleteShape;
         vm.updateRegionArea = updateRegionArea;
         vm.updateRegionLength = updateRegionLength;
+        vm.editROI = editROI;
 
         activate();
 
@@ -2783,7 +3535,7 @@
             vm.regionAreaScaleFactor = vm.areaUOM[0];
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
 
-            $scope.$on('focus_region.show',
+            $scope.$on('focus_region.load',
                 function (event, focus_region_id, parent_shape_id) {
                     console.log('Show focus region ' + focus_region_id);
                     vm.focus_region_id = focus_region_id;
@@ -2802,11 +3554,27 @@
                 vm.updateRegionLength();
                 vm.isTumor = response.data.cancerous_region;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
+                vm.switchShapeColor();
             }
 
             function getFocusRegionErrorFn(response) {
                 console.error('Unable to load focus region data');
                 console.error(response);
+            }
+        }
+
+        function _updateShapeConfig() {
+            if (vm.isTumor) {
+                vm.shape_config.stroke_color = '#ff0000';
+            } else {
+                vm.shape_config.stroke_color = '#32fc46';
+            }
+        }
+
+        function switchShapeColor() {
+            if (typeof vm.shape_id !== 'undefined') {
+                vm._updateShapeConfig();
+                AnnotationsViewerService.setShapeStrokeColor(vm.shape_id, vm.shape_config.stroke_color);
             }
         }
 
@@ -2820,6 +3588,11 @@
 
         function focusOnShape() {
             AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function editROI() {
+            $rootScope.$broadcast('edit.activate', {'roi_type': 'focus_region', 'roi_id': vm.focus_region_id,
+                                                    'parent_shape_id': vm.parent_shape_id});
         }
 
         function deleteShape() {
