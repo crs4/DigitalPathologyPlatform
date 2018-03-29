@@ -9,6 +9,7 @@
         .controller('EditSliceController', EditSliceController)
         .controller('ShowSliceController', ShowSliceController)
         .controller('NewCoreController', NewCoreController)
+        .controller('EditCoreController', EditCoreController)
         .controller('ShowCoreController', ShowCoreController)
         .controller('NewFocusRegionController', NewFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
@@ -1264,6 +1265,13 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
+        vm.ruler_on_id = 'new_core_ruler_on';
+        vm.ruler_off_id = 'new_core_ruler_off';
+        vm.ruler_output_id = 'new_core_ruler_output';
+        vm.tumor_ruler_on_id = 'new_core_tumor_ruler_on';
+        vm.tumor_ruler_off_id = 'new_core_tumor_ruler_off';
+        vm.tumor_ruler_output_id = 'new_core_tumor_ruler_output';
+
         vm.tmp_ruler_exists  =false;
 
         vm.active_tool = undefined;
@@ -1275,7 +1283,7 @@
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
         vm.RULER_TOOL = 'ruler_tool';
-        vm.TUMOR_RULER_TOOL = 'tumor_ruler_tool'
+        vm.TUMOR_RULER_TOOL = 'tumor_ruler_tool';
 
         vm.shape_config = {
             'stroke_color': '#0000ff',
@@ -1292,6 +1300,12 @@
         vm.resetLabel = resetLabel;
         vm.isEditLabelModeActive = isEditLabelModeActive;
         vm._updateCoreData = _updateCoreData;
+        vm.getRulerOnId = getRulerOnId;
+        vm.getRulerOffId = getRulerOffId;
+        vm.getRulerOutputId = getRulerOutputId;
+        vm.getTumorRulerOnId = getTumorRulerOnId;
+        vm.getTumorRulerOffId = getTumorRulerOffId;
+        vm.getTumorRulerOutputId = getTumorRulerOutputId;
         vm.initializeRuler = initializeRuler;
         vm.initializeTumorRuler = initializeTumorRuler;
         vm.startRuler = startRuler;
@@ -1304,6 +1318,7 @@
         vm.isTumorRulerToolPaused = isTumorRulerToolPaused;
         vm.save = save;
         vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
@@ -1414,18 +1429,42 @@
             vm.updateCoreArea();
         }
 
+        function getRulerOnId() {
+            return vm.ruler_on_id;
+        }
+
+        function getRulerOffId() {
+            return vm.ruler_off_id;
+        }
+
+        function getRulerOutputId() {
+            return vm.ruler_output_id;
+        }
+
+        function getTumorRulerOnId() {
+            return vm.tumor_ruler_on_id;
+        }
+
+        function getTumorRulerOffId() {
+            return vm.tumor_ruler_off_id;
+        }
+
+        function getTumorRulerOutputId() {
+            return vm.tumor_ruler_output_id;
+        }
+
         function initializeRuler() {
-            AnnotationsViewerService.createRulerBindings('core_ruler_on', 'core_ruler_off',
-                'core_ruler_output');
+            AnnotationsViewerService.createRulerBindings(vm.getRulerOnId(), vm.getRulerOffId(),
+                vm.getRulerOutputId());
         }
 
         function initializeTumorRuler() {
-            AnnotationsViewerService.createRulerBindings('tumor_ruler_on', 'tumor_ruler_off',
-                'tumor_ruler_output');
+            AnnotationsViewerService.createRulerBindings(vm.getTumorRulerOnId(), vm.getTumorRulerOffId(),
+                vm.getTumorRulerOutputId());
         }
 
         function startRuler() {
-            var $ruler_out = $('#core_ruler_output');
+            var $ruler_out = $('#' + vm.getRulerOutputId());
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
             $ruler_out.on('ruler_created',
                 function() {
@@ -1469,7 +1508,7 @@
         }
 
         function startTumorRuler() {
-            var $tumor_ruler_out = $("#tumor_ruler_output");
+            var $tumor_ruler_out = $('#' + vm.getTumorRulerOutputId());
             AnnotationsViewerService.extendRulerConfig(vm.shape_config);
             $tumor_ruler_out.on('ruler_created',
                 function() {
@@ -1567,6 +1606,10 @@
         }
 
         function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
             return false;
         }
 
@@ -1933,10 +1976,10 @@
         }
     }
 
-    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
+    EditCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
         'AnnotationsViewerService'];
 
-    function ShowCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
+    function EditCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.label = undefined;
@@ -1962,24 +2005,81 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
+        vm.ruler_on_id = 'edit_core_ruler_on';
+        vm.ruler_off_id = 'edit_core_ruler_off';
+        vm.ruler_output_id = 'edit_core_ruler_output';
+        vm.tumor_ruler_on_id = 'edit_core_tumor_ruler_on';
+        vm.tumor_ruler_off_id = 'edit_core_tumor_ruler_off';
+        vm.tumor_ruler_output_id = 'edit_core_tumor_ruler_output';
+
+        vm.tmp_ruler_exists  =false;
+
+        vm.active_tool = undefined;
+        vm.ruler_tool_paused = false;
+        vm.tumor_ruler_tool_paused = false;
+
+        vm.RULER_TOOL = 'ruler_tool';
+        vm.TUMOR_RULER_TOOL = 'tumor_ruler_tool';
+
+        vm.shape_config = {
+            'stroke_color': '#0000ff',
+            'stroke_width': 30
+        };
+
         vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
         vm.shapeExists = shapeExists;
         vm.focusOnShape = focusOnShape;
-        vm.deleteShape = deleteShape;
         vm.updateTumorLength = updateTumorLength;
         vm.updateCoreLength = updateCoreLength;
         vm.updateCoreArea = updateCoreArea;
+        vm.getRulerOnId = getRulerOnId;
+        vm.getRulerOffId = getRulerOffId;
+        vm.getRulerOutputId = getRulerOutputId;
+        vm.getTumorRulerOnId = getTumorRulerOnId;
+        vm.getTumorRulerOffId = getTumorRulerOffId;
+        vm.getTumorRulerOutputId = getTumorRulerOutputId;
+        vm.initializeRuler = initializeRuler;
+        vm.initializeTumorRuler = initializeTumorRuler;
+        vm.startRuler = startRuler;
+        vm.pauseRulerTool = pauseRulerTool;
+        vm.resumeRulerTool = resumeRulerTool;
+        vm.isRulerToolPaused = isRulerToolPaused;
+        vm.startTumorRuler = startTumorRuler;
+        vm.pauseTumorRulerTool = pauseTumorRulerTool;
+        vm.resumeTumorRulerTool = resumeTumorRulerTool;
+        vm.isTumorRulerToolPaused = isTumorRulerToolPaused;
+        vm.isRulerToolActive = isRulerToolActive;
+        vm.isTumorRulerToolActive = isTumorRulerToolActive;
+        vm.coreLengthExists = coreLengthExists;
+        vm.tumorLengthExists = tumorLengthExists;
+        vm.temporaryRulerExists = temporaryRulerExists;
+        vm.stopRuler = stopRuler;
+        vm.stopTumorRuler = stopTumorRuler;
+        vm.abortTool = abortTool;
+        vm._unbindRulers = _unbindRulers;
+        vm.deleteRuler = deleteRuler;
+        vm.deleteTumorRuler = deleteTumorRuler;
+        vm.formValid = formValid;
+        vm.abortEdit = abortEdit;
+        vm.updateROI = updateROI;
 
         activate();
 
         function activate() {
-            vm.coreLengthScaleFactor = vm.lengthUOM[0];
-            vm.tumorLengthScaleFactor = vm.lengthUOM[0];
-            vm.coreAreaScaleFactor = vm.areaUOM[0];
+            $scope.$on('viewerctrl.components.registered',
+                function() {
+                    vm.initializeRuler();
+                    vm.initializeTumorRuler();
+                }
+            );
 
-            $scope.$on('core.show',
+            $scope.$on('core.edit',
                 function(event, core_id) {
-                    console.log('Show core ' + core_id);
+                    vm.coreLengthScaleFactor = vm.lengthUOM[0];
+                    vm.tumorLengthScaleFactor = vm.lengthUOM[0];
+                    vm.coreAreaScaleFactor = vm.areaUOM[0];
+
                     vm.core_id = core_id;
                     CoresManagerService.get(core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
@@ -1994,7 +2094,9 @@
                 vm.coreLength = response.data.length;
                 vm.updateCoreLength();
                 vm.tumorLength = response.data.tumor_length;
-                vm.updateTumorLength();
+                if (!(typeof vm.tumorLength === 'undefined') && !(vm.tumorLength === null)) {
+                    vm.updateTumorLength();
+                }
             }
 
             function getCoreErrorFn(response) {
@@ -2004,6 +2106,10 @@
         }
 
         function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
             return true;
         }
 
@@ -2013,51 +2119,6 @@
 
         function focusOnShape() {
             AnnotationsViewerService.focusOnShape(vm.shape_id);
-        }
-
-        function deleteShape() {
-            ngDialog.openConfirm({
-                template: '/static/templates/dialogs/delete_roi_confirm.html',
-                closeByEscape: false,
-                showClose: false,
-                closeByNavigation: false,
-                closeByDocument: false
-            }).then(confirmFn);
-
-            var dialog = undefined;
-            function confirmFn(confirm_value) {
-                if (confirm_value) {
-                    dialog = ngDialog.open({
-                        'template': '/static/templates/dialogs/deleting_data.html',
-                        showClose: false,
-                        closeByEscape: false,
-                        closeByNavigation: false,
-                        closeByDocument: false
-                    });
-                    CoresManagerService.cascadeDelete(vm.core_id)
-                        .then(deleteCoreSuccessFn, deleteCoreErrorFn)
-                }
-            }
-
-            function deleteCoreSuccessFn(response) {
-                $rootScope.$broadcast('core.deleted', vm.core_id);
-                vm.core_id = undefined;
-                vm.label = undefined;
-                vm.shape_id = undefined;
-                vm.coreArea = undefined;
-                vm.scaledCoreArea = undefined;
-                vm.coreLength = undefined;
-                vm.scaledCoreLength = undefined;
-                vm.tumorLength = undefined;
-                vm.scaledTumorLength = undefined;
-                dialog.close();
-            }
-
-            function deleteCoreErrorFn(response) {
-                console.error('Unable to delete core');
-                console.error(response);
-                dialog.close();
-            }
         }
 
         function updateCoreLength() {

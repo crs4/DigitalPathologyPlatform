@@ -67,6 +67,10 @@
                     <show-core-details></show-core-details>
                     <show-core-buttons></show-core-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.editCoreModeActive()">
+                    <edit-core-form></edit-core-form>
+                    <edit-core-buttons></edit-core-buttons>
+                </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newFocusRegionModeActive()">
                     <new-focus-region-form></new-focus-region-form>
                     <new-focus-region-buttons></new-focus-region-buttons>

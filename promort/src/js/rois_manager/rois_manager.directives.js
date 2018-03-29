@@ -13,6 +13,8 @@
         .directive('newCoreButtons', newCoreButtons)
         .directive('showCoreDetails', showCoreDetails)
         .directive('showCoreButtons', showCoreButtons)
+        .directive('editCoreForm', editCoreForm)
+        .directive('editCoreButtons', editCoreButtons)
         .directive('newFocusRegionForm', newFocusRegionForm)
         .directive('newFocusRegionButtons', newFocusRegionButtons)
         .directive('showFocusRegionDetails', showFocusRegionDetails)
@@ -149,6 +151,33 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
             controller: 'ShowCoreController',
+            controllerAs: 'rmCtrl'
+        };
+        return directive;
+    }
+
+    function editCoreForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/core.html',
+            controller: 'EditCoreController',
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $(".selectpicker").selectpicker({
+                    style: 'btn-default input-group-addon prm-selectpicker'
+                });
+            }
+        };
+        return directive;
+    }
+
+    function editCoreButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'EditCoreController',
             controllerAs: 'rmCtrl'
         };
         return directive;
