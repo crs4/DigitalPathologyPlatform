@@ -55,6 +55,10 @@
                     <show-slice-details></show-slice-details>
                     <show-slice-buttons></show-slice-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.editSliceModeActive()">
+                    <edit-slice-form></edit-slice-form>
+                    <edit-slice-buttons></edit-slice-buttons>
+                </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newCoreModeActive()">
                     <new-core-form></new-core-form>
                     <new-core-buttons></new-core-buttons>

@@ -7,6 +7,8 @@
         .directive('newSliceButtons', newSliceButtons)
         .directive('showSliceDetails', showSliceDetails)
         .directive('showSliceButtons', showSliceButtons)
+        .directive('editSliceForm', editSliceForm)
+        .directive('editSliceButtons', editSliceButtons)
         .directive('newCoreForm', newCoreForm)
         .directive('newCoreButtons', newCoreButtons)
         .directive('showCoreDetails', showCoreDetails)
@@ -63,6 +65,36 @@
             restrict: 'E',
             templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
             controller: 'ShowSliceController',
+            controllerAs: 'rmCtrl'
+        };
+        return directive;
+    }
+
+    function editSliceForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/slice.html',
+            controller: 'EditSliceController',
+            controllerAs: 'rmCtrl',
+            link: function(scope, element, attrs) {
+                $("#spinner").TouchSpin({
+                    min: 0,
+                    step: 1,
+                    booster: false,
+                    mousewheel: false
+                });
+            }
+        };
+        return directive;
+    }
+
+    function editSliceButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/rois_manager/buttons_ctrl_group.html',
+            controller: 'EditSliceController',
             controllerAs: 'rmCtrl'
         };
         return directive;

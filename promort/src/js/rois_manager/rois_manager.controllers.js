@@ -6,6 +6,7 @@
         .controller('ROIsManagerController', ROIsManagerController)
         .controller('NewScopeController', NewScopeController)
         .controller('NewSliceController', NewSliceController)
+        .controller('EditSliceController', EditSliceController)
         .controller('ShowSliceController', ShowSliceController)
         .controller('NewCoreController', NewCoreController)
         .controller('ShowCoreController', ShowCoreController)
@@ -684,6 +685,7 @@
         vm.isEditLabelModeActive = isEditLabelModeActive;
         vm.save = save;
         vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
@@ -822,6 +824,10 @@
         }
 
         function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
             return false;
         }
 
@@ -1038,6 +1044,90 @@
         }
     }
 
+    EditSliceController.$inject = ['$scope', '$rootScope', 'ngDialog', 'SlicesManagerService',
+        'AnnotationsViewerService'];
+
+    function EditSliceController($scope, $rootScope, ngDialog, SlicesManagerService, AnnotationsViewerService) {
+        var vm = this;
+        vm.slice_id = undefined;
+        vm.label = undefined;
+        vm.shape_id = undefined;
+        vm.totalCores = undefined;
+
+        vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
+        vm.shapeExists = shapeExists;
+        vm.focusOnShape = focusOnShape;
+        vm.formValid = formValid;
+        vm.abortEdit = abortEdit;
+        vm.updateROI = updateROI;
+
+        activate();
+
+        function activate() {
+            $scope.$on('slice.edit',
+                function(event, slice_id) {
+                    vm.slice_id = slice_id;
+                    SlicesManagerService.get(slice_id)
+                        .then(getSliceSuccessFn, getSliceErrorFn);
+                }
+            );
+
+            function getSliceSuccessFn(response) {
+                vm.label = response.data.label;
+                vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.totalCores = response.data.total_cores;
+            }
+
+            function getSliceErrorFn(response) {
+                console.error('Unable to load slice data');
+                console.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
+            return true;
+        }
+
+        function shapeExists() {
+            return (typeof vm.shape_id !== 'undefined');
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function formValid() {
+            return true;
+        }
+
+        function abortEdit() {
+            $rootScope.$broadcast('slice.show', vm.slice_id);
+            vm.slice_id = undefined;
+            vm.label = undefined;
+            vm.shape_id = undefined;
+            vm.totalCores = undefined;
+        }
+
+        function updateROI() {
+            SlicesManagerService.update(vm.slice_id, vm.totalCores).
+                then(updateSliceSuccessFn, updateSliceErrorFn);
+
+            function updateSliceSuccessFn(response) {
+                vm.abortEdit();
+            }
+
+            function updateSliceErrorFn(response) {
+                console.error('Unable to update slice data');
+                console.error(response);
+            }
+        }
+    }
+
     ShowSliceController.$inject = ['$scope', '$rootScope', 'ngDialog',
         'SlicesManagerService', 'AnnotationsViewerService'];
 
@@ -1050,14 +1140,16 @@
         vm.totalCores = undefined;
 
         vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
         vm.shapeExists = shapeExists;
         vm.focusOnShape = focusOnShape;
+        vm.editROI = editROI;
         vm.deleteShape = deleteShape;
 
         activate();
 
         function activate() {
-            $scope.$on('slice.show',
+            $scope.$on('slice.load',
                 function(event, slice_id) {
                     console.log('Show slice ' + slice_id);
                     vm.slice_id = slice_id;
@@ -1082,12 +1174,20 @@
             return true;
         }
 
+        function isEditMode() {
+            return false;
+        }
+
         function shapeExists() {
             return (typeof vm.shape_id !== 'undefined');
         }
 
         function focusOnShape() {
             AnnotationsViewerService.focusOnShape(vm.shape_id);
+        }
+
+        function editROI() {
+            $rootScope.$broadcast('edit.activate', {'roi_type': 'slice', 'roi_id': vm.slice_id});
         }
 
         function deleteShape() {
