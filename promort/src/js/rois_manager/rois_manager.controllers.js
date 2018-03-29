@@ -36,7 +36,10 @@
             'new_focus_region': false,
             'show_slice': false,
             'show_core': false,
-            'show_focus_region': false
+            'show_focus_region': false,
+            'edit_slice': false,
+            'edit_core': false,
+            'edit_focus_region': false
         };
         vm.roisTreeLocked = false;
 
@@ -46,6 +49,7 @@
         vm._unlockRoisTree = _unlockRoisTree;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
+        vm.editROI = editROI;
         vm.selectROI = selectROI;
         vm.deselectROI = deselectROI;
         vm.clearROIs = clearROIs;
@@ -54,15 +58,22 @@
         vm.newSliceModeActive = newSliceModeActive;
         vm.activateShowSliceMode = activateShowSliceMode;
         vm.showSliceModeActive = showSliceModeActive;
+        vm.activateEditSliceMode = activateEditSliceMode;
+        vm.editSliceModeActive = editSliceModeActive;
         vm.activateNewCoreMode = activateNewCoreMode;
         vm.newCoreModeActive = newCoreModeActive;
         vm.activateShowCoreMode = activateShowCoreMode;
         vm.showCoreModeActive = showCoreModeActive;
+        vm.activateEditCoreMode = activateEditCoreMode;
+        vm.editCoreModeActive = editCoreModeActive;
         vm.activateNewFocusRegionMode = activateNewFocusRegionMode;
         vm.newFocusRegionModeActive = newFocusRegionModeActive;
         vm.activateShowFocusRegionMode = activateShowFocusRegionMode;
         vm.showFocusRegionModeActive = showFocusRegionModeActive;
+        vm.activateEditFocusRegionMode = activateEditFocusRegionMode;
+        vm.editFocusRegionModeActive = editFocusRegionModeActive;
         vm.newItemCreationModeActive = newItemCreationModeActive;
+        vm.editItemModeActive = editItemModeActive;
         vm._registerSlice = _registerSlice;
         vm._unregisterSlice = _unregisterSlice;
         vm._registerCore = _registerCore;
@@ -131,6 +142,13 @@
                         }
                     );
 
+                    $scope.$on('slice.show',
+                        function (event, slice_id) {
+                            vm._unlockRoisTree();
+                            vm.showROI('slice', slice_id);
+                        }
+                    );
+
                     $scope.$on('slice.deleted',
                         function (event, slice_id) {
                             console.log('SLICE ' + slice_id + ' DELETED');
@@ -162,6 +180,13 @@
                             var new_core_subtree = vm._createNewSubtree(core_info.label);
                             $new_core_item.append(new_core_subtree);
                             $tree.append($new_core_item);
+                        }
+                    );
+
+                    $scope.$on('core.show',
+                        function (event, core_id) {
+                            vm._unlockRoisTree();
+                            vm.showROI('core', core_id);
                         }
                     );
 
@@ -199,6 +224,13 @@
                         }
                     );
 
+                    $scope.$on('focus_region.show',
+                        function (event, focus_region_id, parent_shape_id) {
+                            vm._unlockRoisTree();
+                            vm.showROI('focus_region', focus_region_id, parent_shape_id);
+                        }
+                    );
+
                     $scope.$on('focus_region.deleted',
                         function (event, focus_region_id) {
                             console.log('FOCUS REGION ' + focus_region_id + ' DELETED');
@@ -207,7 +239,13 @@
                             vm._unregisterFocusRegion(focus_region_id);
                             vm.allModesOff();
                         }
-                    )
+                    );
+
+                    $scope.$on('edit.activate',
+                        function (event, roi_info) {
+                            vm.editROI(roi_info['roi_type'], roi_info['roi_id'], roi_info['parent_shape_id']);
+                        }
+                    );
                 } else {
                     $location.url('worklist');
                 }
@@ -344,6 +382,25 @@
             }
         }
 
+        function editROI(roi_type, roi_id, parent_roi_id) {
+            if (!vm.roisTreeLocked) {
+                switch (roi_type) {
+                    case 'slice':
+                        activateEditSliceMode(roi_id);
+                        AnnotationsViewerService.focusOnShape(vm._getSliceLabel(roi_id));
+                        break;
+                    case 'core':
+                        activateEditCoreMode(roi_id);
+                        AnnotationsViewerService.focusOnShape(vm._getCoreLabel(roi_id));
+                        break;
+                    case 'focus_region':
+                        activateEditFocusRegionMode(roi_id, parent_roi_id);
+                        AnnotationsViewerService.focusOnShape(vm._getFocusRegionLabel(roi_id));
+                        break;
+                }
+            }
+        }
+
         function selectROI(roi_type, roi_id) {
             if (!vm.roisTreeLocked) {
                 switch (roi_type) {
@@ -426,7 +483,7 @@
         }
 
         function closeROIsAnnotationStep() {
-            var dialog = ngDialog.openConfirm({
+            ngDialog.openConfirm({
                 template: '/static/templates/dialogs/accept_rois_confirm.html',
                 showClose: false,
                 closeByEscape: false,
@@ -467,14 +524,24 @@
         }
 
         function activateShowSliceMode(slice_id) {
-            console.log('Show slice ' + slice_id);
             vm.allModesOff();
-            $rootScope.$broadcast('slice.show', slice_id);
+            $rootScope.$broadcast('slice.load', slice_id);
             vm.ui_active_modes['show_slice'] = true;
         }
 
         function showSliceModeActive() {
             return vm.ui_active_modes['show_slice'];
+        }
+
+        function activateEditSliceMode(slice_id) {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            vm.ui_active_modes['edit_slice'] = true;
+            $rootScope.$broadcast('slice.edit', slice_id);
+        }
+
+        function editSliceModeActive() {
+            return vm.ui_active_modes['edit_slice'];
         }
 
         function activateNewCoreMode() {
@@ -490,12 +557,23 @@
 
         function activateShowCoreMode(core_id) {
             vm.allModesOff();
-            $rootScope.$broadcast('core.show', core_id);
+            $rootScope.$broadcast('core.load', core_id);
             vm.ui_active_modes['show_core'] = true;
         }
 
         function showCoreModeActive() {
             return vm.ui_active_modes['show_core'];
+        }
+
+        function activateEditCoreMode(core_id) {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            vm.ui_active_modes['edit_core'] = true;
+            $rootScope.$broadcast('core.edit', core_id);
+        }
+
+        function editCoreModeActive() {
+            return vm.ui_active_modes['edit_core'];
         }
 
         function activateNewFocusRegionMode() {
@@ -511,7 +589,7 @@
 
         function activateShowFocusRegionMode(focus_region_id, parent_core_id) {
             vm.allModesOff();
-            $rootScope.$broadcast('focus_region.show', focus_region_id, parent_core_id);
+            $rootScope.$broadcast('focus_region.load', focus_region_id, parent_core_id);
             vm.ui_active_modes['show_focus_region'] = true;
         }
 
@@ -519,11 +597,30 @@
             return vm.ui_active_modes['show_focus_region'];
         }
 
+        function activateEditFocusRegionMode(focus_region_id, parent_shape_id) {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            vm.ui_active_modes['edit_focus_region'] = true;
+            $rootScope.$broadcast('focus_region.edit', focus_region_id, parent_shape_id);
+        }
+
+        function editFocusRegionModeActive() {
+            return vm.ui_active_modes['edit_focus_region'];
+        }
+
         function newItemCreationModeActive() {
             return (
                 vm.ui_active_modes['new_slice']
                 || vm.ui_active_modes['new_core']
                 || vm.ui_active_modes['new_focus_region']
+            );
+        }
+
+        function editItemModeActive() {
+            return (
+                vm.ui_active_modes['edit_slice']
+                || vm.ui_active_modes['edit_core']
+                || vm.ui_active_modes['edit_focus_region']
             );
         }
 
