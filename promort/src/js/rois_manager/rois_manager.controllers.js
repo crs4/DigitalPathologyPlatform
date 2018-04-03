@@ -3435,7 +3435,7 @@
         }
 
         function focusOnShape() {
-            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+            AnnotationsViewerService.focusOnShape(vm.shape_id);
         }
 
         function formValid() {
