@@ -136,8 +136,9 @@
             return $http.get('/api/focus_regions/' + focus_region_id  + '/');
         }
 
-        function update(focus_region_id, length, cancerous_region) {
+        function update(focus_region_id, roi_json, length, cancerous_region) {
             var params = {
+                roi_json: JSON.stringify(roi_json),
                 length: length,
                 cancerous_region: cancerous_region
             };

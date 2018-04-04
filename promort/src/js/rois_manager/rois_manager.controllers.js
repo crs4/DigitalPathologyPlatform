@@ -3172,6 +3172,7 @@
         vm.focus_region_id = undefined;
         vm.label = undefined;
         vm.shape_id = undefined;
+        vm.shape = undefined;
         vm.parent_shape_id = undefined;
         vm.regionLength = undefined;
         vm.regionArea = undefined;
@@ -3263,6 +3264,7 @@
             function getFocusRegionSuccessFn(response) {
                 vm.label = response.data.label;
                 vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
+                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_id);
                 vm.regionArea = response.data.area;
                 vm.updateRegionArea();
                 vm.regionLength = response.data.length;
@@ -3290,7 +3292,7 @@
             if (typeof vm.shape_id !== 'undefined') {
                 vm._updateShapeConfig();
                 AnnotationsViewerService.setShapeStrokeColor(vm.shape_id, vm.shape_config.stroke_color);
-                // vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_id);
+                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_id);
             }
         }
 
@@ -3463,6 +3465,7 @@
             vm.parent_shape_id = undefined;
             vm.label = undefined;
             vm.shape_id = undefined;
+            vm.shape = undefined;
             vm.regionLength = undefined;
             vm.regionArea = undefined;
             vm.coreCoverage = undefined;
@@ -3470,7 +3473,7 @@
         }
 
         function updateROI() {
-            FocusRegionsManagerService.update(vm.focus_region_id, vm.regionLength, vm.isTumor)
+            FocusRegionsManagerService.update(vm.focus_region_id, vm.shape, vm.regionLength, vm.isTumor)
                 .then(updateFocusRegionSuccessFn, updateFocusRegionErrorFn);
 
             function updateFocusRegionSuccessFn(response) {
