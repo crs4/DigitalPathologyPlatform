@@ -15,11 +15,11 @@
         .controller('EditFocusRegionController', EditFocusRegionController)
         .controller('ShowFocusRegionController', ShowFocusRegionController);
 
-    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location',
+    ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location', '$log',
         'ngDialog', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
         'AnnotationsViewerService', 'CurrentSlideDetailsService'];
 
-    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, ngDialog,
+    function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, $log, ngDialog,
                                    ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
                                    AnnotationsViewerService, CurrentSlideDetailsService) {
         var vm = this;
@@ -154,7 +154,7 @@
 
                     $scope.$on('slice.deleted',
                         function (event, slice_id) {
-                            console.log('SLICE ' + slice_id + ' DELETED');
+                            $log.debug('SLICE ' + slice_id + ' DELETED');
                             var cores = _getSliceCores(slice_id);
                             cores.forEach(
                                 function (item, index) {
@@ -195,11 +195,11 @@
 
                     $scope.$on('core.deleted',
                         function (event, core_id) {
-                            console.log('CORE ' + core_id + ' DELETED');
+                            $log.debug('CORE ' + core_id + ' DELETED');
                             var focus_regions = _getCoreFocusRegions(core_id);
                             focus_regions.forEach(
                                 function (item, index) {
-                                    console.log('Broadcasting delete evento for focus region ' + item.id);
+                                    $log.debug('Broadcasting delete evento for focus region ' + item.id);
                                     $rootScope.$broadcast('focus_region.deleted', item.id);
                                 }
                             );
@@ -236,7 +236,7 @@
 
                     $scope.$on('focus_region.deleted',
                         function (event, focus_region_id) {
-                            console.log('FOCUS REGION ' + focus_region_id + ' DELETED');
+                            $log.debug('FOCUS REGION ' + focus_region_id + ' DELETED');
                             AnnotationsViewerService.deleteShape(vm._getFocusRegionLabel(focus_region_id));
                             $("#" + vm._getFocusRegionLabel(focus_region_id) + "_list").remove();
                             vm._unregisterFocusRegion(focus_region_id);
@@ -255,8 +255,8 @@
             }
 
             function getROIsAnnotationStepErrorFn(response) {
-                console.error('Cannot load slide info');
-                console.error(response);
+                $log.error('Cannot load slide info');
+                $log.error(response);
             }
         }
 
@@ -336,7 +336,7 @@
         }
 
         function _getCoreFocusRegions(core_id) {
-            console.log($rootScope.focus_regions);
+            $log.debug($rootScope.focus_regions);
             return $.grep($rootScope.focus_regions,
                 function(value) {
                     return value.core === core_id;
@@ -478,8 +478,8 @@
                 }
 
                 function clearROIsErrorFn(response) {
-                    console.error('Clear ROIs failed');
-                    console.error(response);
+                    $log.error('Clear ROIs failed');
+                    $log.error(response);
                     dialog.close();
                 }
             }
@@ -510,7 +510,7 @@
                 }
 
                 function closeROIsAnnotationStepErrorFn(response) {
-                    console.error(response.error);
+                    $log.error(response.error);
                 }
             }
         }
@@ -640,17 +640,17 @@
         }
     }
 
-    NewScopeController.$inject = ['$scope'];
+    NewScopeController.$inject = ['$scope', '$log',];
 
-    function NewScopeController($scope) {
+    function NewScopeController($scope, $log) {
         var vm = this;
         vm.$scope = {};
     }
 
-    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog', 'AnnotationsViewerService',
-        'ROIsAnnotationStepManagerService', 'CurrentSlideDetailsService'];
+    NewSliceController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+        'AnnotationsViewerService', 'ROIsAnnotationStepManagerService', 'CurrentSlideDetailsService'];
 
-    function NewSliceController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
+    function NewSliceController($scope, $routeParams, $rootScope, $log, ngDialog, AnnotationsViewerService,
                                 ROIsAnnotationStepManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -734,7 +734,7 @@
         }
 
         function newPolygon() {
-            console.log('Start polygon drawing tool');
+            $log.debug('Start polygon drawing tool');
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
@@ -755,7 +755,7 @@
         }
 
         function newFreehand() {
-            console.log('Start freehabd drawing tool');
+            $log.debug('Start freehabd drawing tool');
             AnnotationsViewerService.setFreehandToolLabelPrefix('slice');
             AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
@@ -783,14 +783,14 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
-                console.log('Shape label not changed');
+                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    console.log('Label available, assigning to new shape');
+                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    console.log('Label in use, restoring previous label');
+                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -804,10 +804,10 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                console.log('updating shape id');
+                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                console.log('new shape id is: ' + vm.shape.shape_id);
+                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -1039,17 +1039,17 @@
             }
 
             function createSliceErrorFn(response) {
-                console.error('Unable to save slice!!!');
-                console.error(response.data);
+                $log.error('Unable to save slice!!!');
+                $log.error(response.data);
                 dialog.close();
             }
         }
     }
 
-    EditSliceController.$inject = ['$scope', '$rootScope', 'ngDialog', 'SlicesManagerService',
+    EditSliceController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 'SlicesManagerService',
         'AnnotationsViewerService'];
 
-    function EditSliceController($scope, $rootScope, ngDialog, SlicesManagerService, AnnotationsViewerService) {
+    function EditSliceController($scope, $rootScope, $log, ngDialog, SlicesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slice_id = undefined;
         vm.label = undefined;
@@ -1082,8 +1082,8 @@
             }
 
             function getSliceErrorFn(response) {
-                console.error('Unable to load slice data');
-                console.error(response);
+                $log.error('Unable to load slice data');
+                $log.error(response);
             }
         }
 
@@ -1124,17 +1124,16 @@
             }
 
             function updateSliceErrorFn(response) {
-                console.error('Unable to update slice data');
-                console.error(response);
+                $log.error('Unable to update slice data');
+                $log.error(response);
             }
         }
     }
 
-    ShowSliceController.$inject = ['$scope', '$rootScope', 'ngDialog',
-        'SlicesManagerService', 'AnnotationsViewerService'];
+    ShowSliceController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 'SlicesManagerService',
+        'AnnotationsViewerService'];
 
-    function ShowSliceController($scope, $rootScope, ngDialog,
-                                 SlicesManagerService, AnnotationsViewerService) {
+    function ShowSliceController($scope, $rootScope, $log, ngDialog, SlicesManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.slice_id = undefined;
         vm.label = undefined;
@@ -1153,7 +1152,7 @@
         function activate() {
             $scope.$on('slice.load',
                 function(event, slice_id) {
-                    console.log('Show slice ' + slice_id);
+                    $log.debug('Show slice ' + slice_id);
                     vm.slice_id = slice_id;
                     SlicesManagerService.get(slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
@@ -1167,8 +1166,8 @@
             }
 
             function getSliceErrorFn(response) {
-                console.error('Unable to load slice data');
-                console.error(response);
+                $log.error('Unable to load slice data');
+                $log.error(response);
             }
         }
 
@@ -1226,17 +1225,17 @@
             }
 
             function deleteSliceErrorFn(response) {
-                console.error('unable to delete slice');
-                console.error(response);
+                $log.error('unable to delete slice');
+                $log.error(response);
                 dialog.close();
             }
         }
     }
 
-    NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
+    NewCoreController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
         'AnnotationsViewerService', 'SlicesManagerService', 'CurrentSlideDetailsService'];
 
-    function NewCoreController($scope, $routeParams, $rootScope, ngDialog, AnnotationsViewerService,
+    function NewCoreController($scope, $routeParams, $rootScope, $log, ngDialog, AnnotationsViewerService,
                                SlicesManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -1564,14 +1563,14 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id){
-                console.log('Shape label not changed');
+                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    console.log('Label available, assigning to new shape');
+                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    console.log('Label in use, restoring previous label');
+                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -1585,10 +1584,10 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                console.log('updating shape id');
+                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                console.log('new shape id is: ' + vm.shape.shape_id);
+                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -1952,8 +1951,8 @@
             }
 
             function createCoreErrorFn(response) {
-                console.error('Unable to save core!!!');
-                console.error(response.data);
+                $log.error('Unable to save core!!!');
+                $log.error(response.data);
                 dialog.close();
             }
         }
@@ -1977,10 +1976,10 @@
         }
     }
 
-    EditCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
+    EditCoreController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 'CoresManagerService',
         'AnnotationsViewerService'];
 
-    function EditCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
+    function EditCoreController($scope, $rootScope, $log, ngDialog, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.label = undefined;
@@ -2101,8 +2100,8 @@
             }
 
             function getCoreErrorFn(response) {
-                console.error('Unable to load core data');
-                console.error(response);
+                $log.error('Unable to load core data');
+                $log.error(response);
             }
         }
 
@@ -2382,17 +2381,17 @@
             }
 
             function updateCoreErrorFn(response) {
-                console.error('unable to update core data');
-                console.error(response);
+                $log.error('unable to update core data');
+                $log.error(response);
             }
         }
     }
 
 
-    ShowCoreController.$inject = ['$scope', '$rootScope', 'ngDialog', 'CoresManagerService',
+    ShowCoreController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 'CoresManagerService',
         'AnnotationsViewerService'];
 
-    function ShowCoreController($scope, $rootScope, ngDialog, CoresManagerService, AnnotationsViewerService) {
+    function ShowCoreController($scope, $rootScope, $log, ngDialog, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.label = undefined;
@@ -2437,7 +2436,7 @@
 
             $scope.$on('core.load',
                 function(event, core_id) {
-                    console.log('Show core ' + core_id);
+                    $log.debug('Show core ' + core_id);
                     vm.core_id = core_id;
                     CoresManagerService.get(core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
@@ -2456,8 +2455,8 @@
             }
 
             function getCoreErrorFn(response) {
-                console.error('Unable to load core data');
-                console.error(response);
+                $log.error('Unable to load core data');
+                $log.error(response);
             }
         }
 
@@ -2520,8 +2519,8 @@
             }
 
             function deleteCoreErrorFn(response) {
-                console.error('Unable to delete core');
-                console.error(response);
+                $log.error('Unable to delete core');
+                $log.error(response);
                 dialog.close();
             }
         }
@@ -2545,10 +2544,10 @@
         }
     }
 
-    NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
+    NewFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', '$log', 'ngDialog',
         'AnnotationsViewerService', 'CoresManagerService', 'CurrentSlideDetailsService'];
 
-    function NewFocusRegionController($scope, $rootScope, $routeParams, ngDialog, AnnotationsViewerService,
+    function NewFocusRegionController($scope, $rootScope, $routeParams, $log, ngDialog, AnnotationsViewerService,
                                       CoresManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
@@ -2812,14 +2811,14 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
-                console.log('Shape label not changed');
+                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    console.log('Label available, assigning to new shape');
+                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    console.log('Label in use, restoring previous label');
+                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -2833,10 +2832,10 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                console.log('updating shape id');
+                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                console.log('new shape id is: ' + vm.shape.shape_id);
+                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -3136,8 +3135,8 @@
             }
 
             function createFocusRegionErrorFn(response) {
-                console.error('Unable to save focus region!!!');
-                console.error(response.data);
+                $log.error('Unable to save focus region!!!');
+                $log.error(response.data);
                 dialog.close();
             }
         }
@@ -3163,10 +3162,10 @@
         }
     }
 
-    EditFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', 'ngDialog',
+    EditFocusRegionController.$inject = ['$scope', '$rootScope', '$routeParams', '$log', 'ngDialog',
         'AnnotationsViewerService', 'FocusRegionsManagerService'];
 
-    function EditFocusRegionController($scope, $rootScope, $routeParams, ngDialog, AnnotationsViewerService,
+    function EditFocusRegionController($scope, $rootScope, $routeParams, $log, ngDialog, AnnotationsViewerService,
                                       FocusRegionsManagerService) {
         var vm = this;
         vm.focus_region_id = undefined;
@@ -3275,8 +3274,8 @@
             }
 
             function getFocusRegionErrorFn(response) {
-                console.error('Unable to load focus region data');
-                console.error(response);
+                $log.error('Unable to load focus region data');
+                $log.error(response);
             }
         }
 
@@ -3481,17 +3480,17 @@
             }
 
             function updateFocusRegionErrorFn(response) {
-                console.error('unable to update focus region');
-                console.error(response);
+                $log.error('unable to update focus region');
+                $log.error(response);
             }
         }
     }
 
-    ShowFocusRegionController.$inject = ['$scope', '$rootScope', 'ngDialog',
-        'FocusRegionsManagerService', 'AnnotationsViewerService'];
+    ShowFocusRegionController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 'FocusRegionsManagerService',
+        'AnnotationsViewerService'];
 
-    function ShowFocusRegionController($scope, $rootScope, ngDialog,
-                                       FocusRegionsManagerService, AnnotationsViewerService) {
+    function ShowFocusRegionController($scope, $rootScope, $log, ngDialog, FocusRegionsManagerService,
+                                       AnnotationsViewerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.parent_shape_id = undefined;
@@ -3540,7 +3539,7 @@
 
             $scope.$on('focus_region.load',
                 function (event, focus_region_id, parent_shape_id) {
-                    console.log('Show focus region ' + focus_region_id);
+                    $log.debug('Show focus region ' + focus_region_id);
                     vm.focus_region_id = focus_region_id;
                     vm.parent_shape_id = parent_shape_id;
                     FocusRegionsManagerService.get(focus_region_id)
@@ -3561,8 +3560,8 @@
             }
 
             function getFocusRegionErrorFn(response) {
-                console.error('Unable to load focus region data');
-                console.error(response);
+                $log.error('Unable to load focus region data');
+                $log.error(response);
             }
         }
 
@@ -3638,8 +3637,8 @@
             }
 
             function deleteFocusRegionErrorFn(response) {
-                console.error('Unable to delete focus region');
-                console.error(response);
+                $log.error('Unable to delete focus region');
+                $log.error(response);
                 dialog.close();
             }
         }

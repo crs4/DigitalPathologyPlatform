@@ -8,9 +8,9 @@
         .factory('CoresManagerService', CoresManagerService)
         .factory('FocusRegionsManagerService', FocusRegionsManagerService);
 
-    ROIsAnnotationStepManagerService.$inject = ['$http'];
+    ROIsAnnotationStepManagerService.$inject = ['$http', '$log'];
 
-    function ROIsAnnotationStepManagerService($http) {
+    function ROIsAnnotationStepManagerService($http, $log) {
         var ROIsAnnotationStepManagerService = {
             createSlice: createSlice,
             getROIs: getROIs,
@@ -42,9 +42,9 @@
         }
     }
 
-    SlicesManagerService.$inject = ['$http'];
+    SlicesManagerService.$inject = ['$http', '$log'];
 
-    function SlicesManagerService($http) {
+    function SlicesManagerService($http, $log) {
         var SlicesManagerService = {
             get: get,
             update: update,
@@ -81,9 +81,9 @@
         }
     }
 
-    CoresManagerService.$inject = ['$http'];
+    CoresManagerService.$inject = ['$http', '$log'];
 
-    function CoresManagerService($http) {
+    function CoresManagerService($http, $log) {
         var CoresManagerService = {
             get: get,
             update: update,
@@ -121,9 +121,9 @@
         }
     }
 
-    FocusRegionsManagerService.$inject = ['$http'];
+    FocusRegionsManagerService.$inject = ['$http', '$log'];
 
-    function FocusRegionsManagerService($http) {
+    function FocusRegionsManagerService($http, $log) {
         var FocusRegionsManagerService = {
             get: get,
             update: update,

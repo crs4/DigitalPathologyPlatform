@@ -5,10 +5,10 @@
         .module('promort.slides_manager.controllers')
         .controller('QualityControlController', QualityControlController);
 
-    QualityControlController.$inject = ['$scope', '$routeParams', '$location', 'Authentication',
+    QualityControlController.$inject = ['$scope', '$routeParams', '$location', '$log', 'Authentication',
         'SlideEvaluationService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService'];
 
-    function QualityControlController($scope, $routeParams, $location, Authentication, SlideEvaluationService,
+    function QualityControlController($scope, $routeParams, $location, $log, Authentication, SlideEvaluationService,
                                       ROIsAnnotationStepService, SlideService, CurrentSlideDetailsService) {
         var vm = this;
         vm.annotation_label = undefined;
@@ -62,8 +62,8 @@
             }
 
             function getROIsAnnotationStepErrorFn(response) {
-                console.error('Cannot load slide info');
-                console.error(response);
+                $log.error('Cannot load slide info');
+                $log.error(response);
             }
         }
 
@@ -110,7 +110,7 @@
 
                     //noinspection JSAnnotator
                     function startAnnotationErrorFn(response) {
-                        console.error(response.error);
+                        $log.error(response.error);
                     }
 
                 } else {
@@ -137,19 +137,19 @@
                         }
 
                         function closeClinicalStepsErrorFn(response) {
-                            console.error(response.error);
+                            $log.error(response.error);
                         }
                     }
 
                     //noinspection JSAnnotator
                     function closeReviewErrorFn(response) {
-                        console.error(response.error);
+                        $log.error(response.error);
                     }
                 }
             }
 
             function qualityControlCreationErrorFn(response) {
-                console.error(response);
+                $log.error(response);
             }
         }
     }
