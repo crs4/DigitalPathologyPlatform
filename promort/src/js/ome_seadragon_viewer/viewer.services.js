@@ -7,9 +7,9 @@
         .factory('ViewerService', ViewerService)
         .factory('AnnotationsViewerService', AnnotationsViewerService);
 
-    CurrentAnnotationStepsDetailsService.$inject = ['$http'];
+    CurrentAnnotationStepsDetailsService.$inject = ['$http', '$log'];
 
-    function CurrentAnnotationStepsDetailsService($http) {
+    function CurrentAnnotationStepsDetailsService($http, $log) {
         var roisAnnotationStepLabel = undefined;
         var clinicalAnnotationStepLabel = undefined;
 
@@ -44,9 +44,9 @@
         }
     }
 
-    ViewerService.$inject = ['$http'];
+    ViewerService.$inject = ['$http', '$log'];
 
-    function ViewerService($http) {
+    function ViewerService($http, $log) {
         var ViewerService = {
             getOMEBaseURLs: getOMEBaseURLs,
             getSlideInfo: getSlideInfo
@@ -62,8 +62,10 @@
             return $http.get('api/slides/' + slide_id + '/');
         }
     }
+    
+    AnnotationsViewerService.$inject = ['$log'];
 
-    function AnnotationsViewerService() {
+    function AnnotationsViewerService($log) {
         var AnnotationsViewerService = {
             registerComponents: registerComponents,
             checkComponents: checkComponents,
@@ -81,6 +83,7 @@
             saveTemporaryPolygon: saveTemporaryPolygon,
             clearTemporaryPolygon: clearTemporaryPolygon,
             temporaryPolygonExists: temporaryPolygonExists,
+            temporaryPolygonValid: temporaryPolygonValid,
             polygonRestoreHistoryExists: polygonRestoreHistoryExists,
             rollbackPolygon: rollbackPolygon,
             restorePolygon: restorePolygon,
@@ -91,6 +94,7 @@
             saveTemporaryFreehandShape: saveTemporaryFreehandShape,
             clearTemporaryFreehandShape: clearTemporaryFreehandShape,
             tmpFreehandPathExists: tmpFreehandPathExists,
+            tmpFreehandPathValid: tmpFreehandPathValid,
             shapeUndoHistoryExists: shapeUndoHistoryExists,
             shapeRestoreHistoryExists: shapeRestoreHistoryExists,
             rollbackTemporaryFreehandShape: rollbackTemporaryFreehandShape,
@@ -109,6 +113,7 @@
             startRuler: startRuler,
             clearRuler: clearRuler,
             tmpAreaRulerExists: tmpAreaRulerExists,
+            tmpAreaRulerValid: tmpAreaRulerValid,
             areaRulerUndoHistoryExists: areaRulerUndoHistoryExists,
             areaRulerRedoHistoryExists: areaRulerRedoHistoryExists,
             createAreaRulerBindings: createAreaRulerBindings,
@@ -134,9 +139,9 @@
         }
 
         function checkComponents() {
-            console.log('Viewer Manager: ' + this.viewerManager);
-            console.log('ROIs Manager: ' + this.roisManager);
-            console.log('Tools Manager: ' + this.toolsManager);
+            $log.debug('Viewer Manager: ' + this.viewerManager);
+            $log.debug('ROIs Manager: ' + this.roisManager);
+            $log.debug('Tools Manager: ' + this.toolsManager);
         }
 
         function drawShape(shape_json) {
@@ -197,6 +202,12 @@
             }
         }
 
+        function temporaryPolygonValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.temporaryPolygonValid();
+            }
+        }
+
         function polygonRestoreHistoryExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.polygonRedoHistoryExists();
@@ -238,6 +249,12 @@
         function tmpFreehandPathExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.tmpFreehandPathExists();
+            }
+        }
+
+        function tmpFreehandPathValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpFreehandPathValid();
             }
         }
 
@@ -320,6 +337,12 @@
         function tmpAreaRulerExists() {
             if (typeof this.roisManager !== 'undefined') {
                 return this.roisManager.tmpAreaRulerExists();
+            }
+        }
+
+        function tmpAreaRulerValid() {
+            if (typeof this.roisManager !== 'undefined') {
+                return this.roisManager.tmpAreaRulerValid();
             }
         }
 
