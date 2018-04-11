@@ -5,9 +5,9 @@
         .module('promort.window_manager.controllers')
         .controller('WindowEventsController', WindowEventsController);
     
-    WindowEventsController.$inject = ['$scope', 'Authentication'];
+    WindowEventsController.$inject = ['$scope', '$log', 'Authentication'];
     
-    function WindowEventsController($scope, Authentication) {
+    function WindowEventsController($scope, $log, Authentication) {
 
         activate();
         

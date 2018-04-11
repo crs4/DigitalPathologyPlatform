@@ -242,7 +242,6 @@
                         tools_manager.bindControllers('cell_counter_activate', 'cell_counter_save');
                         tools_manager.bindControllers('g4_cell_counter_activate', 'g4_cell_counter_save');
 
-                        console.log('Registering components');
                         scope.avc.registerComponents(ome_seadragon_viewer,
                             annotations_canvas, tools_manager, true);
                     });
