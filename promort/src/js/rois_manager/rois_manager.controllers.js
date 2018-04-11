@@ -2302,8 +2302,11 @@
         }
 
         function abortTool() {
-            if (vm.temporaryRulerExists()) {
-                AnnotationsViewerService.clearRuler();
+            if (vm.isRulerToolActive()) {
+                vm.deleteRuler();
+            }
+            if (vm.isTumorRulerToolActive()) {
+                vm.deleteTumorRuler();
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
@@ -3400,18 +3403,8 @@
         }
 
         function abortTool() {
-            if (vm.active_tool === vm.POLYGON_TOOL) {
-                AnnotationsViewerService.clearTemporaryPolygon();
-                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
-            }
-            if (vm.active_tool === vm.FREEHAND_TOOL) {
-                AnnotationsViewerService.clearTemporaryFreehandShape();
-                $("#" + AnnotationsViewerService.getCanvasLabel())
-                    .unbind('freehand_polygon_saved')
-                    .unbind('freehand_polygon_paused');
-            }
-            if (vm.temporaryRulerExists()) {
-                AnnotationsViewerService.clearRuler();
+            if (vm.isRulerToolActive()) {
+                vm.deleteRuler();
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
