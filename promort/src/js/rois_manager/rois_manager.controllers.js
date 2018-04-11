@@ -2369,7 +2369,9 @@
             vm.shape_id = undefined;
             vm.coreArea = undefined;
             vm.coreLength = undefined;
+            vm.scaledCoreLength = undefined;
             vm.tumorLength = undefined;
+            vm.scaledTumorLength = undefined;
         }
 
         function updateROI() {
@@ -3466,6 +3468,7 @@
             vm.shape_id = undefined;
             vm.shape = undefined;
             vm.regionLength = undefined;
+            vm.scaledRegionLength = undefined;
             vm.regionArea = undefined;
             vm.coreCoverage = undefined;
             vm.isTumor = false;
