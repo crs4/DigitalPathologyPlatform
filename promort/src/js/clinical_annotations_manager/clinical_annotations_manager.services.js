@@ -8,9 +8,9 @@
         .factory('CoreAnnotationsManagerService', CoreAnnotationsManagerService)
         .factory('FocusRegionAnnotationsManagerService', FocusRegionAnnotationsManagerService);
 
-    ClinicalAnnotationStepManagerService.$inject = ['$http'];
+    ClinicalAnnotationStepManagerService.$inject = ['$http', '$log'];
 
-    function ClinicalAnnotationStepManagerService($http) {
+    function ClinicalAnnotationStepManagerService($http, $log) {
         var ClinicalAnnotationStepManagerService = {
             clearAnnotations: clearAnnotations,
             fetchRejectionReasons: fetchRejectionReasons
@@ -27,9 +27,9 @@
         }
     }
 
-    SliceAnnotationsManagerService.$inject = ['$http'];
+    SliceAnnotationsManagerService.$inject = ['$http', '$log'];
 
-    function SliceAnnotationsManagerService($http) {
+    function SliceAnnotationsManagerService($http, $log) {
         var SliceAnnotationsManagerService = {
             getAnnotation: getAnnotation,
             createAnnotation: createAnnotation,
@@ -52,9 +52,9 @@
         }
     }
 
-    CoreAnnotationsManagerService.$inject = ['$http'];
+    CoreAnnotationsManagerService.$inject = ['$http', '$log'];
 
-    function CoreAnnotationsManagerService($http) {
+    function CoreAnnotationsManagerService($http, $log) {
         var CoreAnnotationsManagerService = {
             getAnnotation: getAnnotation,
             createAnnotation: createAnnotation,
@@ -77,9 +77,9 @@
         }
     }
 
-    FocusRegionAnnotationsManagerService.$inject = ['$http'];
+    FocusRegionAnnotationsManagerService.$inject = ['$http', '$log'];
 
-    function FocusRegionAnnotationsManagerService($http) {
+    function FocusRegionAnnotationsManagerService($http, $log) {
         var FocusRegionAnnotationsManagerService = {
             getAnnotation: getAnnotation,
             createAnnotation: createAnnotation,

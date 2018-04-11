@@ -9,7 +9,7 @@
             </a>
             <div class="btn-group dropdown">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                        ng-disabled="rmc.newItemCreationModeActive()">
+                        ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
                     <i class="icon-plus"></i> New item <i class="icon-play prm-rotate-90 prm-caret"></i>
                 </button>
                 <ul class="dropdown-menu">
@@ -21,11 +21,11 @@
                 </ul>
             </div>
             <button class="btn btn-success" ng-click="rmc.closeROIsAnnotationStep()"
-                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
+                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
                 <i class="icon-check_circle"></i> Confirm ROIs
             </button>
             <button class="btn btn-danger" ng-click="rmc.clearROIs()"
-                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive()">
+                    ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
                 <i class="icon-trash_can"></i> Clear ROIs
             </button>
         </div>
@@ -55,6 +55,10 @@
                     <show-slice-details></show-slice-details>
                     <show-slice-buttons></show-slice-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.editSliceModeActive()">
+                    <edit-slice-form></edit-slice-form>
+                    <edit-slice-buttons></edit-slice-buttons>
+                </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newCoreModeActive()">
                     <new-core-form></new-core-form>
                     <new-core-buttons></new-core-buttons>
@@ -63,6 +67,10 @@
                     <show-core-details></show-core-details>
                     <show-core-buttons></show-core-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.editCoreModeActive()">
+                    <edit-core-form></edit-core-form>
+                    <edit-core-buttons></edit-core-buttons>
+                </div>
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.newFocusRegionModeActive()">
                     <new-focus-region-form></new-focus-region-form>
                     <new-focus-region-buttons></new-focus-region-buttons>
@@ -70,6 +78,10 @@
                 <div ng-controller="NewScopeController as nsc" ng-show="rmc.showFocusRegionModeActive()">
                     <show-focus-region-details></show-focus-region-details>
                     <show-focus-region-buttons></show-focus-region-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="rmc.editFocusRegionModeActive()">
+                    <edit-focus-region-form></edit-focus-region-form>
+                    <edit-focus-region-buttons></edit-focus-region-buttons>
                 </div>
             </div>
         </div>
