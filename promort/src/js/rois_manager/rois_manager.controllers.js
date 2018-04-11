@@ -2302,11 +2302,8 @@
         }
 
         function abortTool() {
-            if (vm.active_tool === vm.RULER_TOOL) {
-                vm.deleteRuler();
-            }
-            if (vm.active_tool === vm.TUMOR_RULER_TOOL) {
-                vm.deleteTumorRuler();
+            if (vm.temporaryRulerExists()) {
+                AnnotationsViewerService.clearRuler();
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
@@ -2316,16 +2313,16 @@
         }
 
         function _unbindRulers() {
-            $("#core_ruler_output")
+            $("#" + vm.getRulerOutputId())
                 .unbind('ruler_cleared')
                 .unbind('ruler_updated');
-            $("#tumor_ruler_output")
+            $("#" + vm.getTumorRulerOutputId())
                 .unbind('ruler_cleared')
                 .unbind('ruler_updated');
         }
 
         function deleteRuler() {
-            var $ruler_out = $('#core_ruler_output');
+            var $ruler_out = $('#' + vm.getRulerOutputId());
             $ruler_out.unbind('ruler_updated');
             $ruler_out.unbind('ruler_cleared');
             AnnotationsViewerService.clearRuler();
@@ -2361,6 +2358,7 @@
         }
 
         function abortEdit() {
+            vm.abortTool();
             vm._unbindRulers();
             $rootScope.$broadcast('core.show', vm.core_id);
             vm.core_id = undefined;
@@ -3233,6 +3231,7 @@
         vm.clear = clear;
         vm.focusOnShape = focusOnShape;
         vm.deleteRuler = deleteRuler;
+        vm._unbindRuler = _unbindRuler;
         vm.formValid = formValid;
         vm.updateRegionLength = updateRegionLength;
         vm.updateRegionArea = updateRegionArea;
@@ -3411,8 +3410,8 @@
                     .unbind('freehand_polygon_saved')
                     .unbind('freehand_polygon_paused');
             }
-            if (vm.active_tool === vm.RULER_TOOL) {
-                vm.deleteRuler();
+            if (vm.temporaryRulerExists()) {
+                AnnotationsViewerService.clearRuler();
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
@@ -3433,6 +3432,12 @@
                 vm.regionLength = undefined;
                 vm.scaledRegionLength = undefined;
             }
+        }
+
+        function _unbindRuler() {
+            $("#" + vm.getRulerOutputId())
+                .unbind('ruler_updated')
+                .unbind('ruler_cleared');
         }
 
         function focusOnShape() {
@@ -3459,6 +3464,8 @@
         }
 
         function abortEdit() {
+            vm.abortTool();
+            vm._unbindRuler();
             $rootScope.$broadcast('focus_region.show', vm.focus_region_id, vm.parent_shape_id);
             vm.focus_region_id = undefined;
             vm.parent_shape_id = undefined;
