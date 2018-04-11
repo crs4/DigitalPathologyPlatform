@@ -6,11 +6,11 @@
         .controller('SimpleViewerController', SimpleViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController);
 
-    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log', 'ViewerService',
+    SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', 'ViewerService',
         'CurrentSlideDetailsService'];
 
-    function SimpleViewerController($scope, $routeParams, $rootScope, $location, $log, ViewerService, 
-                                    CurrentSlideDetailsService) {
+    function SimpleViewerController($scope, $routeParams, $rootScope, $location,
+                                    ViewerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.annotation_step_label = undefined;
@@ -47,13 +47,13 @@
                 }
 
                 function SlideInfoErrorFn(response) {
-                    $log.error(response.error);
+                    console.error(response.error);
                     $location.url('404');
                 }
             }
 
             function OMEBaseURLErrorFn(response) {
-                $log.error(response.error);
+                console.error(response.error);
             }
         }
 
@@ -70,11 +70,11 @@
         }
     }
 
-    AnnotationsViewerController.$inject = ['$scope', '$rootScope', '$location', '$log', 'ngDialog',
+    AnnotationsViewerController.$inject = ['$scope', '$rootScope', '$location', 'ngDialog',
         'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService',
         'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
-    function AnnotationsViewerController($scope, $rootScope, $location, $log, ngDialog, ViewerService,
+    function AnnotationsViewerController($scope, $rootScope, $location, ngDialog, ViewerService,
                                          AnnotationsViewerService, ROIsAnnotationStepManagerService,
                                          CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
@@ -114,13 +114,13 @@
                 }
 
                 function SlideInfoErrorFn(response) {
-                    $log.error(response.error);
+                    console.error(response.error);
                     $location.url('404');
                 }
             }
 
             function OMEBaseURLErrorFn(response) {
-                $log.error(response.error);
+                console.error(response.error);
             }
 
             $scope.$on('viewerctrl.components.registered',
@@ -187,8 +187,8 @@
                     }
 
                     function getROIsErrorFn(response) {
-                        $log.error('Unable to load ROIs for slide ' + vm.slide_id);
-                        $log.error(response);
+                        console.error('Unable to load ROIs for slide ' + vm.slide_id);
+                        console.error(response);
                         dialog.close();
                     }
                 }
@@ -210,7 +210,7 @@
         function registerComponents(viewer_manager, annotations_manager, tools_manager, rois_read_only) {
             AnnotationsViewerService.registerComponents(viewer_manager,
                 annotations_manager, tools_manager);
-            $log.debug('--- VERIFY ---');
+            console.log('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
             var clinical_annotation_step_label = undefined;
             if (rois_read_only) {

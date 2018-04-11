@@ -57,7 +57,8 @@ class GenericReadOnlyDetailView(APIView):
 class GenericDetailView(GenericReadOnlyDetailView):
 
     def put(self, request, pk, format=None):
-        logger.debug('Updating object with PK %r -- Object class %r', pk, self.model)
+        logger.debug('Updating object with PK %r -- Object class %r -- Update data %r', pk,
+                     self.model, request.data)
         obj = self.get_object(pk)
         serializer = self.model_serializer(obj, data=request.data, partial=True)
         if serializer.is_valid():

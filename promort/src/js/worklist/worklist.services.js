@@ -7,9 +7,9 @@
         .factory('ROIsAnnotationStepService', ROIsAnnotationStepService)
         .factory('ClinicalAnnotationStepService', ClinicalAnnotationStepService);
 
-    WorkListService.$inject = ['$http', '$log'];
+    WorkListService.$inject = ['$http'];
 
-    function WorkListService($http, $log) {
+    function WorkListService($http) {
         var WorkListService = {
             get: get,
             startROIsAnnotation: startROIsAnnotation,
@@ -55,9 +55,9 @@
         }
     }
 
-    ROIsAnnotationStepService.$inject = ['$http', '$log'];
+    ROIsAnnotationStepService.$inject = ['$http'];
 
-    function ROIsAnnotationStepService($http, $log) {
+    function ROIsAnnotationStepService($http) {
         var ROIsAnnotationStepService = {
             get: get,
             getDetails: getDetails,
@@ -119,9 +119,9 @@
         }
     }
 
-    ClinicalAnnotationStepService.$inject = ['$http', '$log'];
+    ClinicalAnnotationStepService.$inject = ['$http'];
 
-    function ClinicalAnnotationStepService($http, $log) {
+    function ClinicalAnnotationStepService($http) {
         var ClinicalAnnotationStepService = {
             get: get,
             getDetails: getDetails,

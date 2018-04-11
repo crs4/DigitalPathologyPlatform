@@ -5,9 +5,9 @@
         .module('promort.authentication.services')
         .factory('Authentication', Authentication);
 
-    Authentication.$inject = ['$cookies', '$http', '$log', 'ngDialog'];
+    Authentication.$inject = ['$cookies', '$http', 'ngDialog'];
 
-    function Authentication($cookies, $http, $log, ngDialog) {
+    function Authentication($cookies, $http, ngDialog) {
 
         var Authentication = {
             login: login,
@@ -42,7 +42,7 @@
         }
         
         function logout() {
-            $log.debug('Logout called');
+            console.log('Logout called');
             return $http.post('/api/auth/logout/')
                 .then(logoutSuccessFn, logoutErrorFn);
             
@@ -66,7 +66,7 @@
             }
 
             function checkErrorFn(data) {
-                $log.debug('No active session found on backend');
+                console.log('No active session found on backend');
             }
         }
 

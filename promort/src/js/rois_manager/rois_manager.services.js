@@ -8,16 +8,21 @@
         .factory('CoresManagerService', CoresManagerService)
         .factory('FocusRegionsManagerService', FocusRegionsManagerService);
 
-    ROIsAnnotationStepManagerService.$inject = ['$http', '$log'];
+    ROIsAnnotationStepManagerService.$inject = ['$http'];
 
-    function ROIsAnnotationStepManagerService($http, $log) {
+    function ROIsAnnotationStepManagerService($http) {
         var ROIsAnnotationStepManagerService = {
+            getSlices: getSlices,
             createSlice: createSlice,
             getROIs: getROIs,
             clearROIs: clearROIs
         };
 
         return ROIsAnnotationStepManagerService;
+
+        function getSlices(step_label) {
+            return $http.get('/api/rois_annotation_steps/' + step_label + '/slices/');
+        }
 
         function createSlice(step_label, slide_id, slice_label, roi_json, total_cores) {
             var params = {
@@ -42,13 +47,13 @@
         }
     }
 
-    SlicesManagerService.$inject = ['$http', '$log'];
+    SlicesManagerService.$inject = ['$http'];
 
-    function SlicesManagerService($http, $log) {
+    function SlicesManagerService($http) {
         var SlicesManagerService = {
             get: get,
-            update: update,
             cascadeDelete: cascadeDelete,
+            getCores: getCores,
             createCore: createCore
         };
 
@@ -58,15 +63,12 @@
             return $http.get('/api/slices/' + slice_id + '/');
         }
 
-        function update(slice_id, total_cores) {
-            var params = {
-                total_cores: total_cores
-            };
-            return $http.put('/api/slices/' + slice_id + '/', params);
-        }
-
         function cascadeDelete(slice_id) {
             return $http.delete('/api/slices/' + slice_id + '/');
+        }
+
+        function getCores(slice_id) {
+            return $http.get('/api/slices/' + slice_id + '/cores/');
         }
 
         function createCore(slice_id, core_label, roi_json, length, area, tumor_length) {
@@ -81,13 +83,13 @@
         }
     }
 
-    CoresManagerService.$inject = ['$http', '$log'];
+    CoresManagerService.$inject = ['$http'];
 
-    function CoresManagerService($http, $log) {
+    function CoresManagerService($http) {
         var CoresManagerService = {
             get: get,
-            update: update,
             cascadeDelete: cascadeDelete,
+            getFocusRegions: getFocusRegions,
             createFocusRegion: createFocusRegion
         };
 
@@ -97,16 +99,12 @@
             return $http.get('/api/cores/' + core_id + '/');
         }
 
-        function update(core_id, length, tumor_length) {
-            var params = {
-                length: length,
-                tumor_length: tumor_length
-            };
-            return $http.put('/api/cores/' + core_id + '/', params);
-        }
-
         function cascadeDelete(core_id) {
             return $http.delete('/api/cores/' + core_id + '/');
+        }
+
+        function getFocusRegions(core_id) {
+            return $http.get('/api/cores/' + core_id + '/focus_regions/');
         }
 
         function createFocusRegion(core_id, focus_region_label, roi_json, length, area, cancerous_region) {
@@ -121,12 +119,11 @@
         }
     }
 
-    FocusRegionsManagerService.$inject = ['$http', '$log'];
+    FocusRegionsManagerService.$inject = ['$http'];
 
-    function FocusRegionsManagerService($http, $log) {
+    function FocusRegionsManagerService($http) {
         var FocusRegionsManagerService = {
             get: get,
-            update: update,
             cascadeDelete: cascadeDelete
         };
 
@@ -134,15 +131,6 @@
 
         function get(focus_region_id) {
             return $http.get('/api/focus_regions/' + focus_region_id  + '/');
-        }
-
-        function update(focus_region_id, roi_json, length, cancerous_region) {
-            var params = {
-                roi_json: JSON.stringify(roi_json),
-                length: length,
-                cancerous_region: cancerous_region
-            };
-            return $http.put('/api/focus_regions/' + focus_region_id + '/', params);
         }
 
         function cascadeDelete(focus_region_id) {

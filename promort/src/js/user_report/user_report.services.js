@@ -5,9 +5,9 @@
         .module('promort.user_report.services')
         .factory('UserReportService', UserReportService);
     
-    UserReportService.$inject = ['$http', '$log'];
+    UserReportService.$inject = ['$http'];
     
-    function UserReportService($http, $log) {
+    function UserReportService($http) {
         var UserReportservice = {
             send: send
         };

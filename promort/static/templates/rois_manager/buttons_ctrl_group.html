@@ -1,5 +1,5 @@
 <div>
-    <div class="form-group row prm-control-row" ng-hide="rmCtrl.isReadOnly() || rmCtrl.isEditMode()">
+    <div class="form-group row prm-control-row" ng-hide="rmCtrl.isReadOnly()">
         <button class="btn btn-warning prm-control-btn" ng-click="rmCtrl.destroy()">
             <i class="icon-reply"></i> Abort
         </button>
@@ -9,20 +9,8 @@
         </button>
     </div>
     <div class="form-group row prm-control-row" ng-show="rmCtrl.isReadOnly()">
-        <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.editROI()">
-            <i class="icon-pen"></i> Edit
-        </button>
         <button class="btn btn-danger prm-control-btn" ng-click="rmCtrl.deleteShape()">
             <i class="icon-trash_can"></i> Delete
-        </button>
-    </div>
-    <div class="form-group row prm-control-row" ng-show="rmCtrl.isEditMode()">
-        <button class="btn btn-warning prm-control-btn" ng-click="rmCtrl.abortEdit()">
-            <i class="icon-reply"></i> Abort
-        </button>
-        <button class="btn btn-primary prm-control-btn" ng-click="rmCtrl.updateROI()"
-                ng-disabled="!rmCtrl.formValid()">
-            <i class="icon-cloud_upload"></i> Update
         </button>
     </div>
 </div>

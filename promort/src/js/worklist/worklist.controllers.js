@@ -7,9 +7,9 @@
         .controller('ROIsAnnotationController', ROIsAnnotationController)
         .controller('ClinicalAnnotationController', ClinicalAnnotationController);
     
-    WorkListController.$inject = ['$scope', '$log', 'Authentication', 'WorkListService'];
+    WorkListController.$inject = ['$scope', 'Authentication', 'WorkListService'];
     
-    function WorkListController($scope, $log, Authentication, WorkListService) {
+    function WorkListController($scope, Authentication, WorkListService) {
         var vm = this;
         vm.pendingAnnotations = [];
         vm.annotationInProgress = annotationInProgress;
@@ -34,7 +34,7 @@
             }
             
             function workListErrorFn(response) {
-                $log.error(response.error);
+                console.error(response.error);
             }
         }
 
@@ -96,10 +96,10 @@
         }
     }
     
-    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$log', 'ngDialog',
+    ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', 'ngDialog',
         'ROIsAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
 
-    function ROIsAnnotationController($scope, $routeParams, $location, $log, ngDialog, ROIsAnnotationStepService,
+    function ROIsAnnotationController($scope, $routeParams, $location, ngDialog, ROIsAnnotationStepService,
                                       CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
         var vm = this;
         vm.annotationSteps = [];
@@ -125,7 +125,7 @@
             }
 
             function AnnotationStepsErrorFn(response) {
-                $log.error(response.error);
+                console.error(response.error);
                 $location.url('404');
             }
         }
@@ -178,8 +178,8 @@
                 }
 
                 function reopenStepErrorFn(response) {
-                    $log.error('Reopen step failed');
-                    $log.error(response);
+                    console.error('Reopen step failed');
+                    console.error(response);
                 }
             }
         }
@@ -203,17 +203,17 @@
             }
 
             function getSlideByAnnotationStepErrorFn(response) {
-                $log.debug(response.error);
+                console.log(response.error);
                 $location.url('404');
             }
         }
     }
 
-    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$route', '$log', 'ngDialog',
+    ClinicalAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$route', 'ngDialog',
         'ClinicalAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService',
         'ROIsAnnotationStepService'];
 
-    function ClinicalAnnotationController($scope, $routeParams, $location, $route, $log, ngDialog,
+    function ClinicalAnnotationController($scope, $routeParams, $location, $route, ngDialog,
                                           ClinicalAnnotationStepService, CurrentSlideDetailsService,
                                           CurrentAnnotationStepsDetailsService, ROIsAnnotationStepService) {
         var vm = this;
@@ -243,7 +243,7 @@
             }
 
             function AnnotationStepErrorFn(response) {
-                $log.error(response.error);
+                console.error(response.error);
                 $location.url('404');
             }
         }
@@ -318,14 +318,14 @@
                 }
 
                 function getSlideByAnnotationStepErrorFn(response) {
-                    $log.debug(response.error);
+                    console.log(response.error);
                     $location.url('404');
                 }
             }
 
             function findROIsAnnotationLabelErrorFn(response) {
-                $log.error('Cannot load slide info');
-                $log.error(response);
+                console.error('Cannot load slide info');
+                console.error(response);
             }
         }
 
@@ -339,7 +339,7 @@
 
         function resetROIsAnnotationStep(annotationStep) {
             if (annotationStep.can_reopen_rois_step) {
-                $log.debug('RESET ROIs annotation step: ' + annotationStep.rois_review_step_label);
+                console.log('RESET ROIs annotation step: ' + annotationStep.rois_review_step_label);
                 var dialog = ngDialog.openConfirm({
                     template: '/static/templates/dialogs/reopen_rois_step_confirm.html',
                     showClose: false,
@@ -362,8 +362,8 @@
                 }
 
                 function reopenStepErrorFn(response) {
-                    $log.error('Reopen step failed');
-                    $log.error(response);
+                    console.error('Reopen step failed');
+                    console.error(response);
                 }
             }
         }

@@ -6,9 +6,9 @@
         .controller('LoginController', LoginController)
         .controller('AuthenticationController', AuthenticationController);
     
-    LoginController.$inject = ['$location', '$scope', '$log', 'Authentication'];
+    LoginController.$inject = ['$location', '$scope', 'Authentication'];
     
-    function LoginController($location, $scope, $log, Authentication) {
+    function LoginController($location, $scope, Authentication) {
         var vm = this;
         
         vm.login = login;
@@ -26,9 +26,9 @@
         }
     }
 
-    AuthenticationController.$inject = ['$scope', '$log', 'Authentication'];
+    AuthenticationController.$inject = ['$scope', 'Authentication'];
 
-    function AuthenticationController($scope, $log, Authentication) {
+    function AuthenticationController($scope, Authentication) {
         var vm = this;
 
         vm.isAuthenticated = isAuthenticated;

@@ -13,10 +13,10 @@
         .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
-        '$log', 'ngDialog', 'AnnotationsViewerService', 'ClinicalAnnotationStepService',
-        'ClinicalAnnotationStepManagerService', 'CurrentSlideDetailsService'];
+        'ngDialog', 'AnnotationsViewerService', 'ClinicalAnnotationStepService', 'ClinicalAnnotationStepManagerService',
+        'CurrentSlideDetailsService'];
 
-    function ClinicalAnnotationsManagerController($scope, $rootScope, $routeParams, $compile, $location, $log, ngDialog,
+    function ClinicalAnnotationsManagerController($scope, $rootScope, $routeParams, $compile, $location, ngDialog,
                                                   AnnotationsViewerService, ClinicalAnnotationStepService,
                                                   ClinicalAnnotationStepManagerService, CurrentSlideDetailsService) {
         var vm = this;
@@ -82,7 +82,7 @@
             vm.case_id = CurrentSlideDetailsService.getCaseId();
             vm.clinical_annotation_step_label = $routeParams.label;
             vm.clinical_annotation_label = vm.clinical_annotation_step_label.split('-')[0];
-            $log.debug('clinical annotation label is ' + vm.clinical_annotation_label);
+            console.log('clinical annotation label is ' + vm.clinical_annotation_label);
             vm.slide_index = vm.clinical_annotation_step_label.split('-')[1];
 
             vm.slices_map = [];
@@ -231,8 +231,8 @@
             }
 
             function getClinicalAnnotationStepErrorFn(response) {
-                $log.error('Cannot load slide info');
-                $log.error(response);
+                console.error('Cannot load slide info');
+                console.error(response);
             }
         }
 
@@ -386,7 +386,7 @@
                 }
 
                 function closeClinicalAnnotationStepErrorFn(response) {
-                    $log.error(response.error);
+                    console.error(response.error);
                 }
             }
         }
@@ -429,8 +429,8 @@
                 }
 
                 function clearAnnotationsErrorFn(response) {
-                    $log.error('unable to clear existing annotations');
-                    $log.error(response);
+                    console.error('unable to clear existing annotations');
+                    console.error(response);
                     dialog.close();
                 }
             }
@@ -463,7 +463,7 @@
                 }
 
                 function rejectClinicalAnnotationStepErrorFn(response) {
-                    $log.error(response.error);
+                    console.error(response.error);
                 }
             }
         }
@@ -634,9 +634,9 @@
         }
     }
 
-    RejectClinicalAnnotationStepController.$inject = ['$scope', '$log', 'ClinicalAnnotationStepManagerService'];
+    RejectClinicalAnnotationStepController.$inject = ['$scope', 'ClinicalAnnotationStepManagerService'];
 
-    function RejectClinicalAnnotationStepController($scope, $log, ClinicalAnnotationStepManagerService) {
+    function RejectClinicalAnnotationStepController($scope, ClinicalAnnotationStepManagerService) {
         var vm = this;
         vm.$scope = {};
         vm.rejection_reasons = undefined;
@@ -659,10 +659,10 @@
         }
     }
 
-    NewSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    NewSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'SlicesManagerService', 'SliceAnnotationsManagerService'];
 
-    function NewSliceAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+    function NewSliceAnnotationController($scope, $routeParams, $rootScope, ngDialog,
                                           SlicesManagerService, SliceAnnotationsManagerService) {
         var vm = this;
         vm.slice_id = undefined;
@@ -705,8 +705,8 @@
             }
 
             function getSliceErrorFn(response) {
-                $log.error('Unable to load slice data');
-                $log.error(response);
+                console.error('Unable to load slice data');
+                console.error(response);
             }
         }
 
@@ -769,17 +769,17 @@
             }
 
             function createAnnotationErrorFn(response) {
-                $log.error('Unable to save annotation');
-                $log.error(response.data);
+                console.error('Unable to save annotation');
+                console.error(response.data);
                 dialog.close();
             }
         }
     }
 
-    ShowSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    ShowSliceAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'SliceAnnotationsManagerService'];
 
-    function ShowSliceAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+    function ShowSliceAnnotationController($scope, $routeParams, $rootScope, ngDialog,
                                            SliceAnnotationsManagerService) {
         var vm = this;
         vm.slice_id = undefined;
@@ -827,8 +827,8 @@
             }
 
             function getSliceAnnotationErrorFn(response) {
-                $log.error('Unable to load slice annotatin data');
-                $log.error(response);
+                console.error('Unable to load slice annotatin data');
+                console.error(response);
             }
         }
 
@@ -885,17 +885,17 @@
             }
 
             function deleteSliceAnnotationErrorFn(response) {
-                $log.error('unable to delete slice annotation');
-                $log.error(response);
+                console.error('unable to delete slice annotation');
+                console.error(response);
                 dialog.close();
             }
         }
     }
 
-    NewCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    NewCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'CoresManagerService', 'CoreAnnotationsManagerService'];
 
-    function NewCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+    function NewCoreAnnotationController($scope, $routeParams, $rootScope, ngDialog,
                                          CoresManagerService, CoreAnnotationsManagerService) {
         var vm = this;
         vm.core_id = undefined;
@@ -965,8 +965,8 @@
             }
 
             function getCoreErrorFn(response) {
-                $log.error('Unable to load core data');
-                $log.error(response);
+                console.error('Unable to load core data');
+                console.error(response);
             }
         }
 
@@ -1051,8 +1051,8 @@
             }
 
             function createAnnotationErrorFn(response) {
-                $log.error('Unable to save annotation');
-                $log.error(response.data);
+                console.error('Unable to save annotation');
+                console.error(response.data);
                 dialog.close();
             }
         }
@@ -1076,10 +1076,10 @@
         }
     }
 
-    ShowCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    ShowCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'CoreAnnotationsManagerService', 'CoresManagerService'];
 
-    function ShowCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+    function ShowCoreAnnotationController($scope, $routeParams, $rootScope, ngDialog,
                                           CoreAnnotationsManagerService, CoresManagerService) {
         var vm = this;
         vm.core_id = undefined;
@@ -1174,8 +1174,8 @@
                         .then(getCoreSuccessFn, getCoreErrorFn);
                 }
                 else {
-                    $log.error('Unable to load core annotation data');
-                    $log.error(response);
+                    console.error('Unable to load core annotation data');
+                    console.error(response);
                 }
 
                 function getCoreSuccessFn(response) {
@@ -1191,8 +1191,8 @@
                 }
 
                 function getCoreErrorFn(response) {
-                    $log.error('Unable to load core data');
-                    $log.error(response);
+                    console.error('Unable to load core data');
+                    console.error(response);
                 }
             }
         }
@@ -1248,8 +1248,8 @@
             }
 
             function deleteCoreAnnotationErrorFn(response) {
-                $log.error('unable to delete core annotation');
-                $log.error(response);
+                console.error('unable to delete core annotation');
+                console.error(response);
                 dialog.close();
             }
         }
@@ -1273,12 +1273,11 @@
         }
     }
 
-    NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
 
-    function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                                FocusRegionsManagerService, FocusRegionAnnotationsManagerService,
-                                                AnnotationsViewerService) {
+    function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, ngDialog, FocusRegionsManagerService,
+                                                FocusRegionAnnotationsManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -1348,7 +1347,6 @@
         vm.rulerToolActive = rulerToolActive;
         vm.rulerExists = rulerExists;
         vm.temporaryRulerExists = temporaryRulerExists;
-        vm.temporaryRulerValid = temporaryRulerValid;
         vm.confirmRuler = confirmRuler;
         vm.pauseRuler = pauseRuler;
         vm.unpauseRuler = unpauseRuler;
@@ -1402,8 +1400,8 @@
             }
 
             function getFocusRegionErrorFn(response) {
-                $log.error('Unable to load focus region data');
-                $log.error(response);
+                console.error('Unable to load focus region data');
+                console.error(response);
             }
 
             $scope.$on('viewerctrl.components.registered',
@@ -1550,17 +1548,12 @@
             return AnnotationsViewerService.tmpAreaRulerExists();
         }
 
-        function temporaryRulerValid() {
-            $log.debug('TEMPORARY G4 SHAPE VALID: ' + AnnotationsViewerService.tmpAreaRulerValid());
-            return AnnotationsViewerService.tmpAreaRulerValid();
-        }
-
         function confirmRuler() {
             AnnotationsViewerService.saveAreaRuler();
         }
 
         function pauseRuler() {
-            $log.debug('G4 ruler paused');
+            console.log('G4 ruler paused');
             AnnotationsViewerService.disableActiveTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.deactivateAreaRulerPreviewMode();
@@ -1569,7 +1562,7 @@
         }
 
         function unpauseRuler() {
-            $log.debug('G4 ruler unpaused');
+            console.log('G4 ruler unpaused');
             AnnotationsViewerService.startAreaRulerTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.activateAreaRulerPreviewMode();
@@ -1711,8 +1704,8 @@
             }
 
             function createAnnotationErrorFn(response) {
-                $log.error('Unable to save annotation');
-                $log.error(response.data);
+                console.error('Unable to save annotation');
+                console.error(response.data);
                 dialog.close();
             }
         }
@@ -1765,10 +1758,10 @@
         }
     }
 
-    ShowFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+    ShowFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', 'ngDialog',
         'FocusRegionAnnotationsManagerService', 'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
-    function ShowFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+    function ShowFocusRegionAnnotationController($scope, $routeParams, $rootScope, ngDialog,
                                                  FocusRegionAnnotationsManagerService, FocusRegionsManagerService,
                                                  AnnotationsViewerService) {
         var vm = this;
@@ -1884,8 +1877,8 @@
                     FocusRegionsManagerService.get(vm.focus_region_id)
                         .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
                 } else {
-                    $log.error('Unable to load focus region annotation data');
-                    $log.error(response);
+                    console.error('Unable to load focus region annotation data');
+                    console.error(response);
                 }
 
                 function getFocusRegionSuccessFn(response) {
@@ -1901,8 +1894,8 @@
                 }
 
                 function getFocusRegionErrorFn(response) {
-                    $log.error('Unable to load focus region data');
-                    $log.error(response);
+                    console.error('Unable to load focus region data');
+                    console.error(response);
                 }
             }
         }
@@ -1982,8 +1975,8 @@
             }
 
             function deleteFocusRegionAnnotationErrorFn(response) {
-                $log.error('unable to delete focus region annotation');
-                $log.error('response');
+                console.error('unable to delete focus region annotation');
+                console.error('response');
                 dialog.close();
             }
         }

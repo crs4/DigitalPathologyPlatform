@@ -7,9 +7,9 @@
         .factory('SlideService', SlideService)
         .factory('SlideEvaluationService', SlideEvaluationService);
 
-    CurrentSlideDetailsService.$inject = ['$http', '$log'];
+    CurrentSlideDetailsService.$inject = ['$http'];
 
-    function CurrentSlideDetailsService($http, $log) {
+    function CurrentSlideDetailsService($http) {
         var slideID = undefined;
         var caseID = undefined;
 
@@ -35,7 +35,7 @@
         }
 
         function registerCurrentSlide(slide_id, case_id) {
-            $log.debug('REGISTERING SLIDE ' + slide_id + ' FOR CASE ' + case_id);
+            console.log('REGISTERING SLIDE ' + slide_id + ' FOR CASE ' + case_id);
             slideID = slide_id;
             caseID = case_id;
         }
@@ -49,9 +49,9 @@
         }
     }
 
-    SlideService.$inject = ['$http', '$log'];
+    SlideService.$inject = ['$http'];
 
-    function SlideService($http, $log) {
+    function SlideService($http) {
         var SlideService = {
             get: get
         };
@@ -63,9 +63,9 @@
         }
     }
 
-    SlideEvaluationService.$inject = ['$http', '$log'];
+    SlideEvaluationService.$inject = ['$http'];
 
-    function SlideEvaluationService($http, $log) {
+    function SlideEvaluationService($http) {
         var SlideEvaluationService = {
             get: get,
             create: create,
@@ -98,7 +98,7 @@
             if (notes) {
                 params.notes = notes;
             }
-            $log.debug(params);
+            console.log(params);
             return $http.post('api/rois_annotations/steps/' + annotation_step_label + '/slide_evaluation/',
                 params);
         }

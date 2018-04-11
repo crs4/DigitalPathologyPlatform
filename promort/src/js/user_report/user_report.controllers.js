@@ -5,9 +5,9 @@
         .module('promort.user_report.controllers')
         .controller('UserReportController', UserReportController);
 
-    UserReportController.$inject = ['$scope', '$log', 'ngDialog', 'UserReportService'];
+    UserReportController.$inject = ['$scope', 'ngDialog', 'UserReportService'];
 
-    function UserReportController($scope, $log, ngDialog, UserReportService) {
+    function UserReportController($scope, ngDialog, UserReportService) {
         var vm = this;
         vm.sendReport = sendReport;
 
@@ -33,7 +33,7 @@
             }
 
             function sendUserReportErrorFn(response) {
-                $log.error('Error sending report!');
+                console.error('Error sending report!');
                 dialog.close();
                 ngDialog.open({
                     template: '/static/templates/dialogs/error_dialog.html'

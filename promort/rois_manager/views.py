@@ -64,6 +64,8 @@ class SliceList(APIView):
         slice_data['annotation_step'] = annotation_step.id
         slice_data['author'] = request.user.username
 
+        logger.debug('Serializing data %r -- Object class %r', slice_data, Slice)
+
         serializer = SliceSerializer(data=slice_data)
         if serializer.is_valid():
             try:
@@ -95,6 +97,8 @@ class CoreList(GenericReadOnlyDetailView):
         core_data['author'] = request.user.username
         core_data['slice'] = pk
 
+        logger.debug('Serializing data %r -- Object class %r', core_data, Core)
+
         serializer = CoreSerializer(data=core_data)
         if serializer.is_valid():
             try:
@@ -125,6 +129,8 @@ class FocusRegionList(GenericReadOnlyDetailView):
         focus_region_data = request.data
         focus_region_data['author'] = request.user.username
         focus_region_data['core'] = pk
+
+        logger.debug('Serializing data %r -- Object class %r', focus_region_data, FocusRegion)
 
         serializer = FocusRegionSerializer(data=focus_region_data)
         if serializer.is_valid():
