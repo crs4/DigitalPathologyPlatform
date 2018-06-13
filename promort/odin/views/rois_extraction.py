@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from odin.permissions import CanEnterGodMode
+from view_templates.views import GenericReadOnlyDetailView
 
 from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
@@ -184,6 +185,35 @@ class GetROIDetails(ROIDetailsAPI):
         return Response(self._serialize_roi_obj(roi_obj), status=status.HTTP_200_OK)
 
 
+class GetSlicesDetails(ROIDetailsAPI):
+
+    def _get_slices(self, slide_obj):
+        try:
+            return Slice.objects.filger(slide=slide_obj)
+        except Slice.DoesNotExist:
+            raise NotFound('There are no slices for slide %s' % slide_obj.id)
+
+    def get(self, request, slide, format=None):
+        slide_obj = self._get_slide(slide)
+        slices = self._get_slices(slide_obj)
+        return Response([SliceSerializer(slice).data for slice in slices],
+                        status=status.HTTP_200_OK)
+
+
+class GetSliceDetails(ROIDetailsAPI):
+
+    def _get_slice(self, slice_id, slide_obj):
+        try:
+            return Slice.objects.get(pk=slice_id, slide=slide_obj)
+        except Slice.DoesNotExist:
+            raise NotFound('There is no slice with ID %s for slide %s' % (slice_id, slide_obj.id))
+
+    def get(self, request, slide, pk, format=None):
+        slide_obj = self._get_slide(slide)
+        slice = self._get_slice(pk, slide_obj)
+        return Response(SliceSerializer(slice).data, status=status.HTTP_200_OK)
+
+
 class GetCoresDetails(ROIDetailsAPI):
 
     def _get_cores(self, slide_obj):
@@ -197,3 +227,51 @@ class GetCoresDetails(ROIDetailsAPI):
         cores = self._get_cores(slide_obj)
         return Response([CoreDetailsSerializer(core).data for core in cores],
                         status=status.HTTP_200_OK)
+
+
+class GetCoreDetails(ROIDetailsAPI):
+
+    def _get_core(self, core_id, slide_obj):
+        try:
+            return Core.objects.get(pk=core_id, slice__in=Slice.objects.filter(slide=slide_obj))
+        except (Slice.DoesNotExist, Core.DoesNotExist):
+            raise NotFound('There is no core with ID %s for slide %s' % (core_id, slide_obj.id))
+
+    def get(self, request, slide, pk, format=None):
+        slide_obj = self._get_slide(slide)
+        core = self._get_core(pk, slide_obj)
+        return Response(CoreSerializer(core).data, status=status.HTTP_200_OK)
+
+
+class GetFocusRegionsDetails(ROIDetailsAPI):
+
+    def _get_focus_regions(self, slide_obj):
+        try:
+            return FocusRegion.objects.filter(core__in=Core.objects.filter(
+                slice__in=Slice.objects.filter(slide=slide_obj)
+            ))
+        except (Slice.DoesNotExist, Core.DoesNotExist, FocusRegion.DoesNotExist):
+            raise NotFound('There are no focus regions for slide %s' % slide_obj.id)
+
+    def get(self, request, slide, format=None):
+        slide_obj = self._get_slide(slide)
+        focus_regions = self._get_focus_regions(slide_obj)
+        return Response([FocusRegionSerializer(focus_region).data for focus_region in focus_regions],
+                        status=status.HTTP_200_OK)
+
+
+class GetFocusRegionDetails(ROIDetailsAPI):
+
+    def _get_focus_region(self, focus_region_id, slide_obj):
+        try:
+            return FocusRegion.objects.get(pk=focus_region_id,
+                                           core__in=Core.objects.filter(
+                                               slice__in=Slice.objects.filter(slide=slide_obj)
+                                           ))
+        except (Slice.DoesNotExist, Core.DoesNotExist, FocusRegion.DoesNotExist):
+            raise NotFound('There is no focus region with ID %s for slide %s' % (focus_region_id, slide_obj.id))
+
+    def get(self, request, slide, pk, format=None):
+        slide_obj = self._get_slide(slide)
+        focus_region = self._get_focus_region(pk, slide_obj)
+        return Response(FocusRegionSerializer(focus_region).data, status=status.HTTP_200_OK)
