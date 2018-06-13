@@ -127,7 +127,12 @@ urlpatterns = [
 
     # ROIs extraction tool
     url(r'api/odin/rois/(?P<case>[\w\-.]+)/$', od.GetCaseDetails.as_view()),
+    url(r'api/odin/rois/(?P<slide>[\w\-.]+)/slices/$', od.GetSlicesDetails.as_view()),
+    url(r'api/odin/rois/(?P<slide>[\w\-.]+)/slices/(?P<pk>[0-9]+)/$', od.GetSliceDetails.as_view()),
     url(r'api/odin/rois/(?P<slide>[\w\-.]+)/cores/$', od.GetCoresDetails.as_view()),
+    url(r'api/odin/rois/(?P<slide>[\w\-.]+)/cores/(?P<pk>[0-9]+)/$', od.GetCoreDetails.as_view()),
+    url(r'api/odin/rois/(?P<slide>[\w\-.]+)/focus_regions/$', od.GetFocusRegionsDetails.as_view()),
+    url(r'api/odin/rois/(?P<slide>[\w\-.]+)/focus_regions/(?P<pk>[0-9]+)/$', od.GetFocusRegionDetails.as_view()),
     url(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/$', od.GetSlideDetails.as_view()),
     url(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/$',
         od.GetReviewerDetails.as_view()),
