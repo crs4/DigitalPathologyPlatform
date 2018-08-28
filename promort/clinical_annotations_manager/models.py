@@ -63,6 +63,11 @@ class CoreAnnotation(models.Model):
                 pass
         return (gleason_4_total_area / self.core.area) * 100.0
 
+    def get_grade_group_text(self):
+        for choice in self.GLEASON_GROUP_WHO_16:
+            if choice[0] == self.gleason_group:
+                return choice[1]
+
 
 class FocusRegionAnnotation(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)

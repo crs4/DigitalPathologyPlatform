@@ -193,6 +193,11 @@ class ClinicalAnnotationStep(models.Model):
         self.start_date = None
         self.save()
 
+    def get_rejection_reason_text(self):
+        for choice in self.REJECTION_REASONS_CHOICES:
+            if choice[0] == self.rejection_reason:
+                return choice[1]
+
 
 class ReviewsComparison(models.Model):
     review_1 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT,

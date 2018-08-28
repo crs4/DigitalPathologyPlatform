@@ -4,12 +4,10 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from odin.permissions import CanEnterGodMode
-from view_templates.views import GenericReadOnlyDetailView
 
 from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
-from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer,\
-    CoreDetailsSerializer
+from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep
 
 from itertools import chain
@@ -189,7 +187,7 @@ class GetSlicesDetails(ROIDetailsAPI):
 
     def _get_slices(self, slide_obj):
         try:
-            return Slice.objects.filger(slide=slide_obj)
+            return Slice.objects.filter(slide=slide_obj)
         except Slice.DoesNotExist:
             raise NotFound('There are no slices for slide %s' % slide_obj.id)
 
@@ -225,7 +223,7 @@ class GetCoresDetails(ROIDetailsAPI):
     def get(self, request, slide, format=None):
         slide_obj = self._get_slide(slide)
         cores = self._get_cores(slide_obj)
-        return Response([CoreDetailsSerializer(core).data for core in cores],
+        return Response([CoreSerializer(core).data for core in cores],
                         status=status.HTTP_200_OK)
 
 
