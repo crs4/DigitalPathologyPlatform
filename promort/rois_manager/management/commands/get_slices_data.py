@@ -22,7 +22,7 @@ class Command(BaseCommand):
         return slices
 
     def _export_data(self, data, out_file):
-        header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id',
+        header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id', 'creation_date',
                   'reviewer', 'positive_slice', 'positive_cores', 'total_cores']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
@@ -35,6 +35,7 @@ class Command(BaseCommand):
                         'roi_review_step_id': slice.annotation_step.label,
                         'slice_label': slice.label,
                         'slice_id': slice.id,
+                        'creation_date': slice.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'reviewer': slice.author.username,
                         'positive_slice': slice.is_positive(),
                         'total_cores': slice.total_cores,

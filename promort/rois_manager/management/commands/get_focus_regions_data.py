@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id',
-                  'focus_region_label', 'focus_region_id', 'reviewer', 'length',
+                  'focus_region_label', 'focus_region_id', 'creation_date', 'reviewer', 'length',
                   'area', 'cancerous_region', 'core_coverage_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
@@ -37,6 +37,7 @@ class Command(BaseCommand):
                         'parent_core_id': focus_region.core.id,
                         'focus_region_label': focus_region.label,
                         'focus_region_id': focus_region.id,
+                        'creation_date': focus_region.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'reviewer': focus_region.author.username,
                         'length': focus_region.length,
                         'area': focus_region.area,

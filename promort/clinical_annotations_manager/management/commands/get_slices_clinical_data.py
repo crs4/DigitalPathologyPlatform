@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id',
-                  'reviewer', 'slice_id', 'high_grade_pin', 'pah', 'chronic_inflammation',
+                  'reviewer', 'slice_id', 'creation_date', 'high_grade_pin', 'pah', 'chronic_inflammation',
                   'acute_inflammation', 'periglandular_inflammation',
                   'intraglandular_inflammation', 'stromal_inflammation']
         with open(out_file, 'w') as ofile:
@@ -38,6 +38,7 @@ class Command(BaseCommand):
                         'clinical_review_step_id': slice_annotation.annotation_step.label,
                         'reviewer': slice_annotation.author.username,
                         'slice_id': slice_annotation.slice.id,
+                        'creation_date': slice_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'high_grade_pin': slice_annotation.high_grade_pin,
                         'pah': slice_annotation.pah,
                         'chronic_inflammation': slice_annotation.chronic_inflammation,

@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id',
-                  'reviewer', 'core_id', 'primary_gleason', 'secondary_gleason',
+                  'reviewer', 'core_id', 'creation_date', 'primary_gleason', 'secondary_gleason',
                   'gleason_group_who_16']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
@@ -37,6 +37,7 @@ class Command(BaseCommand):
                         'clinical_review_step_id': core_annotation.annotation_step.label,
                         'reviewer': core_annotation.author.username,
                         'core_id': core_annotation.core.id,
+                        'creation_date': core_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'primary_gleason': core_annotation.primary_gleason,
                         'secondary_gleason': core_annotation.secondary_gleason,
                         'gleason_group_who_16': core_annotation.get_grade_group_text()
