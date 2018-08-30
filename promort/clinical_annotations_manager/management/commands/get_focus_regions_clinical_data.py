@@ -22,8 +22,8 @@ class Command(BaseCommand):
         return focus_region_annotation
 
     def _export_data(self, data, out_file):
-        header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id',
-                  'reviewer', 'focus_region_id', 'creation_date', 'perineural_involvement',
+        header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
+                  'focus_region_id', 'focus_region_label', 'creation_date', 'perineural_involvement',
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands',
                   'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern',
                   'mucinous', 'comedo_necrosis', 'gleason_4_percentage']
@@ -39,6 +39,7 @@ class Command(BaseCommand):
                         'clinical_review_step_id': focus_region_annotation.annotation_step.label,
                         'reviewer': focus_region_annotation.author.username,
                         'focus_region_id': focus_region_annotation.focus_region.id,
+                        'focus_region_label': focus_region_annotation.focus_region.label,
                         'creation_date': focus_region_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'perineural_involvement': focus_region_annotation.perineural_involvement,
                         'intraductal_carcinoma': focus_region_annotation.intraductal_carcinoma,
