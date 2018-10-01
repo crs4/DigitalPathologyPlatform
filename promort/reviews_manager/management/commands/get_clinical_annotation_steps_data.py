@@ -29,7 +29,8 @@ class Command(BaseCommand):
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'clinical_annotation_step_id',
-                  'reviewer', 'rejected', 'rejection_reason', 'notes']
+                  'creation_date', 'start_date', 'completion_date', 'reviewer', 'rejected',
+                  'rejection_reason', 'notes']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
@@ -40,6 +41,9 @@ class Command(BaseCommand):
                         'slide_id': step.slide.id,
                         'roi_review_step_id': step.rois_review_step.label,
                         'clinical_annotation_step_id': step.label,
+                        'creation_date': step.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
+                        'start_date': step.start_date.strftime('%Y-%m-%d %H:%M:%S'),
+                        'completion_date': step.completion_date.strftime('%Y-%m-%d %H:%M:%S'),
                         'reviewer': step.clinical_annotation.reviewer.username,
                         'rejected': step.rejected,
                         'rejection_reason': step.get_rejection_reason_text(),

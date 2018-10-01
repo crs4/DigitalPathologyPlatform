@@ -61,7 +61,10 @@ class CoreAnnotation(models.Model):
                         gleason_4_total_area += gleason_element.area
             except FocusRegionAnnotation.DoesNotExist:
                 pass
-        return (gleason_4_total_area / self.core.area) * 100.0
+        try:
+            return (gleason_4_total_area / self.core.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
     def get_grade_group_text(self):
         for choice in self.GLEASON_GROUP_WHO_16:
@@ -99,7 +102,10 @@ class FocusRegionAnnotation(models.Model):
         g4_area = 0
         for g4 in self.get_gleason_4_elements():
             g4_area += g4.area
-        return (g4_area / self.focus_region.area) * 100.0
+        try:
+            return (g4_area / self.focus_region.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
 
 class GleasonElement(models.Model):

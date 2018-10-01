@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'staining', 'adequate_slide', 'not_adequacy_reason',
-                  'notes', 'reviewer']
+                  'notes', 'reviewer', 'acquisition_date']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
@@ -37,7 +37,8 @@ class Command(BaseCommand):
                         'adequate_slide': evaluation.adequate_slide,
                         'not_adequacy_reason': evaluation.get_not_adequacy_reason_text(),
                         'notes': evaluation.notes,
-                        'reviewer': evaluation.reviewer.username
+                        'reviewer': evaluation.reviewer.username,
+                        'acquisition_date': evaluation.acquisition_date.strftime('%Y-%m-%d %H:%M:%S')
                     }
                 )
 
