@@ -1707,67 +1707,95 @@
         }
 
         function confirmPolygon() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $("#" + canvas_label);
-            $canvas.on('polygon_saved',
-                function(event, polygon_label) {
-                    var slices = $rootScope.slices;
-                    for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
-                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkCore',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('polygon_saved',
+                        function (event, polygon_label) {
+                            var slices = $rootScope.slices;
+                            for (var s in slices) {
+                                if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
+                                    AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateCoreData(vm.shape.shape_id, slices[s]);
+                                    break;
+                                }
                             }
-                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
-                            break;
+                            ngDialog.close('checkCore');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    'template': '/static/templates/dialogs/invalid_core.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_core.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function () {
+                        AnnotationsViewerService.saveTemporaryPolygon('core');
+                    }, 1);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryPolygon('core');
+            });
         }
 
         function confirmFreehandShape() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $('#' + canvas_label);
-            $canvas.on('freehand_polygon_saved',
-                function(event, polygon_label){
-                    var slices = $rootScope.slices;
-                    for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
-                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkCore',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $('#' + canvas_label);
+                    $canvas.on('freehand_polygon_saved',
+                        function (event, polygon_label) {
+                            var slices = $rootScope.slices;
+                            for (var s in slices) {
+                                if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
+                                    AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateCoreData(vm.shape.shape_id, slices[s]);
+                                    break;
+                                }
                             }
-                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
-                            break;
+                            ngDialog.close('checkCore');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    template: '/static/templates/dialogs/invalid_core.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            template: '/static/templates/dialogs/invalid_core.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function () {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 1);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryFreehandShape();
+            });
         }
 
         function polygonRollbackPossible() {
@@ -2940,67 +2968,95 @@
         }
 
         function confirmPolygon() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $("#" + canvas_label);
-            $canvas.on('polygon_saved',
-                function(event, polygon_label) {
-                    var cores = $rootScope.cores;
-                    for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
-                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkFocusRegion',
+                onOpenCallback: function() {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('polygon_saved',
+                        function (event, polygon_label) {
+                            var cores = $rootScope.cores;
+                            for (var c in cores) {
+                                if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
+                                    AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateFocusRegionData(polygon_label, cores[c]);
+                                    break;
+                                }
                             }
-                            vm._updateFocusRegionData(polygon_label, cores[c]);
-                            break;
+                            ngDialog.close('checkFocusRegion');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    'template': '/static/templates/dialogs/invalid_focus_region.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_focus_region.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryPolygon('focus_region');
+                    }, 10);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryPolygon('focus_region');
+            });
         }
 
         function confirmFreehandShape() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $('#' + canvas_label);
-            $canvas.on('freehand_polygon_saved',
-                function(event, polygon_label){
-                    var cores = $rootScope.cores;
-                    for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
-                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkFocusRegion',
+                onOpenCallback: function() {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $('#' + canvas_label);
+                    $canvas.on('freehand_polygon_saved',
+                        function(event, polygon_label){
+                            var cores = $rootScope.cores;
+                            for (var c in cores) {
+                                if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
+                                    AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateFocusRegionData(polygon_label, cores[c]);
+                                    break;
+                                }
                             }
-                            vm._updateFocusRegionData(polygon_label, cores[c]);
-                            break;
+                            ngDialog.close('checkFocusRegion');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    template: '/static/templates/dialogs/invalid_focus_region.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            template: '/static/templates/dialogs/invalid_focus_region.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 10);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryFreehandShape();
+            });
         }
 
         function polygonRollbackPossible() {
