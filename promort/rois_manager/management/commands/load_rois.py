@@ -60,10 +60,11 @@ class Command(BaseCommand):
             'type': 'polygon'
         }
 
-    def _create_slice(self, slice_coordinates, slice_id, annotation_step, user):
+    def _create_slice(self, slice_coordinates, slice_id, cores_count, annotation_step, user):
         roi_json = self._create_roi_json(slice_coordinates, 'slice_s%02d' % slice_id, '#000000')
         slice = Slice(label=roi_json['shape_id'], annotation_step=annotation_step,
-                      slide=annotation_step.slide, author=user, roi_json=json.dumps(roi_json))
+                      slide=annotation_step.slide, author=user, roi_json=json.dumps(roi_json),
+                      total_cores=cores_count)
         slice.save()
         return slice
 
@@ -90,7 +91,8 @@ class Command(BaseCommand):
                     for slice_index, slice in enumerate(rois):
                         logger.info('- Loading slice %d of %d', slice_index+1, len(rois))
                         slide_mpp = step.slide.image_microns_per_pixel
-                        slice_obj = self._create_slice(slice['coordinates'], slice_index+1, step, user)
+                        slice_obj = self._create_slice(slice['coordinates'], slice_index+1, len(slice['cores']),
+                                                       step, user)
                         logger.info('Slice saved with ID %d', slice_obj.id)
                         for core_index, core in enumerate(slice['cores']):
                             logger.info('Loading core %d of %d', core_index+1, len(slice['cores']))
