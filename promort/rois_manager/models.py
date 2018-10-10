@@ -49,13 +49,13 @@ class Core(models.Model):
     def get_normal_tissue_percentage(self):
         total_cancerous_area = 0.0
         for focus_region in self.focus_regions.all():
-            if focus_region.cancerous_region:
+            if focus_region.is_cancerous_region():
                 total_cancerous_area += focus_region.area
         return ((self.area - total_cancerous_area) / self.area) * 100.0
 
     def is_positive(self):
         for fr in self.focus_regions.all():
-            if fr.cancerous_region:
+            if fr.is_cancerous_region():
                 return True
         return False
 
@@ -76,7 +76,6 @@ class FocusRegion(models.Model):
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0.0)
-    cancerous_region = models.BooleanField(blank=False)
     tissue_status = models.CharField(max_length=8, choices=TISSUE_STATUS_CHOICES, blank=False)
 
     class Meta:
@@ -84,3 +83,12 @@ class FocusRegion(models.Model):
 
     def get_core_coverage_percentage(self):
         return (self.area / self.core.area) * 100.0
+
+    def is_cancerous_region(self):
+        return self.tissue_status == 'TUMOR'
+
+    def is_stressed_region(self):
+        return self.tissue_status == 'STRESSED'
+
+    def is_normal_region(self):
+        return self.tissue_status == 'NORMAL'
