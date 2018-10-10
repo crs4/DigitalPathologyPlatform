@@ -61,6 +61,12 @@ class Core(models.Model):
 
 
 class FocusRegion(models.Model):
+    TISSUE_STATUS_CHOICES = (
+        ('NORMAL', 'Normal'),
+        ('STRESSED', 'Stressed'),
+        ('TUMOR', 'Tumor')
+    )
+
     label = models.CharField(max_length=40, blank=False)
     core = models.ForeignKey(Core, on_delete=models.CASCADE,
                              blank=False, related_name='focus_regions')
@@ -71,6 +77,7 @@ class FocusRegion(models.Model):
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0.0)
     cancerous_region = models.BooleanField(blank=False)
+    tissue_status = models.CharField(max_length=8, choices=TISSUE_STATUS_CHOICES, blank=False)
 
     class Meta:
         unique_together = ('label', 'core')
