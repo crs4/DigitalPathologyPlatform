@@ -259,10 +259,13 @@
     </div>
     <div class="form-group row" ng-show="rmCtrl.shapeExists()">
         <div class="prm-label-elem checkbox prm-checkbox">
-            <label>
-                <input type="checkbox" ng-model="rmCtrl.isTumor" ng-click="rmCtrl.switchShapeColor()"
-                       ng-disabled="rmCtrl.isReadOnly() || rmCtrl.isRulerToolActive()">Tumor Area
-            </label>
+            <select class="form-control" id="tissueStatus" ng-model="rmCtrl.tissueStatus"
+                    ng-change="rmCtrl.switchShapeColor()"
+                    ng-disabled="rmCtrl.isReadOnly() || rmCtrl.isRulerToolActive()">
+                <option value="NORMAL" selected>Normal</option>
+                <option value="STRESSED">Stressed</option>
+                <option value="TUMOR">Tumor</option>
+            </select>
         </div>
     </div>
 </div>
