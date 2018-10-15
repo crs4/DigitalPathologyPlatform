@@ -258,7 +258,8 @@
         </div>
     </div>
     <div class="form-group row" ng-show="rmCtrl.shapeExists()">
-        <div class="prm-label-elem checkbox prm-checkbox">
+        <fieldset class="form-group prm-row-elem">
+            <label for="tissueStatus">Tissue status</label>
             <select class="form-control" id="tissueStatus" ng-model="rmCtrl.tissueStatus"
                     ng-change="rmCtrl.switchShapeColor()"
                     ng-disabled="rmCtrl.isReadOnly() || rmCtrl.isRulerToolActive()">
@@ -266,6 +267,6 @@
                 <option value="STRESSED">Stressed</option>
                 <option value="TUMOR">Tumor</option>
             </select>
-        </div>
+        </fieldset>
     </div>
 </div>
