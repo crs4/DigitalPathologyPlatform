@@ -112,8 +112,8 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_date', 'perineural_involvement',
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
                   'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
-                  'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements',
-                  'gleason_4_elements')
+                  'inflammation', 'pah', 'atrophic_lesions', 'adenosis', 'cellular_density_helper_json',
+                  'cellular_density', 'cells_count', 'gleason_elements', 'gleason_4_elements')
         read_only_fields = ('creation_date', 'gleason_4_elements')
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 
