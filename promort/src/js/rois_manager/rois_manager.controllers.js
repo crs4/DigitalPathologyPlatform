@@ -3157,7 +3157,7 @@
                 vm.scaledRegionLength = undefined;
                 vm.parentCore = undefined;
                 vm.coreCoverage = undefined;
-                vm.tissueStatus = undefined;
+                vm.tissueStatus = 'NORMAL';
             }
         }
 
