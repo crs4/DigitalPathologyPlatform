@@ -106,7 +106,7 @@ class FocusRegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FocusRegion
         fields = ('id', 'label', 'case', 'slide', 'core', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'cancerous_region', 'core_coverage_percentage')
+                  'length', 'area', 'tissue_status', 'core_coverage_percentage')
         read_only_fields = ('id', 'case', 'slide', 'creation_date', 'core_coverage_percentage')
 
     def validate_roi_json(self, value):
@@ -156,7 +156,7 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     def get_positive(self, obj):
         for fr in obj.focus_regions.all():
-            if fr.cancerous_region:
+            if fr.is_cancerous_region():
                 return True
         return False
 

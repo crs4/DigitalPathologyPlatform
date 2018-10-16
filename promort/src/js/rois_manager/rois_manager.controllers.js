@@ -2590,7 +2590,7 @@
         vm.regionLength = undefined;
         vm.regionArea = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = false;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -2693,6 +2693,9 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
+            // by default, mark region as NORMAL
+            vm.tissueStatus = 'NORMAL';
+
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];
 
@@ -2711,10 +2714,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -3148,7 +3157,7 @@
                 vm.scaledRegionLength = undefined;
                 vm.parentCore = undefined;
                 vm.coreCoverage = undefined;
-                vm.isTumor = false;
+                vm.tissueStatus = 'NORMAL';
             }
         }
 
@@ -3178,7 +3187,7 @@
                 closeByDocument: false
             });
             CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
-                vm.regionLength, vm.regionArea, vm.isTumor)
+                vm.regionLength, vm.regionArea, vm.tissueStatus)
                 .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
 
             function createFocusRegionSuccessFn(response) {
@@ -3235,7 +3244,7 @@
         vm.regionLength = undefined;
         vm.regionArea = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = false;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -3328,7 +3337,7 @@
                 vm.updateRegionArea();
                 vm.regionLength = response.data.length;
                 vm.updateRegionLength();
-                vm.isTumor = response.data.cancerous_region;
+                vm.tissueStatus = response.data.tissue_status;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
                 vm._updateShapeConfig();
             }
@@ -3340,10 +3349,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -3527,11 +3542,11 @@
             vm.scaledRegionLength = undefined;
             vm.regionArea = undefined;
             vm.coreCoverage = undefined;
-            vm.isTumor = false;
+            vm.tissueStatus = undefined;
         }
 
         function updateROI() {
-            FocusRegionsManagerService.update(vm.focus_region_id, vm.shape, vm.regionLength, vm.isTumor)
+            FocusRegionsManagerService.update(vm.focus_region_id, vm.shape, vm.regionLength, vm.tissueStatus)
                 .then(updateFocusRegionSuccessFn, updateFocusRegionErrorFn);
 
             function updateFocusRegionSuccessFn(response) {
@@ -3558,7 +3573,7 @@
         vm.regionArea = undefined;
         vm.regionLength = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = undefined;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -3613,7 +3628,7 @@
                 vm.updateRegionArea();
                 vm.regionLength = response.data.length;
                 vm.updateRegionLength();
-                vm.isTumor = response.data.cancerous_region;
+                vm.tissueStatus = response.data.tissue_status;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
                 vm.switchShapeColor();
             }
@@ -3625,10 +3640,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -3691,7 +3712,7 @@
                 vm.regionLength = undefined;
                 vm.scaledRegionLength = undefined;
                 vm.coreCoverage = undefined;
-                vm.isTumor = false;
+                vm.tissueStatus = undefined;
                 dialog.close();
             }
 

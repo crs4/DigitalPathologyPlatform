@@ -79,6 +79,7 @@ class FocusRegionAnnotation(models.Model):
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='focus_region_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
+    # cancerous region fields
     perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
     intraductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     ductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
@@ -88,6 +89,12 @@ class FocusRegionAnnotation(models.Model):
     hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
     comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
+    # stressed region fields
+    inflammation = models.BooleanField(blank=False, null=False, default=False)
+    pah = models.BooleanField(blank=False, null=False, default=False)
+    atrophic_lesions = models.BooleanField(blank=False, null=False, default=False)
+    adenosis = models.BooleanField(blank=False, null=False, default=False)
+    # ---
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)

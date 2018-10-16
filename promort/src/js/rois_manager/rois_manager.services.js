@@ -109,13 +109,13 @@
             return $http.delete('/api/cores/' + core_id + '/');
         }
 
-        function createFocusRegion(core_id, focus_region_label, roi_json, length, area, cancerous_region) {
+        function createFocusRegion(core_id, focus_region_label, roi_json, length, area, tissue_status) {
             var params = {
                 label: focus_region_label,
                 roi_json: JSON.stringify(roi_json),
                 length: length,
                 area: area,
-                cancerous_region: cancerous_region
+                tissue_status: tissue_status
             };
             return $http.post('/api/cores/' + core_id + '/focus_regions/', params);
         }
@@ -136,11 +136,11 @@
             return $http.get('/api/focus_regions/' + focus_region_id  + '/');
         }
 
-        function update(focus_region_id, roi_json, length, cancerous_region) {
+        function update(focus_region_id, roi_json, length, tissue_status) {
             var params = {
                 roi_json: JSON.stringify(roi_json),
                 length: length,
-                cancerous_region: cancerous_region
+                tissue_status: tissue_status
             };
             return $http.put('/api/focus_regions/' + focus_region_id + '/', params);
         }
