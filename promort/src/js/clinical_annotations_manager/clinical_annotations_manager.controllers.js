@@ -261,7 +261,7 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
-            if (focus_region_info.tumor === true) {
+            if (focus_region_info.tumor === true || focus_region_info.stressed === true) {
                 vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
             }
         }

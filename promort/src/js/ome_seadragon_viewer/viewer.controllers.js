@@ -177,7 +177,8 @@
                                         'label': focus_region.label,
                                         'core': focus_region.core,
                                         'annotated': annotated,
-                                        'tumor': focus_region.cancerous_region
+                                        'tumor': focus_region.tissue_status === 'TUMOR',
+                                        'stressed': focus_region.tissue_status === 'STRESSED'
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
                                 }
