@@ -21,10 +21,18 @@ class Command(BaseCommand):
         focus_regions = FocusRegion.objects.all()
         return focus_regions
 
+    def _get_region_tissue_status(self, focus_region):
+        if focus_region.is_cancerous_region():
+            return 'TUMOR'
+        elif focus_region.is_stressed_region():
+            return 'STRESSED'
+        elif focus_region.is_normal_region():
+            return 'NORMAL'
+
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id',
                   'focus_region_label', 'focus_region_id', 'creation_date', 'reviewer', 'length',
-                  'area', 'cancerous_region', 'core_coverage_percentage']
+                  'area', 'tissue_status', 'core_coverage_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
@@ -41,7 +49,7 @@ class Command(BaseCommand):
                         'reviewer': focus_region.author.username,
                         'length': focus_region.length,
                         'area': focus_region.area,
-                        'cancerous_region': focus_region.cancerous_region,
+                        'tissue_status': self._get_region_tissue_status(focus_region),
                         'core_coverage_percentage': focus_region.get_core_coverage_percentage()
                     }
                 )
