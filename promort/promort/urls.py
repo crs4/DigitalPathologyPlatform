@@ -167,6 +167,7 @@ urlpatterns = [
     # reviewers activity report
     url(r'api/odin/reviewers_report/$', od.ReviewersDetails.as_view()),
     url(r'api/odin/reviewers_report/send/$', od.ReviewersDetailsReport.as_view()),
+    url(r'api/odin/reviews_activity_report/send/$', od.ReviewsActivityReport.as_view()),
 
     # quality control tools
     url(r'api/odin/quality_control/bad_slides/$', od.BadSlideDetails.as_view()),

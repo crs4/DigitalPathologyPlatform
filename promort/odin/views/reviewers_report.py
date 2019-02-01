@@ -18,7 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.contrib.auth.models import Group, User
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.template.loader import get_template
 
 from rest_framework.views import APIView
@@ -32,6 +32,9 @@ from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation
 from promort.settings import DEFAULT_GROUPS, EMAIL_HOST_USER, REPORT_RECIPIENTS
 
 from collections import Counter
+from datetime import datetime
+from StringIO import StringIO
+from csv import DictWriter
 
 import logging
 logger = logging.getLogger('promort')
@@ -152,3 +155,72 @@ class ReviewersDetailsReport(ReviewersDetails):
                 send_mail_status[reviewer] = False
 
         return Response(send_mail_status, status=status.HTTP_200_OK)
+
+
+class ReviewsActivityReport(APIView):
+    permission_classes = (CanEnterGodMode,)
+
+    def _build_rois_reviews_report(self):
+        roi_annotations_buffer = StringIO()
+        writer = DictWriter(roi_annotations_buffer,
+                            ['case_id', 'slide_id', 'roi_annotation_label', 'slides_count', 'completed'])
+        writer.writeheader()
+
+        roi_annotations = ROIsAnnotation.objects.all()
+        for ann in roi_annotations:
+            for s in ann.steps.all():
+                writer.writerow({
+                    'case_id': ann.case.id,
+                    'slide_id': s.slide.id,
+                    'roi_annotation_label': s.label,
+                    'slides_count': ann.steps.count(),
+                    'completed': s.is_completed()
+                })
+        return roi_annotations_buffer
+
+    def _build_clinical_reviews_reporo(self):
+        clinical_annotations_buffer = StringIO()
+        writer = DictWriter(clinical_annotations_buffer,
+                            ['case_id', 'slide_id', 'clinical_annotation_label', 'slides_count', 'completed'])
+        writer.writeheader()
+
+        clinical_annotations = ClinicalAnnotation.objects.all()
+        for ann in clinical_annotations:
+            for s in ann.steps.all():
+                writer.writerow({
+                    'case_id': ann.case.id,
+                    'slide_id': s.slide.id,
+                    'clinical_annotation_label': s.label,
+                    'slides_count': ann.steps.count(),
+                    'completed': s.is_completed()
+                })
+        return clinical_annotations_buffer
+
+    def _build_reviews_report(self):
+        rois_report = self._build_rois_reviews_report()
+        clinical_report = self._build_clinical_reviews_reporo()
+
+        return rois_report, clinical_report
+
+    def _send_mail(self, receiver, rois_report_stream, clinical_report_stream):
+        msg = EmailMessage(
+            subject='ProMort reviews report %s' % datetime.now().strftime("%B %d %Y"),
+            body=get_template('annotations_report.txt').render(),
+            from_email=EMAIL_HOST_USER,
+            to=[receiver],
+            attachments=[
+                ('rois_report.csv', rois_report_stream.getvalue(), 'text/csv'),
+                ('clinical_report.csv', clinical_report_stream.getvalue(), 'text/csv')
+            ]
+        )
+        logger.info('Sending report mail to %s', receiver)
+        msg.send()
+
+    def get(self, request, format=None):
+        receiver = request.GET.get('receiver')
+        rr, cr = self._build_reviews_report()
+        try:
+            self._send_mail(receiver, rr, cr)
+        except:
+            return Response('Failed to send report', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response('Report sent to %s' % receiver, status=status.HTTP_200_OK)
