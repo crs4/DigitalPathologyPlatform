@@ -1,3 +1,22 @@
+#  Copyright (c) 2019, CRS4
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy of
+#  this software and associated documentation files (the "Software"), to deal in
+#  the Software without restriction, including without limitation the rights to
+#  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+#  the Software, and to permit persons to whom the Software is furnished to do so,
+#  subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in all
+#  copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+#  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+#  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+#  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+#  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -61,7 +80,10 @@ class CoreAnnotation(models.Model):
                         gleason_4_total_area += gleason_element.area
             except FocusRegionAnnotation.DoesNotExist:
                 pass
-        return (gleason_4_total_area / self.core.area) * 100.0
+        try:
+            return (gleason_4_total_area / self.core.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
     def get_grade_group_text(self):
         for choice in self.GLEASON_GROUP_WHO_16:
@@ -76,6 +98,7 @@ class FocusRegionAnnotation(models.Model):
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='focus_region_annotations')
     creation_date = models.DateTimeField(default=timezone.now)
+    # cancerous region fields
     perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
     intraductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     ductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
@@ -85,6 +108,12 @@ class FocusRegionAnnotation(models.Model):
     hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
     comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
+    # stressed region fields
+    inflammation = models.BooleanField(blank=False, null=False, default=False)
+    pah = models.BooleanField(blank=False, null=False, default=False)
+    atrophic_lesions = models.BooleanField(blank=False, null=False, default=False)
+    adenosis = models.BooleanField(blank=False, null=False, default=False)
+    # ---
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
@@ -99,7 +128,10 @@ class FocusRegionAnnotation(models.Model):
         g4_area = 0
         for g4 in self.get_gleason_4_elements():
             g4_area += g4.area
-        return (g4_area / self.focus_region.area) * 100.0
+        try:
+            return (g4_area / self.focus_region.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
 
 class GleasonElement(models.Model):

@@ -1,3 +1,22 @@
+#  Copyright (c) 2019, CRS4
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy of
+#  this software and associated documentation files (the "Software"), to deal in
+#  the Software without restriction, including without limitation the rights to
+#  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+#  the Software, and to permit persons to whom the Software is furnished to do so,
+#  subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in all
+#  copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+#  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+#  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+#  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+#  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 try:
     import simplejson as json
 except ImportError:
@@ -112,8 +131,8 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_date', 'perineural_involvement',
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
                   'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
-                  'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements',
-                  'gleason_4_elements')
+                  'inflammation', 'pah', 'atrophic_lesions', 'adenosis', 'cellular_density_helper_json',
+                  'cellular_density', 'cells_count', 'gleason_elements', 'gleason_4_elements')
         read_only_fields = ('creation_date', 'gleason_4_elements')
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 
@@ -146,7 +165,7 @@ class AnnotatedFocusRegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FocusRegion
         fields = ('id', 'label', 'core', 'roi_json', 'length', 'area',
-                  'cancerous_region', 'clinical_annotations')
+                  'tissue_status', 'clinical_annotations')
         read_only_fields = fields
 
 
@@ -164,7 +183,7 @@ class AnnotatedCoreSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_positive(obj):
         for fr in obj.focus_regions.all():
-            if fr.cancerous_region:
+            if fr.is_cancerous_region():
                 return True
         return False
 

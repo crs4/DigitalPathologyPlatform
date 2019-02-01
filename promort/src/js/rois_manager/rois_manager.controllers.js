@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2019, CRS4
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 (function () {
     'use strict';
 
@@ -1707,67 +1728,95 @@
         }
 
         function confirmPolygon() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $("#" + canvas_label);
-            $canvas.on('polygon_saved',
-                function(event, polygon_label) {
-                    var slices = $rootScope.slices;
-                    for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
-                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkCore',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('polygon_saved',
+                        function (event, polygon_label) {
+                            var slices = $rootScope.slices;
+                            for (var s in slices) {
+                                if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
+                                    AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateCoreData(vm.shape.shape_id, slices[s]);
+                                    break;
+                                }
                             }
-                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
-                            break;
+                            ngDialog.close('checkCore');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    'template': '/static/templates/dialogs/invalid_core.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_core.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function () {
+                        AnnotationsViewerService.saveTemporaryPolygon('core');
+                    }, 1);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryPolygon('core');
+            });
         }
 
         function confirmFreehandShape() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $('#' + canvas_label);
-            $canvas.on('freehand_polygon_saved',
-                function(event, polygon_label){
-                    var slices = $rootScope.slices;
-                    for (var s in slices) {
-                        if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
-                            AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkCore',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $('#' + canvas_label);
+                    $canvas.on('freehand_polygon_saved',
+                        function (event, polygon_label) {
+                            var slices = $rootScope.slices;
+                            for (var s in slices) {
+                                if (AnnotationsViewerService.checkContainment(slices[s].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, slices[s].label)) {
+                                    AnnotationsViewerService.adaptToContainer(slices[s].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateCoreData(vm.shape.shape_id, slices[s]);
+                                    break;
+                                }
                             }
-                            vm._updateCoreData(vm.shape.shape_id, slices[s]);
-                            break;
+                            ngDialog.close('checkCore');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    template: '/static/templates/dialogs/invalid_core.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            template: '/static/templates/dialogs/invalid_core.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function () {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 1);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryFreehandShape();
+            });
         }
 
         function polygonRollbackPossible() {
@@ -2562,7 +2611,7 @@
         vm.regionLength = undefined;
         vm.regionArea = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = false;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -2665,6 +2714,9 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
+            // by default, mark region as NORMAL
+            vm.tissueStatus = 'NORMAL';
+
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];
 
@@ -2683,10 +2735,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -2940,67 +2998,95 @@
         }
 
         function confirmPolygon() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $("#" + canvas_label);
-            $canvas.on('polygon_saved',
-                function(event, polygon_label) {
-                    var cores = $rootScope.cores;
-                    for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
-                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkFocusRegion',
+                onOpenCallback: function() {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('polygon_saved',
+                        function (event, polygon_label) {
+                            var cores = $rootScope.cores;
+                            for (var c in cores) {
+                                if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
+                                    AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateFocusRegionData(polygon_label, cores[c]);
+                                    break;
+                                }
                             }
-                            vm._updateFocusRegionData(polygon_label, cores[c]);
-                            break;
+                            ngDialog.close('checkFocusRegion');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    'template': '/static/templates/dialogs/invalid_focus_region.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            'template': '/static/templates/dialogs/invalid_focus_region.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryPolygon('focus_region');
+                    }, 10);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryPolygon('focus_region');
+            });
         }
 
         function confirmFreehandShape() {
-            var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            var $canvas = $('#' + canvas_label);
-            $canvas.on('freehand_polygon_saved',
-                function(event, polygon_label){
-                    var cores = $rootScope.cores;
-                    for (var c in cores) {
-                        if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
-                            AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
-                            AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
-                            if (vm.shape_label !== polygon_label) {
-                                AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
-                                vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                            } else {
-                                vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkFocusRegion',
+                onOpenCallback: function() {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $('#' + canvas_label);
+                    $canvas.on('freehand_polygon_saved',
+                        function(event, polygon_label){
+                            var cores = $rootScope.cores;
+                            for (var c in cores) {
+                                if (AnnotationsViewerService.checkContainment(cores[c].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, cores[c].label)) {
+                                    AnnotationsViewerService.adaptToContainer(cores[c].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateFocusRegionData(polygon_label, cores[c]);
+                                    break;
+                                }
                             }
-                            vm._updateFocusRegionData(polygon_label, cores[c]);
-                            break;
+                            ngDialog.close('checkFocusRegion');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    template: '/static/templates/dialogs/invalid_focus_region.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
                         }
-                    }
-                    if (typeof vm.shape === 'undefined') {
-                        AnnotationsViewerService.deleteShape(polygon_label);
-                        ngDialog.open({
-                            template: '/static/templates/dialogs/invalid_focus_region.html'
-                        });
-                    }
-                    vm.abortTool();
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 10);
                 }
-            );
-            AnnotationsViewerService.saveTemporaryFreehandShape();
+            });
         }
 
         function polygonRollbackPossible() {
@@ -3092,7 +3178,7 @@
                 vm.scaledRegionLength = undefined;
                 vm.parentCore = undefined;
                 vm.coreCoverage = undefined;
-                vm.isTumor = false;
+                vm.tissueStatus = 'NORMAL';
             }
         }
 
@@ -3122,7 +3208,7 @@
                 closeByDocument: false
             });
             CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
-                vm.regionLength, vm.regionArea, vm.isTumor)
+                vm.regionLength, vm.regionArea, vm.tissueStatus)
                 .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
 
             function createFocusRegionSuccessFn(response) {
@@ -3179,7 +3265,7 @@
         vm.regionLength = undefined;
         vm.regionArea = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = false;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -3272,7 +3358,7 @@
                 vm.updateRegionArea();
                 vm.regionLength = response.data.length;
                 vm.updateRegionLength();
-                vm.isTumor = response.data.cancerous_region;
+                vm.tissueStatus = response.data.tissue_status;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
                 vm._updateShapeConfig();
             }
@@ -3284,10 +3370,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -3471,11 +3563,11 @@
             vm.scaledRegionLength = undefined;
             vm.regionArea = undefined;
             vm.coreCoverage = undefined;
-            vm.isTumor = false;
+            vm.tissueStatus = undefined;
         }
 
         function updateROI() {
-            FocusRegionsManagerService.update(vm.focus_region_id, vm.shape, vm.regionLength, vm.isTumor)
+            FocusRegionsManagerService.update(vm.focus_region_id, vm.shape, vm.regionLength, vm.tissueStatus)
                 .then(updateFocusRegionSuccessFn, updateFocusRegionErrorFn);
 
             function updateFocusRegionSuccessFn(response) {
@@ -3502,7 +3594,7 @@
         vm.regionArea = undefined;
         vm.regionLength = undefined;
         vm.coreCoverage = undefined;
-        vm.isTumor = undefined;
+        vm.tissueStatus = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -3557,7 +3649,7 @@
                 vm.updateRegionArea();
                 vm.regionLength = response.data.length;
                 vm.updateRegionLength();
-                vm.isTumor = response.data.cancerous_region;
+                vm.tissueStatus = response.data.tissue_status;
                 vm.coreCoverage = AnnotationsViewerService.getAreaCoverage(vm.parent_shape_id, vm.shape_id);
                 vm.switchShapeColor();
             }
@@ -3569,10 +3661,16 @@
         }
 
         function _updateShapeConfig() {
-            if (vm.isTumor) {
-                vm.shape_config.stroke_color = '#ff0000';
-            } else {
-                vm.shape_config.stroke_color = '#32fc46';
+            switch(vm.tissueStatus) {
+                case 'NORMAL':
+                    vm.shape_config.stroke_color = '#32fc46';
+                    break;
+                case 'STRESSED':
+                    vm.shape_config.stroke_color = '#fd6402';
+                    break;
+                case 'TUMOR':
+                    vm.shape_config.stroke_color = '#ff0000';
+                    break;
             }
         }
 
@@ -3635,7 +3733,7 @@
                 vm.regionLength = undefined;
                 vm.scaledRegionLength = undefined;
                 vm.coreCoverage = undefined;
-                vm.isTumor = false;
+                vm.tissueStatus = undefined;
                 dialog.close();
             }
 

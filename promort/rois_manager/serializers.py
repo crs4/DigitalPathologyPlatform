@@ -1,3 +1,22 @@
+#  Copyright (c) 2019, CRS4
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy of
+#  this software and associated documentation files (the "Software"), to deal in
+#  the Software without restriction, including without limitation the rights to
+#  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+#  the Software, and to permit persons to whom the Software is furnished to do so,
+#  subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in all
+#  copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+#  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+#  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+#  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+#  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 try:
     import simplejson as json
 except ImportError:
@@ -106,7 +125,7 @@ class FocusRegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FocusRegion
         fields = ('id', 'label', 'case', 'slide', 'core', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'cancerous_region', 'core_coverage_percentage')
+                  'length', 'area', 'tissue_status', 'core_coverage_percentage')
         read_only_fields = ('id', 'case', 'slide', 'creation_date', 'core_coverage_percentage')
 
     def validate_roi_json(self, value):
@@ -156,7 +175,7 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     def get_positive(self, obj):
         for fr in obj.focus_regions.all():
-            if fr.cancerous_region:
+            if fr.is_cancerous_region():
                 return True
         return False
 

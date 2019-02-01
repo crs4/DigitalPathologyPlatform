@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2019, CRS4
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 (function () {
     'use strict';
 
@@ -261,7 +282,7 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
-            if (focus_region_info.tumor === true) {
+            if (focus_region_info.tumor === true || focus_region_info.stressed === true) {
                 vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
             }
         }
@@ -1284,7 +1305,7 @@
         vm.focus_region_label = undefined;
         vm.focusRegionArea = undefined;
         vm.coreCoveragePercentage = undefined;
-        vm.cancerousRegion = false;
+        vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
         vm.perineuralInvolvement = false;
         vm.intraductalCarcinoma = false;
@@ -1295,6 +1316,10 @@
         vm.hypernephroidPattern = false;
         vm.mucinous = false;
         vm.comedoNecrosis = false;
+        vm.inflammation = false;
+        vm.pah = false;
+        vm.atrophicLesions = false;
+        vm.adenosis = false;
         vm.cellularDensityHelperShape = undefined;
         vm.cellularDensity = undefined;
         vm.cellsCount = undefined;
@@ -1335,6 +1360,8 @@
         vm._clean = _clean;
         vm.isReadOnly = isReadOnly;
         vm.isLocked = isLocked;
+        vm.isCancerousRegion = isCancerousRegion;
+        vm.isStressedRegion = isStressedRegion;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
@@ -1398,7 +1425,7 @@
                 vm.focusRegionLength = response.data.length;
                 vm.updateRegionLength();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
-                vm.cancerousRegion = response.data.cancerous_region;
+                vm.focusRegionTissueStatus = response.data.tissue_status;
             }
 
             function getFocusRegionErrorFn(response) {
@@ -1424,7 +1451,7 @@
             vm.focus_region_label = undefined;
             vm.focusRegionArea = undefined;
             vm.coreCoveragePercentage = undefined;
-            vm.cancerousRegion = false;
+            vm.focusRegionTissueStatus = undefined;
             vm.focusRegionLength = undefined;
             vm.perineuralInvolvement = false;
             vm.intraductalCarcinoma = false;
@@ -1435,6 +1462,10 @@
             vm.hypernephroidPattern = false;
             vm.mucinous = false;
             vm.comedoNecrosis = false;
+            vm.inflammation = false;
+            vm.pah = false;
+            vm.atrophicLesions = false;
+            vm.adenosis = false;
             vm.cellsCount = undefined;
 
             vm.gleason4Elements = {};
@@ -1662,6 +1693,14 @@
             return false;
         }
 
+        function isCancerousRegion() {
+            return vm.focusRegionTissueStatus === 'TUMOR';
+        }
+
+        function isStressedRegion() {
+            return vm.focusRegionTissueStatus === 'STRESSED';
+        }
+
         function formValid() {
             return !vm.gleason4ToolActive();
         }
@@ -1696,6 +1735,10 @@
                 hypernephroid_pattern: vm.hypernephroidPattern,
                 mucinous: vm.mucinous,
                 comedo_necrosis: vm.comedoNecrosis,
+                inflammation: vm.inflammation,
+                pah: vm.pah,
+                atrophic_lesions: vm.atrophicLesions,
+                adenosis: vm.adenosis,
                 cells_count: vm.cellsCount,
                 gleason_elements: gleason_4_elements
             };
@@ -1776,7 +1819,7 @@
         vm.focus_region_label = undefined;
         vm.focusRegionArea = undefined;
         vm.coreCoveragePercentage = undefined;
-        vm.cancerousRegion = false;
+        vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
         vm.perineuralInvolvement = false;
         vm.intraductalCarcinoma = false;
@@ -1787,6 +1830,10 @@
         vm.hypernephroidPattern = false;
         vm.mucinous = false;
         vm.comedoNecrosis = false;
+        vm.inflammation = false;
+        vm.pah = false;
+        vm.atrophicLesions = false;
+        vm.adenosis = false;
         vm.cellularDensityHelperShape = undefined;
         vm.cellsCount = undefined;
 
@@ -1816,6 +1863,7 @@
 
         vm.isReadOnly = isReadOnly;
         vm.isCancerousRegion = isCancerousRegion;
+        vm.isStressedRegion = isStressedRegion;
         vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
@@ -1848,7 +1896,7 @@
                 vm.updateRegionArea();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
                     .toFixed(3));
-                vm.cancerousRegion = response.data.focus_region.cancerous_region;
+                vm.focusRegionTissueStatus = response.data.focus_region.tissue_status;
                 vm.focusRegionLength = response.data.focus_region.length;
                 vm.updateRegionLength();
                 vm.perineuralInvolvement = response.data.perineural_involvement;
@@ -1860,6 +1908,10 @@
                 vm.hypernephroidPattern = response.data.hypernephroid_pattern;
                 vm.mucinous = response.data.mucinous;
                 vm.comedoNecrosis = response.data.comedo_necrosis;
+                vm.inflammation = response.data.inflammation;
+                vm.pah = response.data.pah;
+                vm.atrophicLesions = response.data.atrophic_lesions;
+                vm.adenosis = response.data.adenosis;
                 vm.cellsCount = response.data.cells_count;
 
                 vm.gleason4Elements = {};
@@ -1894,7 +1946,7 @@
                     vm.updateRegionArea();
                     vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage)
                         .toFixed(3));
-                    vm.cancerousRegion = response.data.cancerous_region;
+                    vm.focusRegionTissueStatus = response.data.tissue_status;
                     vm.focusRegionLength = response.data.length;
                     vm.updateRegionLength();
                     vm.locked = true;
@@ -1912,7 +1964,11 @@
         }
 
         function isCancerousRegion() {
-            return vm.cancerousRegion;
+            return vm.focusRegionTissueStatus === 'TUMOR';
+        }
+
+        function isStressedRegion() {
+            return vm.focusRegionTissueStatus === 'STRESSED';
         }
 
         function isLocked() {
@@ -1959,7 +2015,7 @@
                 vm.focus_region_label = undefined;
                 vm.focusRegionArea = undefined;
                 vm.coreCoveragePercentage = undefined;
-                vm.cancerousRegion = false;
+                vm.focusRegionTissueStatus = undefined;
                 vm.focusRegionLength = undefined;
                 vm.perineuralInvolvement = false;
                 vm.intraductalCarcinoma = false;
@@ -1970,6 +2026,10 @@
                 vm.hypernephroidPattern = false;
                 vm.mucinous = false;
                 vm.comedoNecrosis = false;
+                vm.inflammation = false;
+                vm.pah = false;
+                vm.atrophicLesions = false;
+                vm.adenosis = false;
                 vm.cellsCount = undefined;
 
                 for (var el in vm.gleason4ElementsLabels) {
