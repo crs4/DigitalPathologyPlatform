@@ -54,6 +54,13 @@ class ROIsAnnotation(models.Model):
         self.completion_date = None
         self.save()
 
+    def completed_steps_count(self):
+        counter = 0
+        for step in self.steps.all():
+            if step.is_completed():
+                counter += 1
+        return counter
+
     def clinical_annotations_completed(self):
         for annotation in self.clinical_annotations.all():
             if not annotation.is_completed():
@@ -160,6 +167,13 @@ class ClinicalAnnotation(models.Model):
             if not rs.is_completed():
                 return False
         return True
+
+    def completed_steps_count(self):
+        counter = 0
+        for step in self.steps.all():
+            if step.is_completed():
+                counter += 1
+        return counter
 
 
 class ClinicalAnnotationStep(models.Model):
