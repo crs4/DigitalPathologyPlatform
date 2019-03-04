@@ -45,7 +45,7 @@ class Command(BaseCommand):
                   'focus_region_id', 'focus_region_label', 'core_id', 'core_label', 'creation_date',
                   'perineural_involvement', 'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands',
                   'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern',
-                  'mucinous', 'comedo_necrosis', 'gleason_4_percentage']
+                  'mucinous', 'comedo_necrosis', 'total_gleason_4_area', 'gleason_4_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
