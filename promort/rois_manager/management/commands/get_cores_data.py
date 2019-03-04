@@ -62,7 +62,8 @@ class Command(BaseCommand):
                         'area': core.area,
                         'tumor_length': core.tumor_length,
                         'positive_core': core.is_positive(),
-                        'normal_tissue_percentage': core.get_normal_tissue_percentage()
+                        'normal_tissue_percentage': core.get_normal_tissue_percentage(),
+                        'total_tumor_area': core.get_total_tumor_area()
                     }
                 )
 

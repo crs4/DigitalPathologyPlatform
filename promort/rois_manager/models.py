@@ -65,11 +65,15 @@ class Core(models.Model):
     class Meta:
         unique_together = ('label', 'slice')
 
-    def get_normal_tissue_percentage(self):
+    def get_total_tumor_area(self):
         total_cancerous_area = 0.0
         for focus_region in self.focus_regions.all():
             if focus_region.is_cancerous_region():
                 total_cancerous_area += focus_region.area
+        return total_cancerous_area
+
+    def get_normal_tissue_percentage(self):
+        total_cancerous_area = self.get_total_tumor_area()
         return ((self.area - total_cancerous_area) / self.area) * 100.0
 
     def is_positive(self):
