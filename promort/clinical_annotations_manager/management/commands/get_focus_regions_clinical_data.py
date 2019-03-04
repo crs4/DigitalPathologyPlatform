@@ -71,6 +71,7 @@ class Command(BaseCommand):
                         'hypernephroid_pattern': focus_region_annotation.hypernephroid_pattern,
                         'mucinous': focus_region_annotation.mucinous,
                         'comedo_necrosis': focus_region_annotation.comedo_necrosis,
+                        'total_gleason_4_area': focus_region_annotation.get_total_gleason_4_area(),
                         'gleason_4_percentage': focus_region_annotation.get_gleason_4_percentage()
                     }
                 )
