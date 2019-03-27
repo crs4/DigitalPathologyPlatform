@@ -61,9 +61,9 @@ class Command(BaseCommand):
 
     def _get_slide_mpp(self, slide):
         if slide['img_type'] == 'OMERO_IMG':
-            url = urljoin(OME_SEADRAGON_BASE_URL, 'deepzoom/image_mpp/' + slide['omero_id'] + '.dzi')
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'deepzoom/image_mpp/%s.dzi' % slide['omero_id'])
         else:
-            url = urljoin(OME_SEADRAGON_BASE_URL, 'mirax/deepzoom/image_mpp/' + slide['name'] + '.dzi')
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'mirax/deepzoom/image_mpp/%s.dzi' % slide['name'])
         response = requests.get(url)
         if response.status_code == requests.codes.OK:
             logger.info('Loaded image microns per pixel value')
