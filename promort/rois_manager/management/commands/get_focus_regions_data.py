@@ -49,7 +49,7 @@ class Command(BaseCommand):
             return 'NORMAL'
 
     def _export_data(self, data, out_file):
-        header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id',
+        header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id', 'parent_core_label',
                   'focus_region_label', 'focus_region_id', 'creation_date', 'reviewer', 'length',
                   'area', 'tissue_status', 'core_coverage_percentage']
         with open(out_file, 'w') as ofile:
@@ -62,6 +62,7 @@ class Command(BaseCommand):
                         'slide_id': focus_region.core.slice.slide.id,
                         'rois_review_step_id': focus_region.core.slice.annotation_step.label,
                         'parent_core_id': focus_region.core.id,
+                        'parent_core_label': focus_region.core.label,
                         'focus_region_label': focus_region.label,
                         'focus_region_id': focus_region.id,
                         'creation_date': focus_region.creation_date.strftime('%Y-%m-%d %H:%M:%S'),

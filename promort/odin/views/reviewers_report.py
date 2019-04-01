@@ -163,7 +163,7 @@ class ReviewsActivityReport(APIView):
     def _build_rois_reviews_report(self):
         roi_annotations_buffer = StringIO()
         writer = DictWriter(roi_annotations_buffer,
-                            ['case_id', 'slide_id', 'roi_annotation_label', 'slides_count', 'completed'])
+                            ['case_id', 'slide_id', 'roi_annotation_label', 'slides_count', 'reviewer', 'completed'])
         writer.writeheader()
 
         roi_annotations = ROIsAnnotation.objects.all()
@@ -174,6 +174,7 @@ class ReviewsActivityReport(APIView):
                     'slide_id': s.slide.id,
                     'roi_annotation_label': s.label,
                     'slides_count': ann.steps.count(),
+                    'reviewer': ann.reviewer.username,
                     'completed': s.is_completed()
                 })
         return roi_annotations_buffer
@@ -181,7 +182,7 @@ class ReviewsActivityReport(APIView):
     def _build_clinical_reviews_reporo(self):
         clinical_annotations_buffer = StringIO()
         writer = DictWriter(clinical_annotations_buffer,
-                            ['case_id', 'slide_id', 'clinical_annotation_label', 'slides_count', 'completed'])
+                            ['case_id', 'slide_id', 'clinical_annotation_label', 'slides_count', 'reviewer', 'completed'])
         writer.writeheader()
 
         clinical_annotations = ClinicalAnnotation.objects.all()
@@ -192,6 +193,7 @@ class ReviewsActivityReport(APIView):
                     'slide_id': s.slide.id,
                     'clinical_annotation_label': s.label,
                     'slides_count': ann.steps.count(),
+                    'reviewer': ann.reviewer.username,
                     'completed': s.is_completed()
                 })
         return clinical_annotations_buffer

@@ -43,7 +43,7 @@ class Command(BaseCommand):
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'parent_slice_id',
                   'core_label', 'core_id', 'creation_date', 'reviewer', 'length', 'area', 'tumor_length',
-                  'positive_core', 'normal_tissue_percentage']
+                  'positive_core', 'normal_tissue_percentage', 'total_tumor_area']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
@@ -62,7 +62,8 @@ class Command(BaseCommand):
                         'area': core.area,
                         'tumor_length': core.tumor_length,
                         'positive_core': core.is_positive(),
-                        'normal_tissue_percentage': core.get_normal_tissue_percentage()
+                        'normal_tissue_percentage': core.get_normal_tissue_percentage(),
+                        'total_tumor_area': core.get_total_tumor_area()
                     }
                 )
 
