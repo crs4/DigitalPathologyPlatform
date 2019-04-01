@@ -33,6 +33,10 @@ logger = logging.getLogger('promort_commands')
 class Command(BaseCommand):
     help = 'build second reviewers worklist based on existing ROIs annotations'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--reviewers-count', dest='reviewers_count', type=int, default=1,
+                            help='the number of clinical reviews created for each ROIs annotation')
+
     def _get_clinical_manager_users(self):
         clinical_managers_group = Group.objects.get(name=DEFAULT_GROUPS['clinical_manager']['name'])
         return clinical_managers_group.user_set.all()
@@ -41,16 +45,20 @@ class Command(BaseCommand):
         linked_annotations = [ca.rois_review.label for ca in ClinicalAnnotation.objects.all()]
         return ROIsAnnotation.objects.exclude(label__in=linked_annotations)
 
-    def _select_clinical_reviewers(self, rois_annotation, clinical_managers):
-        if rois_annotation.reviewer in clinical_managers:
-            reviewer_1 = rois_annotation.reviewer
+    def _select_clinical_reviewers(self, rois_annotation, clinical_managers, reviewers_count):
+        if reviewers_count >= len(clinical_managers):
+            return clinical_managers
         else:
-            reviewer_1 = random.choice(clinical_managers)
-        reviewer_2 = random.choice(clinical_managers)
-        while reviewer_2 == reviewer_1:
-            reviewer_2 = random.choice(clinical_managers)
-        logger.info('REVIEWER 1: %s --- REVIEWER 2: %s', reviewer_1.username, reviewer_2.username)
-        return reviewer_1, reviewer_2
+            reviewers = []
+            # by default, assign the clinical annotation to the reviewers that created the ROIs (if enabled)
+            if rois_annotation.reviewer in clinical_managers:
+                reviewers.append(rois_annotation.reviewer)
+            while len(reviewers) < reviewers_count:
+                r = random.choice(clinical_managers)
+                while r in reviewers:
+                    r = random.choice(clinical_managers)
+                reviewers.append(r)
+            return reviewers
 
     def _create_clinical_annotation(self, rois_annotation_obj, reviewer_obj):
         logger.info('Assigning review to user %s', reviewer_obj.username)
@@ -98,31 +106,31 @@ class Command(BaseCommand):
         logger.info('Saved new Clinical Annotation Step with label %s', annotation_step_obj.label)
         return annotation_step_obj
 
-    def _create_reviews_comparison(self, review_step_1_obj, review_step_2_obj):
-        reviews_comparison_obj = ReviewsComparison(review_1=review_step_1_obj, review_2=review_step_2_obj)
-        if review_step_1_obj.is_completed() and review_step_2_obj.is_completed():
-            logger.info('Bad quality control, closing and marking Reviews Comparison object')
-            reviews_comparison_obj.start_date = datetime.now()
-            reviews_comparison_obj.close(False, False)
-        reviews_comparison_obj.save()
-        logger.info('Create Reviews Comparison for Clinical Annotation Steps %s and %s',
-                    review_step_1_obj.label, review_step_2_obj.label)
-        return reviews_comparison_obj
+    # def _create_reviews_comparison(self, review_step_1_obj, review_step_2_obj):
+    #     reviews_comparison_obj = ReviewsComparison(review_1=review_step_1_obj, review_2=review_step_2_obj)
+    #     if review_step_1_obj.is_completed() and review_step_2_obj.is_completed():
+    #         logger.info('Bad quality control, closing and marking Reviews Comparison object')
+    #         reviews_comparison_obj.start_date = datetime.now()
+    #         reviews_comparison_obj.close(False, False)
+    #     reviews_comparison_obj.save()
+    #     logger.info('Create Reviews Comparison for Clinical Annotation Steps %s and %s',
+    #                 review_step_1_obj.label, review_step_2_obj.label)
+    #     return reviews_comparison_obj
 
     def handle(self, *args, **opts):
         logger.info('=== Starting clinical annotations worklist creation ===')
+        reviewers_count = opts['reviewers_count']
         clinical_annotations_manager = self._get_clinical_manager_users()
-        if len(clinical_annotations_manager) < 2:
-            raise CommandError('There must be at least 2 users with Clinical Annotations Manager role')
+        if len(clinical_annotations_manager) == 0:
+            raise CommandError('There must be at least 1 user with Clinical Annotations Manager role')
         rois_annotations = self._get_rois_annotations_list()
         if len(rois_annotations) == 0:
             logger.info('There are no ROIs Annotations to process')
         for r_ann in rois_annotations:
-            reviewer_1, reviewer_2 = self._select_clinical_reviewers(r_ann, clinical_annotations_manager)
-            cl_ann_1 = self._create_clinical_annotation(r_ann, reviewer_1)
-            cl_ann_2 = self._create_clinical_annotation(r_ann, reviewer_2)
-            for annotation_step in r_ann.steps.all():
-                cl_ann_1_step = self._create_clinical_annotation_step(cl_ann_1, annotation_step)
-                cl_ann_2_step = self._create_clinical_annotation_step(cl_ann_2, annotation_step)
-                self._create_reviews_comparison(cl_ann_1_step, cl_ann_2_step)
+            logger.info('Processing ROIs Annotation %s', r_ann.label)
+            reviewers = self._select_clinical_reviewers(r_ann, clinical_annotations_manager, reviewers_count)
+            for r in reviewers:
+                c_ann = self._create_clinical_annotation(r_ann, r)
+                for r_step in r_ann.steps.all():
+                    self._create_clinical_annotation_step(c_ann, r_step)
         logger.info('=== Clinical annotation worklist creation completed ===')
