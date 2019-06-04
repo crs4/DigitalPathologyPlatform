@@ -1,0 +1,40 @@
+django:
+  debug: true
+  secret_key: v8+4d(w%u@lzxcwl-w#i1h07=qdyecs@+%41bkejx^t5g_=tib
+  allowed_hosts:
+    - localhost
+  static_root: ./static/
+  session_cookie: promort_sessionid
+
+database:
+  engine: sqlite3
+  name: db.sqlite3
+  user:
+  password:
+  host:
+  port:
+
+email:
+  use_tls: true
+  host:
+  port:
+  user:
+  password:
+
+report:
+  subject_prefix: "[ProMort]"
+  recipients: []
+
+promort_groups:
+  rois_manager:
+    name: ROIS_MANAGERS
+  clinical_manager:
+    name: CLINICAL_MANAGERS 
+  gold_standard:
+    name: GOLD_STANDARD
+  odin_members:
+    name: ODIN_USERS
+
+ome_seadragon:
+  base_url: http://localhost:8080/ome_seadragon/
+  static_files_url: http://localhost:8080/static/
