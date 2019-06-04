@@ -208,8 +208,8 @@ EMAIL_PORT = cfg['email']['port']
 EMAIL_HOST_USER = cfg['email']['user']
 EMAIL_HOST_PASSWORD = cfg['email']['password']
 # REPORT SETTINGS
-REPORT_SUBJECT_PREFIX = '[ProMort]'
-REPORT_RECIPIENTS = ['']
+REPORT_SUBJECT_PREFIX = cfg['report']['subject_prefix']
+REPORT_RECIPIENTS = cfg['report']['recipients']
 
 # CUSTOM SETTINGS
 DEFAULT_GROUPS = {
