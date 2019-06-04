@@ -72,3 +72,6 @@ promort/static/js/promort.min.js
 
 # Jupyter notebooks folder
 notebooks
+
+# Visual Studio Code
+.vscode
