@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from rois_manager.models import Slice
 
 from csv import DictWriter
@@ -35,9 +36,22 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        slices = Slice.objects.all()
+    def _load_data(self, page_size):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            s_qs = Slice.objects.get_queryset().order_by('label')
+            paginator = Paginator(s_qs, page_size)
+            slices = list()
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                slices.extend(page.object_list)
+        else:
+            logger.info('Loading full batch')
+            slices = Slice.objects.all()
         return slices
 
     def _export_data(self, data, out_file):
@@ -64,6 +78,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        slices = self._load_data()
+        slices = self._load_data(opts['page_size'])
         self._export_data(slices, opts['output'])
         logger.info('=== Data saved to %s ===', opts['output'])

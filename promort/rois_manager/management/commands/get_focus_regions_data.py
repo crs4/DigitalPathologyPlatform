@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from rois_manager.models import FocusRegion
 
 from csv import DictWriter
@@ -35,9 +36,22 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        focus_regions = FocusRegion.objects.all()
+    def _load_data(self, page_size):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            fr_qs = FocusRegion.objects.get_queryset().order_by('label')
+            paginator = Paginator(fr_qs, page_size)
+            focus_regions = list()
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                focus_regions.extend(page.object_list)
+        else:
+            logger.info('Loading full batch')
+            focus_regions = FocusRegion.objects.all()
         return focus_regions
 
     def _get_region_tissue_status(self, focus_region):
@@ -76,6 +90,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        focus_regions = self._load_data()
+        focus_regions = self._load_data(opts['page_size'])
         self._export_data(focus_regions, opts['output'])
         logger.info('=== Data saved to %s ===', opts['output'])
