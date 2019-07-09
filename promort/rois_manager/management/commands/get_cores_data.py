@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def _dump_data(self, page_size, csv_writer):
         if page_size > 0:
             logger.info('Pagination enabled (%d records for page)', page_size)
-            c_qs = Core.objects.get_queryset().defer('roi_json').order_by('label')
+            c_qs = Core.objects.get_queryset().defer('roi_json').order_by('creation_date')
             paginator = Paginator(c_qs, page_size)
             for x in paginator.page_range:
                 logger.info('-- page %d --', x)
