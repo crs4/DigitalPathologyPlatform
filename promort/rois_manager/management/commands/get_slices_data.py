@@ -39,20 +39,37 @@ class Command(BaseCommand):
         parser.add_argument('--page_size', dest='page_size', type=int, default=0,
                             help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self, page_size):
+    def _dump_data(self, page_size, csv_writer):
         if page_size > 0:
             logger.info('Pagination enabled (%d records for page)', page_size)
             s_qs = Slice.objects.get_queryset().defer('roi_json').order_by('label')
             paginator = Paginator(s_qs, page_size)
-            slices = list()
             for x in paginator.page_range:
                 logger.info('-- page %d --', x)
                 page = paginator.page(x)
-                slices.extend(page.object_list)
+                for s in page.object_list:
+                    self._dump_row(s, csv_writer)
         else:
             logger.info('Loading full batch')
             slices = Slice.objects.all()
-        return slices
+            for s in slices:
+                self._dump_row(s, csv_writer)
+
+    def _dump_row(self, slice, csv_writer):
+        csv_writer.writerow(
+            {
+                'case_id': slice.slide.case.id,
+                'slide_id': slice.slide.id,
+                'roi_review_step_id': slice.annotation_step.label,
+                'slice_label': slice.label,
+                'slice_id': slice.id,
+                'creation_date': slice.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'reviewer': slice.author.username,
+                'positive_slice': slice.is_positive(),
+                'total_cores': slice.total_cores,
+                'positive_cores': slice.get_positive_cores_count()
+            }
+        )
 
     def _export_data(self, data, out_file):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id', 'creation_date',
@@ -78,6 +95,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        slices = self._load_data(opts['page_size'])
-        self._export_data(slices, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])
