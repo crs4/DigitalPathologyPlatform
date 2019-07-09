@@ -71,27 +71,13 @@ class Command(BaseCommand):
             }
         )
 
-    def _export_data(self, data, out_file):
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id', 'creation_date',
                   'reviewer', 'positive_slice', 'positive_cores', 'total_cores']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for slice in data:
-                writer.writerow(
-                    {
-                        'case_id': slice.slide.case.id,
-                        'slide_id': slice.slide.id,
-                        'roi_review_step_id': slice.annotation_step.label,
-                        'slice_label': slice.label,
-                        'slice_id': slice.id,
-                        'creation_date': slice.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        'reviewer': slice.author.username,
-                        'positive_slice': slice.is_positive(),
-                        'total_cores': slice.total_cores,
-                        'positive_cores': slice.get_positive_cores_count()
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
