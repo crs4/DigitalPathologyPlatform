@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def _load_data(self, page_size):
         if page_size > 0:
             logger.info('Pagination enabled (%d records for page)', page_size)
-            s_qs = Slice.objects.get_queryset().order_by('label')
+            s_qs = Slice.objects.get_queryset().defer('roi_json').order_by('label')
             paginator = Paginator(s_qs, page_size)
             slices = list()
             for x in paginator.page_range:

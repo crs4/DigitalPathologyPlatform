@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def _load_data(self, page_size):
         if page_size > 0:
             logger.info('Pagination enabled (%d records for page)', page_size)
-            c_qs = Core.objects.get_queryset().order_by('label')
+            c_qs = Core.objects.get_queryset().defer('roi_json').order_by('label')
             paginator = Paginator(c_qs, page_size)
             cores = list()
             for x in paginator.page_range:
