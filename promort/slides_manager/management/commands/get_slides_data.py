@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from slides_manager.models import Slide
 
 from csv import DictWriter
@@ -35,26 +36,41 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        slides = Slide.objects.all()
-        return slides
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            s_qs = Slide.objects.get_queryset().defer('roi_json').order_by('creation_date')
+            paginator = Paginator(s_qs, page_size)
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                for s in page.object_list:
+                    self._dump_row(s, csv_writer)
+        else:
+            logger.info('Loading full batch')
+            slices = Slide.objects.all()
+            for s in slices:
+                self._dump_row(s, csv_writer)
 
-    def _export_data(self, data, out_file):
+    def _dump_row(self, slide, csv_writer):
+        csv_writer.writerow(
+            {
+                'case_id': slide.case.id,
+                'slide_id': slide.id
+            }
+        )
+
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for slide in data:
-                writer.writerow(
-                    {
-                        'case_id': slide.case.id,
-                        'slide_id': slide.id
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        slides = self._load_data()
-        self._export_data(slides, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])

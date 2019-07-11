@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from slides_manager.models import SlideEvaluation
 
 from csv import DictWriter
@@ -35,34 +36,49 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        slides_evaluations = SlideEvaluation.objects.all()
-        return slides_evaluations
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            se_qs = SlideEvaluation.objects.get_queryset().defer('roi_json').order_by('creation_date')
+            paginator = Paginator(se_qs, page_size)
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                for se in page.object_list:
+                    self._dump_row(se, csv_writer)
+        else:
+            logger.info('Loading full batch')
+            slices = SlideEvaluation.objects.all()
+            for se in slices:
+                self._dump_row(se, csv_writer)
 
-    def _export_data(self, data, out_file):
+    def _dump_row(self, evaluation, csv_writer):
+        csv_writer.writerow(
+            {
+                'case_id': evaluation.slide.case.id,
+                'slide_id': evaluation.slide.id,
+                'roi_review_step_id': evaluation.rois_annotation_step.label,
+                'staining': evaluation.get_staining_text(),
+                'adequate_slide': evaluation.adequate_slide,
+                'not_adequacy_reason': evaluation.get_not_adequacy_reason_text(),
+                'notes': evaluation.notes,
+                'reviewer': evaluation.reviewer.username,
+                'acquisition_date': evaluation.acquisition_date.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        )
+
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'staining', 'adequate_slide', 'not_adequacy_reason',
                   'notes', 'reviewer', 'acquisition_date']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for evaluation in data:
-                writer.writerow(
-                    {
-                        'case_id': evaluation.slide.case.id,
-                        'slide_id': evaluation.slide.id,
-                        'roi_review_step_id': evaluation.rois_annotation_step.label,
-                        'staining': evaluation.get_staining_text(),
-                        'adequate_slide': evaluation.adequate_slide,
-                        'not_adequacy_reason': evaluation.get_not_adequacy_reason_text(),
-                        'notes': evaluation.notes,
-                        'reviewer': evaluation.reviewer.username,
-                        'acquisition_date': evaluation.acquisition_date.strftime('%Y-%m-%d %H:%M:%S')
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        slide_evaluations = self._load_data()
-        self._export_data(slide_evaluations, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])
