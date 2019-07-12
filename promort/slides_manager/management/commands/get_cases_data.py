@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from slides_manager.models import Case
 
 from csv import DictWriter
@@ -35,10 +36,34 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        cases = Case.objects.all()
-        return cases
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            c_qs = Case.objects.get_queryset().defer('roi_json').order_by('creation_date')
+            paginator = Paginator(c_qs, page_size)
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                for c in page.object_list:
+                    self._dump_row(c, csv_writer)
+        else:
+            logger.info('Loading full batch')
+            slices = Case.objects.all()
+            for c in slices:
+                self._dump_row(c, csv_writer)
+
+    def _dump_row(self, case, csv_writer):
+        lab = self._get_laboratory_label(case)
+        csv_writer.writerow(
+            {
+                'case_id': case.id,
+                'laboratory': lab,
+                'slides_count': case.slides.count()
+            }
+        )
 
     def _get_laboratory_label(self, case):
         try:
@@ -46,23 +71,14 @@ class Command(BaseCommand):
         except AttributeError:
             return None
 
-    def _export_data(self, data, out_file):
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'laboratory', 'slides_count']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for case in data:
-                lab = self._get_laboratory_label(case)
-                writer.writerow(
-                    {
-                        'case_id': case.id,
-                        'laboratory': lab,
-                        'slides_count': case.slides.count()
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        cases = self._load_data()
-        self._export_data(cases, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])

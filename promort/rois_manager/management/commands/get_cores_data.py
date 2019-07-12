@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from rois_manager.models import Core
 
 from csv import DictWriter
@@ -35,40 +36,55 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        cores = Core.objects.all()
-        return cores
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            c_qs = Core.objects.get_queryset().defer('roi_json').order_by('creation_date')
+            paginator = Paginator(c_qs, page_size)
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                for c in page.object_list:
+                    self._dump_row(c, csv_writer)
+        else:
+            logger.info('Loading full batch')
+            cores = Core.objects.all()
+            for c in cores:
+                self._dump_row(c, csv_writer)
 
-    def _export_data(self, data, out_file):
+    def _dump_row(self, core, csv_writer):
+        csv_writer.writerow(
+            {
+                'case_id': core.slice.slide.case.id,
+                'slide_id': core.slice.slide.id,
+                'roi_review_step_id': core.slice.annotation_step.label,
+                'parent_slice_id': core.slice.id,
+                'core_label': core.label,
+                'core_id': core.id,
+                'creation_date': core.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'reviewer': core.author.username,
+                'length': core.length,
+                'area': core.area,
+                'tumor_length': core.tumor_length,
+                'positive_core': core.is_positive(),
+                'normal_tissue_percentage': core.get_normal_tissue_percentage(),
+                'total_tumor_area': core.get_total_tumor_area()
+            }
+        )
+
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'parent_slice_id',
                   'core_label', 'core_id', 'creation_date', 'reviewer', 'length', 'area', 'tumor_length',
                   'positive_core', 'normal_tissue_percentage', 'total_tumor_area']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for core in data:
-                writer.writerow(
-                    {
-                        'case_id': core.slice.slide.case.id,
-                        'slide_id': core.slice.slide.id,
-                        'roi_review_step_id': core.slice.annotation_step.label,
-                        'parent_slice_id': core.slice.id,
-                        'core_label': core.label,
-                        'core_id': core.id,
-                        'creation_date': core.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        'reviewer': core.author.username,
-                        'length': core.length,
-                        'area': core.area,
-                        'tumor_length': core.tumor_length,
-                        'positive_core': core.is_positive(),
-                        'normal_tissue_percentage': core.get_normal_tissue_percentage(),
-                        'total_tumor_area': core.get_total_tumor_area()
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        cores = self._load_data()
-        self._export_data(cores, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])
