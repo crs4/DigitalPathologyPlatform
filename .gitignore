@@ -68,7 +68,10 @@ target/
 
 # Grunt output files
 node_modules
-promort/static/js/promort.min.js
+promort/static_src/js/promort.min.js
+
+# Django collectstatics output
+promort/static
 
 # Jupyter notebooks folder
 notebooks
