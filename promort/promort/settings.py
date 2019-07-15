@@ -183,9 +183,12 @@ USE_L10N = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, cfg['django']['static_root']),
-)
+STATIC_ROOT = cfg['django']['static_root']
+
+STATICFILES_DIRS = [
+    (dirname, os.path.join(BASE_DIR, cfg['django']['static_source'], dirname))
+    for dirname in os.listdir(os.path.join(BASE_DIR, cfg['django']['static_source']))
+]
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',

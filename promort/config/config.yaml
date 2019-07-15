@@ -4,6 +4,7 @@ django:
   allowed_hosts:
     - localhost
   static_root: ./static/
+  static_source: ./static_src/
   session_cookie: promort_sessionid
 
 database:
