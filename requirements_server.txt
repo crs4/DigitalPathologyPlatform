@@ -1,2 +1,3 @@
-django
-djangorestframework
+Django==1.11.21
+djangorestframework==3.9.3
+pyyaml==5.1

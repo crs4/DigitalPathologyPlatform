@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
 from reviews_manager.models import ClinicalAnnotationStep
 
 from csv import DictWriter
@@ -35,10 +36,41 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_file', dest='output', type=str, required=True,
                             help='path of the output CSV file')
+        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
+                            help='the number of records retrieved for each page (this will enable pagination)')
 
-    def _load_data(self):
-        annotation_steps = ClinicalAnnotationStep.objects.all()
-        return annotation_steps
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info('Pagination enabled (%d records for page)', page_size)
+            cas_qs = ClinicalAnnotationStep.objects.get_queryset().order_by('creation_date')
+            paginator = Paginator(cas_qs, page_size)
+            for x in paginator.page_range:
+                logger.info('-- page %d --', x)
+                page = paginator.page(x)
+                for cas in page.object_list:
+                    self._dump_row(cas, csv_writer)
+        else:
+            logger.info('Loading full batch')
+            slices = ClinicalAnnotationStep.objects.all()
+            for cas in slices:
+                self._dump_row(cas, csv_writer)
+
+    def _dump_row(self, step, csv_writer):
+        csv_writer.writerow(
+            {
+                'case_id': step.slide.case.id,
+                'slide_id': step.slide.id,
+                'roi_review_step_id': step.rois_review_step.label,
+                'clinical_annotation_step_id': step.label,
+                'creation_date': step.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'start_date': step.start_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'completion_date': step.completion_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'reviewer': step.clinical_annotation.reviewer.username,
+                'rejected': step.rejected,
+                'rejection_reason': step.get_rejection_reason_text(),
+                'notes': self._get_encoded_note(step)
+            }
+        )
 
     def _get_encoded_note(self, step):
         try:
@@ -46,32 +78,16 @@ class Command(BaseCommand):
         except AttributeError:
             return None
 
-    def _export_data(self, data, out_file):
+    def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'clinical_annotation_step_id',
                   'creation_date', 'start_date', 'completion_date', 'reviewer', 'rejected',
                   'rejection_reason', 'notes']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
-            for step in data:
-                writer.writerow(
-                    {
-                        'case_id': step.slide.case.id,
-                        'slide_id': step.slide.id,
-                        'roi_review_step_id': step.rois_review_step.label,
-                        'clinical_annotation_step_id': step.label,
-                        'creation_date': step.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        'start_date': step.start_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        'completion_date': step.completion_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        'reviewer': step.clinical_annotation.reviewer.username,
-                        'rejected': step.rejected,
-                        'rejection_reason': step.get_rejection_reason_text(),
-                        'notes': self._get_encoded_note(step)
-                    }
-                )
+            self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        annotation_steps = self._load_data()
-        self._export_data(annotation_steps, opts['output'])
+        self._export_data(opts['output'], opts['page_size'])
         logger.info('=== Data saved to %s ===', opts['output'])
