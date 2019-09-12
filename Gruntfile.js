@@ -43,7 +43,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         clean: {
             dist: [
-                'build/js/promort.js'
+                "build/js/promort.js",
+                "promort/static_src/js/promort.min.js"
             ]
         },
         concat: {
@@ -65,7 +66,7 @@ module.exports = function(grunt) {
             },
             my_target: {
                 files: {
-                   "promort/static/js/promort.min.js" : ["build/js/promort.js"]
+                   "promort/static_src/js/promort.min.js" : ["build/js/promort.js"]
                 }
             }
         }

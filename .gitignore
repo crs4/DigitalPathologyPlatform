@@ -70,7 +70,7 @@ target/
 node_modules
 promort/static_src/js/promort.min.js
 
-# Django collectstatics output
+# Django collectstatics default output folder
 promort/static
 
 # Jupyter notebooks folder
