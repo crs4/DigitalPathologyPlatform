@@ -185,9 +185,11 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = cfg['django']['static_root']
 
+STATIC_SRC = './static_src/'
+
 STATICFILES_DIRS = [
-    (dirname, os.path.join(BASE_DIR, cfg['django']['static_source'], dirname))
-    for dirname in os.listdir(os.path.join(BASE_DIR, cfg['django']['static_source']))
+    (dirname, os.path.join(BASE_DIR, STATIC_SRC, dirname))
+    for dirname in os.listdir(os.path.join(BASE_DIR, STATIC_SRC))
 ]
 
 STATICFILES_FINDERS = (
