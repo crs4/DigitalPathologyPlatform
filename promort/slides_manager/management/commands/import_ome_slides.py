@@ -36,7 +36,7 @@ class Command(BaseCommand):
     """
 
     def _split_slide_name(self, slide_name):
-        regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+')
+        regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+(_[a-zA-Z])?(\.[a-zA-Z0-9]{2,4})?$')
         if regex.match(slide_name):
             return slide_name.split('-')
         else:
@@ -50,6 +50,7 @@ class Command(BaseCommand):
             slides_map = dict()
             for s in slides:
                 case_id, _ = self._split_slide_name(s['name'])
+                logger.debug('Slide %s --- Case ID: %s', s, case_id)
                 if case_id:
                     slides_map.setdefault(case_id, []).append(s)
                 else:
