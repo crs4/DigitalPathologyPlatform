@@ -36,7 +36,7 @@ class Command(BaseCommand):
     """
 
     def _split_slide_name(self, slide_name):
-        regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+(_[a-zA-Z])?(\.[a-zA-Z0-9]{2,4})?$')
+        regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+(_[a-zA-Z][0-9]?)?(\.[a-zA-Z0-9]{2,4})?$')
         if regex.match(slide_name):
             return slide_name.split('-')
         else:
