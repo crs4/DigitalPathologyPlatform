@@ -72,7 +72,7 @@ class Command(BaseCommand):
         return cl_ann
 
     def _get_clinical_annotation_step_label(self, slide_label, clinical_annotation_label):
-        slide_index = slide_label.split('-')[-1]
+        slide_index = slide_label.split('-')[-1].split('.')[0].replace('_', '-')
         return '%s-%s' % (clinical_annotation_label, slide_index)
 
     def _create_clinical_annotation_step(self, clinical_annotation_obj, rois_review_step_obj):
