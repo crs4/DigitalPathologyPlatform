@@ -62,7 +62,7 @@
                     if (vm.slide_details.image_type === 'MIRAX') {
                         vm.dzi_url = base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
                     } else {
-                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.id + '.dzi';
+                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
                     }
                     $rootScope.$broadcast('viewer.controller_initialized');
                 }
@@ -129,7 +129,7 @@
                     if (vm.slide_details.image_type === 'MIRAX') {
                         vm.dzi_url = base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
                     } else {
-                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.id + '.dzi';
+                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
                     }
                     $rootScope.$broadcast('viewer.controller_initialized');
                 }
