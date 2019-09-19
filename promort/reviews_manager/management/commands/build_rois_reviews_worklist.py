@@ -74,7 +74,8 @@ class Command(BaseCommand):
             return [self._create_rois_annotation(case_obj, reviewer_obj)]
 
     def _get_annotation_step_label(self, annotation_label, slide_label):
-        slide_index = slide_label.split('-')[-1]
+        slide_index = slide_label.split('-')[-1].split('.')[0].replace('_', '-')
+        logger.info('Produced label %s-%s', annotation_label, slide_index)
         return '%s-%s' % (annotation_label, slide_index)
 
     def _create_rois_annotation_step(self, rois_annotation_obj, slide_obj):
