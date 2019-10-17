@@ -17,8 +17,9 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from reviews_manager.models import ROIsAnnotationStep
+from promort.settings import OME_SEADRAGON_BASE_URL
 
 from csv import DictWriter
 try:
@@ -26,7 +27,8 @@ try:
 except ImportError:
     import json
 
-import logging, sys, os
+import logging, sys, os, requests
+from urlparse import urljoin
 
 logger = logging.getLogger('promort_commands')
 
@@ -44,17 +46,37 @@ class Command(BaseCommand):
         steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
         return steps
 
-    def _extract_points(self, roi_json):
+    def _get_slide_bounds(self, slide):
+        if slide.image_type == 'OMERO_IMG':
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'deepzoom/slide_bounds/%d.dzi' % slide.omero_id)
+        elif slide.image_type == 'MIRAX':
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'mirax/deepzoom/slide_bounds/%s.dzi' % slide.id)
+        else:
+            logger.error('Unknown image type %s for slide %s', slide.image_type, slide.id)
+            return None
+        response = requests.get(url)
+        if response.status_code == requests.codes.OK:
+            return response.json()
+        else:
+            logger.error('Error while loading slide bounds %s', slide.id)
+            return None
+
+    def _extract_points(self, roi_json, slide_bounds):
         points = list()
         shape = json.loads(roi_json)
         segments = shape['segments']
         for x in segments:
-            points.append((x['point']['x'], x['point']['y']))
+            points.append(
+                (
+                    x['point']['x'] + int(slide_bounds['bounds_x']),
+                    x['point']['y'] + int(slide_bounds['bounds_y'])
+                )
+            )
         return points
 
-    def _dump_focus_region(self, focus_region, slide_id, out_folder):
+    def _dump_focus_region(self, focus_region, slide_id, slide_bounds, out_folder):
         file_path = os.path.join(out_folder, '%d.json' % focus_region.id)
-        points = self._extract_points(focus_region.roi_json)
+        points = self._extract_points(focus_region.roi_json, slide_bounds)
         with open(file_path, 'w') as ofile:
             json.dump(points, ofile)
         return {
@@ -73,17 +95,23 @@ class Command(BaseCommand):
 
     def _dump_focus_regions(self, step, out_folder):
         focus_regions = step.focus_regions
-        logger.info('Dumping %d focus regions for step %s', len(focus_regions), step.label)
-        if len(focus_regions) > 0:
-            out_path = os.path.join(out_folder, step.slide.id, step.label)
-            try:
-                os.makedirs(out_path)
-            except OSError:
-                pass
-            focus_regions_details = list()
-            for fr in focus_regions:
-                focus_regions_details.append(self._dump_focus_region(fr, step.slide.id, out_path))
-            self._dump_details(focus_regions_details, out_path)
+        slide = step.slide
+        logger.info('Loading info for slide %s', slide.id)
+        slide_bounds = self._get_slide_bounds(slide)
+        if slide_bounds:
+            logger.info('Dumping %d focus regions for step %s', len(focus_regions), step.label)
+            if len(focus_regions) > 0:
+                out_path = os.path.join(out_folder, step.slide.id, step.label)
+                try:
+                    os.makedirs(out_path)
+                except OSError:
+                    pass
+                focus_regions_details = list()
+                for fr in focus_regions:
+                    focus_regions_details.append(
+                        self._dump_focus_region(fr, step.slide.id, slide_bounds, out_path)
+                    )
+                self._dump_details(focus_regions_details, out_path)
 
     def _export_data(self, out_folder):
         steps = self._load_rois_annotation_steps()
