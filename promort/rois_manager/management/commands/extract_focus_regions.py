@@ -41,6 +41,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_folder', dest='out_folder', type=str, required=True,
                             help='path of the output folder for the extracted JSON objects')
+        parser.add_argument('--limit-bounds', dest='limit_bounds', action='store_true',
+                            help='extract ROIs considering only the non-empty slide region')
 
     def _load_rois_annotation_steps(self):
         steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
@@ -93,11 +95,14 @@ class Command(BaseCommand):
             writer.writeheader()
             writer.writerows(details)
 
-    def _dump_focus_regions(self, step, out_folder):
+    def _dump_focus_regions(self, step, out_folder, limit_bounds):
         focus_regions = step.focus_regions
         slide = step.slide
         logger.info('Loading info for slide %s', slide.id)
-        slide_bounds = self._get_slide_bounds(slide)
+        if not limit_bounds:
+            slide_bounds = self._get_slide_bounds(slide)
+        else:
+            slide_bounds = {'bounds_x': 0, 'bounds_y': 0}
         if slide_bounds:
             logger.info('Dumping %d focus regions for step %s', len(focus_regions), step.label)
             if len(focus_regions) > 0:
@@ -113,13 +118,13 @@ class Command(BaseCommand):
                     )
                 self._dump_details(focus_regions_details, out_path)
 
-    def _export_data(self, out_folder):
+    def _export_data(self, out_folder, limit_bounds=False):
         steps = self._load_rois_annotation_steps()
         logger.info('Loaded %d ROIs Annotation Steps', len(steps))
         for s in steps:
-            self._dump_focus_regions(s, out_folder)
+            self._dump_focus_regions(s, out_folder, limit_bounds)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        self._export_data(opts['out_folder'])
+        self._export_data(opts['out_folder'], args['limit_bounds'])
         logger.info('=== Export completed ===')
