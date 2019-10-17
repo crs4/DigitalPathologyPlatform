@@ -126,5 +126,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        self._export_data(opts['out_folder'], args['limit_bounds'])
+        self._export_data(opts['out_folder'], opts['limit_bounds'])
         logger.info('=== Export completed ===')
