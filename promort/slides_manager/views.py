@@ -26,9 +26,11 @@ from django.db import IntegrityError
 
 from view_templates.views import GenericDetailView, GenericListView
 
-from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation
+from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation, SlidesSet, SlidesSetItem
 from slides_manager.serializers import LaboratorySerializer, LaboratoryDetailSerializer, \
-    CaseSerializer, CaseDetailedSerializer, SlideSerializer, SlideDetailSerializer, SlideEvaluationSerializer
+    CaseSerializer, CaseDetailedSerializer, SlideSerializer, SlideDetailSerializer, \
+    SlideEvaluationSerializer, SlidesSetSerializer, SlidesSetDetailedSerializer, \
+    SlidesSetItemSerializer, SlidesSetItemDetailedSerializer
 from reviews_manager.models import ROIsAnnotationStep
 
 import logging
@@ -153,3 +155,15 @@ class SlideEvaluationDetail(APIView):
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SlidesSetList(GenericListView):
+    model = SlidesSet
+    model_serializer = SlidesSetSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class SlidesSetDetail(GenericDetailView):
+    model = SlidesSet
+    model_serializer = SlidesSetDetailedSerializer
+    permission_classes = (permissions.IsAuthenticated,)

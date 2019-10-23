@@ -41,7 +41,7 @@ from promort.views import IndexView
 from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
-    CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail
+    CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail, SlidesSetList, SlidesSetDetail
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
@@ -71,6 +71,8 @@ urlpatterns = [
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
+    url(r'^api/slides_set/$', SlidesSetList.as_view()),
+    url(r'^api/slides_set/(?P<pk>[\w\-.]+)/$', SlidesSetDetail.as_view()),
 
     # ROIs annotation steps details
     url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/$',
