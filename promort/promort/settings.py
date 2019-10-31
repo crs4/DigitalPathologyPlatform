@@ -62,7 +62,8 @@ INSTALLED_APPS = (
     'rois_manager',
     'clinical_annotations_manager',
     'odin',
-    'utils'
+    'utils',
+    'questionnaires_manager'
 )
 
 MIDDLEWARE = (
