@@ -29,6 +29,7 @@ except ImportError:
 
 import logging, sys, os, requests
 from urlparse import urljoin
+from shapely.geometry import Polygon
 
 logger = logging.getLogger('promort_commands')
 
@@ -76,9 +77,15 @@ class Command(BaseCommand):
             )
         return points
 
+    def _extract_bounding_box(self, roi_points):
+        polygon = Polygon(roi_points)
+        bounds = polygon.bounds
+        return [(bounds[0], bounds[1]), (bounds[2], bounds[3])]
+
     def _dump_focus_region(self, focus_region, slide_id, slide_bounds, out_folder):
-        file_path = os.path.join(out_folder, '%d.json' % focus_region.id)
+        file_path = os.path.join(out_folder, 'fr_%d.json' % focus_region.id)
         points = self._extract_points(focus_region.roi_json, slide_bounds)
+        bbox = self._extract_bounding_box(points)
         with open(file_path, 'w') as ofile:
             json.dump(points, ofile)
         return {
@@ -86,12 +93,13 @@ class Command(BaseCommand):
             'region_id': focus_region.id,
             'region_label': focus_region.label,
             'tissue_status': focus_region.tissue_status,
-            'file_name': '%d.json' % focus_region.id
+            'file_name': 'fr_%d.json' % focus_region.id,
+            'bbox': bbox
         }
 
     def _dump_details(self, details, out_folder):
         with open(os.path.join(out_folder, 'focus_regions.csv'), 'w') as ofile:
-            writer = DictWriter(ofile, ['slide_id', 'region_id', 'region_label', 'tissue_status', 'file_name'])
+            writer = DictWriter(ofile, ['slide_id', 'region_id', 'region_label', 'bbox', 'tissue_status', 'file_name'])
             writer.writeheader()
             writer.writerows(details)
 
