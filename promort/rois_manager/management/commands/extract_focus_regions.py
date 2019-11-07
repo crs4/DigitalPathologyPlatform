@@ -68,14 +68,17 @@ class Command(BaseCommand):
         points = list()
         shape = json.loads(roi_json)
         segments = shape['segments']
-        for x in segments:
-            points.append(
-                (
-                    x['point']['x'] + int(slide_bounds['bounds_x']),
-                    x['point']['y'] + int(slide_bounds['bounds_y'])
+        if len(segments) > 0:
+            for x in segments:
+                points.append(
+                    (
+                        x['point']['x'] + int(slide_bounds['bounds_x']),
+                        x['point']['y'] + int(slide_bounds['bounds_y'])
+                    )
                 )
-            )
-        return points
+            return points
+        else:
+            return None
 
     def _extract_bounding_box(self, roi_points):
         polygon = Polygon(roi_points)
@@ -85,17 +88,20 @@ class Command(BaseCommand):
     def _dump_focus_region(self, focus_region, slide_id, slide_bounds, out_folder):
         file_path = os.path.join(out_folder, 'fr_%d.json' % focus_region.id)
         points = self._extract_points(focus_region.roi_json, slide_bounds)
-        bbox = self._extract_bounding_box(points)
-        with open(file_path, 'w') as ofile:
-            json.dump(points, ofile)
-        return {
-            'slide_id': slide_id,
-            'region_id': focus_region.id,
-            'region_label': focus_region.label,
-            'tissue_status': focus_region.tissue_status,
-            'file_name': 'fr_%d.json' % focus_region.id,
-            'bbox': bbox
-        }
+        if points:
+            bbox = self._extract_bounding_box(points)
+            with open(file_path, 'w') as ofile:
+                json.dump(points, ofile)
+            return {
+                'slide_id': slide_id,
+                'region_id': focus_region.id,
+                'region_label': focus_region.label,
+                'tissue_status': focus_region.tissue_status,
+                'file_name': 'fr_%d.json' % focus_region.id,
+                'bbox': bbox
+            }
+        else:
+            return None
 
     def _dump_details(self, details, out_folder):
         with open(os.path.join(out_folder, 'focus_regions.csv'), 'w') as ofile:
@@ -121,9 +127,9 @@ class Command(BaseCommand):
                     pass
                 focus_regions_details = list()
                 for fr in focus_regions:
-                    focus_regions_details.append(
-                        self._dump_focus_region(fr, step.slide.id, slide_bounds, out_path)
-                    )
+                    frd = self._dump_focus_region(fr, step.slide.id, slide_bounds, out_path)
+                    if frd:
+                        focus_regions_details.append(frd)
                 self._dump_details(focus_regions_details, out_path)
 
     def _export_data(self, out_folder, limit_bounds=False):
