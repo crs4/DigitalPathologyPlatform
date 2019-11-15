@@ -83,7 +83,7 @@ class QuestionnaireRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireRequest
 
-        fields = ('id', 'questionnaire_panel_a', 'questionnaire_panel_b', 'reviewer', 'creation_date',
+        fields = ('id', 'label', 'questionnaire_panel_a', 'questionnaire_panel_b', 'reviewer', 'creation_date',
                   'start_date', 'completion_date', 'answers')
         read_only_fields = ('id', 'answers')
 
