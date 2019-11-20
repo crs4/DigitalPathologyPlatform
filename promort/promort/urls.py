@@ -67,6 +67,13 @@ urlpatterns = [
     url(r'api/questionnaires/(?P<pk>[\w\-.]+)/$', qmv.QuestionnaireDetail.as_view()),
     url(r'api/questionnaires/(?P<quest_pk>[\w\-.]+)/(?P<step_pk>[0-9]+)/$', qmv.QuestionnaireStepDetail.as_view()),
 
+    # slides questionnaire worklist and answers
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/$', qmv.QuestionnaireRequestDetail.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/$',
+        qmv.QuestionnaireRequestPanelDetail.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/answers/$',
+        qmv.QuestionnairePanelAnswersDetail.as_view()),
+
     # ROIs annotation steps details
     url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/$',
         rmv.ClinicalAnnotationStepsList.as_view()),
