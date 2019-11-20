@@ -27,8 +27,7 @@ from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
     CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail, SlidesSetList, SlidesSetDetail
-from questionnaires_manager.views import QuestionsSetList, QuestionsSetDetail, QuestionnaireList, QuestionnaireDetail, \
-    QuestionnaireStepDetail
+import questionnaires_manager.views as qmv
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
@@ -62,11 +61,11 @@ urlpatterns = [
     url(r'^api/slides_set/(?P<pk>[\w\-.]+)/$', SlidesSetDetail.as_view()),
 
     # slides questionnaire
-    url(r'api/questions_sets/$', QuestionsSetList.as_view()),
-    url(r'api/questions_sets/(?P<pk>[\w\-.]+)/$', QuestionsSetDetail.as_view()),
-    url(r'api/questionnaires/$', QuestionnaireList.as_view()),
-    url(r'api/questionnaires/(?P<pk>[\w\-.]+)/$', QuestionnaireDetail.as_view()),
-    url(r'api/questionnaires/(?P<quest_pk>[\w\-.]+)/(?P<step_pk>[0-9]+)/$', QuestionnaireStepDetail.as_view()),
+    url(r'api/questions_sets/$', qmv.QuestionsSetList.as_view()),
+    url(r'api/questions_sets/(?P<pk>[\w\-.]+)/$', qmv.QuestionsSetDetail.as_view()),
+    url(r'api/questionnaires/$', qmv.QuestionnaireList.as_view()),
+    url(r'api/questionnaires/(?P<pk>[\w\-.]+)/$', qmv.QuestionnaireDetail.as_view()),
+    url(r'api/questionnaires/(?P<quest_pk>[\w\-.]+)/(?P<step_pk>[0-9]+)/$', qmv.QuestionnaireStepDetail.as_view()),
 
     # ROIs annotation steps details
     url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/$',
