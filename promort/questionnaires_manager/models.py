@@ -41,6 +41,12 @@ class Questionnaire(models.Model):
     def steps_count(self):
         return self.steps.count()
 
+    def get_step(self, step_index):
+        try:
+            return self.steps.get(step_index=step_index)
+        except QuestionnaireStep.DoesNotExist:
+            return None
+
     def get_last_used_index(self):
         last_step = self.steps.order_by('-creation_date').first()
         try:
@@ -101,6 +107,9 @@ class QuestionnaireAnswers(models.Model):
 
     def is_completed(self):
         return not(self.completion_date is None)
+
+    def get_questionnaire_step(self, step_index):
+        return self.questionnaire.get_step(step_index)
 
     def get_last_completed_step_index(self):
         last_step = self.steps.order_by('-creation_date').first()
