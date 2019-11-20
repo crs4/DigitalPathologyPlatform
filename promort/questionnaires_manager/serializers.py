@@ -156,7 +156,21 @@ class QuestionnaireStepDetailsSerializer(QuestionnaireStepSerializer):
 class QuestionnaireRequestDetailsSerializer(QuestionnaireRequestSerializer):
     questionnaire_panel_a = QuestionnaireSerializer(read_only=True)
     questionnaire_panel_b = QuestionnaireSerializer(read_only=True)
-    answers = QuestionnaireAnswersSerializer(read_only=True)
+    answers = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_answers(obj):
+        answers = dict()
+        answers['questionnaire_panel_a'] = QuestionnaireAnswersSerializer(
+            QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_a)
+        ).data
+        if obj.questionnaire_panel_b:
+            answers['questionnaire_panel_b'] = QuestionnaireAnswersSerializer(
+                QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_b)
+            ).data
+        else:
+            answers['questionnaire_panel_b'] = None
+        return answers
 
 
 class QuestionnaireAnswersDetailsSerializer(QuestionnaireAnswersSerializer):
