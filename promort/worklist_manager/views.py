@@ -33,8 +33,10 @@ from rest_framework.exceptions import NotFound
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, \
     ClinicalAnnotation, ClinicalAnnotationStep
+from questionnaires_manager.models import QuestionnaireRequest
 from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
     ClinicalAnnotationSerializer, ClinicalAnnotationStepSerializer
+from questionnaires_manager.serializers import QuestionnaireRequestSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -62,18 +64,33 @@ class UserWorkList(APIView):
             pass
         return rois_reviews, clinical_reviews
 
+    def _get_pending_questionnaire_requests(self, username):
+        questionnaire_requests = []
+        try:
+            questionnaire_requests = QuestionnaireRequest.objects.filter(
+                reviewer=User.objects.get(username=username),
+                completion_date=None
+            ).order_by('creation_date')
+        except QuestionnaireRequest.DoesNotExist:
+            pass
+        return questionnaire_requests
+
     def get(self, request, format=None):
         rois_reviews, clinical_reviews = self._get_pending_reviews(request.user.username)
         rois_serializer = ROIsAnnotationSerializer(rois_reviews, many=True)
         clinical_serializer = ClinicalAnnotationSerializer(clinical_reviews, many=True)
+        questionnaire_requests = self._get_pending_questionnaire_requests(request.user.username)
+        questionnaire_serializer = QuestionnaireRequestSerializer(questionnaire_requests, many=True)
         data = OrderedDict()
         # compose the worklist, keep clinical annotations only if ROIs annotation for the same case
         # was fully completed (and it was assigned to the current user)
         for c_ann in clinical_serializer.data:
-            data[c_ann['case']] = c_ann
+            data[c_ann['label']] = c_ann
         for r_ann in rois_serializer.data:
-            data[r_ann['case']] = r_ann
-        return Response(data.values(), status=status.HTTP_200_OK)
+            data[r_ann['label']] = r_ann
+        worklist = data.values()
+        worklist.extend(questionnaire_serializer.data)
+        return Response(worklist, status=status.HTTP_200_OK)
 
 
 class UserWorklistROIsAnnotation(APIView):
