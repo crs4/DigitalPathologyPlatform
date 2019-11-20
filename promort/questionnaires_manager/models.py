@@ -89,6 +89,13 @@ class QuestionnaireRequest(models.Model):
     def is_completed(self):
         return not(self.completion_date is None)
 
+    def can_be_closed(self):
+        close = True
+        for a in self.answers.all():
+            if not a.is_completed():
+                close = False
+        return close
+
 
 class QuestionnaireAnswers(models.Model):
     questionnaire_request = models.ForeignKey(QuestionnaireRequest, on_delete=models.PROTECT, blank=False,
@@ -107,6 +114,9 @@ class QuestionnaireAnswers(models.Model):
 
     def is_completed(self):
         return not(self.completion_date is None)
+
+    def can_be_closed(self):
+        return self.steps_count == self.completed_steps_count
 
     def get_questionnaire_step(self, step_index):
         return self.questionnaire.get_step(step_index)
