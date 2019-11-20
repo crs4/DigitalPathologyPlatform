@@ -41,6 +41,13 @@ class Questionnaire(models.Model):
     def steps_count(self):
         return self.steps.count()
 
+    def get_last_used_index(self):
+        last_step = self.steps.order_by('-creation_date').first()
+        try:
+            return last_step.step_index
+        except AttributeError:
+            return -1
+
 
 class QuestionnaireStep(models.Model):
     questions = models.ForeignKey(QuestionsSet, on_delete=models.PROTECT, blank=False)
