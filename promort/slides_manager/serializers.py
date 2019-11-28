@@ -129,11 +129,21 @@ class SlidesSetSerializer(serializers.ModelSerializer):
 
 
 class SlidesSetItemSerializer(serializers.ModelSerializer):
+    omero_id = serializers.SerializerMethodField()
+    image_type = serializers.SerializerMethodField()
 
     class Meta:
         model = SlidesSetItem
 
-        fields = ('slide', 'slides_set', 'set_label', 'set_index')
+        fields = ('slide', 'omero_id', 'image_type', 'slides_set', 'set_label', 'set_index')
+
+    @staticmethod
+    def get_omero_id(obj):
+        return obj.slide.omero_id
+
+    @staticmethod
+    def get_image_type(obj):
+        return obj.slide.image_type
 
 
 class SlidesSetItemDetailedSerializer(serializers.ModelSerializer):
