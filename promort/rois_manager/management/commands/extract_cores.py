@@ -44,11 +44,15 @@ class Command(BaseCommand):
                             help='path of the output folder for the extracted JSON objects')
         parser.add_argument('--exclude_empty_cores', dest='exclude_empty', action='store_true',
                             help='exclude cores with 0 focus regions')
+        parser.add_argument('--exclude_rejected', dest='exclude_rejected', action='store_true',
+                            help='exclude cores from review steps rejected by the user')
         parser.add_argument('--limit-bounds', dest='limit_bounds', action='store_true',
                             help='extract ROIs considering only the non-empty slide region')
 
-    def _load_rois_annotation_steps(self):
+    def _load_rois_annotation_steps(self, exclude_rejected):
         steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
+        if exclude_rejected:
+            steps = [s for s in steps if s.slide_evaluation.adequate_slide]
         return steps
 
     def _get_slide_bounds(self, slide):
@@ -131,13 +135,13 @@ class Command(BaseCommand):
                     )
                 self._dump_details(cores_details, out_path)
 
-    def _export_data(self, out_folder, exclude_empty=False, limit_bounds=False):
-        steps = self._load_rois_annotation_steps()
+    def _export_data(self, out_folder, exclude_empty=False, exclude_rejected=False, limit_bounds=False):
+        steps = self._load_rois_annotation_steps(exclude_rejected)
         logger.info('Loaded %d ROIs Annotation Steps', len(steps))
         for s in steps:
             self._dump_cores(s, out_folder, exclude_empty, limit_bounds)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        self._export_data(opts['out_folder'], opts['exclude_empty'], opts['limit_bounds'])
+        self._export_data(opts['out_folder'], opts['exclude_empty'], opts['exclude_rejected'], opts['limit_bounds'])
         logger.info('=== Export completed ===')
