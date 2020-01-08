@@ -80,17 +80,27 @@ class QuestionnaireRequestSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     annotation_type = serializers.SerializerMethodField()
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
 
     class Meta:
         model = QuestionnaireRequest
 
         fields = ('id', 'label', 'annotation_type', 'questionnaire_panel_a', 'questionnaire_panel_b', 'reviewer',
-                  'creation_date', 'start_date', 'completion_date', 'answers')
+                  'creation_date', 'start_date', 'completion_date', 'answers', 'started', 'completed')
         read_only_fields = ('id', 'answers', 'annotation_type')
 
     @staticmethod
     def get_annotation_type(obj):
         return 'QUESTIONNAIRE'
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started()
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed()
 
 
 class QuestionnaireAnswersSerializer(serializers.ModelSerializer):
