@@ -30,7 +30,9 @@
                         <div>
                             <p><strong>Review ID:</strong> {{ annotation.label }}</p>
                             <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
-                            <p><strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}</p>
+                            <p ng-hide="wlc.isQuestionnaire(annotation)">
+                                <strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}
+                            </p>
                         </div>
                     </div><!--
                   Removing blank spaces between DIVs, this will make valign work
@@ -69,6 +71,18 @@
                                         && wlc.annotationInProgress(annotation)"
                                ng-href="{{ wlc.getAnnotationLink(annotation) }}">
                                 Continue Clinical Annotation
+                            </a>
+                            <!-- Questionnaire buttons -->
+                            <a class="btn btn-success"
+                               ng-show="wlc.isQuestionnaireRequest(annotation) && !wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}"
+                               ng-click="wlc.startQuestionnaireRequest(annotation)">
+                                Start Questionnaire
+                            </a>
+                            <a class="btn btn-warning"
+                               ng-show="wlc.isQuestionnaireRequest(annotation) && wlc.annotationInProgress(annotation)"
+                               ng-href="{{ wlc.getAnnotationLink(annotation) }}">
+                                Continue Questionnaire
                             </a>
                         </div>
                     </div>
