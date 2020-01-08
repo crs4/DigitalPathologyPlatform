@@ -134,7 +134,7 @@ class QuestionnaireRequestDetail(APIView):
                         'status': 'ERROR',
                         'message': 'Questionnaire request can\'t be started'
                     }, status=status.HTTP_409_CONFLICT)
-            if action == 'FINISH':
+            elif action == 'FINISH':
                 if questionnaire_request.can_be_closed() and not questionnaire_request.is_completed():
                     questionnaire_request.completion_date = datetime.now()
                 else:
