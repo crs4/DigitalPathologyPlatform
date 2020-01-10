@@ -89,20 +89,20 @@ class QuestionnaireStepDetail(APIView):
     model_serializer = QuestionnaireStepDetailsSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get_object(self, quest_pk, step_pk):
-        logger.debug('Loading QuestionnaireStep object with ID %s for Questionnaire %s' % (step_pk, quest_pk))
+    def get_object(self, quest_pk, step_index):
+        logger.debug('Loading QuestionnaireStep object with index %s for Questionnaire %s' % (step_index, quest_pk))
         try:
             quest_obj = Questionnaire.objects.get(label__iexact=quest_pk)
-            return quest_obj.steps.get(id=step_pk)
+            return quest_obj.steps.get(step_index=step_index)
         except Questionnaire.DoesNotExist:
             logger.debug('Questionnaire object not found!')
             raise NotFound('There is no Questionnare with label %s' % quest_pk)
         except QuestionnaireStep.DoesNotExist:
             logger.debug('QuestionnareStep object not found!')
-            raise NotFound('There is no QuestionnaireStep with ID %s for Questionnaire %s' % (step_pk, quest_pk))
+            raise NotFound('There is no QuestionnaireStep with index %s for Questionnaire %s' % (step_index, quest_pk))
 
-    def get(self, request, quest_pk, step_pk, format=None):
-        questionnaire_step = self.get_object(quest_pk, step_pk)
+    def get(self, request, quest_pk, step_index, format=None):
+        questionnaire_step = self.get_object(quest_pk, step_index)
         serializer = self.model_serializer(questionnaire_step)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
