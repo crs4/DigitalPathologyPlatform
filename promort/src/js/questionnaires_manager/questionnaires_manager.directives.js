@@ -19,36 +19,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager'
-        ])
-        .run(run);
+        .module('promort.questionnaires_manager.directives')
+        .directive('questionnaireStepPanel', questionnaireStepPanel);
 
-    run.$inject = ['$http'];
-
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
+    function questionnaireStepPanel() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/questionnaire_requests_manager/qstep_panel.html',
+            controller: 'QuestionnairePanelController',
+            controllerAs: 'qpCtrl',
+            scope: {
+                loadedDataTrigger: '@'
+            }
+        };
+        return directive;
     }
-
-    angular
-        .module('promort.config', []);
-
-    angular
-        .module('promort.routes', ['ngRoute']);
 })();

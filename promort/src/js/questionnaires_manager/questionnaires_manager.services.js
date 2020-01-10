@@ -19,36 +19,39 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager'
-        ])
-        .run(run);
+        .module('promort.questionnaires_manager.services')
+        .factory('QuestionnaireRequestService', QuestionnaireRequestService)
+        .factory('QuestionnaireStepService', QuestionnaireStepService);
 
-    run.$inject = ['$http'];
+    QuestionnaireRequestService.$inject = ['$http', '$log'];
 
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
+    function QuestionnaireRequestService($http, $log) {
+        var QuestionnaireRequestService = {
+            get: get
+        };
+
+        return QuestionnaireRequestService;
+
+        function get(request_label) {
+            return $http.get('/api/questionnaire_requests/' + request_label + '/');
+        }
     }
 
-    angular
-        .module('promort.config', []);
+    QuestionnaireStepService.$inject = ['$http', '$log'];
 
-    angular
-        .module('promort.routes', ['ngRoute']);
+    function QuestionnaireStepService($http, $log) {
+        var QuestionnaireStepService = {
+            get: get
+        };
+
+        return QuestionnaireStepService;
+
+        function get(questionnaire_label, step_index) {
+            return $http.get('/api/questionnaires/' + questionnaire_label + '/' + step_index + '/');
+        }
+    }
 })();
