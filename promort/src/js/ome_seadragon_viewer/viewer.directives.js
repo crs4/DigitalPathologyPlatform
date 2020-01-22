@@ -25,15 +25,26 @@
     angular
         .module('promort.viewer.directives')
         .directive('viewerNavigationPanel', viewerNavigationPanel)
+        .directive('miniViewerNavigationPanel', miniViewerNavigationPanel)
         .directive('simpleViewer', simpleViewer)
         .directive('roiAnnotationsViewer', roiAnnotationsViewer)
-        .directive('clinicalAnnotationsViewer', clinicalAnnotationsViewer);
+        .directive('clinicalAnnotationsViewer', clinicalAnnotationsViewer)
+        .directive('slidesSequenceViewer', slidesSequenceViewer);
 
     function viewerNavigationPanel() {
         var directive = {
             replace: true,
             restrict: 'E',
             templateUrl: '/static/templates/viewer/navigation_panel.html'
+        };
+        return directive;
+    }
+
+    function miniViewerNavigationPanel() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/navigation_panel_mini.html'
         };
         return directive;
     }
@@ -260,12 +271,57 @@
                         // box size in microns
                         var box_size = 50;
                         tools_manager.initializeCellularCountHelperTool(box_size, helper_box_config);
-                        tools_manager.bindControllers('cell_counter_activate', 'cell_counter_save');
-                        tools_manager.bindControllers('g4_cell_counter_activate', 'g4_cell_counter_save');
+                        tools_manager.bindControllers('cell_counter_activate',
+                            'cell_counter_save');
+                        tools_manager.bindControllers('g4_cell_counter_activate',
+                            'g4_cell_counter_save');
 
                         scope.avc.registerComponents(ome_seadragon_viewer,
                             annotations_canvas, tools_manager, true);
                     });
+                });
+            }
+        };
+        return directive;
+    }
+
+    function slidesSequenceViewer() {
+        var directive = {
+            replace: true,
+            controller: 'SlidesSequenceViewerController',
+            controllerAs: 'ssvc',
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/sequence_viewer.html',
+            scope: {
+                svWaitForIt: '@',
+                viewerReady: '@',
+                viewerIdentifier: '@'
+            },
+            link: function(scope, element, attrs) {
+                scope.$on(scope.viewerReady, function(event, args) {
+                    var viewer_config = {
+                        'showNavigator': false,
+                        'showFullPageControl': false,
+                        'showSequenceControl': false,
+                        'zoomInButton': 'navi_zoom_in',
+                        'zoomOutButton': 'navi_zoom_out',
+                        'homeButton': 'navi_home'
+                    };
+
+                    var ome_seadragon_viewer = new ViewerController(
+                        args.viewer_label,
+                        scope.ssvc.getStaticFilesURL(),
+                        scope.ssvc.getDZIURLs(),
+                        viewer_config
+                    );
+                    ome_seadragon_viewer.buildViewer();
+
+                    ome_seadragon_viewer.viewer.addHandler('open', function() {
+                        ome_seadragon_viewer.setMinDZILevel(8);
+                    });
+
+                    // Register viewer in SlidesSetService
+                    scope.ssvc.registerViewer(ome_seadragon_viewer);
                 });
             }
         };

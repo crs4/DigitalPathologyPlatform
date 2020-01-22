@@ -25,13 +25,14 @@
     angular
         .module('promort.questionnaires_manager.controllers')
         .controller('QuestionnaireRequestsManagerController', QuestionnaireRequestsManagerController)
-        .controller('QuestionnairePanelController', QuestionnairePanelController);
+        .controller('QuestionnairePanelController', QuestionnairePanelController)
+        .controller('QuestionsSetPanelController', QuestionsSetPanelController);
 
     QuestionnaireRequestsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$log',
-                                                      'QuestionnaireRequestService'];
+                                                      'QuestionnaireRequestService', 'SlidesSequenceViewerService'];
 
     function QuestionnaireRequestsManagerController($scope, $routeParams, $rootScope, $log,
-                                                   QuestionnaireRequestService) {
+                                                   QuestionnaireRequestService, SlidesSequenceViewerService) {
         var vm = this;
 
         vm.panel_a_label = 'qm_panel_a';
@@ -42,6 +43,7 @@
         vm.panel_b_questionnaire_label = undefined;
         vm.panel_a_last_completed_step = undefined;
         vm.panel_b_last_completed_step = undefined;
+
         vm.getPanelAId = getPanelAId;
         vm.getPanelBId = getPanelBId;
         vm.getPanelALoadedTriggerLabel = getPanelALoadedTriggerLabel;
@@ -56,7 +58,6 @@
 
         function activate() {
             vm.request_label = $routeParams.label;
-            console.log('Request label is ' + vm.request_label);
 
             QuestionnaireRequestService.get(vm.request_label)
                 .then(questionnaireRequestSuccessFn, questionnaireRequestErrorFn);
@@ -64,11 +65,13 @@
             function questionnaireRequestSuccessFn(response) {
                 vm.panel_a_questionnaire_label = response.data.questionnaire_panel_a.label;
                 vm.panel_a_last_completed_step = response.data.answers.questionnaire_panel_a.last_completed_step_index;
-                $rootScope.$broadcast('questionnaire_panel_a.data.ready');
                 if (response.data.questionnaire_panel_b !== null) {
                     vm.panel_b_questionnaire_label = response.data.questionnaire_panel_b.label;
                     vm.panel_b_last_completed_step = response.data.answers.questionnaire_panel_b.last_completed_step_index;
                 }
+
+                // initialize SlidesSequenceViewerService
+                SlidesSequenceViewerService.initialize();
 
                 // trigger data loaded events used by each panel to query for details
                 $rootScope.$broadcast(
@@ -150,21 +153,29 @@
         vm.panel_id = undefined;
         vm.questionnaire_label = undefined;
         vm.step_index = undefined;
+        vm.slides_set_a_id = undefined;
+        vm.slides_set_a_label = undefined;
+        vm.slides_set_b_id = undefined;
+        vm.slides_set_b_label = undefined;
+        vm.questions_set_id = undefined;
 
         vm.getPanelId = getPanelId;
+        vm.getSlidesSetADetails = getSlidesSetADetails;
+        vm.getSlidesSetBDetails = getSlidesSetBDetails;
+        vm.getQuestionsSetId = getQuestionsSetId;
+        vm.getQuestionsLoadedTriggerLabel = getQuestionsLoadedTriggerLabel;
+        vm.getSlidesSetPanelIdentifier = getSlidesSetPanelIdentifier;
+        vm.getSlidesSetLoadedTriggerLabel = getSlidesSetLoadedTriggerLabel;
+        vm.getViewerReadyTrigger = getViewerReadyTrigger;
 
         activate();
 
         function activate() {
-            console.log('Wait for trigger: ' + $scope.loadedDataTrigger);
+            vm.panel_id = $scope.qpIdentifier;
 
-            $rootScope.$on(
-                $scope.loadedDataTrigger,
+            $scope.$on(
+                $scope.qpWaitForIt,
                 function(event, args) {
-                    console.log('Hello, I am panel ' + args.panel_id);
-                    console.log('Questionnaire Label is: ' + args.questionnaire_label);
-                    console.log('Step ID is: ' + args.step_index);
-                    vm.panel_id = args.panel_id;
                     vm.questionnaire_label = args.questionnaire_label;
                     vm.step_index = args.step_index;
 
@@ -172,8 +183,17 @@
                         .then(questionnaireStepSuccessFn, questionnaireStepErrorFn);
 
                     function questionnaireStepSuccessFn(response) {
-                        console.log('DETAILS FOR PANEL: ' + vm.panel_id);
-                        console.log(response);
+                        vm.slides_set_a_id = response.data.slides_set_a.id;
+                        vm.slides_set_a_label = response.data.slides_set_a_label;
+
+                        // trigger data loaded events for slides set panels and questions panel
+                        $rootScope.$broadcast(
+                            vm.getQuestionsLoadedTriggerLabel()
+                        );
+                        $rootScope.$broadcast(
+                            vm.getSlidesSetLoadedTriggerLabel('set_a'),
+                            vm.getSlidesSetADetails()
+                        );
                     }
 
                     function questionnaireStepErrorFn(response) {
@@ -186,5 +206,57 @@
         function getPanelId() {
             return vm.panel_id;
         }
+
+        function getSlidesSetADetails() {
+            return {
+                'slides_set_id': vm.slides_set_a_id,
+                'slides_set_label': vm.slides_set_a_label
+            }
+        }
+
+        function getSlidesSetBDetails() {
+            return {
+                'slides_set_id': vm.slides_set_b_id,
+                'slides_set_label': vm.slides_set_b_label
+            }
+        }
+
+        function getQuestionsSetId() {
+            return vm.questions_set_id;
+        }
+
+        function getQuestionsLoadedTriggerLabel() {
+            return vm.getPanelId() +  '.questions.ready';
+        }
+
+        function getSlidesSetPanelIdentifier(slides_set) {
+            return vm.getPanelId() + '-' + slides_set;
+        }
+
+        function getSlidesSetLoadedTriggerLabel(slides_set) {
+            return vm.getPanelId() + '.slides_' + slides_set + '.ready';
+        }
+
+        function getViewerReadyTrigger(slides_set) {
+            return vm.getPanelId() + '.viewer_' + slides_set + '.ready';
+        }
+    }
+
+    QuestionsSetPanelController.$inject = ['$scope', '$routeParams', '$rootScope', '$log'];
+
+    function QuestionsSetPanelController($scope, $routeParams, $rootScope, $log) {
+        var vm = this;
+
+        activate();
+
+        function activate() {
+            $scope.$on(
+                $scope.qspWaitForIt,
+                function(event, arg) {
+                    console.log('Questions loaded!');
+                }
+            )
+        }
+
     }
 })();

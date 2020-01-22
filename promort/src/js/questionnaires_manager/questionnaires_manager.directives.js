@@ -24,17 +24,34 @@
 
     angular
         .module('promort.questionnaires_manager.directives')
-        .directive('questionnaireStepPanel', questionnaireStepPanel);
+        .directive('questionnaireStepPanel', questionnaireStepPanel)
+        .directive('questionsSetPanel', questionsSetPanel);
 
     function questionnaireStepPanel() {
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/questionnaire_requests_manager/qstep_panel.html',
+            templateUrl: '/static/templates/questionnaire_requests_manager/questionnaire_step_panel.html',
             controller: 'QuestionnairePanelController',
             controllerAs: 'qpCtrl',
             scope: {
-                loadedDataTrigger: '@'
+                qpRequestData: '@',
+                qpWaitForIt: '@',
+                qpIdentifier: '@'
+            }
+        };
+        return directive;
+    }
+
+    function questionsSetPanel() {
+        var directive ={
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/questionnaire_requests_manager/questions_step_panel.html',
+            controller: 'QuestionsSetPanelController',
+            controllerAs: 'qspCtrl',
+            scope: {
+                qspWaitForIt: '@'
             }
         };
         return directive;

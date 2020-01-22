@@ -25,7 +25,8 @@
     angular
         .module('promort.viewer.controllers')
         .controller('SimpleViewerController', SimpleViewerController)
-        .controller('AnnotationsViewerController', AnnotationsViewerController);
+        .controller('AnnotationsViewerController', AnnotationsViewerController)
+        .controller('SlidesSequenceViewerController', SlidesSequenceViewerController);
 
     SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log', 'ViewerService',
         'CurrentSlideDetailsService'];
@@ -241,6 +242,110 @@
             }
             $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
                 clinical_annotation_step_label);
+        }
+    }
+
+    SlidesSequenceViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log',
+        'ViewerService', 'SlidesSetService', 'SlidesSequenceViewerService'];
+
+    function SlidesSequenceViewerController($scope, $routeParams, $rootScope, $location, $log, ViewerService,
+                                            SlidesSetService, SlidesSequenceViewerService) {
+        var vm = this;
+        vm.slides_set_id = undefined;
+        vm.slides_set_label = undefined;
+        vm.dzi_urls = undefined;
+        vm.pages_map = undefined;
+        vm.static_files_url = undefined;
+        vm.viewer_identifier = undefined;
+
+        vm.addSetItem = addSetItem;
+        vm.getDZIURLs = getDZIURLs;
+        vm.getStaticFilesURL = getStaticFilesURL;
+        vm.getPagesMap = getPagesMap;
+        vm.getViewerID = getViewerID;
+        vm.registerViewer = registerViewer;
+        vm.goToPage = goToPage;
+
+        activate();
+
+        function activate() {
+            vm.viewer_identifier = $scope.viewerIdentifier;
+
+            $scope.$on(
+                $scope.svWaitForIt,
+                function(event, args){
+                    vm.dzi_urls = [];
+                    vm.pages_map = [];
+                    vm.slides_set_id = args.slides_set_id;
+                    vm.slides_set_label = args.slides_set_label;
+
+                    ViewerService.getOMEBaseURLs()
+                        .then(OMEBaseUrlSuccessFn, OMEBaseUrlErrorFn);
+
+                    function OMEBaseUrlSuccessFn(response) {
+                        var base_url = response.data.base_url;
+                        vm.static_files_url = response.data.static_files_url + '/ome_seadragon/img/openseadragon/';
+
+                        SlidesSetService.get(vm.slides_set_id)
+                            .then(SlidesSetSuccessFn, SlidesSetErrorFn);
+
+                        function SlidesSetSuccessFn(response) {
+                            for (var i=0; i<response.data.items.length; i++) {
+                                vm.addSetItem(response.data.items[i], base_url);
+                            }
+
+                            $rootScope.$broadcast($scope.viewerReady, {'viewer_label': vm.getViewerID()});
+                        }
+
+                        function SlidesSetErrorFn(response) {
+                            $log.error(response.error);
+                            // $location.url('404');
+                        }
+                    }
+
+                    function OMEBaseUrlErrorFn(response) {
+                        $log.error(response.error);
+                        // $location.url('404');
+                    }
+                }
+            )
+        }
+
+        function addSetItem(slides_set_item, ome_base_url) {
+            if (slides_set_item.image_type === 'MIRAX') {
+                var dzi_url = ome_base_url + 'mirax/deepzoom/get/' + slides_set_item.slide + '.dzi';
+            } else {
+                var dzi_url = ome_base_url + 'deepzoom/get/' + slides_set_item.omero_id + '.dzi';
+            }
+            vm.dzi_urls.push(dzi_url);
+            vm.pages_map.push({
+                'label': slides_set_item.set_label,
+                'index': slides_set_item.set_index
+            });
+        }
+
+        function getDZIURLs() {
+            return vm.dzi_urls;
+        }
+
+        function getStaticFilesURL() {
+            return vm.static_files_url;
+        }
+
+        function getPagesMap() {
+            return vm.pages_map;
+        }
+
+        function getViewerID() {
+            return vm.viewer_identifier;
+        }
+
+        function registerViewer(viewer) {
+            SlidesSequenceViewerService.registerViewer(vm.getViewerID(), viewer);
+        }
+
+        function goToPage(page) {
+            SlidesSequenceViewerService.goToPage(vm.getViewerID(), page);
         }
     }
 })();

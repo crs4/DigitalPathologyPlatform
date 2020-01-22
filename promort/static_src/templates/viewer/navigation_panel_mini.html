@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="text-left well-sm">
     <!--
       ~ Copyright (c) 2019, CRS4
       ~
@@ -19,21 +19,15 @@
       ~ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       -->
-    <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
-        <div class="col-sm-8 text-left">
-            <h1>Slides questionnaire</h1>
-        </div>
-    </div>
-
-    <div id="pg_body" class="col-sm-12">
-        <div ng-class="qrmc.isDualPanelQuestionnaire() ? 'col-sm-6' : 'col-sm-12'">
-            <questionnaire-step-panel qp-request-data=" {{ qrmc.getPanelADataRequestTriggerLabel() }}"
-                                      qp-wait-for-it="{{ qrmc.getPanelALoadedTriggerLabel() }}"
-                                      qp-identifier="{{ qrmc.getPanelAId() }}"/>
-        </div>
-        <div ng-show="qrmc.isDualPanelQuestionnaire()" class="col-sm-6">
-            <questionnaire-step-panel qp-wait-for-it="{{ qrmc.getPanelBLoadedTriggerLabel() }}"
-                                      qp-identifier="{{ qrmc.getPanelBId() }}"/>
-        </div>
+    <div id="navi_buttons" class="row">
+        <button id="navi_zoom_out" class="btn btn-default prm-icon-btn">
+            <i class="icon-magnifying_minus"></i>
+        </button>
+        <button id="navi_home" class="btn btn-default prm-icon-btn">
+            <i class="icon-home"></i>
+        </button>
+        <button id="navi_zoom_in" class="btn btn-default prm-icon-btn">
+            <i class="icon-magnifying_plus"></i>
+        </button>
     </div>
 </div>
