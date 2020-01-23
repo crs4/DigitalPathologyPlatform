@@ -44,7 +44,12 @@
         var directive = {
             replace: true,
             restrict: 'E',
-            templateUrl: '/static/templates/viewer/navigation_panel_mini.html'
+            templateUrl: '/static/templates/viewer/navigation_panel_mini.html',
+            controller: 'MiniViewerNavigationController',
+            controllerAs: 'mvnCtrl',
+            scope: {
+                'viewerPanelId': '@'
+            }
         };
         return directive;
     }
@@ -303,9 +308,9 @@
                         'showNavigator': false,
                         'showFullPageControl': false,
                         'showSequenceControl': false,
-                        'zoomInButton': 'navi_zoom_in',
-                        'zoomOutButton': 'navi_zoom_out',
-                        'homeButton': 'navi_home'
+                        'zoomInButton': scope.ssvc.getNaviItemID('navi_zoom_in'),
+                        'zoomOutButton': scope.ssvc.getNaviItemID('navi_zoom_out'),
+                        'homeButton': scope.ssvc.getNaviItemID('navi_home')
                     };
 
                     var ome_seadragon_viewer = new ViewerController(

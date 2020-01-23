@@ -440,7 +440,8 @@
             registerViewer: registerViewer,
             getCurrentPage: getCurrentPage,
             getPagesCount: getPagesCount,
-            goToPage: goToPage
+            goToPage: goToPage,
+            getNaviItemID: getNaviItemID
         };
 
         return SlidesSequenceViewerService;
@@ -463,6 +464,10 @@
 
         function goToPage(viewer_label, page) {
             return this.slidesSetViewers[viewer_label].goToPage(page);
+        }
+
+        function getNaviItemID(panel_id, item_label) {
+            return panel_id + '_' + item_label;
         }
     }
 })();

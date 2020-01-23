@@ -24,9 +24,28 @@
 
     angular
         .module('promort.viewer.controllers')
+        .controller('MiniViewerNavigationController', MiniViewerNavigationController)
         .controller('SimpleViewerController', SimpleViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController)
         .controller('SlidesSequenceViewerController', SlidesSequenceViewerController);
+
+    MiniViewerNavigationController.$inject = ['$scope', '$log', 'SlidesSequenceViewerService'];
+
+    function MiniViewerNavigationController($scope, $log, SlidesSequenceViewerService) {
+        var vm = this;
+        vm.viewer_panel_id = undefined;
+        vm.getNaviItemID = getNaviItemID;
+
+        activate();
+
+        function activate() {
+            vm.viewer_panel_id = $scope.viewerPanelId;
+        }
+
+        function getNaviItemID(item_label) {
+            return SlidesSequenceViewerService.getNaviItemID(vm.viewer_panel_id, item_label);
+        }
+    }
 
     SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log', 'ViewerService',
         'CurrentSlideDetailsService'];
@@ -265,6 +284,7 @@
         vm.getViewerID = getViewerID;
         vm.registerViewer = registerViewer;
         vm.goToPage = goToPage;
+        vm.getNaviItemID = getNaviItemID;
 
         activate();
 
@@ -346,6 +366,10 @@
 
         function goToPage(page) {
             SlidesSequenceViewerService.goToPage(vm.getViewerID(), page);
+        }
+
+        function getNaviItemID(item_label) {
+            return SlidesSequenceViewerService.getNaviItemID(vm.getViewerID(), item_label);
         }
     }
 })();
