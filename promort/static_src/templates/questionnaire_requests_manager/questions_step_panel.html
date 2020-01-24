@@ -1,3 +1,16 @@
-<div>
-    QUESTIONS
+<div id="questions_panel" class="col-sm-12 col-md-12">
+    <div ng-repeat="question in qspCtrl.questions" ng-switch on="question.type">
+        <div ng-switch-when="single_choice">
+            <div class="row">
+                {{ question.text }}
+            </div>
+            <div class="row text-right">
+                <div ng-repeat="choice in question.choices" class="radio-inline">
+                    <input name="{{ qspCtrl.getRadioGroupName(question.label) }}"
+                           type="radio" value="{{ choice.value }}">
+                    <label for="{{ qspCtrl.getRadioGroupName(question.label) }}">{{ choice.label }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

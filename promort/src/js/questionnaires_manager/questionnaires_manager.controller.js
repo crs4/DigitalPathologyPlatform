@@ -164,6 +164,8 @@
         vm.getSlidesSetBDetails = getSlidesSetBDetails;
         vm.getQuestionsSetId = getQuestionsSetId;
         vm.getQuestionsLoadedTriggerLabel = getQuestionsLoadedTriggerLabel;
+        vm.getQuestionsPanelIdentifier = getQuestionsPanelIdentifier;
+        vm.getQuestionsDetails = getQuestionsDetails;
         vm.getSlidesSetPanelIdentifier = getSlidesSetPanelIdentifier;
         vm.getSlidesSetLoadedTriggerLabel = getSlidesSetLoadedTriggerLabel;
         vm.getViewerReadyTrigger = getViewerReadyTrigger;
@@ -188,12 +190,14 @@
 
                         // trigger data loaded events for slides set panels and questions panel
                         $rootScope.$broadcast(
-                            vm.getQuestionsLoadedTriggerLabel()
+                            vm.getQuestionsLoadedTriggerLabel(),
+                            vm.getQuestionsDetails(response.data.questions)
                         );
                         $rootScope.$broadcast(
                             vm.getSlidesSetLoadedTriggerLabel('set_a'),
                             vm.getSlidesSetADetails()
                         );
+                        // TODO: handle set_b slides
                     }
 
                     function questionnaireStepErrorFn(response) {
@@ -229,6 +233,17 @@
             return vm.getPanelId() +  '.questions.ready';
         }
 
+        function getQuestionsPanelIdentifier(questions_set) {
+            return vm.getPanelId() + '-' + questions_set;
+        }
+
+        function getQuestionsDetails(questions) {
+            console.log(questions);
+            return {
+                'questions': $.parseJSON(questions.questions_json)
+            }
+        }
+
         function getSlidesSetPanelIdentifier(slides_set) {
             return vm.getPanelId() + '-' + slides_set;
         }
@@ -247,15 +262,31 @@
     function QuestionsSetPanelController($scope, $routeParams, $rootScope, $log) {
         var vm = this;
 
+        vm.panel_id = undefined;
+        vm.questions = undefined;
+        vm.getPanelID = getPanelID;
+        vm.getRadioGroupName = getRadioGroupName;
+
         activate();
 
         function activate() {
+            vm.panel_id = $scope.qspIdentifier;
+
             $scope.$on(
                 $scope.qspWaitForIt,
-                function(event, arg) {
+                function(event, args) {
                     console.log('Questions loaded!');
+                    vm.questions = args.questions;
                 }
             )
+        }
+
+        function getPanelID() {
+            return vm.panel_id;
+        }
+
+        function getRadioGroupName(question_label) {
+            return vm.getPanelID() + '-' + question_label;
         }
 
     }

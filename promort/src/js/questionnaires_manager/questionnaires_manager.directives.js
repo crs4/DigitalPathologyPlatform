@@ -51,7 +51,8 @@
             controller: 'QuestionsSetPanelController',
             controllerAs: 'qspCtrl',
             scope: {
-                qspWaitForIt: '@'
+                qspWaitForIt: '@',
+                qspIdentifier: '@'
             }
         };
         return directive;
