@@ -1,19 +1,24 @@
-<div class="well">
-    <div id="navi_buttons" class="row">
-        <div class="col-sm-3 col-md-2" />
-        <div class="col-sm-9 col-md-10">
-            <mini-viewer-navigation-panel viewer-panel-id="{{ ssvc.getViewerID() }}"/>
-        </div>
+<div>
+    <div class="text-center">
+        <h2><small>{{ ssvc.getSlidesSetLabel() }}</small></h2>
     </div>
-    <div id="navi_slides" class="row">
-        <div class="col-sm-3 col-md-2 text-center">
-            <div ng-repeat="page in ssvc.pages_map">
-                <a class="btn btn-default" href="#"
-                   ng-click="ssvc.goToPage(page.index)">
-                    {{ page.label }}
-                </a>
+    <div class="well">
+        <div id="navi_buttons" class="row">
+            <div class="col-sm-3 col-md-2" />
+            <div class="col-sm-9 col-md-10">
+                <mini-viewer-navigation-panel viewer-panel-id="{{ ssvc.getViewerID() }}"/>
             </div>
         </div>
-        <div id="{{ ssvc.getViewerID() }}" class="prm-ome_viewer_simple col-sm-9 col-md-10" />
+        <div id="navi_slides" class="row">
+            <div class="col-sm-3 col-md-2 text-center">
+                <div ng-repeat="page in ssvc.pages_map">
+                    <a class="btn btn-default" href="#"
+                       ng-click="ssvc.goToPage(page.index)">
+                        {{ page.label }}
+                    </a>
+                </div>
+            </div>
+            <div id="{{ ssvc.getViewerID() }}" class="prm-ome_viewer_simple col-sm-9 col-md-10" />
+        </div>
     </div>
 </div>

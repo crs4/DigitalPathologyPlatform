@@ -285,6 +285,7 @@
         vm.registerViewer = registerViewer;
         vm.goToPage = goToPage;
         vm.getNaviItemID = getNaviItemID;
+        vm.getSlidesSetLabel = getSlidesSetLabel;
 
         activate();
 
@@ -370,6 +371,10 @@
 
         function getNaviItemID(item_label) {
             return SlidesSequenceViewerService.getNaviItemID(vm.getViewerID(), item_label);
+        }
+
+        function getSlidesSetLabel() {
+            return vm.slides_set_label;
         }
     }
 })();
