@@ -273,11 +273,12 @@
         vm.slides_set_id = undefined;
         vm.slides_set_label = undefined;
         vm.dzi_urls = undefined;
-        vm.pages_map = undefined;
+        vm.pages_map = [];
         vm.static_files_url = undefined;
         vm.viewer_identifier = undefined;
 
         vm.addSetItem = addSetItem;
+        vm.isMultiSlidesSet = isMultiSlidesSet;
         vm.getDZIURLs = getDZIURLs;
         vm.getStaticFilesURL = getStaticFilesURL;
         vm.getPagesMap = getPagesMap;
@@ -343,6 +344,10 @@
                 'label': slides_set_item.set_label,
                 'index': slides_set_item.set_index
             });
+        }
+
+        function isMultiSlidesSet() {
+            return vm.pages_map.length > 1;
         }
 
         function getDZIURLs() {
