@@ -7,7 +7,8 @@
             <div class="row text-right">
                 <div ng-repeat="choice in question.choices" class="radio-inline">
                     <input name="{{ qspCtrl.getRadioGroupName(question.label) }}"
-                           type="radio" value="{{ choice.value }}">
+                           type="radio" value="{{ choice.value }}"
+                            ng-model="qspCtrl.answers[question.label]">
                     <label for="{{ qspCtrl.getRadioGroupName(question.label) }}">{{ choice.label }}</label>
                 </div>
             </div>

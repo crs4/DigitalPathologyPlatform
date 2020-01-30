@@ -32,7 +32,7 @@
                                                       'QuestionnaireRequestService', 'SlidesSequenceViewerService'];
 
     function QuestionnaireRequestsManagerController($scope, $routeParams, $rootScope, $log,
-                                                   QuestionnaireRequestService, SlidesSequenceViewerService) {
+                                                    QuestionnaireRequestService, SlidesSequenceViewerService) {
         var vm = this;
 
         vm.panel_a_label = 'qm_panel_a';
@@ -43,6 +43,8 @@
         vm.panel_b_questionnaire_label = undefined;
         vm.panel_a_last_completed_step = undefined;
         vm.panel_b_last_completed_step = undefined;
+        vm.questionsPanelACtrl = undefined;
+        vm.questionsPanelBCtrl = undefined;
 
         vm.getPanelAId = getPanelAId;
         vm.getPanelBId = getPanelBId;
@@ -53,6 +55,7 @@
         vm.getPanelANextStep = getPanelANextStep;
         vm.getPanelBQuestionnaireLabel = getPanelBQuestionnaireLabel;
         vm.getPanelBNextStep = getPanelBNextStep;
+        vm.formValid = formValid;
 
         activate();
 
@@ -89,6 +92,22 @@
                             'panel_id': vm.getPanelBId(),
                             'questionnaire_label': vm.getPanelBQuestionnaireLabel(),
                             'step_index': vm.getPanelBNextStep()
+                        }
+                    );
+                }
+
+                // register questions panel as soon as they are ready, this will enable form validation
+                $scope.$on('questions_panel.' + vm.getPanelAId() + '.ready',
+                    function(event, args) {
+                        console.log('Registering questions panel A controller');
+                        vm.questionsPanelACtrl = args.panelCtrl;
+                    }
+                );
+                if(vm.isDualPanelQuestionnaire()) {
+                    $scope.$on('questions_panel.' + vm.getPanelBId() + '.ready',
+                        function(event, args) {
+                            console.log('Registering questions panel B controller');
+                            vm.questionsPanelBCtrl = args.panelCtrl;
                         }
                     );
                 }
@@ -140,6 +159,22 @@
                 return vm.panel_b_last_completed_step + 1;
             } else {
                 return undefined;
+            }
+        }
+
+        function formValid() {
+            if(vm.isDualPanelQuestionnaire()) {
+                if(typeof vm.questionsPanelACtrl === 'undefined' || typeof vm.questionsPanelBCtrl === 'undefined') {
+                    return false;
+                } else {
+                    return (vm.questionsPanelACtrl.formValid() && vm.questionsPanelBCtrl.formValid());
+                }
+            } else {
+                if(typeof vm.questionsPanelACtrl === 'undefined') {
+                    return false;
+                } else {
+                    return vm.questionsPanelACtrl.formValid();
+                }
             }
         }
     }
@@ -233,8 +268,8 @@
             return vm.getPanelId() +  '.questions.ready';
         }
 
-        function getQuestionsPanelIdentifier(questions_set) {
-            return vm.getPanelId() + '-' + questions_set;
+        function getQuestionsPanelIdentifier() {
+            return vm.getPanelId();
         }
 
         function getQuestionsDetails(questions) {
@@ -264,8 +299,10 @@
 
         vm.panel_id = undefined;
         vm.questions = undefined;
+        vm.answers = undefined;
         vm.getPanelID = getPanelID;
         vm.getRadioGroupName = getRadioGroupName;
+        vm.formValid = formValid;
 
         activate();
 
@@ -277,6 +314,16 @@
                 function(event, args) {
                     console.log('Questions loaded!');
                     vm.questions = args.questions;
+
+                    vm.answers = {};
+                    for(var i=0; i<vm.questions.length; i++) {
+                        vm.answers[vm.questions[i].label] = undefined;
+                    }
+
+                    $rootScope.$broadcast(
+                        'questions_panel.' + vm.getPanelID() + '.ready',
+                        {'panelCtrl': vm}
+                    );
                 }
             )
         }
@@ -287,6 +334,21 @@
 
         function getRadioGroupName(question_label) {
             return vm.getPanelID() + '-' + question_label;
+        }
+
+        function formValid() {
+            if(typeof vm.answers === 'undefined') {
+                return false;
+            } else {
+                var form_valid = true;
+                for(var a in vm.answers) {
+                    if(typeof vm.answers[a] === 'undefined') {
+                        form_valid = false;
+                        break;
+                    }
+                }
+                return form_valid;
+            }
         }
 
     }

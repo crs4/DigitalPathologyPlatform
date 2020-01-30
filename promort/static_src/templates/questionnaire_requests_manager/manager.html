@@ -36,4 +36,12 @@
                                       qp-identifier="{{ qrmc.getPanelBId() }}"/>
         </div>
     </div>
+
+    <div id="pg_footer" class="prm-lateral_margin col-sm-12 text-center">
+        <button type="submit" class="btn btn-primary"
+                ng-disabled="!qrmc.formValid()">
+            <i class="icon-cloud_upload"></i>
+            <span>Submit</span>
+        </button>
+    </div>
 </div>
