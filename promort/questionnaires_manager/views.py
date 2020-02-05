@@ -116,6 +116,31 @@ class QuestionnaireRequestDetail(APIView):
         except QuestionnaireRequest.DoesNotExist:
             raise NotFound('No Questionnaire Request with label \'%s\'', label)
 
+    def _create_questionnaire_answers_obj(self, questionnaire_request, questionnaire, reviewer):
+        return QuestionnaireAnswers(
+            questionnaire_request=questionnaire_request,
+            questionnaire=questionnaire,
+            reviewer=reviewer
+        )
+
+    def _initialize_questionnaire_answers(self, questionnaire_request):
+        try:
+            q_answers_a = self._create_questionnaire_answers_obj(questionnaire_request,
+                                                                 questionnaire_request.questionnaire_panel_a,
+                                                                 questionnaire_request.reviewer)
+            q_answers_a.save()
+        except IntegrityError, ie:
+            raise ie
+        if questionnaire_request.questionnaire_panel_b is not None:
+            q_answers_b = self._create_questionnaire_answers_obj(questionnaire_request,
+                                                                 questionnaire_request.questionnaire_panel_b,
+                                                                 questionnaire_request.reviewer)
+            try:
+                q_answers_b.save()
+            except IntegrityError, ie:
+                q_answers_a.delete()
+                raise ie
+
     def get(self, request, label, format=None):
         questionnaire_request = self._find_questionnaire_request(label)
         serializer = QuestionnaireRequestDetailsSerializer(questionnaire_request)
@@ -128,6 +153,13 @@ class QuestionnaireRequestDetail(APIView):
             action = action.upper()
             if action == 'START':
                 if not questionnaire_request.is_started():
+                    try:
+                        self._initialize_questionnaire_answers(questionnaire_request)
+                    except IntegrityError:
+                        return Response({
+                            'status': 'ERROR',
+                            'message': 'Integrity error while initializing QuestionnaireAnswers objects'
+                        }, status=status.HTTP_409_CONFLICT)
                     questionnaire_request.start_date = datetime.now()
                 else:
                     return Response({
@@ -211,7 +243,6 @@ class QuestionnairePanelAnswersDetail(APIView):
         q_step = panel_answers.get_questionnaire_step(step_answers['questionnaire_step'])
         if q_step:
             step_answers['questionnaire_step'] = q_step.id
-
             serializer = QuestionnaireStepAnswersSerializer(step_answers)
             if serializer.is_valid():
                 try:
