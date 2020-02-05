@@ -104,7 +104,7 @@ class QuestionnaireRequestSerializer(serializers.ModelSerializer):
 
 
 class QuestionnaireAnswersSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
+    reviewer = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
     )
@@ -113,7 +113,7 @@ class QuestionnaireAnswersSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireAnswers
 
-        fields = ('id', 'questionnaire_request', 'questionnaire', 'author', 'creation_date',
+        fields = ('id', 'questionnaire_request', 'questionnaire', 'reviewer', 'creation_date',
                   'completion_date', 'steps', 'steps_count', 'completed_steps_count',
                   'last_completed_step_index')
         read_only_fields = ('id', 'creation_date', 'steps', 'steps_count', 'completed_steps_count',

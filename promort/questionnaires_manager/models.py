@@ -102,7 +102,7 @@ class QuestionnaireAnswers(models.Model):
                                               related_name='answers')
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=False, null=False,
                                       related_name='answers')
-    author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False, null=False, default=None)
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False, null=False, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     completion_date = models.DateTimeField(blank=True, null=True, default=None)
 
