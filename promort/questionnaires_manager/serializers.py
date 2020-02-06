@@ -171,13 +171,19 @@ class QuestionnaireRequestDetailsSerializer(QuestionnaireRequestSerializer):
     @staticmethod
     def get_answers(obj):
         answers = dict()
-        answers['questionnaire_panel_a'] = QuestionnaireAnswersSerializer(
-            QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_a)
-        ).data
-        if obj.questionnaire_panel_b:
-            answers['questionnaire_panel_b'] = QuestionnaireAnswersSerializer(
-                QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_b)
+        try:
+            answers['questionnaire_panel_a'] = QuestionnaireAnswersSerializer(
+                QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_a)
             ).data
+        except QuestionnaireAnswers.DoesNotExist:
+            answers['questionnaire_panel_a'] = None
+        if obj.questionnaire_panel_b:
+            try:
+                answers['questionnaire_panel_b'] = QuestionnaireAnswersSerializer(
+                    QuestionnaireAnswers.objects.get(questionnaire_request=obj, questionnaire=obj.questionnaire_panel_b)
+                ).data
+            except QuestionnaireAnswers.DoesNotExist:
+                answers['questionnaire_panel_b'] = None
         else:
             answers['questionnaire_panel_b'] = None
         return answers

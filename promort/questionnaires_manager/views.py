@@ -114,7 +114,7 @@ class QuestionnaireRequestDetail(APIView):
         try:
             return QuestionnaireRequest.objects.get(label=label)
         except QuestionnaireRequest.DoesNotExist:
-            raise NotFound('No Questionnaire Request with label \'%s\'', label)
+            raise NotFound('No Questionnaire Request with label \'%s\'' % label)
 
     def _create_questionnaire_answers_obj(self, questionnaire_request, questionnaire, reviewer):
         return QuestionnaireAnswers(
