@@ -28,11 +28,13 @@
         .controller('QuestionnairePanelController', QuestionnairePanelController)
         .controller('QuestionsSetPanelController', QuestionsSetPanelController);
 
-    QuestionnaireRequestsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$log',
-                                                      'QuestionnaireRequestService', 'SlidesSequenceViewerService'];
+    QuestionnaireRequestsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', '$location', '$route',
+                                                      'QuestionnaireRequestService', 'SlidesSequenceViewerService',
+                                                      'QuestionnaireAnswersService', 'WorkListService'];
 
-    function QuestionnaireRequestsManagerController($scope, $routeParams, $rootScope, $log,
-                                                    QuestionnaireRequestService, SlidesSequenceViewerService) {
+    function QuestionnaireRequestsManagerController($scope, $routeParams, $rootScope, $log, $location, $route,
+                                                    QuestionnaireRequestService, SlidesSequenceViewerService,
+                                                    QuestionnaireAnswersService, WorkListService) {
         var vm = this;
 
         vm.panel_a_label = 'qm_panel_a';
@@ -52,10 +54,11 @@
         vm.getPanelBLoadedTriggerLabel = getPanelBLoadedTriggerLabel;
         vm.isDualPanelQuestionnaire = isDualPanelQuestionnaire;
         vm.getPanelAQuestionnaireLabel = getPanelAQuestionnaireLabel;
-        vm.getPanelANextStep = getPanelANextStep;
+        vm.getPanelAStepIndex = getPanelAStepIndex;
         vm.getPanelBQuestionnaireLabel = getPanelBQuestionnaireLabel;
-        vm.getPanelBNextStep = getPanelBNextStep;
+        vm.getPanelBStepIndex = getPanelBStepIndex;
         vm.formValid = formValid;
+        vm.submitAnswers = submitAnswers;
 
         activate();
 
@@ -82,7 +85,7 @@
                     {
                         'panel_id': vm.getPanelAId(),
                         'questionnaire_label': vm.getPanelAQuestionnaireLabel(),
-                        'step_index': vm.getPanelANextStep()
+                        'step_index': vm.getPanelAStepIndex()
                     }
                 );
                 if(vm.isDualPanelQuestionnaire()) {
@@ -91,7 +94,7 @@
                         {
                             'panel_id': vm.getPanelBId(),
                             'questionnaire_label': vm.getPanelBQuestionnaireLabel(),
-                            'step_index': vm.getPanelBNextStep()
+                            'step_index': vm.getPanelBStepIndex()
                         }
                     );
                 }
@@ -142,7 +145,7 @@
             return vm.panel_a_questionnaire_label;
         }
 
-        function getPanelANextStep() {
+        function getPanelAStepIndex() {
             return vm.panel_a_last_completed_step + 1;
         }
 
@@ -154,7 +157,7 @@
             }
         }
 
-        function getPanelBNextStep() {
+        function getPanelBStepIndex() {
             if(vm.isDualPanelQuestionnaire()) {
                 return vm.panel_b_last_completed_step + 1;
             } else {
@@ -175,6 +178,60 @@
                 } else {
                     return vm.questionsPanelACtrl.formValid();
                 }
+            }
+        }
+
+        function submitAnswers() {
+            if(vm.isDualPanelQuestionnaire()) {
+                var panel_a_details = {
+                    questionnaire_step_index: vm.getPanelAStepIndex(),
+                    answers_json: vm.questionsPanelACtrl.getAnswers()
+                };
+                var panel_b_details = {
+                    questionnaire_step_index: vm.getPanelBStepIndex(),
+                    answers_json: vm.questionsPanelBCtrl.getAnswers()
+                };
+                console.log({panel_a: panel_a_details, panel_b: panel_b_details});
+                QuestionnaireAnswersService.saveRequestAnswers(vm.request_label, panel_a_details, panel_b_details)
+                    .then(saveRequestAnswersSuccessFn, saveRequestAnswersErrorFn);
+
+                function saveRequestAnswersSuccessFn(response) {
+                    console.log('Answers saved');
+                    console.log(response.data);
+                    console.log('check request status');
+                    QuestionnaireRequestService.get_status(vm.request_label)
+                        .then(getStatusSuccessFn, getStatusErrorFn);
+
+                    function getStatusSuccessFn(response) {
+                        if(response.data.can_be_closed === true) {
+                            console.log('Close questionnaire request');
+                            WorkListService.closeQuestionnaireRequest(vm.request_label)
+                                .then(closeQuestionnaireRequestSuccessFn, closeQuestionnaireRequestErrorFn);
+
+                            function closeQuestionnaireRequestSuccessFn(response) {
+                                console.log('Return to worklist page');
+                                $location.url('worklist');
+                            }
+
+                            function closeQuestionnaireRequestErrorFn(response) {
+                                $log.error(response.error);
+                            }
+                        } else {
+                            console.log('Reload page and continue questionnaire');
+                            $route.reload();
+                        }
+                    }
+
+                    function getStatusErrorFn(response) {
+                        $log.error(response.error);
+                    }
+                }
+
+                function saveRequestAnswersErrorFn(response) {
+                    $log.error(response.error);
+                }
+            } else {
+                console.log('Single panel mode');
             }
         }
     }
@@ -302,6 +359,7 @@
         vm.answers = undefined;
         vm.getPanelID = getPanelID;
         vm.getRadioGroupName = getRadioGroupName;
+        vm.getAnswers = getAnswers;
         vm.formValid = formValid;
 
         activate();
@@ -334,6 +392,10 @@
 
         function getRadioGroupName(question_label) {
             return vm.getPanelID() + '-' + question_label;
+        }
+
+        function getAnswers() {
+            return JSON.stringify(vm.answers);
         }
 
         function formValid() {

@@ -103,6 +103,34 @@ class QuestionnaireRequestSerializer(serializers.ModelSerializer):
         return obj.is_completed()
 
 
+class QuestionnaireRequestStatusSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+    can_be_closed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = QuestionnaireRequest
+
+        fields = ('id', 'label', 'reviewer', 'creation_date', 'start_date', 'completion_date', 'started',
+                  'completed', 'can_be_closed')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started()
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed()
+
+    @staticmethod
+    def get_can_be_closed(obj):
+        return obj.can_be_closed()
+
+
 class QuestionnaireAnswersSerializer(serializers.ModelSerializer):
     reviewer = serializers.SlugRelatedField(
         slug_field='username',

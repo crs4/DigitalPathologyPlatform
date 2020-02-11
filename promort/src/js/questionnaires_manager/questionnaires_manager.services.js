@@ -25,19 +25,25 @@
     angular
         .module('promort.questionnaires_manager.services')
         .factory('QuestionnaireRequestService', QuestionnaireRequestService)
-        .factory('QuestionnaireStepService', QuestionnaireStepService);
+        .factory('QuestionnaireStepService', QuestionnaireStepService)
+        .factory('QuestionnaireAnswersService', QuestionnaireAnswersService);
 
     QuestionnaireRequestService.$inject = ['$http', '$log'];
 
     function QuestionnaireRequestService($http, $log) {
         var QuestionnaireRequestService = {
-            get: get
+            get: get,
+            get_status: get_status
         };
 
         return QuestionnaireRequestService;
 
         function get(request_label) {
             return $http.get('/api/questionnaire_requests/' + request_label + '/');
+        }
+
+        function get_status(request_label) {
+            return $http.get('/api/questionnaire_requests/' + request_label + '/status/');
         }
     }
 
@@ -52,6 +58,38 @@
 
         function get(questionnaire_label, step_index) {
             return $http.get('/api/questionnaires/' + questionnaire_label + '/' + step_index + '/');
+        }
+    }
+
+    QuestionnaireAnswersService.$inject = ['$http', '$log'];
+
+    function QuestionnaireAnswersService($http, $log) {
+        var QuestionnaireAnswersService = {
+            savePanelAnswers: savePanelAnswers,
+            saveRequestAnswers: saveRequestAnswers
+        };
+
+        return QuestionnaireAnswersService;
+
+        function savePanelAnswers(questionnaire_request_label, panel_label, questionnaire_step, answers_json) {
+            var params = {
+                questionnaire_step: questionnaire_step,
+                answers_json: answers_json
+            };
+            return $http.post(
+                '/api/questionnaire_requests/' + questionnaire_request_label + '/' + panel_label + '/answers',
+                params
+            );
+        }
+
+        function saveRequestAnswers(questionnaire_request_label, panel_a_details, panel_b_details) {
+            var params = {
+                'panel_a': panel_a_details,
+            };
+            if(typeof panel_b_details !== 'undefined') {
+                params['panel_b'] = panel_b_details;
+            }
+            return $http.post('api/questionnaire_requests/' + questionnaire_request_label + '/answers/', params);
         }
     }
 })();

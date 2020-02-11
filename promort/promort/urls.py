@@ -69,6 +69,8 @@ urlpatterns = [
 
     # slides questionnaire worklist and answers
     url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/$', qmv.QuestionnaireRequestDetail.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/status/$', qmv.QuestionnaireRequestStatus.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/answers/$', qmv.QuestionnaireRequestAnswers.as_view()),
     url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/$',
         qmv.QuestionnaireRequestPanelDetail.as_view()),
     url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/answers/$',

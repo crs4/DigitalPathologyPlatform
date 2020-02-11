@@ -38,8 +38,8 @@
     </div>
 
     <div id="pg_footer" class="prm-lateral_margin col-sm-12 text-center">
-        <button type="submit" class="btn btn-primary"
-                ng-disabled="!qrmc.formValid()">
+        <button type="submit" class="btn btn-primary" ng-disabled="!qrmc.formValid()"
+                ng-click="qrmc.submitAnswers()">
             <i class="icon-cloud_upload"></i>
             <span>Submit</span>
         </button>

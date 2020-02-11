@@ -90,6 +90,8 @@ class QuestionnaireRequest(models.Model):
         return not(self.completion_date is None)
 
     def can_be_closed(self):
+        if self.is_completed():
+            return False
         close = True
         for a in self.answers.all():
             if not a.is_completed():

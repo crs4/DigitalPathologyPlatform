@@ -30,10 +30,10 @@ from view_templates.views import GenericListView, GenericReadOnlyDetailView, Gen
 
 from questionnaires_manager.models import QuestionsSet, Questionnaire, QuestionnaireStep, \
     QuestionnaireRequest, QuestionnaireAnswers, QuestionnaireStepAnswers
-from questionnaires_manager.serializers import QuestionsSetSerializer, QuestionnaireSerializer,\
-    QuestionnaireStepSerializer, QuestionnaireRequestSerializer, QuestionnaireAnswersSerializer,\
-    QuestionnaireStepAnswersSerializer, QuestionnaireDetailsSerializer, QuestionnaireStepDetailsSerializer, \
-    QuestionnaireRequestDetailsSerializer, QuestionnaireAnswersDetailsSerializer
+from questionnaires_manager.serializers import QuestionsSetSerializer, QuestionnaireSerializer, \
+    QuestionnaireStepSerializer, QuestionnaireRequestSerializer, QuestionnaireRequestStatusSerializer, \
+    QuestionnaireAnswersSerializer, QuestionnaireStepAnswersSerializer, QuestionnaireDetailsSerializer, \
+    QuestionnaireStepDetailsSerializer, QuestionnaireRequestDetailsSerializer, QuestionnaireAnswersDetailsSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -189,6 +189,21 @@ class QuestionnaireRequestDetail(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
+class QuestionnaireRequestStatus(APIView):
+    permissions_classes = (permissions.IsAuthenticated,)
+
+    def _find_questionnaire_request(self, label):
+        try:
+            return QuestionnaireRequest.objects.get(label=label)
+        except QuestionnaireRequest.DoesNotExist:
+            raise NotFound('No Questionnaire Request with label \'%s\'' % label)
+
+    def get(self, request, label, format=None):
+        questionnaire_request = self._find_questionnaire_request(label)
+        serializer = QuestionnaireRequestStatusSerializer(questionnaire_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class QuestionnaireRequestPanelDetail(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -211,7 +226,7 @@ class QuestionnaireRequestPanelDetail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class QuestionnairePanelAnswersDetail(APIView):
+class QuestionnaireStepAnswersBaseView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def _get_request_panel_answers(self, label, panel):
@@ -221,6 +236,8 @@ class QuestionnairePanelAnswersDetail(APIView):
                 q_req_panel = q_req.questionnaire_panel_a
             elif panel == 'panel_b':
                 q_req_panel = q_req.questionnaire_panel_b
+            else:
+                q_req_panel = None
             if q_req_panel is None:
                 raise NotFound('Questionnaire Request %s has no panel \'%s\'' % (label, panel))
             else:
@@ -231,35 +248,106 @@ class QuestionnairePanelAnswersDetail(APIView):
         except QuestionnaireRequest.DoesNotExist:
             raise NotFound('No Questionnaire Request with label \'%s\'' % label)
 
+    def _save_panel_answers(self, request_label, request_panel, questionnaire_step_index, answers_json):
+        q_panel_answers = self._get_request_panel_answers(request_label, request_panel)
+        q_step = q_panel_answers.get_questionnaire_step(questionnaire_step_index)
+        if q_step:
+            serializer = QuestionnaireStepAnswersSerializer(data={
+                'questionnaire_answers': q_panel_answers.id,
+                'questionnaire_step': q_step.id,
+                'answers_json': answers_json
+            })
+            if serializer.is_valid():
+                serializer.save()
+                return serializer.data
+        else:
+            raise NotFound('No step with index %d found for questionnaire %s, can\'t save' %
+                           (questionnaire_step_index, q_panel_answers.questionnaire.label))
+
+
+class QuestionnaireRequestAnswers(QuestionnaireStepAnswersBaseView):
+
+    def _delete_questionnaire_step_answer(self, questionnaire_answers_id, questionnaire_step):
+        qsa_obj = QuestionnaireStepAnswers.objects.filter(
+            questionnaire_answers__pk=questionnaire_answers_id,
+            questionnaire_step=questionnaire_step
+        )
+        qsa_obj.delete()
+
+    def _update_questionnaire_answers(self, panel_a_answers_id, panel_b_answers_id):
+        pa_answers = QuestionnaireAnswers.objects.get(pk=panel_a_answers_id)
+        if panel_b_answers_id is not None:
+            pb_answers = QuestionnaireAnswers.objects.get(pk=panel_b_answers_id)
+            if pa_answers.can_be_closed() and pb_answers.can_be_closed():
+                completion_date = datetime.now()
+                pa_answers.completion_date = completion_date
+                pa_answers.save()
+                pb_answers.completion_date = completion_date
+                pb_answers.save()
+            else:
+                #TODO properly handle if one of the two steps can be closed and the other one not
+                pass
+        else:
+            if pa_answers.can_be_closed():
+                pa_answers.completion_date = datetime.now()
+                pa_answers.save()
+
+    def post(self, request, label, format=None):
+        panel_a_answers = request.data['panel_a']
+        qpa_step_index = panel_a_answers['questionnaire_step_index']
+        try:
+            # save panel a answers
+            pa_response_data = self._save_panel_answers(label, 'panel_a', qpa_step_index,
+                                                        panel_a_answers['answers_json'])
+        except IntegrityError:
+            return Response({
+                'status': 'ERROR',
+                'message': 'Duplicated answers for step %d, questionnaire request %s - panel %s' %
+                           (qpa_step_index, label, 'panel_a')
+            })
+        panel_b_answers = request.data.get('panel_b')
+        if panel_b_answers is not None:
+            qpb_step_index = panel_b_answers['questionnaire_step_index']
+            try:
+                pb_response_data = self._save_panel_answers(label, 'panel_b', qpb_step_index,
+                                                            panel_b_answers['answers_json'])
+            except IntegrityError:
+                # remove panel a answer
+                self._delete_questionnaire_step_answer(pa_response_data['questionnaire_answers'],
+                                                       qpa_step_index)
+                return Response({
+                    'status': 'ERROR',
+                    'message': 'Duplicated answers for step %d, questionnaire request %s - panel %s' %
+                               (qpb_step_index, label, 'panel_b')
+                })
+        else:
+            pb_response_data = None
+        self._update_questionnaire_answers(
+            pa_response_data['questionnaire_answers'], pb_response_data.get('questionnaire_answers')
+        )
+        return Response({'panel_a': pa_response_data, 'panel_b': pb_response_data},
+                        status=status.HTTP_201_CREATED)
+
+
+class QuestionnairePanelAnswersDetail(QuestionnaireStepAnswersBaseView):
+
     def get(self, request, label, panel, format=None):
         panel_answers = self._get_request_panel_answers(label, panel)
         serializer = QuestionnaireAnswersDetailsSerializer(panel_answers)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, label, panel, format=None):
-        panel_answers = self._get_request_panel_answers(label, panel)
-        step_answers = request.data
-        step_answers['questionnaire_answers'] = panel_answers.id
-        q_step = panel_answers.get_questionnaire_step(step_answers['questionnaire_step'])
-        if q_step:
-            step_answers['questionnaire_step'] = q_step.id
-            serializer = QuestionnaireStepAnswersSerializer(step_answers)
-            if serializer.is_valid():
-                try:
-                    serializer.save()
-                except IntegrityError:
-                    return Response({
-                        'status': 'ERROR',
-                        'message': 'duplicated answers for step %s of Questionnaire answers %s' %
-                                   (step_answers['questionnaire_step'], step_answers['questionnaire_answers'])
-                    })
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
+        questionnaire_step_index = int(request.data['questionnaire_step_index'])
+        try:
+            response_data = self._save_panel_answers(label, panel, questionnaire_step_index,
+                                                     request.data['answers_json'])
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
             return Response({
                 'status': 'ERROR',
-                'message': 'No step with ID %s found for questionnaire, can\'t save' %
-                           step_answers['questionnaire_answers']
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'message': 'Duplicated answers for step %d, questionnaire request %s - panel %s' %
+                           (questionnaire_step_index, label, panel)
+            })
 
     def put(self, request, label, panel, format=None):
         panel_answer = self._get_request_panel_answers(label, panel)
