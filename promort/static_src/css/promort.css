@@ -173,6 +173,13 @@ h3.prm-dialog-container {
     height: 30px;
 }
 
+.prm-readonly-text {
+    background-color: #FFFFFF !important;
+    font-weight: bold;
+    font-size: 120%;
+    text-align: center;
+}
+
 .prm-row-elem {
     padding-left: 10px;
     padding-right: 10px;
@@ -271,12 +278,12 @@ h3.prm-dialog-container {
     transform: scale(-1, 1);
 }
 
-/* Hidden placeholder*/
+/* Hidden placeholder */
 select option[disabled]:first-child {
     display: none;
 }
 
-/* Remove browser spin control for input type number*/
+/* Remove browser spin control for input type number */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -295,4 +302,105 @@ input[type=number]::-webkit-outer-spin-button {
 .prm-rotating-spinner {
     display: inline-block;
     animation: fullrotation 1s linear infinite;
+}
+
+
+/* Input range style
+   Thanks to https://www.cssportal.com/style-input-range/ */
+input[type=range] {
+    height: 21px;
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #E2E1E3;
+    border-radius: 15px;
+    border: 0px solid #000000;
+}
+input[type=range]::-webkit-slider-thumb {
+    box-shadow: 0px 0px 0px #000000;
+    border: 0px solid #8088FF;
+    height: 15px;
+    width: 15px;
+    border-radius: 50px;
+    background: #9C9C9C;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -5px;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #E2E1E3;
+}
+input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #E2E1E3;
+    border-radius: 15px;
+    border: 0px solid #000000;
+}
+input[type=range]::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #000000;
+    border: 0px solid #8088FF;
+    height: 15px;
+    width: 15px;
+    border-radius: 50px;
+    background: #9C9C9C;
+    cursor: pointer;
+}
+input[type=range]::-ms-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: #E2E1E3;
+    border: 0px solid #000000;
+    border-radius: 30px;
+    box-shadow: 0px 0px 0px #000000;
+}
+input[type=range]::-ms-fill-upper {
+    background: #E2E1E3;
+    border: 0px solid #000000;
+    border-radius: 30px;
+    box-shadow: 0px 0px 0px #000000;
+}
+input[type=range]::-ms-thumb {
+    margin-top: 1px;
+    box-shadow: 0px 0px 0px #000000;
+    border: 0px solid #8088FF;
+    height: 15px;
+    width: 15px;
+    border-radius: 50px;
+    background: #9C9C9C;
+    cursor: pointer;
+}
+input[type=range]:focus::-ms-fill-lower {
+    background: #E2E1E3;
+}
+input[type=range]:focus::-ms-fill-upper {
+    background: #E2E1E3;
+}
+
+/* Input range labels: overwrite input group parameters */
+.prm-range-label {
+    border: 0px !important;
+    background-color: #FFFFFF !important;
+    font-weight: bold !important;
+    font-size: 125% !important;
 }

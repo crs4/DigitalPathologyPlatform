@@ -1,5 +1,6 @@
-<div id="questions_panel" class="col-sm-12 col-md-12">
+<div id="questions_panel" class="col-sm-12 col-md-10 col-md-offset-1">
     <div ng-repeat="question in qspCtrl.questions" ng-switch on="question.type">
+        <!-- single choice answer -->
         <div ng-switch-when="single_choice">
             <div class="row">
                 {{ question.text }}
@@ -8,8 +9,28 @@
                 <div ng-repeat="choice in question.choices" class="radio-inline">
                     <input name="{{ qspCtrl.getRadioGroupName(question.label) }}"
                            type="radio" value="{{ choice.value }}"
-                            ng-model="qspCtrl.answers[question.label]">
+                           ng-model="qspCtrl.answers[question.label]">
                     <label for="{{ qspCtrl.getRadioGroupName(question.label) }}">{{ choice.label }}</label>
+                </div>
+            </div>
+        </div>
+        <!-- range choice -->
+        <div ng-switch-when="range">
+            <div class="row">
+                {{ question.text }}
+            </div>
+            <div class="form-group text-center col-md-10 col-md-offset-1">
+                <div class="input-group prm-row-elem">
+                    <div class="input-group-addon prm-range-label">{{  question.min }}</div>
+                    <input type="range" ng-model="qspCtrl.answers[question.label]"
+                           min="{{ question.min }}" max="{{ question.max }}"
+                           step="{{ question.step }}"/>
+                    <div class="input-group-addon prm-range-label">{{ question.max }}</div>
+                </div>
+                <div class="input-group prm-row-elem col-sm-4 col-sm-offset-4">
+                    <div class="input-group-addon">Selected Value</div>
+                    <input type="text" class="form-control prm-text-input prm-readonly-text"
+                           readonly ng-model="qspCtrl.answers[question.label]" />
                 </div>
             </div>
         </div>

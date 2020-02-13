@@ -375,7 +375,11 @@
 
                     vm.answers = {};
                     for(var i=0; i<vm.questions.length; i++) {
-                        vm.answers[vm.questions[i].label] = undefined;
+                        if(vm.questions[i].type === "range") {
+                            vm.answers[vm.questions[i].label] = vm.questions[i].default;
+                        } else {
+                            vm.answers[vm.questions[i].label] = undefined;
+                        }
                     }
 
                     $rootScope.$broadcast(
