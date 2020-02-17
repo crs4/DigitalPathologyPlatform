@@ -1484,6 +1484,7 @@
 
         function stopGleason4Tool() {
             vm.gleason4ModeActive = false;
+            vm.tmpG4CellsCount = undefined;
         }
 
         function abortGleason4Tool(g4_shape_id) {
