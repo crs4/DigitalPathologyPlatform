@@ -23,6 +23,7 @@ from django.db import IntegrityError
 from questionnaires_manager.models import QuestionnaireRequest, Questionnaire
 
 from csv import DictReader
+from uuid import uuid4
 import logging
 
 logger = logging.getLogger('promort_commands')
@@ -48,6 +49,9 @@ class Command(BaseCommand):
         except OSError:
             raise CommandError('File %s does not exist' % qreq_file)
 
+    def _get_request_random_label(self):
+        return str(uuid4())
+
     def _create_requests(self, reviewer, requests):
         logger.info('-- Creating %d questionnare requests for user %s', len(requests), reviewer)
         try:
@@ -56,9 +60,9 @@ class Command(BaseCommand):
             logger.error('There is no reviewer with username %s', reviewer)
             return None
         for req in requests:
-            if req['label'] is None:
-                logger.error('Missing label, skipping row')
-                continue
+            if req['label'] in (None, ''):
+                logger.info('Missing label, assigning a random one')
+                req['label'] = self._get_request_random_label()
             if req['questionnaire_a'] is None:
                 logger.error('Missing mandatody questionnaire_a, skipping row')
                 continue

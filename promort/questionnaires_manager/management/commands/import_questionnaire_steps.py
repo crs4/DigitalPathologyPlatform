@@ -23,6 +23,7 @@ from questionnaires_manager.models import Questionnaire, QuestionnaireStep, Ques
 from slides_manager.models import SlidesSet
 
 from csv import DictReader
+from uuid import uuid4
 import logging
 
 logger = logging.getLogger('promort_commands')
@@ -48,10 +49,16 @@ class Command(BaseCommand):
         except OSError:
             raise CommandError('File %s does not exist' % qsteps_file)
 
+    def _get_slides_set_random_label(self):
+        return str(uuid4())
+
     def _import_questionnaire_steps(self, questionnaire_label, steps):
         logger.info('-- Creating %d steps for Questionnaire %s', len(steps), questionnaire_label)
         try:
             questionnaire_obj = Questionnaire.objects.get(label=questionnaire_label)
+            # create random labels to be used for all the steps of the questionnaire if label is not specified in CSV
+            step_a_random_label = self._get_slides_set_random_label()
+            step_b_random_label = self._get_slides_set_random_label()
             for i, step in enumerate(steps):
                 step_config = {
                     'questionnaire': questionnaire_obj,
@@ -64,9 +71,9 @@ class Command(BaseCommand):
                     logger.error('There is no QuestionsSet object with label %s', step['questions_set'])
                     break
                 if not step['slides_set_a'] is None:
-                    if step['slides_set_a_label'] is None:
-                        logger.error('Missing slides set A label')
-                        break
+                    if step['slides_set_a_label'] in (None, ''):
+                        logger.info('Using random label %s for slides set A', step_a_random_label)
+                        step['slides_set_a_label'] = step_a_random_label
                     try:
                         step_config.update({
                             'slides_set_a': SlidesSet.objects.get(id=step['slides_set_a']),
@@ -76,9 +83,9 @@ class Command(BaseCommand):
                         logger.error('There is no SlidesSet object with ID %s', step['slides_set_a'])
                         break
                 if not step['slides_set_b'] is None:
-                    if step['slides_set_b_label'] is None:
-                        logger.error('Missing slides set A label')
-                        break
+                    if step['slides_set_b_label'] in (None, ''):
+                        logger.info('Using random label %s for slides set B', step_b_random_label)
+                        step['slides_set_b_label'] = step_b_random_label
                     try:
                         step_config.update({
                             'slides_set_b': SlidesSet.objects.get(id=step['slides_set_b']),
