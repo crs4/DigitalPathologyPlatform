@@ -276,12 +276,14 @@
         vm.pages = [];
         vm.static_files_url = undefined;
         vm.viewer_identifier = undefined;
+        vm.current_page = undefined;
 
         vm.addSetItem = addSetItem;
         vm.isMultiSlidesSet = isMultiSlidesSet;
         vm.getDZIURLs = getDZIURLs;
         vm.getStaticFilesURL = getStaticFilesURL;
         vm.getPages = getPages;
+        vm.isPageActive = isPageActive;
         vm.getPagesMap = getPagesMap;
         vm.checkPage = checkPage;
         vm.getViewerID = getViewerID;
@@ -317,6 +319,7 @@
                             for (var i=0; i<response.data.items.length; i++) {
                                 vm.addSetItem(response.data.items[i], base_url);
                             }
+                            vm.current_page = vm.pages[0]['label'];
 
                             $rootScope.$broadcast($scope.viewerReady, {'viewer_label': vm.getViewerID()});
                         }
@@ -378,6 +381,10 @@
             return vm.pages;
         }
 
+        function isPageActive(page_label) {
+            return vm.current_page === page_label;
+        }
+
         function getPagesMap() {
             var pages = {}
             for (var i=0; i < vm.pages.length; i++) {
@@ -403,6 +410,7 @@
             var trigger_event =  typeof trigger_event !== 'undefined' ? trigger_event : true;
             var pages_map = vm.getPagesMap();
             SlidesSequenceViewerService.goToPage(vm.getViewerID(), pages_map[page_label]);
+            vm.current_page = page_label;
             if (trigger_event) {
                 console.log('Trigger page changed event');
                 $rootScope.$broadcast('slides_sequence.page.changed',

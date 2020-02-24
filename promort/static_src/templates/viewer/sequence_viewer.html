@@ -12,14 +12,15 @@
         <div id="navi_slides" class="row">
             <div class="col-sm-3 col-md-2 text-center" ng-show="ssvc.isMultiSlidesSet()">
                 <div ng-repeat="page in ssvc.getPages()">
-                    <a class="btn btn-default" href="#"
-                       ng-click="ssvc.goToPage(page.label)">
+                    <a class="btn btn-default prm-slides-list-btn"
+                       ng-class="ssvc.isPageActive(page.label) ? 'prm-slides-list-btn-active' : 'prm-slides-list-btn-notactive'"
+                       href="#" ng-click="ssvc.goToPage(page.label)">
                         {{ page.label }}
                     </a>
                 </div>
             </div>
             <div id="{{ ssvc.getViewerID() }}" class="prm-ome_viewer_simple"
-                 ng-class="ssvc.isMultiSlidesSet() ? 'col-sm-9 col-md-10' : 'col-sm-12 col-md-12'"/>
+                 ng-class="ssvc.isMultiSlidesSet() ? 'col-sm-9 col-md-10' : 'col-sm-12 col-md-12'" />
         </div>
     </div>
 </div>
