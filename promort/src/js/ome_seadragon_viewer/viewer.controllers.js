@@ -273,7 +273,7 @@
         vm.slides_set_id = undefined;
         vm.slides_set_label = undefined;
         vm.dzi_urls = undefined;
-        vm.pages_map = [];
+        vm.pages = [];
         vm.static_files_url = undefined;
         vm.viewer_identifier = undefined;
 
@@ -281,7 +281,9 @@
         vm.isMultiSlidesSet = isMultiSlidesSet;
         vm.getDZIURLs = getDZIURLs;
         vm.getStaticFilesURL = getStaticFilesURL;
+        vm.getPages = getPages;
         vm.getPagesMap = getPagesMap;
+        vm.checkPage = checkPage;
         vm.getViewerID = getViewerID;
         vm.registerViewer = registerViewer;
         vm.goToPage = goToPage;
@@ -297,7 +299,7 @@
                 $scope.svWaitForIt,
                 function(event, args){
                     vm.dzi_urls = [];
-                    vm.pages_map = [];
+                    vm.pages = [];
                     vm.slides_set_id = args.slides_set_id;
                     vm.slides_set_label = args.slides_set_label;
 
@@ -331,6 +333,20 @@
                     }
                 }
             )
+
+            $scope.$on('slides_sequence.page.change', function(event, args) {
+                if (args.viewer_id === vm.getViewerID()) {
+                    console.log('Ignore change page trigger, it was me');
+                } else {
+                    console.log('Received order to change to page ' + args.page);
+                    if (vm.checkPage(args.page)) {
+                        console.log('Changing to page ' + args.page);
+                        vm.goToPage(args.page, false);
+                    } else {
+                        console.log('SlidesSet has no page ' + args.page);
+                    }
+                }
+            });
         }
 
         function addSetItem(slides_set_item, ome_base_url) {
@@ -340,14 +356,14 @@
                 var dzi_url = ome_base_url + 'deepzoom/get/' + slides_set_item.omero_id + '.dzi';
             }
             vm.dzi_urls.push(dzi_url);
-            vm.pages_map.push({
+            vm.pages.push({
                 'label': slides_set_item.set_label,
                 'index': slides_set_item.set_index
             });
         }
 
         function isMultiSlidesSet() {
-            return vm.pages_map.length > 1;
+            return vm.pages.length > 1;
         }
 
         function getDZIURLs() {
@@ -358,8 +374,21 @@
             return vm.static_files_url;
         }
 
+        function getPages() {
+            return vm.pages;
+        }
+
         function getPagesMap() {
-            return vm.pages_map;
+            var pages = {}
+            for (var i=0; i < vm.pages.length; i++) {
+                pages[vm.pages[i].label] = vm.pages[i].index;
+            }
+            return pages;
+        }
+
+        function checkPage(page_label) {
+            var pages_map = vm.getPagesMap();
+            return pages_map.hasOwnProperty(page_label);
         }
 
         function getViewerID() {
@@ -370,8 +399,15 @@
             SlidesSequenceViewerService.registerViewer(vm.getViewerID(), viewer);
         }
 
-        function goToPage(page) {
-            SlidesSequenceViewerService.goToPage(vm.getViewerID(), page);
+        function goToPage(page_label, trigger_event) {
+            var trigger_event =  typeof trigger_event !== 'undefined' ? trigger_event : true;
+            var pages_map = vm.getPagesMap();
+            SlidesSequenceViewerService.goToPage(vm.getViewerID(), pages_map[page_label]);
+            if (trigger_event) {
+                console.log('Trigger page changed event');
+                $rootScope.$broadcast('slides_sequence.page.changed',
+                    {'page': page_label, 'viewer_id': vm.getViewerID()});
+            }
         }
 
         function getNaviItemID(item_label) {

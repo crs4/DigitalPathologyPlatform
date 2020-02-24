@@ -11,9 +11,9 @@
         </div>
         <div id="navi_slides" class="row">
             <div class="col-sm-3 col-md-2 text-center" ng-show="ssvc.isMultiSlidesSet()">
-                <div ng-repeat="page in ssvc.pages_map">
+                <div ng-repeat="page in ssvc.getPages()">
                     <a class="btn btn-default" href="#"
-                       ng-click="ssvc.goToPage(page.index)">
+                       ng-click="ssvc.goToPage(page.label)">
                         {{ page.label }}
                     </a>
                 </div>
