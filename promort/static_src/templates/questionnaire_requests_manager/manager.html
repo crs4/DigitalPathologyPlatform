@@ -23,9 +23,20 @@
         <div class="col-sm-12 text-left prm-valign">
             <h3>Questionnaire: {{ qrmc.request_label }} --- Step {{ qrmc.getPanelAStepIndex() + 1 }}</h3>
         </div>
+
     </div>
 
     <div id="pg_body" class="col-sm-12">
+        <div id="toolbar" class="col-sm-2 col-sm-offset-10">
+            <div id="slydes-sync" ng-show="qrmc.isDualPanelQuestionnaire()" class="material-switch pull-right">
+                <span class="label prm-label"
+                      ng-class="qrmc.slidesSyncEnabled() ? 'label-primary' : 'label-info'">Sync Staining</span>
+                <input id="sync_slides" name="sync_stainings" type="checkbox"
+                       ng-click="qrmc.switchSlidesSync()"/>
+                <label for="sync_slides" class="label-primary"></label>
+            </div>
+        </div>
+
         <div ng-class="qrmc.isDualPanelQuestionnaire() ? 'col-sm-6' : 'col-sm-12'">
             <questionnaire-step-panel qp-request-data=" {{ qrmc.getPanelADataRequestTriggerLabel() }}"
                                       qp-wait-for-it="{{ qrmc.getPanelALoadedTriggerLabel() }}"

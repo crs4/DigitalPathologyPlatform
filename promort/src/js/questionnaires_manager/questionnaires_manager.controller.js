@@ -47,7 +47,10 @@
         vm.panel_b_last_completed_step = undefined;
         vm.questionsPanelACtrl = undefined;
         vm.questionsPanelBCtrl = undefined;
+        vm.slides_sync_enabled = false;
 
+        vm.switchSlidesSync = switchSlidesSync;
+        vm.slidesSyncEnabled = slidesSyncEnabled;
         vm.getPanelAId = getPanelAId;
         vm.getPanelBId = getPanelBId;
         vm.getPanelALoadedTriggerLabel = getPanelALoadedTriggerLabel;
@@ -119,6 +122,24 @@
             function questionnaireRequestErrorFn(response) {
                 $log.error(response.error);
             }
+
+            $scope.$on('slides_sequence.page.changed', function(event, args) {
+                if (vm.slidesSyncEnabled()) {
+                    console.log('It seems that viewer ' + args.viewer_id + ' has changed its page to ' + args.page);
+                    $rootScope.$broadcast('slides_sequence.page.change',
+                        {'viewer_id': args.viewer_id, 'page': args.page});
+                } else {
+                    console.log('Slides sync disabled, ignore trigger');
+                }
+            });
+        }
+
+        function switchSlidesSync() {
+            vm.slides_sync_enabled = !vm.slides_sync_enabled;
+        }
+
+        function slidesSyncEnabled() {
+            return vm.slides_sync_enabled;
         }
 
         function getPanelAId() {
