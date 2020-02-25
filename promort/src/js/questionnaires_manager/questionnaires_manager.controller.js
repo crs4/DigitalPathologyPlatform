@@ -45,10 +45,13 @@
         vm.panel_b_questionnaire_label = undefined;
         vm.panel_a_last_completed_step = undefined;
         vm.panel_b_last_completed_step = undefined;
+        vm.questionnairePanelACtrl = undefined;
         vm.questionsPanelACtrl = undefined;
+        vm.questionnairePanelBCtrl = undefined;
         vm.questionsPanelBCtrl = undefined;
         vm.slides_sync_enabled = false;
 
+        vm.slidesSyncRequired = slidesSyncRequired;
         vm.switchSlidesSync = switchSlidesSync;
         vm.slidesSyncEnabled = slidesSyncEnabled;
         vm.getPanelAId = getPanelAId;
@@ -104,7 +107,23 @@
                     );
                 }
 
-                // register questions panel as soon as they are ready, this will enable form validation
+                // register questionnaires panels as soon as they are ready
+                $scope.$on('questionnaire_panel.' + vm.getPanelAId() + '.ready',
+                    function(event, args) {
+                        console.log('Register questionnaire panel A controller');
+                        vm.questionnairePanelACtrl = args.questionnairePanelCtrl;
+                    }
+                );
+                if(vm.isDualPanelQuestionnaire()) {
+                    $scope.$on('questionnaire_panel.' + vm.getPanelBId() + '.ready',
+                        function(event, args) {
+                            console.log('Register questionnaire panel B controller');
+                            vm.questionnairePanelBCtrl = args.questionnairePanelCtrl;
+                        }
+                    );
+                }
+
+                // register questions panels as soon as they are ready, this will enable form validation
                 $scope.$on('questions_panel.' + vm.getPanelAId() + '.ready',
                     function(event, args) {
                         console.log('Registering questions panel A controller');
@@ -134,6 +153,33 @@
                     console.log('Slides sync disabled, ignore trigger');
                 }
             });
+        }
+
+        function slidesSyncRequired() {
+            if (vm.questionnairePanelACtrl === undefined && vm.questionnairePanelBCtrl === undefined) {
+                return false;
+            } else {
+                var pa_slides_counter = vm.questionnairePanelACtrl.getSlidesCount();
+                if (vm.questionnairePanelBCtrl !== undefined) {
+                    var pb_slides_counter = vm.questionnairePanelBCtrl.getSlidesCount();
+                }
+                var multi_slides_counter = 0;
+                if (pa_slides_counter !== undefined) {
+                    for (var p in pa_slides_counter) {
+                        if (pa_slides_counter[p] > 1) {
+                            multi_slides_counter++;
+                        }
+                    }
+                }
+                if (pb_slides_counter !== undefined) {
+                    for (var p in pb_slides_counter) {
+                        if (pb_slides_counter[p] > 1) {
+                            multi_slides_counter++;
+                        }
+                    }
+                }
+                return (multi_slides_counter > 1);
+            }
         }
 
         function switchSlidesSync() {
@@ -273,11 +319,13 @@
         vm.slides_set_b_id = undefined;
         vm.slides_set_b_label = undefined;
         vm.questions_set_id = undefined;
+        vm.viewer_panels_details = undefined;
         vm.dual_panel_questionnaire = undefined;
 
         vm.getPanelId = getPanelId;
         vm.isDualPanelQuestionnaire = isDualPanelQuestionnaire;
         vm.isDualSetsPanel = isDualSetsPanel;
+        vm.getSlidesCount = getSlidesCount;
         vm.getSlidesSetADetails = getSlidesSetADetails;
         vm.getSlidesSetBDetails = getSlidesSetBDetails;
         vm.getQuestionsSetId = getQuestionsSetId;
@@ -299,6 +347,10 @@
                     vm.questionnaire_label = args.questionnaire_label;
                     vm.step_index = args.step_index;
                     vm.dual_panel_questionnaire = args.dual_panel_questionnaire;
+                    vm.viewer_panels_details = {
+                        'set_a': undefined,
+                        'set_b': undefined
+                    };
 
                     QuestionnaireStepService.get(vm.questionnaire_label, vm.step_index)
                         .then(questionnaireStepSuccessFn, questionnaireStepErrorFn);
@@ -306,6 +358,10 @@
                     function questionnaireStepSuccessFn(response) {
                         vm.slides_set_a_id = response.data.slides_set_a.id;
                         vm.slides_set_a_label = response.data.slides_set_a_label;
+                        if (response.data.slides_set_b !== null) {
+                            vm.slides_set_b_id = response.data.slides_set_b.id;
+                            vm.slides_set_b_label = response.data.slides_set_b_label;
+                        }
 
                         // trigger data loaded events questions panel
                         $rootScope.$broadcast(
@@ -367,6 +423,21 @@
 
         function isDualSetsPanel() {
             return vm.slides_set_b_id !== undefined;
+        }
+
+        function getSlidesCount() {
+            if (vm.viewer_panels_details.set_a === undefined && vm.viewer_panels_details.set_b === undefined) {
+                return undefined;
+            } else {
+                var slides_count = {};
+                if (vm.viewer_panels_details.set_a !== undefined) {
+                    slides_count[vm.viewer_panels_details.set_a.label] = vm.viewer_panels_details.set_a.slides_count;
+                }
+                if (vm.viewer_panels_details.set_b !== undefined) {
+                    slides_count[vm.viewer_panels_details.set_b.label] = vm.viewer_panels_details.set_b.slides_count;
+                }
+                return slides_count;
+            }
         }
 
         function getSlidesSetADetails() {

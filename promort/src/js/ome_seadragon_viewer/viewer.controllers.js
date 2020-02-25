@@ -321,7 +321,8 @@
                             }
                             vm.current_page = vm.pages[0]['label'];
 
-                            $rootScope.$broadcast($scope.viewerReady, {'viewer_label': vm.getViewerID()});
+                            $rootScope.$broadcast($scope.viewerReady,
+                                {'viewer_label': vm.getViewerID(), 'slides_count': vm.pages.length});
                         }
 
                         function SlidesSetErrorFn(response) {
