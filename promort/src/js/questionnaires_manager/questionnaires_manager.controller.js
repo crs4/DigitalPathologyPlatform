@@ -88,7 +88,8 @@
                     {
                         'panel_id': vm.getPanelAId(),
                         'questionnaire_label': vm.getPanelAQuestionnaireLabel(),
-                        'step_index': vm.getPanelAStepIndex()
+                        'step_index': vm.getPanelAStepIndex(),
+                        'dual_panel_questionnaire': vm.isDualPanelQuestionnaire()
                     }
                 );
                 if(vm.isDualPanelQuestionnaire()) {
@@ -97,7 +98,8 @@
                         {
                             'panel_id': vm.getPanelBId(),
                             'questionnaire_label': vm.getPanelBQuestionnaireLabel(),
-                            'step_index': vm.getPanelBStepIndex()
+                            'step_index': vm.getPanelBStepIndex(),
+                            'dual_panel_questionnaire': vm.isDualPanelQuestionnaire()
                         }
                     );
                 }
@@ -271,8 +273,11 @@
         vm.slides_set_b_id = undefined;
         vm.slides_set_b_label = undefined;
         vm.questions_set_id = undefined;
+        vm.dual_panel_questionnaire = undefined;
 
         vm.getPanelId = getPanelId;
+        vm.isDualPanelQuestionnaire = isDualPanelQuestionnaire;
+        vm.isDualSetsPanel = isDualSetsPanel;
         vm.getSlidesSetADetails = getSlidesSetADetails;
         vm.getSlidesSetBDetails = getSlidesSetBDetails;
         vm.getQuestionsSetId = getQuestionsSetId;
@@ -293,6 +298,7 @@
                 function(event, args) {
                     vm.questionnaire_label = args.questionnaire_label;
                     vm.step_index = args.step_index;
+                    vm.dual_panel_questionnaire = args.dual_panel_questionnaire;
 
                     QuestionnaireStepService.get(vm.questionnaire_label, vm.step_index)
                         .then(questionnaireStepSuccessFn, questionnaireStepErrorFn);
@@ -301,16 +307,47 @@
                         vm.slides_set_a_id = response.data.slides_set_a.id;
                         vm.slides_set_a_label = response.data.slides_set_a_label;
 
-                        // trigger data loaded events for slides set panels and questions panel
+                        // trigger data loaded events questions panel
                         $rootScope.$broadcast(
                             vm.getQuestionsLoadedTriggerLabel(),
                             vm.getQuestionsDetails(response.data.questions)
                         );
+                        // trigger data loaded events for slides panel
                         $rootScope.$broadcast(
                             vm.getSlidesSetLoadedTriggerLabel('set_a'),
                             vm.getSlidesSetADetails()
                         );
-                        // TODO: handle set_b slides
+                        // register viewer panel details once loaded
+                        $scope.$on(vm.getViewerReadyTrigger('set_a'),
+                            function(event, args) {
+                                vm.viewer_panels_details.set_a = {
+                                    'label': args.viewer_label,
+                                    'slides_count': args.slides_count
+                                }
+                            }
+                        );
+                        if (vm.isDualSetsPanel()) {
+                            // trigger data loaded events for slides panel
+                            $rootScope.$broadcast(
+                                vm.getSlidesSetLoadedTriggerLabel('set_b'),
+                                vm.getSlidesSetBDetails()
+                            );
+                            // register viewer panel details once loaded
+                            $scope.$on(vm.getViewerReadyTrigger('set_b'),
+                                function(event, args) {
+                                    vm.viewer_panels_details.set_b = {
+                                        'label': args.viewer_label,
+                                        'slides_count': args.slides_count
+                                    }
+                                }
+                            );
+                        }
+
+                        console.log('Triggering event questionnaire_panel.' + vm.getPanelId() + '.ready');
+                        $rootScope.$broadcast(
+                            'questionnaire_panel.' + vm.getPanelId() + '.ready',
+                            {'questionnairePanelCtrl': vm}
+                        );
                     }
 
                     function questionnaireStepErrorFn(response) {
@@ -322,6 +359,14 @@
 
         function getPanelId() {
             return vm.panel_id;
+        }
+
+        function isDualPanelQuestionnaire() {
+            return vm.dual_panel_questionnaire;
+        }
+
+        function isDualSetsPanel() {
+            return vm.slides_set_b_id !== undefined;
         }
 
         function getSlidesSetADetails() {
