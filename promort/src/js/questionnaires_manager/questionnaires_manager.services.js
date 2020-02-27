@@ -73,11 +73,11 @@
 
         function savePanelAnswers(questionnaire_request_label, panel_label, questionnaire_step, answers_json) {
             var params = {
-                questionnaire_step: questionnaire_step,
+                questionnaire_step_index: questionnaire_step,
                 answers_json: answers_json
             };
             return $http.post(
-                '/api/questionnaire_requests/' + questionnaire_request_label + '/' + panel_label + '/answers',
+                '/api/questionnaire_requests/' + questionnaire_request_label + '/' + panel_label + '/answers/',
                 params
             );
         }

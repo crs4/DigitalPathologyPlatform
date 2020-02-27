@@ -251,6 +251,27 @@
         }
 
         function submitAnswers() {
+            function getStatusSuccessFn(response) {
+                if(response.data.can_be_closed === true) {
+                    WorkListService.closeQuestionnaireRequest(vm.request_label)
+                        .then(closeQuestionnaireRequestSuccessFn, closeQuestionnaireRequestErrorFn);
+
+                    function closeQuestionnaireRequestSuccessFn(response) {
+                        $location.url('worklist');
+                    }
+
+                    function closeQuestionnaireRequestErrorFn(response) {
+                        $log.error(response.error);
+                    }
+                } else {
+                    $route.reload();
+                }
+            }
+
+            function getStatusErrorFn(response) {
+                $log.error(response.error);
+            }
+
             if(vm.isDualPanelQuestionnaire()) {
                 var panel_a_details = {
                     questionnaire_step_index: vm.getPanelAStepIndex(),
@@ -260,47 +281,30 @@
                     questionnaire_step_index: vm.getPanelBStepIndex(),
                     answers_json: vm.questionsPanelBCtrl.getAnswers()
                 };
-                console.log({panel_a: panel_a_details, panel_b: panel_b_details});
                 QuestionnaireAnswersService.saveRequestAnswers(vm.request_label, panel_a_details, panel_b_details)
                     .then(saveRequestAnswersSuccessFn, saveRequestAnswersErrorFn);
 
                 function saveRequestAnswersSuccessFn(response) {
-                    console.log('Answers saved');
-                    console.log(response.data);
-                    console.log('check request status');
                     QuestionnaireRequestService.get_status(vm.request_label)
                         .then(getStatusSuccessFn, getStatusErrorFn);
-
-                    function getStatusSuccessFn(response) {
-                        if(response.data.can_be_closed === true) {
-                            console.log('Close questionnaire request');
-                            WorkListService.closeQuestionnaireRequest(vm.request_label)
-                                .then(closeQuestionnaireRequestSuccessFn, closeQuestionnaireRequestErrorFn);
-
-                            function closeQuestionnaireRequestSuccessFn(response) {
-                                console.log('Return to worklist page');
-                                $location.url('worklist');
-                            }
-
-                            function closeQuestionnaireRequestErrorFn(response) {
-                                $log.error(response.error);
-                            }
-                        } else {
-                            console.log('Reload page and continue questionnaire');
-                            $route.reload();
-                        }
-                    }
-
-                    function getStatusErrorFn(response) {
-                        $log.error(response.error);
-                    }
                 }
 
                 function saveRequestAnswersErrorFn(response) {
                     $log.error(response.error);
                 }
             } else {
-                console.log('Single panel mode');
+                QuestionnaireAnswersService.savePanelAnswers(vm.request_label, 'panel_a',
+                    vm.getPanelAStepIndex(), vm.questionsPanelACtrl.getAnswers())
+                    .then(savePanelAnswersSuccessFn, savePanelAnswersErrorFn);
+
+                function savePanelAnswersSuccessFn(response) {
+                    QuestionnaireRequestService.get_status(vm.request_label)
+                        .then(getStatusSuccessFn, getStatusErrorFn);
+                }
+
+                function savePanelAnswersErrorFn(response) {
+                    $log.error(response.error);
+                }
             }
         }
     }

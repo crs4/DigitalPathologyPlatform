@@ -331,6 +331,12 @@ class QuestionnaireRequestAnswers(QuestionnaireStepAnswersBaseView):
 
 class QuestionnairePanelAnswersDetail(QuestionnaireStepAnswersBaseView):
 
+    def _update_panel_answer(self, label, panel):
+        panel_answer = self._get_request_panel_answers(label, panel)
+        if panel_answer.can_be_closed():
+            panel_answer.completion_date = datetime.now()
+            panel_answer.save()
+
     def get(self, request, label, panel, format=None):
         panel_answers = self._get_request_panel_answers(label, panel)
         serializer = QuestionnaireAnswersDetailsSerializer(panel_answers)
@@ -341,6 +347,7 @@ class QuestionnairePanelAnswersDetail(QuestionnaireStepAnswersBaseView):
         try:
             response_data = self._save_panel_answers(label, panel, questionnaire_step_index,
                                                      request.data['answers_json'])
+            self._update_panel_answer(label, panel)
             return Response(response_data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({
