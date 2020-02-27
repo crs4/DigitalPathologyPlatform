@@ -180,6 +180,12 @@ h3.prm-dialog-container {
     text-align: center;
 }
 
+.prm-range-sel-text-input {
+    padding: 5px 2px 5px 2px;
+    width: 40px !important;
+    height: 30px;
+}
+
 .prm-row-elem {
     padding-left: 10px;
     padding-right: 10px;
@@ -253,6 +259,11 @@ h3.prm-dialog-container {
 .prm-not-available-label {
     color: darkgray;
     font-weight: bold;
+}
+
+.prm-slides-set-label {
+    font-weight: bold;
+    color: #555;
 }
 
 .prm-staining-label {
@@ -329,6 +340,21 @@ input[type=number]::-webkit-outer-spin-button {
 .prm-slides-list-btn-notactive:hover,
 .prm-slides-list-btn-notactive:focus {
     border: 4px solid #5bc0de;
+}
+
+.prm-question-text {
+    margin: 0 10px 5px;
+    font-size: medium;
+    color: #777;
+}
+
+.prm-choice-label {
+    font-size: medium;
+    color: #999;
+}
+
+.prm-checkbox:checked + .prm-choice-label {
+    color: #444444;
 }
 
 /* Input range style

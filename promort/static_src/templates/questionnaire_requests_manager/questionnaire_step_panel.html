@@ -9,7 +9,7 @@
                                 viewer-ready="{{ qpCtrl.getViewerReadyTrigger('set_b') }}"
                                 viewer-identifier="{{ qpCtrl.getSlidesSetPanelIdentifier('set_b') }}"/>
     </div>
-    <div ng-class="qpCtrl.isDualPanelQuestionnaire() ? 'col-sm-12' : 'col-sm-4 col-sm-offset-4'">
+    <div ng-class="qpCtrl.isDualPanelQuestionnaire() ? 'col-sm-12' : 'col-sm-6 col-sm-offset-3'">
         <questions-set-panel qsp-wait-for-it="{{ qpCtrl.getQuestionsLoadedTriggerLabel() }}"
                              qsp-identifier="{{ qpCtrl.getQuestionsPanelIdentifier() }}"/>
     </div>
