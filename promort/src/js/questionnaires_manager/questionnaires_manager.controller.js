@@ -45,6 +45,8 @@
         vm.panel_b_questionnaire_label = undefined;
         vm.panel_a_last_completed_step = undefined;
         vm.panel_b_last_completed_step = undefined;
+        vm.panel_a_remaining_steps = undefined;
+        vm.panel_b_remaining_steps = undefined;
         vm.questionnairePanelACtrl = undefined;
         vm.questionsPanelACtrl = undefined;
         vm.questionnairePanelBCtrl = undefined;
@@ -59,6 +61,8 @@
         vm.getPanelALoadedTriggerLabel = getPanelALoadedTriggerLabel;
         vm.getPanelBLoadedTriggerLabel = getPanelBLoadedTriggerLabel;
         vm.isDualPanelQuestionnaire = isDualPanelQuestionnaire;
+        vm.showPanelA = showPanelA;
+        vm.showPanelB = showPanelB;
         vm.getPanelAQuestionnaireLabel = getPanelAQuestionnaireLabel;
         vm.getPanelAStepIndex = getPanelAStepIndex;
         vm.getPanelBQuestionnaireLabel = getPanelBQuestionnaireLabel;
@@ -77,25 +81,29 @@
             function questionnaireRequestSuccessFn(response) {
                 vm.panel_a_questionnaire_label = response.data.questionnaire_panel_a.label;
                 vm.panel_a_last_completed_step = response.data.answers.questionnaire_panel_a.last_completed_step_index;
+                vm.panel_a_remaining_steps = response.data.answers.questionnaire_panel_a.remaining_steps;
                 if (response.data.questionnaire_panel_b !== null) {
                     vm.panel_b_questionnaire_label = response.data.questionnaire_panel_b.label;
                     vm.panel_b_last_completed_step = response.data.answers.questionnaire_panel_b.last_completed_step_index;
+                    vm.panel_b_remaining_steps = response.data.answers.questionnaire_panel_b.remaining_steps;
                 }
 
                 // initialize SlidesSequenceViewerService
                 SlidesSequenceViewerService.initialize();
 
                 // trigger data loaded events used by each panel to query for details
-                $rootScope.$broadcast(
-                    vm.getPanelALoadedTriggerLabel(),
-                    {
-                        'panel_id': vm.getPanelAId(),
-                        'questionnaire_label': vm.getPanelAQuestionnaireLabel(),
-                        'step_index': vm.getPanelAStepIndex(),
-                        'dual_panel_questionnaire': vm.isDualPanelQuestionnaire()
-                    }
-                );
-                if(vm.isDualPanelQuestionnaire()) {
+                if(vm.showPanelA()) {
+                    $rootScope.$broadcast(
+                        vm.getPanelALoadedTriggerLabel(),
+                        {
+                            'panel_id': vm.getPanelAId(),
+                            'questionnaire_label': vm.getPanelAQuestionnaireLabel(),
+                            'step_index': vm.getPanelAStepIndex(),
+                            'dual_panel_questionnaire': vm.isDualPanelQuestionnaire()
+                        }
+                    );
+                }
+                if(vm.showPanelB()) {
                     $rootScope.$broadcast(
                         vm.getPanelBLoadedTriggerLabel(),
                         {
@@ -108,13 +116,15 @@
                 }
 
                 // register questionnaires panels as soon as they are ready
-                $scope.$on('questionnaire_panel.' + vm.getPanelAId() + '.ready',
-                    function(event, args) {
-                        console.log('Register questionnaire panel A controller');
-                        vm.questionnairePanelACtrl = args.questionnairePanelCtrl;
-                    }
-                );
-                if(vm.isDualPanelQuestionnaire()) {
+                if(vm.showPanelA()) {
+                    $scope.$on('questionnaire_panel.' + vm.getPanelAId() + '.ready',
+                        function (event, args) {
+                            console.log('Register questionnaire panel A controller');
+                            vm.questionnairePanelACtrl = args.questionnairePanelCtrl;
+                        }
+                    );
+                }
+                if(vm.showPanelB()) {
                     $scope.$on('questionnaire_panel.' + vm.getPanelBId() + '.ready',
                         function(event, args) {
                             console.log('Register questionnaire panel B controller');
@@ -124,13 +134,15 @@
                 }
 
                 // register questions panels as soon as they are ready, this will enable form validation
-                $scope.$on('questions_panel.' + vm.getPanelAId() + '.ready',
-                    function(event, args) {
-                        console.log('Registering questions panel A controller');
-                        vm.questionsPanelACtrl = args.panelCtrl;
-                    }
-                );
-                if(vm.isDualPanelQuestionnaire()) {
+                if(vm.showPanelA()) {
+                    $scope.$on('questions_panel.' + vm.getPanelAId() + '.ready',
+                        function (event, args) {
+                            console.log('Registering questions panel A controller');
+                            vm.questionsPanelACtrl = args.panelCtrl;
+                        }
+                    );
+                }
+                if(vm.showPanelB()) {
                     $scope.$on('questions_panel.' + vm.getPanelBId() + '.ready',
                         function(event, args) {
                             console.log('Registering questions panel B controller');
@@ -207,19 +219,35 @@
         }
 
         function isDualPanelQuestionnaire() {
-            return vm.panel_b_questionnaire_label !== undefined;
+            return vm.showPanelA() && vm.showPanelB();
+        }
+
+        function showPanelA() {
+            return vm.panel_a_remaining_steps > 0;
+        }
+
+        function showPanelB() {
+            return vm.panel_b_remaining_steps > 0;
         }
 
         function getPanelAQuestionnaireLabel() {
-            return vm.panel_a_questionnaire_label;
+            if(vm.showPanelA()) {
+                return vm.panel_a_questionnaire_label;
+            } else {
+                return undefined;
+            }
         }
 
         function getPanelAStepIndex() {
-            return vm.panel_a_last_completed_step + 1;
+            if(vm.showPanelA()) {
+                return vm.panel_a_last_completed_step + 1;
+            } else {
+                return undefined;
+            }
         }
 
         function getPanelBQuestionnaireLabel() {
-            if(vm.isDualPanelQuestionnaire()) {
+            if(vm.showPanelB()) {
                 return vm.panel_b_questionnaire_label;
             } else {
                 return undefined;
@@ -227,7 +255,7 @@
         }
 
         function getPanelBStepIndex() {
-            if(vm.isDualPanelQuestionnaire()) {
+            if(vm.showPanelB()) {
                 return vm.panel_b_last_completed_step + 1;
             } else {
                 return undefined;
@@ -236,16 +264,22 @@
 
         function formValid() {
             if(vm.isDualPanelQuestionnaire()) {
-                if(typeof vm.questionsPanelACtrl === 'undefined' || typeof vm.questionsPanelBCtrl === 'undefined') {
+                if (typeof vm.questionsPanelACtrl === 'undefined' || typeof vm.questionsPanelBCtrl === 'undefined') {
                     return false;
                 } else {
                     return (vm.questionsPanelACtrl.formValid() && vm.questionsPanelBCtrl.formValid());
                 }
-            } else {
+            } else if(!vm.showPanelB()) {
                 if(typeof vm.questionsPanelACtrl === 'undefined') {
                     return false;
                 } else {
                     return vm.questionsPanelACtrl.formValid();
+                }
+            } else {
+                if(typeof vm.questionsPanelBCtrl === 'undefined') {
+                    return false;
+                } else {
+                    return vm.questionsPanelBCtrl.formValid();
                 }
             }
         }
@@ -293,10 +327,15 @@
                     $log.error(response.error);
                 }
             } else {
-                QuestionnaireAnswersService.savePanelAnswers(vm.request_label, 'panel_a',
-                    vm.getPanelAStepIndex(), vm.questionsPanelACtrl.getAnswers())
-                    .then(savePanelAnswersSuccessFn, savePanelAnswersErrorFn);
-
+                if (vm.showPanelA()) {
+                    QuestionnaireAnswersService.savePanelAnswers(vm.request_label, 'panel_a',
+                        vm.getPanelAStepIndex(), vm.questionsPanelACtrl.getAnswers())
+                        .then(savePanelAnswersSuccessFn, savePanelAnswersErrorFn);
+                } else {
+                    QuestionnaireAnswersService.savePanelAnswers(vm.request_label, 'panel_b',
+                        vm.getPanelBStepIndex(), vm.questionsPanelBCtrl.getAnswers())
+                        .then(savePanelAnswersSuccessFn, savePanelAnswersErrorFn);
+                }
                 function savePanelAnswersSuccessFn(response) {
                     QuestionnaireRequestService.get_status(vm.request_label)
                         .then(getStatusSuccessFn, getStatusErrorFn);
@@ -305,6 +344,7 @@
                 function savePanelAnswersErrorFn(response) {
                     $log.error(response.error);
                 }
+
             }
         }
     }

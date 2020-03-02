@@ -138,6 +138,10 @@ class QuestionnaireAnswers(models.Model):
     def completed_steps_count(self):
         return self.steps.count()
 
+    @property
+    def remaining_steps(self):
+        return self.steps_count - self.completed_steps_count
+
 
 class QuestionnaireStepAnswers(models.Model):
     questionnaire_answers = models.ForeignKey(QuestionnaireAnswers, on_delete=models.PROTECT, blank=False,

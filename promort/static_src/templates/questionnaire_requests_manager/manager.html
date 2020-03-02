@@ -37,12 +37,12 @@
             </div>
         </div>
 
-        <div ng-class="qrmc.isDualPanelQuestionnaire() ? 'col-sm-6' : 'col-sm-12'">
+        <div ng-show="qrmc.showPanelA()" ng-class="qrmc.showPanelB() ? 'col-sm-6' : 'col-sm-12'">
             <questionnaire-step-panel qp-request-data=" {{ qrmc.getPanelADataRequestTriggerLabel() }}"
                                       qp-wait-for-it="{{ qrmc.getPanelALoadedTriggerLabel() }}"
                                       qp-identifier="{{ qrmc.getPanelAId() }}"/>
         </div>
-        <div ng-show="qrmc.isDualPanelQuestionnaire()" class="col-sm-6">
+        <div ng-show="qrmc.showPanelB()" ng-class="qrmc.showPanelA() ? 'col-sm-6' : 'col-sm-12'">
             <questionnaire-step-panel qp-wait-for-it="{{ qrmc.getPanelBLoadedTriggerLabel() }}"
                                       qp-identifier="{{ qrmc.getPanelBId() }}"/>
         </div>

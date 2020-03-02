@@ -285,8 +285,12 @@ class QuestionnaireRequestAnswers(QuestionnaireStepAnswersBaseView):
                 pb_answers.completion_date = completion_date
                 pb_answers.save()
             else:
-                #TODO properly handle if one of the two steps can be closed and the other one not
-                pass
+                if pa_answers.can_be_closed():
+                    pa_answers.completion_date = datetime.now()
+                    pa_answers.save()
+                if pb_answers.can_be_closed():
+                    pb_answers.completion_date = datetime.now()
+                    pb_answers.save()
         else:
             if pa_answers.can_be_closed():
                 pa_answers.completion_date = datetime.now()

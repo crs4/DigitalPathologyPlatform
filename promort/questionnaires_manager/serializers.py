@@ -143,9 +143,9 @@ class QuestionnaireAnswersSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'questionnaire_request', 'questionnaire', 'reviewer', 'creation_date',
                   'completion_date', 'steps', 'steps_count', 'completed_steps_count',
-                  'last_completed_step_index')
+                  'last_completed_step_index', 'remaining_steps')
         read_only_fields = ('id', 'creation_date', 'steps', 'steps_count', 'completed_steps_count',
-                            'last_completed_step_index')
+                            'last_completed_step_index', 'remaining_steps')
 
     @staticmethod
     def get_last_completed_step_index(obj):

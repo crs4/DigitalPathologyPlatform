@@ -1,5 +1,5 @@
 <div id="questions_panel" class="col-sm-12 col-md-8 col-md-offset-2">
-    <div ng-repeat="question in qspCtrl.questions" ng-switch on="question.type">
+    <div ng-repeat="question in qspCtrl.questions" ng-switch on="question.type" class="row">
         <!-- single choice answer -->
         <div ng-switch-when="single_choice">
             <div class="row">
@@ -33,6 +33,7 @@
                            readonly ng-model="qspCtrl.answers[question.label]" />
                 </div>
             </div>
+            <div class="col-md-1"></div>
         </div>
     </div>
 </div>
