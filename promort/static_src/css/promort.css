@@ -357,6 +357,12 @@ input[type=number]::-webkit-outer-spin-button {
     color: #444444;
 }
 
+.prm-range-selector {
+    margin: 0 auto;
+    max-width: 350px;
+    min-width: 250px;
+}
+
 /* Input range style
    Thanks to https://www.cssportal.com/style-input-range/
    */
