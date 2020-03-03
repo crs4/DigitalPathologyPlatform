@@ -48,6 +48,27 @@ class Command(BaseCommand):
     def _extract_case_label(self, request_label):
         return '-'.join(request_label.split('-')[0:-1])
 
+    def _prepare_answers(self, step_obj):
+        sample_a_label = step_obj.questionnaire_step.slides_set_a.id
+        try:
+            sample_b_label = step_obj.questionnaire_step.slides_set_b.id
+        except AttributeError:
+            sample_b_label = None
+        answers_json = loads(step_obj.answers_json)
+        sat3_local = answers_json.get('sat-loc_3')
+        if sat3_local:
+            if sat3_local == 'sample_a':
+                answers_json['sat-loc_3'] = sample_a_label
+            elif sat3_local == 'sample_b':
+                answers_json['sat-loc_3'] = sample_b_label
+        sat3_central = answers_json.get('sat-cnt_1')
+        if sat3_central:
+            if sat3_central == 'sample_a':
+                answers_json['sat-cnt_1'] = sample_a_label
+            elif sat3_central == 'sample_b':
+                answers_json['sat-cnt_1'] = sample_b_label
+        return answers_json
+
     def _build_answers_map(self, answers, reviewer):
         answers_map = dict()
         local_reviewers_map = dict()
@@ -61,29 +82,33 @@ class Command(BaseCommand):
                     rev_type = 'local'
                     local_reviewers_map[label] = a.reviewer.username
                 for step in a.steps.all():
-                    answers_map[label].setdefault(rev_type, {}).update(loads(step.answers_json))
-        logger.debug(answers_map)
-        logger.debug(local_reviewers_map)
+                    answers_map[label].setdefault(rev_type, {}).update(self._prepare_answers(step))
         return answers_map, local_reviewers_map
 
     def _dump_data(self, answers_map, reviewers_map, out_file):
         with open(out_file, 'w') as f:
-            file_headers = ['local_reviewer', 'case_label', 'question_1', 'question_2', 'question_3', 'VAS_scale',
-                            'central_rev_q1', 'central_rev_q2', 'central_rev_q3']
+            file_headers = ['local_reviewer', 'case_label', 'morphology_1', 'morphology_2', 'morphology_3',
+                            'diagnostic_1', 'satisfaction_1', 'satisfaction_2', 'satisfaction_3',
+                            'morphology_1_cntr', 'morphology_2_cntr', 'morphology_3_cntr', 'diagnostic_1_cntr',
+                            'satisfaction_3_cntr']
             writer = DictWriter(f, file_headers)
             writer.writeheader()
             for case, answers in answers_map.iteritems():
-                # TODO map to proper file structure
                 row = {
                     'local_reviewer': reviewers_map[case],
                     'case_label': case,
-                    'question_1': answers['local']['q1'],
-                    'question_2': answers['local']['q2'],
-                    'question_3': answers['local']['q3'],
-                    'VAS_scale': answers['local']['slider_test'],
-                    'central_rev_q1': answers['central']['q1'],
-                    'central_rev_q2': answers['central']['q2'],
-                    'central_rev_q3': answers['central']['q3']
+                    'morphology_1': answers['local']['morph_1'],
+                    'morphology_2': answers['local']['morph_2'],
+                    'morphology_3': answers['local']['morph_3'],
+                    'diagnostic_1': answers['local']['diag_1'],
+                    'satisfaction_1': answers['local'].get('sat-loc_1'),
+                    'satisfaction_2': answers['local'].get('sat-loc_2'),
+                    'satisfaction_3': answers['local'].get('sat-loc_3'),
+                    'morphology_1_cntr': answers['central']['morph_1'],
+                    'morphology_2_cntr': answers['central']['morph_2'],
+                    'morphology_3_cntr': answers['central']['morph_3'],
+                    'diagnostic_1_cntr': answers['central']['diag_1'],
+                    'satisfaction_3_cntr': answers['central'].get('sat-cnt_1'),
                 }
                 writer.writerow(row)
 
