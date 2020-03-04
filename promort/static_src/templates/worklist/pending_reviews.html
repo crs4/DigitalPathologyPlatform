@@ -30,7 +30,7 @@
                         <div>
                             <p><strong>Review ID:</strong> {{ annotation.label }}</p>
                             <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
-                            <p ng-hide="wlc.isQuestionnaire(annotation)">
+                            <p ng-show="!wlc.isQuestionnaireRequest(annotation)">
                                 <strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}
                             </p>
                         </div>
