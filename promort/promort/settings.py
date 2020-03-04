@@ -99,6 +99,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'promort.wsgi.application'
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = cfg['django']['session_expire_on_close']
+
 # Django logger
 LOGGING = {
     'version': 1,
