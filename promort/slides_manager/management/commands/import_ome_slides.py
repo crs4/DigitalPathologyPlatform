@@ -38,7 +38,7 @@ class Command(BaseCommand):
     def _split_slide_name(self, slide_name):
         regex = re.compile(r'[A-Z]-[A-Z]-[0-9]{2}-[0-9]{4}-(GAF|PBF)-[A-Z0-9]{2,4}$')
         if regex.match(slide_name):
-            return '-'.join(slide_name.split('-')[0:4]), slide_name
+            return '-'.join(slide_name.split('-')[0:3]), slide_name
         else:
             return None, None
 
