@@ -35,6 +35,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--central-reviewer', dest='central_reviewer', type=str, required=True,
                             help='The username of the central reviewer, used to group answers')
+        parser.add_argument('--extended', dest='extended_output', action='store_true',
+                            help='output will be in extended format')
         parser.add_argument('--output-file', dest='out_file', type=str, required=True,
                             help='The path of the output CSV file')
 
@@ -85,12 +87,14 @@ class Command(BaseCommand):
                     answers_map[label].setdefault(rev_type, {}).update(self._prepare_answers(step))
         return answers_map, local_reviewers_map
 
-    def _dump_data(self, answers_map, reviewers_map, out_file):
+    def _dump_data(self, answers_map, reviewers_map, extended_output, out_file):
         with open(out_file, 'w') as f:
             file_headers = ['local_reviewer', 'case_label', 'morphology_1', 'morphology_2', 'morphology_3',
-                            'diagnostic_1', 'satisfaction_1', 'satisfaction_2', 'satisfaction_3',
-                            'morphology_1_cntr', 'morphology_2_cntr', 'morphology_3_cntr', 'diagnostic_1_cntr',
-                            'satisfaction_3_cntr']
+                            'diagnostic_1', 'satisfaction_1', 'satisfaction_2', 'morphology_1_cntr',
+                            'morphology_2_cntr', 'morphology_3_cntr', 'diagnostic_1_cntr']
+            if extended_output:
+                file_headers.insert(8, 'satisfaction_3')
+                file_headers.append('satisfaction_3_cntr')
             writer = DictWriter(f, file_headers)
             writer.writeheader()
             for case, answers in answers_map.iteritems():
@@ -103,13 +107,16 @@ class Command(BaseCommand):
                     'diagnostic_1': answers['local']['diag_1'],
                     'satisfaction_1': answers['local'].get('sat-loc_1'),
                     'satisfaction_2': answers['local'].get('sat-loc_2'),
-                    'satisfaction_3': answers['local'].get('sat-loc_3'),
                     'morphology_1_cntr': answers['central']['morph_1'],
                     'morphology_2_cntr': answers['central']['morph_2'],
                     'morphology_3_cntr': answers['central']['morph_3'],
                     'diagnostic_1_cntr': answers['central']['diag_1'],
-                    'satisfaction_3_cntr': answers['central'].get('sat-cnt_1'),
                 }
+                if extended_output:
+                    row.update({
+                        'satisfaction_3': answers['local'].get('sat-loc_3'),
+                        'satisfaction_3_cntr': answers['central'].get('sat-cnt_1')
+                    })
                 writer.writerow(row)
 
     def handle(self, *args, **opts):
@@ -118,5 +125,5 @@ class Command(BaseCommand):
         logger.info('Loaded answers for %d completed questionnaires', len(answers))
         answers_map, reviewers_map = self._build_answers_map(answers, opts['central_reviewer'])
         logger.info('Saving to file %s', opts['out_file'])
-        self._dump_data(answers_map, reviewers_map, opts['out_file'])
+        self._dump_data(answers_map, reviewers_map, opts['extended_output'], opts['out_file'])
         logger.info('=== Export completed ===')
