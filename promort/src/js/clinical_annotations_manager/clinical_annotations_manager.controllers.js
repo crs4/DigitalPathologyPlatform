@@ -1295,11 +1295,12 @@
     }
 
     NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
-        'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
+        'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService',
+        'ClinicalAnnotationStepManagerService'];
 
     function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
                                                 FocusRegionsManagerService, FocusRegionAnnotationsManagerService,
-                                                AnnotationsViewerService) {
+                                                AnnotationsViewerService, ClinicalAnnotationStepManagerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -1339,12 +1340,15 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
+        vm.gleason_element_types = undefined;
+
         vm.gleason4ModeActive = false;
 
         vm.tmpG4Shape = undefined;
         vm.tmpG4ShapeArea = undefined;
         vm.tmpG4CellularDensityHelperShape = undefined;
         vm.tmpG4CellularDensity = undefined;
+        vm.tmpGType = undefined;
         vm.tmpG4CellsCount = undefined;
 
         vm.gleason4Elements = undefined;
@@ -1426,6 +1430,14 @@
                 vm.updateRegionLength();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.focusRegionTissueStatus = response.data.tissue_status;
+
+                ClinicalAnnotationStepManagerService.fetchGleasonElementTypes()
+                    .then(fetchGleasonElementTypesSuccessFn);
+                // initialize Gleason element labels
+                function fetchGleasonElementTypesSuccessFn(response) {
+                    console.log('Gleason element types ' + response.data);
+                    vm.gleason_element_types = response.data;
+                }
             }
 
             function getFocusRegionErrorFn(response) {
@@ -1647,6 +1659,7 @@
             }
             vm.tmpG4Shape = undefined;
             vm.tmpG4ShapeArea = undefined;
+            vm.tmpGType = undefined;
         }
 
         function rulerToolActive() {
@@ -1661,7 +1674,7 @@
             var index = 1;
             var valid_label = false;
             while (!valid_label) {
-                if (vm.gleason4ElementsLabels.indexOf('g4_element_' + index) !== -1) {
+                if (vm.gleason4ElementsLabels.indexOf('GL_item_' + index) !== -1) {
                     index += 1;
                 } else {
                     valid_label = true;
@@ -1672,13 +1685,13 @@
 
         function acceptTemporaryGleason4() {
             var old_gleason_4_shape_id = vm.tmpG4Shape.shape_id;
-            var gleason_4_shape_id = 'g4_element_' + vm._getG4ElementIndexLabel();
+            var gleason_4_shape_id = 'GL_item_' + vm._getG4ElementIndexLabel();
             vm.tmpG4Shape.shape_id = gleason_4_shape_id;
             var tmp_g4_object = {
                 json_path: vm.tmpG4Shape,
                 area: vm.tmpG4ShapeArea,
                 cells_count: vm.tmpG4CellsCount,
-                gleason_type: 'G4'
+                gleason_type: vm.tmpGType
             };
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
@@ -1919,7 +1932,7 @@
                 vm.gleason4ElementsLabels = [];
                 vm.displayedGleason4ElementsLabels = [];
                 // load Gleason 4 elements
-                var gleason_4_elements = response.data.gleason_4_elements;
+                var gleason_4_elements = response.data.gleason_elements;
                 for (var g4_el in gleason_4_elements) {
                     var g4e = gleason_4_elements[g4_el];
                     g4e.json_path = $.parseJSON(g4e.json_path);

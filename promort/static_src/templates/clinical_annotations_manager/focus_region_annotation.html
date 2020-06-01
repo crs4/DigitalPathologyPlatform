@@ -179,14 +179,32 @@
         </div>
         <!------------------------->
 
+        <!-- GLEASON TYPE -->
+        <div class="form-group row" ng-show="cmCtrl.gleason4ToolActive() && cmCtrl.rulerExists()">
+            <fieldset class="form-group">
+                <div class="prm-label-elem">
+                    <label for="gleasonType">Type</label>
+                </div>
+                <div class="prm-row-elem">
+                    <select class="form-control" id="gleasonType"
+                            ng-model="cmCtrl.tmpGType">
+                        <option value="" disabled selected> ---- </option>
+                        <option value="{{ t.value }}"
+                                ng-repeat="t in cmCtrl.gleason_element_types">{{ t.text }}</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+
+        <!------------------>
+
         <!-- GLEASON 4 CELLS COUNT -->
-        <div class="form-group row" ng-show="cmCtrl.gleason4ToolActive()">
+        <div class="form-group row" ng-show="cmCtrl.gleason4ToolActive() && cmCtrl.rulerExists()">
             <div class="prm-label-elem">
                 <label>Cells count</label>
             </div>
             <div class="prm-row-elem">
-                <input class="form-control" type="number" ng-model="cmCtrl.tmpG4CellsCount"
-                       ng-readonly="cmCtrl.rulerToolActive() || !cmCtrl.rulerExists()">
+                <input class="form-control" type="number" ng-model="cmCtrl.tmpG4CellsCount">
             </div>
         </div>
         <!--------------------------->
