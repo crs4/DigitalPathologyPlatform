@@ -94,10 +94,17 @@ class CoreAnnotationInfosSerializer(serializers.ModelSerializer):
 
 
 class GleasonElementSerializer(serializers.ModelSerializer):
+    gleason_label = serializers.SerializerMethodField()
+
     class Meta:
         model = GleasonElement
-        fields = ('id', 'gleason_type', 'json_path', 'area', 'cellular_density_helper_json',
-                  'cellular_density', 'cells_count')
+        fields = ('id', 'gleason_type', 'gleason_label', 'json_path', 'area',
+                  'cellular_density_helper_json', 'cellular_density', 'cells_count')
+        read_only_fields = ('gleason_label',)
+
+    @staticmethod
+    def get_gleason_label(obj):
+        return obj.get_gleason_type_label()
 
     @staticmethod
     def validate_json_path(value):

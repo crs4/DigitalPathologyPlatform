@@ -154,3 +154,8 @@ class GleasonElement(models.Model):
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
+
+    def get_gleason_type_label(self):
+        for choice in self.GLEASON_TYPES:
+            if choice[0] == self.gleason_type:
+                return choice[1]
