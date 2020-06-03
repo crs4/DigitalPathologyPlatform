@@ -140,11 +140,11 @@ class FocusRegionAnnotation(models.Model):
 
 class GleasonElement(models.Model):
     GLEASON_TYPES = (
-        ('G1', 'GLEASON_1'),
-        ('G2', 'GLEASON_2'),
-        ('G3', 'GLEASON_3'),
-        ('G4', 'GLEASON_4'),
-        ('G5', 'GLEASON_5')
+        ('G1', 'GLEASON 1'),
+        ('G2', 'GLEASON 2'),
+        ('G3', 'GLEASON 3'),
+        ('G4', 'GLEASON 4'),
+        ('G5', 'GLEASON 5')
     )
     focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
                                                 blank=False, on_delete=models.CASCADE)
