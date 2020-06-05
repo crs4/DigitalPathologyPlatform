@@ -82,7 +82,7 @@
     </div>
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked() || cmCtrl.isStressedRegion()">
-        <legend class="prm-legend">Gleason 4 Data</legend>
+        <legend class="prm-legend">Gleason Data</legend>
 
         <!-- ACQUIRE NEW GLEASON 4 AREA -->
         <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
@@ -90,7 +90,7 @@
                 <button id="new_gleason_4" class="btn btn-default"
                         ng-click="cmCtrl.startGleason4Tool()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive()">
-                    Add Gleason 4 Element
+                    Add Gleason Element
                 </button>
             </div>
         </div>
@@ -161,6 +161,7 @@
             <div class="input-group prm-row-elem">
                 <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
                        readonly ng-model="cmCtrl.tmpG4ShapeArea">
+                <div class="input-group-addon prm-addon">μm²</div>
                 <!-- TODO: insert unit of measure selector -->
                 <div class="input-group-btn">
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
@@ -230,6 +231,9 @@
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes"
+                       data-placement="top"
+                       title="{{ cmCtrl.gleason4Elements[g4_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">
                     <button class="btn btn-default prm-icon-btn"
@@ -250,6 +254,9 @@
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes"
+                       data-placement="top"
+                       title="{{ cmCtrl.gleason4Elements[g4_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">
                     <button class="btn btn-default prm-icon-btn"
