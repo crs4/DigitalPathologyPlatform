@@ -1341,6 +1341,7 @@
         ];
 
         vm.gleason_element_types = undefined;
+        vm.gleason_types_map = undefined;
 
         vm.gleason4ModeActive = false;
 
@@ -1435,8 +1436,11 @@
                     .then(fetchGleasonElementTypesSuccessFn);
                 // initialize Gleason element labels
                 function fetchGleasonElementTypesSuccessFn(response) {
-                    console.log('Gleason element types ' + response.data);
                     vm.gleason_element_types = response.data;
+                    vm.gleason_types_map = {};
+                    for (var i=0; i<vm.gleason_element_types.length; i++) {
+                        vm.gleason_types_map[vm.gleason_element_types[i].value] = vm.gleason_element_types[i].text;
+                    }
                 }
             }
 
@@ -1691,7 +1695,8 @@
                 json_path: vm.tmpG4Shape,
                 area: vm.tmpG4ShapeArea,
                 cells_count: vm.tmpG4CellsCount,
-                gleason_type: vm.tmpGType
+                gleason_type: vm.tmpGType,
+                gleason_label: vm.gleason_types_map[vm.tmpGType]
             };
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
