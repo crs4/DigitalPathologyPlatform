@@ -231,8 +231,8 @@
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>
-                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes"
-                       data-placement="top"
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes" data-placement="top"
+                       ng-mouseenter="cmCtrl.selectRuler(g4_label)" ng-mouseleave="cmCtrl.deselectRuler(g4_label)"
                        title="{{ cmCtrl.gleason4Elements[g4_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">
@@ -254,8 +254,8 @@
             <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
                     <label>{{ g4_label }}</label>
-                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes"
-                       data-placement="top"
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes" data-placement="top"
+                       ng-mouseenter="cmCtrl.selectRuler(g4_label)" ng-mouseleave="cmCtrl.deselectRuler(g4_label)"
                        title="{{ cmCtrl.gleason4Elements[g4_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">

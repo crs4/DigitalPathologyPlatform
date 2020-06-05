@@ -1394,6 +1394,8 @@
         vm.showRuler = showRuler;
         vm.hideRuler = hideRuler;
         vm.showHideRuler = showHideRuler;
+        vm.selectRuler = selectRuler;
+        vm.deselectRuler = deselectRuler;
         vm._getG4ElementIndexLabel = _getG4ElementIndexLabel;
         vm.acceptTemporaryGleason4 = acceptTemporaryGleason4;
         vm._hideGleason4Element = _hideGleason4Element;
@@ -1541,6 +1543,14 @@
             } else {
                 vm.hideRuler();
             }
+        }
+
+        function selectRuler(shape_id) {
+            AnnotationsViewerService.selectShape(shape_id);
+        }
+
+        function deselectRuler(shape_id) {
+            AnnotationsViewerService.deselectShape(shape_id);
         }
 
         function startRuler() {
@@ -1889,6 +1899,8 @@
         vm._hideGleason4Element = _hideGleason4Element;
         vm._showGleason4Element = _showGleason4Element;
         vm.showHideGleason4Element = showHideGleason4Element;
+        vm.selectRuler = selectRuler;
+        vm.deselectRuler = deselectRuler;
         vm.updateRegionLength = updateRegionLength;
         vm.updateRegionArea = updateRegionArea;
 
@@ -2091,6 +2103,14 @@
                 // show element
                 vm._showGleason4Element(element_id);
             }
+        }
+
+        function selectRuler(shape_id) {
+            AnnotationsViewerService.selectShape(shape_id);
+        }
+
+        function deselectRuler(shape_id) {
+            AnnotationsViewerService.deselectShape(shape_id);
         }
 
         function updateRegionArea() {
