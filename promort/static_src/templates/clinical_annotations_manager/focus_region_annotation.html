@@ -71,16 +71,6 @@
         </div>
     </div>
 
-    <div class="form-group row" ng-hide="cmCtrl.isReadOnly() && !cmCtrl.isCancerousRegion()">
-        <div class="prm-label-elem">
-            <label>Region cells count</label>
-        </div>
-        <div class="prm-row-elem">
-            <input class="form-control" type="number" ng-model="cmCtrl.cellsCount"
-                   ng-readonly="cmCtrl.isLocked() || cmCtrl.isReadOnly() || cmCtrl.gleason4ToolActive()">
-        </div>
-    </div>
-
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked() || cmCtrl.isStressedRegion()">
         <legend class="prm-legend">Gleason Data</legend>
 
@@ -198,17 +188,6 @@
         </div>
 
         <!------------------>
-
-        <!-- GLEASON 4 CELLS COUNT -->
-        <div class="form-group row" ng-show="cmCtrl.gleason4ToolActive() && cmCtrl.rulerExists()">
-            <div class="prm-label-elem">
-                <label>Cells count</label>
-            </div>
-            <div class="prm-row-elem">
-                <input class="form-control" type="number" ng-model="cmCtrl.tmpG4CellsCount">
-            </div>
-        </div>
-        <!--------------------------->
 
         <!-- TEMPORARY GLEASON 4 CONTROLS -->
         <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
