@@ -1516,7 +1516,7 @@
         }
 
         function gleason4DataValid() {
-            return typeof (vm.tmpG4Shape) !== 'undefined';
+            return (typeof(vm.tmpG4Shape) !== 'undefined' && typeof(vm.tmpGType) !== 'undefined');
         }
 
         function initializeRuler() {
