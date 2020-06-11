@@ -1400,6 +1400,9 @@
         vm.acceptTemporaryGleason4 = acceptTemporaryGleason4;
         vm._hideGleason4Element = _hideGleason4Element;
         vm._showGleason4Element = _showGleason4Element;
+        vm._showExistingGleason4Elements = _showExistingGleason4Elements;
+        vm._restoreGleasonElementsVisibility = _restoreGleasonElementsVisibility;
+        vm.gleasonElementVisible = gleasonElementVisible;
         vm.showHideGleason4Element = showHideGleason4Element;
         vm.deleteGleason4Element = deleteGleason4Element;
         vm.updateRegionLength = updateRegionLength;
@@ -1498,11 +1501,13 @@
 
         function startGleason4Tool() {
             vm.gleason4ModeActive = true;
+            vm._showExistingGleason4Elements();
         }
 
         function stopGleason4Tool() {
             vm.gleason4ModeActive = false;
             vm.tmpG4CellsCount = undefined;
+            vm._restoreGleasonElementsVisibility();
         }
 
         function abortGleason4Tool(g4_shape_id) {
@@ -1711,7 +1716,7 @@
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
             vm.abortGleason4Tool(old_gleason_4_shape_id);
-            vm._showGleason4Element(gleason_4_shape_id);
+            vm._showGleason4Element(gleason_4_shape_id, true);
         }
 
         function isReadOnly() {
@@ -1789,29 +1794,50 @@
             }
         }
 
-        function _hideGleason4Element(element_id) {
+        function gleasonElementVisible(element_id) {
+            return (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1);
+        }
+
+        function _hideGleason4Element(element_id, record_status) {
             AnnotationsViewerService.deleteShape(
                 vm.gleason4Elements[element_id].json_path.shape_id
             );
-            $("#" + element_id).addClass('prm-pale-icon');
-            removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+            if (record_status) {
+                removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+            }
         }
 
-        function _showGleason4Element(element_id) {
+        function _showGleason4Element(element_id, record_status) {
+
             AnnotationsViewerService.drawShape(
                 vm.gleason4Elements[element_id].json_path
             );
-            $("#" + element_id).removeClass('prm-pale-icon');
-            vm.displayedGleason4ElementsLabels.push(element_id);
+            if (record_status) {
+                vm.displayedGleason4ElementsLabels.push(element_id);
+            }
+        }
+
+        function _showExistingGleason4Elements() {
+            for (var i=0; i<vm.gleason4ElementsLabels.length; i++) {
+                vm._showGleason4Element(vm.gleason4ElementsLabels[i], false);
+            }
+        }
+
+        function _restoreGleasonElementsVisibility() {
+            for (var i=0; i<vm.gleason4ElementsLabels.length; i++) {
+                if (vm.displayedGleason4ElementsLabels.indexOf(vm.gleason4ElementsLabels[i]) === -1) {
+                    vm._hideGleason4Element(vm.gleason4ElementsLabels[i], false);
+                }
+            }
         }
 
         function showHideGleason4Element(element_id) {
             if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
                 // hide element
-                vm._hideGleason4Element(element_id);
+                vm._hideGleason4Element(element_id, true);
             } else {
                 // show element
-                vm._showGleason4Element(element_id);
+                vm._showGleason4Element(element_id, true);
             }
         }
 
