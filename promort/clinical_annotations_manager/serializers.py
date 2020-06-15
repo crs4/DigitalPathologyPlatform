@@ -101,7 +101,7 @@ class GleasonElementSerializer(serializers.ModelSerializer):
         fields = ('id', 'gleason_type', 'gleason_label', 'json_path', 'area',
                   'cellular_density_helper_json', 'cellular_density', 'cells_count',
                   'creation_date')
-        read_only_fields = ('gleason_label', 'creation_date')
+        read_only_fields = ('gleason_label',)
 
     @staticmethod
     def get_gleason_label(obj):

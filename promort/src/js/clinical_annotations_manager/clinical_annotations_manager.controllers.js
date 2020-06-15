@@ -1711,7 +1711,8 @@
                 area: vm.tmpG4ShapeArea,
                 cells_count: vm.tmpG4CellsCount,
                 gleason_type: vm.tmpGType,
-                gleason_label: vm.gleason_types_map[vm.tmpGType]
+                gleason_label: vm.gleason_types_map[vm.tmpGType],
+                creation_date: new Date()
             };
             vm.gleason4ElementsLabels.push(gleason_4_shape_id);
             vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
