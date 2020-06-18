@@ -1295,11 +1295,12 @@
     }
 
     NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
-        'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService'];
+        'FocusRegionsManagerService', 'FocusRegionAnnotationsManagerService', 'AnnotationsViewerService',
+        'ClinicalAnnotationStepManagerService'];
 
     function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
                                                 FocusRegionsManagerService, FocusRegionAnnotationsManagerService,
-                                                AnnotationsViewerService) {
+                                                AnnotationsViewerService, ClinicalAnnotationStepManagerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -1339,17 +1340,21 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
-        vm.gleason4ModeActive = false;
+        vm.gleason_element_types = undefined;
+        vm.gleason_types_map = undefined;
 
-        vm.tmpG4Shape = undefined;
-        vm.tmpG4ShapeArea = undefined;
-        vm.tmpG4CellularDensityHelperShape = undefined;
-        vm.tmpG4CellularDensity = undefined;
-        vm.tmpG4CellsCount = undefined;
+        vm.gleasonModeActive = false;
 
-        vm.gleason4Elements = undefined;
-        vm.gleason4ElementsLabels = undefined;
-        vm.displayedGleason4ElementsLabels = undefined;
+        vm.tmpGleasonShape = undefined;
+        vm.tmpGleasonShapeArea = undefined;
+        vm.tmpGleasonCellularDensityHelperShape = undefined;
+        vm.tmpGleasonCellularDensity = undefined;
+        vm.tmpGleasonType = undefined;
+        vm.tmpGleasonCellsCount = undefined;
+
+        vm.gleasonElements = undefined;
+        vm.gleasonElementsLabels = undefined;
+        vm.displayedGleasonElementsLabels = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -1365,11 +1370,11 @@
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
-        vm.startGleason4Tool = startGleason4Tool;
-        vm.stopGleason4Tool = stopGleason4Tool;
-        vm.abortGleason4Tool = abortGleason4Tool;
-        vm.gleason4ToolActive = gleason4ToolActive;
-        vm.gleason4DataValid = gleason4DataValid;
+        vm.startGleasonTool = startGleasonTool;
+        vm.stopGleasonTool = stopGleasonTool;
+        vm.abortGleasonTool = abortGleasonTool;
+        vm.gleasonToolActive = gleasonToolActive;
+        vm.gleasonDataValid = gleasonDataValid;
         vm.initializeRuler = initializeRuler;
         vm.startRuler = startRuler;
         vm.rulerToolActive = rulerToolActive;
@@ -1389,12 +1394,17 @@
         vm.showRuler = showRuler;
         vm.hideRuler = hideRuler;
         vm.showHideRuler = showHideRuler;
-        vm._getG4ElementIndexLabel = _getG4ElementIndexLabel;
-        vm.acceptTemporaryGleason4 = acceptTemporaryGleason4;
-        vm._hideGleason4Element = _hideGleason4Element;
-        vm._showGleason4Element = _showGleason4Element;
-        vm.showHideGleason4Element = showHideGleason4Element;
-        vm.deleteGleason4Element = deleteGleason4Element;
+        vm.selectRuler = selectRuler;
+        vm.deselectRuler = deselectRuler;
+        vm._getGleasonElementIndexLabel = _getGleasonElementIndexLabel;
+        vm.acceptTemporaryGleason = acceptTemporaryGleason;
+        vm._hideGleasonElement = _hideGleasonElement;
+        vm._showGleasonElement = _showGleasonElement;
+        vm._showExistingGleasonElements = _showExistingGleasonElements;
+        vm._restoreGleasonElementsVisibility = _restoreGleasonElementsVisibility;
+        vm.gleasonElementVisible = gleasonElementVisible;
+        vm.showHideGleasonElement = showHideGleasonElement;
+        vm.deleteGleasonElement = deleteGleasonElement;
         vm.updateRegionLength = updateRegionLength;
         vm.updateRegionArea = updateRegionArea;
 
@@ -1406,9 +1416,9 @@
 
             vm.clinical_annotation_step_label = $routeParams.label;
 
-            vm.gleason4Elements = {};
-            vm.gleason4ElementsLabels = [];
-            vm.displayedGleason4ElementsLabels = [];
+            vm.gleasonElements = {};
+            vm.gleasonElementsLabels = [];
+            vm.displayedGleasonElementsLabels = [];
 
             $scope.$on('focus_region_annotation.new',
                 function(event, focus_region_id) {
@@ -1426,6 +1436,17 @@
                 vm.updateRegionLength();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.focusRegionTissueStatus = response.data.tissue_status;
+
+                ClinicalAnnotationStepManagerService.fetchGleasonElementTypes()
+                    .then(fetchGleasonElementTypesSuccessFn);
+                // initialize Gleason element labels
+                function fetchGleasonElementTypesSuccessFn(response) {
+                    vm.gleason_element_types = response.data;
+                    vm.gleason_types_map = {};
+                    for (var i=0; i<vm.gleason_element_types.length; i++) {
+                        vm.gleason_types_map[vm.gleason_element_types[i].value] = vm.gleason_element_types[i].text;
+                    }
+                }
             }
 
             function getFocusRegionErrorFn(response) {
@@ -1443,8 +1464,8 @@
         function _clean() {
             vm.clearRuler();
 
-            for (var el in vm.gleason4ElementsLabels) {
-                vm._hideGleason4Element(vm.gleason4ElementsLabels[el]);
+            for (var el in vm.gleasonElementsLabels) {
+                vm._hideGleasonElement(vm.gleasonElementsLabels[el]);
             }
 
             vm.focus_region_id = undefined;
@@ -1468,52 +1489,55 @@
             vm.adenosis = false;
             vm.cellsCount = undefined;
 
-            vm.gleason4Elements = {};
-            vm.gleason4ElementsLabels = [];
-            vm.displayedGleason4ElementsLabels = [];
+            vm.gleasonElements = {};
+            vm.gleasonElementsLabels = [];
+            vm.displayedGleasonElementsLabels = [];
 
             AnnotationsViewerService.disableActiveTool();
             vm.ruler_tool_active = false;
             vm.ruler_hidden = true;
-            vm.stopGleason4Tool();
+            vm.stopGleasonTool();
         }
 
-        function startGleason4Tool() {
-            vm.gleason4ModeActive = true;
+        function startGleasonTool() {
+            vm.gleasonModeActive = true;
+            vm._showExistingGleasonElements();
         }
 
-        function stopGleason4Tool() {
-            vm.gleason4ModeActive = false;
+        function stopGleasonTool() {
+            vm.gleasonModeActive = false;
+            vm.tmpGleasonCellsCount = undefined;
+            vm._restoreGleasonElementsVisibility();
         }
 
-        function abortGleason4Tool(g4_shape_id) {
+        function abortGleasonTool(g4_shape_id) {
             vm.abortRuler();
             vm.clearRuler(g4_shape_id);
-            vm.stopGleason4Tool();
+            vm.stopGleasonTool();
         }
 
-        function gleason4ToolActive() {
-            return vm.gleason4ModeActive;
+        function gleasonToolActive() {
+            return vm.gleasonModeActive;
         }
 
-        function gleason4DataValid() {
-            return typeof (vm.tmpG4Shape) !== 'undefined';
+        function gleasonDataValid() {
+            return (typeof(vm.tmpGleasonShape) !== 'undefined' && typeof(vm.tmpGleasonType) !== 'undefined');
         }
 
         function initializeRuler() {
             AnnotationsViewerService.createAreaRulerBindings('area_ruler_switch_on',
-                'gleason_4_area_output');
+                'gleason_area_output');
         }
 
         function showRuler() {
-            AnnotationsViewerService.drawShape(vm.tmpG4Shape);
+            AnnotationsViewerService.drawShape(vm.tmpGleasonShape);
             $(".show_ruler").removeClass('prm-pale-icon');
             vm.ruler_hidden = false;
         }
 
         function hideRuler(shape_id) {
-            var g4_ruler_id = typeof (shape_id) === 'undefined' ? vm.tmpG4Shape.shape_id : shape_id;
-            AnnotationsViewerService.deleteShape(g4_ruler_id);
+            var g_ruler_id = typeof (shape_id) === 'undefined' ? vm.tmpGleasonShape.shape_id : shape_id;
+            AnnotationsViewerService.deleteShape(g_ruler_id);
             $(".show_ruler").addClass('prm-pale-icon');
             vm.ruler_hidden = true;
         }
@@ -1526,8 +1550,16 @@
             }
         }
 
+        function selectRuler(shape_id) {
+            AnnotationsViewerService.selectShape(shape_id);
+        }
+
+        function deselectRuler(shape_id) {
+            AnnotationsViewerService.deselectShape(shape_id);
+        }
+
         function startRuler() {
-            var $ruler_out = $("#gleason_4_area_output");
+            var $ruler_out = $("#gleason_area_output");
             AnnotationsViewerService.bindAreaRulerToShape(vm.focus_region_label);
             $ruler_out
                 .on('area_ruler_paused',
@@ -1539,8 +1571,8 @@
                 )
                 .on('area_ruler_updated',
                     function() {
-                        vm.tmpG4ShapeArea = $ruler_out.data('measure');
-                        vm.tmpG4Shape = $ruler_out.data('ruler_json');
+                        vm.tmpGleasonShapeArea = $ruler_out.data('measure');
+                        vm.tmpGleasonShape = $ruler_out.data('ruler_json');
                     }
                 )
                 .on('area_ruler_empty_intersection',
@@ -1550,8 +1582,8 @@
                             .unbind('area_ruler_updated')
                             .unbind('area_ruler_empty_intersection')
                             .unbind('area_ruler_paused');
-                        vm.tmpG4Shape = undefined;
-                        vm.tmpG4ShapeArea = undefined;
+                        vm.tmpGleasonShape = undefined;
+                        vm.tmpGleasonShapeArea = undefined;
                         vm.area_ruler_tool_paused = false;
                         AnnotationsViewerService.disableActiveTool();
                         $scope.$apply();
@@ -1582,7 +1614,7 @@
         }
 
         function temporaryRulerValid() {
-            $log.debug('TEMPORARY G4 SHAPE VALID: ' + AnnotationsViewerService.tmpAreaRulerValid());
+            $log.debug('TEMPORARY GLEASON SHAPE VALID: ' + AnnotationsViewerService.tmpAreaRulerValid());
             return AnnotationsViewerService.tmpAreaRulerValid();
         }
 
@@ -1591,7 +1623,7 @@
         }
 
         function pauseRuler() {
-            $log.debug('G4 ruler paused');
+            $log.debug('Gleason ruler paused');
             AnnotationsViewerService.disableActiveTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.deactivateAreaRulerPreviewMode();
@@ -1600,7 +1632,7 @@
         }
 
         function unpauseRuler() {
-            $log.debug('G4 ruler unpaused');
+            $log.debug('Gleason ruler unpaused');
             AnnotationsViewerService.startAreaRulerTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.activateAreaRulerPreviewMode();
@@ -1631,7 +1663,7 @@
 
         function abortRuler() {
             AnnotationsViewerService.clearAreaRuler();
-            var $ruler_out = $("#gleason_4_area_output");
+            var $ruler_out = $("#gleason_area_output");
             $ruler_out
                 .unbind('area_ruler_updated')
                 .unbind('area_ruler_empty_intersection')
@@ -1641,11 +1673,12 @@
         }
 
         function clearRuler(ruler_shape_id) {
-            if (vm.tmpG4Shape) {
+            if (vm.tmpGleasonShape) {
                 vm.hideRuler(ruler_shape_id);
             }
-            vm.tmpG4Shape = undefined;
-            vm.tmpG4ShapeArea = undefined;
+            vm.tmpGleasonShape = undefined;
+            vm.tmpGleasonShapeArea = undefined;
+            vm.tmpGleasonType = undefined;
         }
 
         function rulerToolActive() {
@@ -1653,14 +1686,14 @@
         }
 
         function rulerExists() {
-            return (typeof vm.tmpG4Shape !== 'undefined');
+            return (typeof vm.tmpGleasonShape !== 'undefined');
         }
 
-        function _getG4ElementIndexLabel() {
+        function _getGleasonElementIndexLabel() {
             var index = 1;
             var valid_label = false;
             while (!valid_label) {
-                if (vm.gleason4ElementsLabels.indexOf('g4_element_' + index) !== -1) {
+                if (vm.gleasonElementsLabels.indexOf('GL_item_' + index) !== -1) {
                     index += 1;
                 } else {
                     valid_label = true;
@@ -1669,20 +1702,22 @@
             return index;
         }
 
-        function acceptTemporaryGleason4() {
-            var old_gleason_4_shape_id = vm.tmpG4Shape.shape_id;
-            var gleason_4_shape_id = 'g4_element_' + vm._getG4ElementIndexLabel();
-            vm.tmpG4Shape.shape_id = gleason_4_shape_id;
-            var tmp_g4_object = {
-                json_path: vm.tmpG4Shape,
-                area: vm.tmpG4ShapeArea,
-                cells_count: vm.tmpG4CellsCount,
-                gleason_type: 'G4'
+        function acceptTemporaryGleason() {
+            var old_gleason_shape_id = vm.tmpGleasonShape.shape_id;
+            var gleason_shape_id = 'GL_item_' + vm._getGleasonElementIndexLabel();
+            vm.tmpGleasonShape.shape_id = gleason_shape_id;
+            var tmp_g_object = {
+                json_path: vm.tmpGleasonShape,
+                area: vm.tmpGleasonShapeArea,
+                cells_count: vm.tmpGleasonCellsCount,
+                gleason_type: vm.tmpGleasonType,
+                gleason_label: vm.gleason_types_map[vm.tmpGleasonType],
+                creation_date: new Date()
             };
-            vm.gleason4ElementsLabels.push(gleason_4_shape_id);
-            vm.gleason4Elements[gleason_4_shape_id] = tmp_g4_object;
-            vm.abortGleason4Tool(old_gleason_4_shape_id);
-            vm._showGleason4Element(gleason_4_shape_id);
+            vm.gleasonElementsLabels.push(gleason_shape_id);
+            vm.gleasonElements[gleason_shape_id] = tmp_g_object;
+            vm.abortGleasonTool(old_gleason_shape_id);
+            vm._showGleasonElement(gleason_shape_id, true);
         }
 
         function isReadOnly() {
@@ -1702,7 +1737,7 @@
         }
 
         function formValid() {
-            return !vm.gleason4ToolActive();
+            return !vm.gleasonToolActive();
         }
 
         function destroy() {
@@ -1720,9 +1755,9 @@
                 closeByDocument: false
             });
             // build the list with Gleason 4 elements
-            var gleason_4_elements = Object.keys(vm.gleason4Elements).map(
+            var gleason_elements = Object.keys(vm.gleasonElements).map(
                 function(key) {
-                    return vm.gleason4Elements[key];
+                    return vm.gleasonElements[key];
                 }
             );
             var obj_config = {
@@ -1740,7 +1775,7 @@
                 atrophic_lesions: vm.atrophicLesions,
                 adenosis: vm.adenosis,
                 cells_count: vm.cellsCount,
-                gleason_elements: gleason_4_elements
+                gleason_elements: gleason_elements
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_label, obj_config)
@@ -1760,39 +1795,60 @@
             }
         }
 
-        function _hideGleason4Element(element_id) {
+        function gleasonElementVisible(element_id) {
+            return (vm.displayedGleasonElementsLabels.indexOf(element_id) !== -1);
+        }
+
+        function _hideGleasonElement(element_id, record_status) {
             AnnotationsViewerService.deleteShape(
-                vm.gleason4Elements[element_id].json_path.shape_id
+                vm.gleasonElements[element_id].json_path.shape_id
             );
-            $("#" + element_id).addClass('prm-pale-icon');
-            removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+            if (record_status) {
+                removeItemFromArray(element_id, vm.displayedGleasonElementsLabels);
+            }
         }
 
-        function _showGleason4Element(element_id) {
+        function _showGleasonElement(element_id, record_status) {
+
             AnnotationsViewerService.drawShape(
-                vm.gleason4Elements[element_id].json_path
+                vm.gleasonElements[element_id].json_path
             );
-            $("#" + element_id).removeClass('prm-pale-icon');
-            vm.displayedGleason4ElementsLabels.push(element_id);
+            if (record_status) {
+                vm.displayedGleasonElementsLabels.push(element_id);
+            }
         }
 
-        function showHideGleason4Element(element_id) {
-            if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
+        function _showExistingGleasonElements() {
+            for (var i=0; i<vm.gleasonElementsLabels.length; i++) {
+                vm._showGleasonElement(vm.gleasonElementsLabels[i], false);
+            }
+        }
+
+        function _restoreGleasonElementsVisibility() {
+            for (var i=0; i<vm.gleasonElementsLabels.length; i++) {
+                if (vm.displayedGleasonElementsLabels.indexOf(vm.gleasonElementsLabels[i]) === -1) {
+                    vm._hideGleasonElement(vm.gleasonElementsLabels[i], false);
+                }
+            }
+        }
+
+        function showHideGleasonElement(element_id) {
+            if (vm.displayedGleasonElementsLabels.indexOf(element_id) !== -1) {
                 // hide element
-                vm._hideGleason4Element(element_id);
+                vm._hideGleasonElement(element_id, true);
             } else {
                 // show element
-                vm._showGleason4Element(element_id);
+                vm._showGleasonElement(element_id, true);
             }
         }
 
-        function deleteGleason4Element(element_id) {
-            if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
+        function deleteGleasonElement(element_id) {
+            if (vm.displayedGleasonElementsLabels.indexOf(element_id) !== -1) {
                 // hide element
-                vm._hideGleason4Element(element_id);
+                vm._hideGleasonElement(element_id);
             }
-            removeItemFromArray(element_id, vm.gleason4ElementsLabels);
-            delete(vm.gleason4Elements[element_id]);
+            removeItemFromArray(element_id, vm.gleasonElementsLabels);
+            delete(vm.gleasonElements[element_id]);
         }
 
         function updateRegionArea() {
@@ -1852,9 +1908,9 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
         ];
 
-        vm.gleason4Elements = undefined;
-        vm.gleason4ElementsLabels = undefined;
-        vm.displayedGleason4ElementsLabels = undefined;
+        vm.gleasonElements = undefined;
+        vm.gleasonElementsLabels = undefined;
+        vm.displayedGleasonElementsLabels = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -1867,9 +1923,11 @@
         vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
-        vm._hideGleason4Element = _hideGleason4Element;
-        vm._showGleason4Element = _showGleason4Element;
-        vm.showHideGleason4Element = showHideGleason4Element;
+        vm._hideGleasonElement = _hideGleasonElement;
+        vm._showGleasonElement = _showGleasonElement;
+        vm.showHideGleasonElement = showHideGleasonElement;
+        vm.selectRuler = selectRuler;
+        vm.deselectRuler = deselectRuler;
         vm.updateRegionLength = updateRegionLength;
         vm.updateRegionArea = updateRegionArea;
 
@@ -1914,21 +1972,21 @@
                 vm.adenosis = response.data.adenosis;
                 vm.cellsCount = response.data.cells_count;
 
-                vm.gleason4Elements = {};
-                vm.gleason4ElementsLabels = [];
-                vm.displayedGleason4ElementsLabels = [];
-                // load Gleason 4 elements
-                var gleason_4_elements = response.data.gleason_4_elements;
-                for (var g4_el in gleason_4_elements) {
-                    var g4e = gleason_4_elements[g4_el];
-                    g4e.json_path = $.parseJSON(g4e.json_path);
-                    vm.gleason4ElementsLabels.push(g4e.json_path.shape_id);
-                    vm.gleason4Elements[g4e.json_path.shape_id] = g4e;
+                vm.gleasonElements = {};
+                vm.gleasonElementsLabels = [];
+                vm.displayedGleasonElementsLabels = [];
+                // load Gleason elements
+                var gleason_elements = response.data.gleason_elements;
+                for (var g_el in gleason_elements) {
+                    var ge = gleason_elements[g_el];
+                    ge.json_path = $.parseJSON(ge.json_path);
+                    vm.gleasonElementsLabels.push(ge.json_path.shape_id);
+                    vm.gleasonElements[ge.json_path.shape_id] = ge;
                 }
 
                 $(".show_ruler").addClass('prm-pale-icon');
                 $(".show_cc_helper_addon").addClass('prm-pale-icon');
-                $(".g4_show_cc_helper_addon").addClass('prm-pale-icon');
+                $(".g_show_cc_helper_addon").addClass('prm-pale-icon');
             }
 
             function getFocusRegionAnnotationErrorFn(response) {
@@ -2007,9 +2065,9 @@
             function deleteFocusRegionAnnotationSuccessFn(response) {
                 $rootScope.$broadcast('focus_region_annotation.deleted', vm.focus_region_label, vm.focus_region_id);
 
-                if (vm.ruler_hidden === false) {
-                    AnnotationsViewerService.deleteShape(vm.gleason4Shape.shape_id);
-                }
+                // if (vm.ruler_hidden === false) {
+                //     AnnotationsViewerService.deleteShape(vm.gleasonShape.shape_id);
+                // }
 
                 vm.focus_region_id = undefined;
                 vm.focus_region_label = undefined;
@@ -2032,11 +2090,11 @@
                 vm.adenosis = false;
                 vm.cellsCount = undefined;
 
-                for (var el in vm.gleason4ElementsLabels) {
-                    vm._hideGleason4Element(vm.gleason4ElementsLabels[el]);
+                for (var el in vm.gleasonElementsLabels) {
+                    vm._hideGleasonElement(vm.gleasonElementsLabels[el]);
                 }
 
-                vm.ruler_hidden = true;
+                // vm.ruler_hidden = true;
 
                 dialog.close();
             }
@@ -2048,30 +2106,38 @@
             }
         }
 
-        function _hideGleason4Element(element_id) {
+        function _hideGleasonElement(element_id) {
             AnnotationsViewerService.deleteShape(
-                vm.gleason4Elements[element_id].json_path.shape_id
+                vm.gleasonElements[element_id].json_path.shape_id
             );
             $("#" + element_id + "_ro").addClass('prm-pale-icon');
-            removeItemFromArray(element_id, vm.displayedGleason4ElementsLabels);
+            removeItemFromArray(element_id, vm.displayedGleasonElementsLabels);
         }
 
-        function _showGleason4Element(element_id) {
+        function _showGleasonElement(element_id) {
             AnnotationsViewerService.drawShape(
-                vm.gleason4Elements[element_id].json_path
+                vm.gleasonElements[element_id].json_path
             );
             $("#" + element_id + "_ro").removeClass('prm-pale-icon');
-            vm.displayedGleason4ElementsLabels.push(element_id);
+            vm.displayedGleasonElementsLabels.push(element_id);
         }
 
-        function showHideGleason4Element(element_id) {
-            if (vm.displayedGleason4ElementsLabels.indexOf(element_id) !== -1) {
+        function showHideGleasonElement(element_id) {
+            if (vm.displayedGleasonElementsLabels.indexOf(element_id) !== -1) {
                 // hide element
-                vm._hideGleason4Element(element_id);
+                vm._hideGleasonElement(element_id);
             } else {
                 // show element
-                vm._showGleason4Element(element_id);
+                vm._showGleasonElement(element_id);
             }
+        }
+
+        function selectRuler(shape_id) {
+            AnnotationsViewerService.selectShape(shape_id);
+        }
+
+        function deselectRuler(shape_id) {
+            AnnotationsViewerService.deselectShape(shape_id);
         }
 
         function updateRegionArea() {

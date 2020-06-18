@@ -94,10 +94,18 @@ class CoreAnnotationInfosSerializer(serializers.ModelSerializer):
 
 
 class GleasonElementSerializer(serializers.ModelSerializer):
+    gleason_label = serializers.SerializerMethodField()
+
     class Meta:
         model = GleasonElement
-        fields = ('id', 'gleason_type', 'json_path', 'area', 'cellular_density_helper_json',
-                  'cellular_density', 'cells_count')
+        fields = ('id', 'gleason_type', 'gleason_label', 'json_path', 'area',
+                  'cellular_density_helper_json', 'cellular_density', 'cells_count',
+                  'creation_date')
+        read_only_fields = ('gleason_label',)
+
+    @staticmethod
+    def get_gleason_label(obj):
+        return obj.get_gleason_type_label()
 
     @staticmethod
     def validate_json_path(value):
@@ -124,7 +132,6 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     gleason_elements = GleasonElementSerializer(many=True)
-    gleason_4_elements = serializers.SerializerMethodField()
 
     class Meta:
         model = FocusRegionAnnotation
@@ -132,8 +139,8 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
                   'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous', 'comedo_necrosis',
                   'inflammation', 'pah', 'atrophic_lesions', 'adenosis', 'cellular_density_helper_json',
-                  'cellular_density', 'cells_count', 'gleason_elements', 'gleason_4_elements')
-        read_only_fields = ('creation_date', 'gleason_4_elements')
+                  'cellular_density', 'cells_count', 'gleason_elements')
+        read_only_fields = ('creation_date',)
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 
     def create(self, validated_data):
@@ -142,10 +149,6 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
         for element_data in gleason_elements_data:
             GleasonElement.objects.create(focus_region_annotation=annotation, **element_data)
         return annotation
-
-    @staticmethod
-    def get_gleason_4_elements(obj):
-        return [GleasonElementSerializer(g4_el).data for g4_el in obj.get_gleason_4_elements()]
 
 
 class FocusRegionAnnotationDetailsSerializer(FocusRegionAnnotationSerializer):
