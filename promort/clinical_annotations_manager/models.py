@@ -140,11 +140,11 @@ class FocusRegionAnnotation(models.Model):
 
 class GleasonElement(models.Model):
     GLEASON_TYPES = (
-        ('G1', 'GLEASON_1'),
-        ('G2', 'GLEASON_2'),
-        ('G3', 'GLEASON_3'),
-        ('G4', 'GLEASON_4'),
-        ('G5', 'GLEASON_5')
+        ('G1', 'GLEASON 1'),
+        ('G2', 'GLEASON 2'),
+        ('G3', 'GLEASON 3'),
+        ('G4', 'GLEASON 4'),
+        ('G5', 'GLEASON 5')
     )
     focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
                                                 blank=False, on_delete=models.CASCADE)
@@ -154,3 +154,9 @@ class GleasonElement(models.Model):
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
+    creation_date = models.DateTimeField(default=timezone.now)
+
+    def get_gleason_type_label(self):
+        for choice in self.GLEASON_TYPES:
+            if choice[0] == self.gleason_type:
+                return choice[1]

@@ -71,42 +71,32 @@
         </div>
     </div>
 
-    <div class="form-group row" ng-hide="cmCtrl.isReadOnly() && !cmCtrl.isCancerousRegion()">
-        <div class="prm-label-elem">
-            <label>Region cells count</label>
-        </div>
-        <div class="prm-row-elem">
-            <input class="form-control" type="number" ng-model="cmCtrl.cellsCount"
-                   ng-readonly="cmCtrl.isLocked() || cmCtrl.isReadOnly() || cmCtrl.gleason4ToolActive()">
-        </div>
-    </div>
-
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked() || cmCtrl.isStressedRegion()">
-        <legend class="prm-legend">Gleason 4 Data</legend>
+        <legend class="prm-legend">Gleason Data</legend>
 
-        <!-- ACQUIRE NEW GLEASON 4 AREA -->
-        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
+        <!-- ACQUIRE NEW GLEASON AREA -->
+        <div class="form-group row" ng-hide="cmCtrl.gleasonToolActive() || cmCtrl.isReadOnly()">
             <div class="col-sm-12 text-center prm-valign prm-form-elem">
-                <button id="new_gleason_4" class="btn btn-default"
-                        ng-click="cmCtrl.startGleason4Tool()"
+                <button id="new_gleason" class="btn btn-default"
+                        ng-click="cmCtrl.startGleasonTool()"
                         ng-disabled="cmCtrl.cellularDensityHelperActive()">
-                    Add Gleason 4 Element
+                    Add Gleason Element
                 </button>
             </div>
         </div>
-        <!-- ACQUIRE NEW GLEASON 4 AREA -->
+        <!-- ACQUIRE NEW GLEASON AREA -->
 
-        <!-- NEW GLEASON 4 ELEMENT -->
+        <!-- NEW GLEASON ELEMENT -->
         <div class="form-group row"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerToolActive() || cmCtrl.rulerExists() ||
-                !cmCtrl.gleason4ToolActive()">
+                !cmCtrl.gleasonToolActive()">
             <div class="col-sm-7 prm-valign prm-label-elem">
                 <label>Draw region</label>
             </div><!--
          --><div class="col-sm-5 prm-valign prm-form-elem text-right">
                 <button id="area_ruler_switch_on" class="btn btn-default prm-icon-btn"
                         ng-click="cmCtrl.startRuler()"
-                        ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
+                        ng-disabled="cmCtrl.cellularDensityHelperActive()"
                         title="Draw the shape using the freehand drawing tool">
                     <i class="icon-vector_pen"></i>
                 </button>
@@ -114,19 +104,19 @@
         </div>
         <!--------------------------->
 
-        <!-- GLEASON 4 TOOL ACTIVE -->
+        <!-- GLEASON TOOL ACTIVE -->
         <div class="form-group row" ng-show="cmCtrl.rulerToolActive()"
              ng-hide="cmCtrl.isReadOnly() || cmCtrl.rulerExists() || !cmCtrl.rulerToolActive()">
             <div class="prm-label-elem">
-                <label>Pattern 4 tool</label>
+                <label>Gleason tool</label>
             </div>
             <div class="prm-form-elem text-right">
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.pauseRuler()"
-                        ng-hide="cmCtrl.isRulerPaused()" title="Pause Gleason 4 tool">
+                        ng-hide="cmCtrl.isRulerPaused()" title="Pause Gleason tool">
                     <i class="icon-pause"></i>
                 </button>
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.unpauseRuler()"
-                        ng-show="cmCtrl.isRulerPaused()" title="Resume Gleason 4 tool">
+                        ng-show="cmCtrl.isRulerPaused()" title="Resume Gleason tool">
                     <i class="icon-play"></i>
                 </button>
                 <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="cmCtrl.rollbackRuler()"
@@ -142,7 +132,7 @@
                 </button>
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmRuler()"
                         ng-disabled="!cmCtrl.isRulerPaused() || !cmCtrl.temporaryRulerValid()"
-                        title="Accept temporary Gleason 4">
+                        title="Accept temporary Gleason">
                     <i class="icon-check"></i>
                 </button>
                 <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortRuler()"
@@ -153,24 +143,24 @@
         </div>
         <!--------------------------->
 
-        <!-- SHOW GLEASON 4 DATA -->
+        <!-- SHOW GLEASON DATA -->
         <div id="show_area_measure" class="form-group row" ng-show="!cmCtrl.isReadOnly() && cmCtrl.rulerExists()">
             <div class="prm-label-elem">
                 <label>Region area</label>
             </div>
             <div class="input-group prm-row-elem">
-                <input id="gleason_4_area_output" class="form-control prm-text-input" type="number"
-                       readonly ng-model="cmCtrl.tmpG4ShapeArea">
+                <input id="gleason_area_output" class="form-control prm-text-input" type="number"
+                       readonly ng-model="cmCtrl.tmpGleasonShapeArea">
+                <div class="input-group-addon prm-addon">μm²</div>
                 <!-- TODO: insert unit of measure selector -->
                 <div class="input-group-btn">
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.clearRuler()"
-                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive()"
                             ng-hide="cmCtrl.isReadOnly()" title="Delete the shape">
                         <i class="icon-trash_can"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.showHideRuler()"
-                            ng-disabled="cmCtrl.cellularDensityHelperActive() || cmCtrl.g4CellularDensityHelperActive()
-                                || !cmCtrl.rulerExists()"
+                            ng-disabled="cmCtrl.cellularDensityHelperActive() || !cmCtrl.rulerExists()"
                             title="Adapt the viewer to show the shape at the maximum size">
                         <i class="show_ruler icon-eye"></i>
                     </button>
@@ -179,47 +169,58 @@
         </div>
         <!------------------------->
 
-        <!-- GLEASON 4 CELLS COUNT -->
-        <div class="form-group row" ng-show="cmCtrl.gleason4ToolActive()">
-            <div class="prm-label-elem">
-                <label>Cells count</label>
-            </div>
-            <div class="prm-row-elem">
-                <input class="form-control" type="number" ng-model="cmCtrl.tmpG4CellsCount"
-                       ng-readonly="cmCtrl.rulerToolActive() || !cmCtrl.rulerExists()">
-            </div>
+        <!-- GLEASON TYPE -->
+        <div class="form-group row" ng-show="cmCtrl.gleasonToolActive() && cmCtrl.rulerExists()">
+            <fieldset class="form-group">
+                <div class="prm-label-elem">
+                    <label for="gleasonType">Type</label>
+                </div>
+                <div class="prm-row-elem">
+                    <select class="form-control" id="gleasonType"
+                            ng-model="cmCtrl.tmpGleasonType">
+                        <option value="" disabled selected> ---- </option>
+                        <option value="{{ t.value }}"
+                                ng-repeat="t in cmCtrl.gleason_element_types">{{ t.text }}</option>
+                    </select>
+                </div>
+            </fieldset>
         </div>
-        <!--------------------------->
 
-        <!-- TEMPORARY GLEASON 4 CONTROLS -->
-        <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleason4ToolActive()">
+        <!------------------>
+
+        <!-- TEMPORARY GLEASON CONTROLS -->
+        <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || !cmCtrl.gleasonToolActive()">
             <div class="col-sm-12 prm-row-elem text-right">
                 <button class="btn btn-default prm-icon-btn"
-                        ng-click="cmCtrl.acceptTemporaryGleason4()"
-                        ng-disabled="!cmCtrl.gleason4DataValid()">
+                        ng-click="cmCtrl.acceptTemporaryGleason()"
+                        ng-disabled="!cmCtrl.gleasonDataValid()">
                     <i class="icon-check"></i>
                 </button>
                 <button class="btn btn-default prm-icon-btn"
-                        ng-click="cmCtrl.abortGleason4Tool()">
+                        ng-click="cmCtrl.abortGleasonTool()">
                     <i class="icon-cross_mark"></i>
                 </button>
             </div>
         </div>
         <!---------------------------------->
 
-        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-WRITE MODE -->
-        <div class="form-group row" ng-hide="cmCtrl.gleason4ToolActive() || cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+        <!-- EXISTING GLEASON ELEMENTS LIST READ-WRITE MODE -->
+        <div class="form-group row" ng-hide="cmCtrl.gleasonToolActive() || cmCtrl.isReadOnly()">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g_label in cmCtrl.gleasonElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
-                    <label>{{ g4_label }}</label>
+                    <label>{{ g_label }}</label>
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes" data-placement="top"
+                       ng-mouseenter="cmCtrl.selectRuler(g_label)" ng-mouseleave="cmCtrl.deselectRuler(g_label)"
+                       title="{{ cmCtrl.gleasonElements[g_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">
                     <button class="btn btn-default prm-icon-btn"
-                            ng-click="cmCtrl.showHideGleason4Element(g4_label)">
-                        <i id="{{ g4_label }}" class="icon-eye"></i>
+                            ng-click="cmCtrl.showHideGleasonElement(g_label)">
+                        <i id="{{ g_label }}" class="icon-eye"
+                           ng-class="cmCtrl.gleasonElementVisible(g_label) ? '' : 'prm-pale-icon'"></i>
                     </button>
                     <button class="btn btn-default prm-icon-btn"
-                            ng-click="cmCtrl.deleteGleason4Element(g4_label)">
+                            ng-click="cmCtrl.deleteGleasonElement(g_label)">
                         <i class="icon-cross_mark"></i>
                     </button>
                 </div>
@@ -227,16 +228,19 @@
         </div>
         <!---------------------------------->
 
-        <!-- EXISTING GLEASON 4 ELEMENTS LIST READ-ONLY MODE -->
+        <!-- EXISTING GLEASON ELEMENTS LIST READ-ONLY MODE -->
         <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
-            <div class="col-sm-12 prm-row-elem" ng-repeat="g4_label in cmCtrl.gleason4ElementsLabels">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="g_label in cmCtrl.gleasonElementsLabels">
                 <div class="prm-label-elem prm-valign col-sm-7">
-                    <label>{{ g4_label }}</label>
+                    <label>{{ g_label }}</label>
+                    <i class="icon-information_white" tooltip-notes data-toggle="tooltip-notes" data-placement="top"
+                       ng-mouseenter="cmCtrl.selectRuler(g_label)" ng-mouseleave="cmCtrl.deselectRuler(g_label)"
+                       title="{{ cmCtrl.gleasonElements[g_label].gleason_label }}"></i>
                 </div><!--
              --><div class="prm-valign prm-form-elem text-right col-sm-5">
                     <button class="btn btn-default prm-icon-btn"
-                            ng-click="cmCtrl.showHideGleason4Element(g4_label)">
-                        <i id="{{ g4_label }}_ro" class="icon-eye prm-pale-icon"></i>
+                            ng-click="cmCtrl.showHideGleasonElement(g_label)">
+                        <i id="{{ g_label }}_ro" class="icon-eye prm-pale-icon"></i>
                     </button>
                 </div>
             </div>

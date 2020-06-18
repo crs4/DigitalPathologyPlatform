@@ -34,7 +34,8 @@
     function ClinicalAnnotationStepManagerService($http, $log) {
         var ClinicalAnnotationStepManagerService = {
             clearAnnotations: clearAnnotations,
-            fetchRejectionReasons: fetchRejectionReasons
+            fetchRejectionReasons: fetchRejectionReasons,
+            fetchGleasonElementTypes: fetchGleasonElementTypes
         };
 
         return ClinicalAnnotationStepManagerService;
@@ -45,6 +46,11 @@
 
         function fetchRejectionReasons() {
             return $http.get('api/utils/clinical_step_rejection_reasons/');
+        }
+
+        function fetchGleasonElementTypes() {
+            console.log('Fetch Gleason types from server');
+            return $http.get('api/utils/gleason_element_types/');
         }
     }
 

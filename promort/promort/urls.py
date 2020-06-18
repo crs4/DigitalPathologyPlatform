@@ -138,6 +138,7 @@ urlpatterns = [
     url(r'api/utils/slide_stainings/$', promort_utils.get_slide_stainings),
     url(r'api/utils/slide_not_adequacy_reasons/$', promort_utils.get_slide_qc_not_adequacy_reasons),
     url(r'api/utils/clinical_step_rejection_reasons/$', promort_utils.get_clinical_step_rejection_reasons),
+    url(r'api/utils/gleason_element_types/$', promort_utils.get_gleason_element_types),
     url(r'api/utils/send_report/$', promort_utils.send_user_report),
 
     # ===== ODIN BACKEND ======
