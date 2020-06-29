@@ -1,0 +1,58 @@
+<div class="container-fluid">
+    <!--
+      ~ Copyright (c) 2019, CRS4
+      ~
+      ~ Permission is hereby granted, free of charge, to any person obtaining a copy of
+      ~ this software and associated documentation files (the "Software"), to deal in
+      ~ the Software without restriction, including without limitation the rights to
+      ~ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+      ~ the Software, and to permit persons to whom the Software is furnished to do so,
+      ~ subject to the following conditions:
+      ~
+      ~ The above copyright notice and this permission notice shall be included in all
+      ~ copies or substantial portions of the Software.
+      ~
+      ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      ~ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+      ~ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      ~ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      -->
+    <div id="pg_header" class="page-header prm-no-margin-top prm-lateral_margin">
+        <div class="col-sm-12 text-left prm-valign">
+            <h3>Questionnaire: {{ qrmc.request_label }} --- Step {{ qrmc.getPanelAStepIndex() + 1 }}</h3>
+        </div>
+
+    </div>
+
+    <div id="pg_body" class="col-sm-12">
+        <div id="toolbar" class="col-sm-2 col-sm-offset-10">
+            <div id="slydes-sync" ng-show="qrmc.slidesSyncRequired()" class="material-switch pull-right">
+                <span class="label prm-label"
+                      ng-class="qrmc.slidesSyncEnabled() ? 'label-primary' : 'label-info'">Sync Staining</span>
+                <input id="sync_slides" name="sync_stainings" type="checkbox"
+                       ng-click="qrmc.switchSlidesSync()"/>
+                <label for="sync_slides" class="label-primary"></label>
+            </div>
+        </div>
+
+        <div ng-show="qrmc.showPanelA()" ng-class="qrmc.showPanelB() ? 'col-sm-6' : 'col-sm-12'">
+            <questionnaire-step-panel qp-request-data=" {{ qrmc.getPanelADataRequestTriggerLabel() }}"
+                                      qp-wait-for-it="{{ qrmc.getPanelALoadedTriggerLabel() }}"
+                                      qp-identifier="{{ qrmc.getPanelAId() }}"/>
+        </div>
+        <div ng-show="qrmc.showPanelB()" ng-class="qrmc.showPanelA() ? 'col-sm-6' : 'col-sm-12'">
+            <questionnaire-step-panel qp-wait-for-it="{{ qrmc.getPanelBLoadedTriggerLabel() }}"
+                                      qp-identifier="{{ qrmc.getPanelBId() }}"/>
+        </div>
+    </div>
+
+    <div id="pg_footer" class="prm-lateral_margin col-sm-12 text-center" style="margin-top: 25px">
+        <button type="submit" class="btn btn-primary prm-control-btn-lg" ng-disabled="!qrmc.formValid()"
+                style="font-size: larger" ng-click="qrmc.submitAnswers()">
+            <i class="icon-cloud_upload"></i>
+            <span>Submit</span>
+        </button>
+    </div>
+</div>

@@ -24,8 +24,28 @@
 
     angular
         .module('promort.viewer.controllers')
+        .controller('MiniViewerNavigationController', MiniViewerNavigationController)
         .controller('SimpleViewerController', SimpleViewerController)
-        .controller('AnnotationsViewerController', AnnotationsViewerController);
+        .controller('AnnotationsViewerController', AnnotationsViewerController)
+        .controller('SlidesSequenceViewerController', SlidesSequenceViewerController);
+
+    MiniViewerNavigationController.$inject = ['$scope', '$log', 'SlidesSequenceViewerService'];
+
+    function MiniViewerNavigationController($scope, $log, SlidesSequenceViewerService) {
+        var vm = this;
+        vm.viewer_panel_id = undefined;
+        vm.getNaviItemID = getNaviItemID;
+
+        activate();
+
+        function activate() {
+            vm.viewer_panel_id = $scope.viewerPanelId;
+        }
+
+        function getNaviItemID(item_label) {
+            return SlidesSequenceViewerService.getNaviItemID(vm.viewer_panel_id, item_label);
+        }
+    }
 
     SimpleViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log', 'ViewerService',
         'CurrentSlideDetailsService'];
@@ -241,6 +261,170 @@
             }
             $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
                 clinical_annotation_step_label);
+        }
+    }
+
+    SlidesSequenceViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log',
+        'ViewerService', 'SlidesSetService', 'SlidesSequenceViewerService'];
+
+    function SlidesSequenceViewerController($scope, $routeParams, $rootScope, $location, $log, ViewerService,
+                                            SlidesSetService, SlidesSequenceViewerService) {
+        var vm = this;
+        vm.slides_set_id = undefined;
+        vm.slides_set_label = undefined;
+        vm.dzi_urls = undefined;
+        vm.pages = [];
+        vm.static_files_url = undefined;
+        vm.viewer_identifier = undefined;
+        vm.current_page = undefined;
+
+        vm.addSetItem = addSetItem;
+        vm.isMultiSlidesSet = isMultiSlidesSet;
+        vm.getDZIURLs = getDZIURLs;
+        vm.getStaticFilesURL = getStaticFilesURL;
+        vm.getPages = getPages;
+        vm.isPageActive = isPageActive;
+        vm.getPagesMap = getPagesMap;
+        vm.checkPage = checkPage;
+        vm.getViewerID = getViewerID;
+        vm.registerViewer = registerViewer;
+        vm.goToPage = goToPage;
+        vm.getNaviItemID = getNaviItemID;
+        vm.getSlidesSetLabel = getSlidesSetLabel;
+
+        activate();
+
+        function activate() {
+            vm.viewer_identifier = $scope.viewerIdentifier;
+
+            $scope.$on(
+                $scope.svWaitForIt,
+                function(event, args){
+                    vm.dzi_urls = [];
+                    vm.pages = [];
+                    vm.slides_set_id = args.slides_set_id;
+                    vm.slides_set_label = args.slides_set_label;
+
+                    ViewerService.getOMEBaseURLs()
+                        .then(OMEBaseUrlSuccessFn, OMEBaseUrlErrorFn);
+
+                    function OMEBaseUrlSuccessFn(response) {
+                        var base_url = response.data.base_url;
+                        vm.static_files_url = response.data.static_files_url + '/ome_seadragon/img/openseadragon/';
+
+                        SlidesSetService.get(vm.slides_set_id)
+                            .then(SlidesSetSuccessFn, SlidesSetErrorFn);
+
+                        function SlidesSetSuccessFn(response) {
+                            for (var i=0; i<response.data.items.length; i++) {
+                                vm.addSetItem(response.data.items[i], base_url);
+                            }
+                            vm.current_page = vm.pages[0]['label'];
+
+                            $rootScope.$broadcast($scope.viewerReady,
+                                {'viewer_label': vm.getViewerID(), 'slides_count': vm.pages.length});
+                        }
+
+                        function SlidesSetErrorFn(response) {
+                            $log.error(response.error);
+                            // $location.url('404');
+                        }
+                    }
+
+                    function OMEBaseUrlErrorFn(response) {
+                        $log.error(response.error);
+                        // $location.url('404');
+                    }
+                }
+            )
+
+            $scope.$on('slides_sequence.page.change', function(event, args) {
+                if (args.viewer_id === vm.getViewerID()) {
+                    console.log('Ignore change page trigger, it was me');
+                } else {
+                    console.log('Received order to change to page ' + args.page);
+                    if (vm.checkPage(args.page)) {
+                        console.log('Changing to page ' + args.page);
+                        vm.goToPage(args.page, false);
+                    } else {
+                        console.log('SlidesSet has no page ' + args.page);
+                    }
+                }
+            });
+        }
+
+        function addSetItem(slides_set_item, ome_base_url) {
+            if (slides_set_item.image_type === 'MIRAX') {
+                var dzi_url = ome_base_url + 'mirax/deepzoom/get/' + slides_set_item.slide + '.dzi';
+            } else {
+                var dzi_url = ome_base_url + 'deepzoom/get/' + slides_set_item.omero_id + '.dzi';
+            }
+            vm.dzi_urls.push(dzi_url);
+            vm.pages.push({
+                'label': slides_set_item.set_label,
+                'index': slides_set_item.set_index
+            });
+        }
+
+        function isMultiSlidesSet() {
+            return vm.pages.length > 1;
+        }
+
+        function getDZIURLs() {
+            return vm.dzi_urls;
+        }
+
+        function getStaticFilesURL() {
+            return vm.static_files_url;
+        }
+
+        function getPages() {
+            return vm.pages;
+        }
+
+        function isPageActive(page_label) {
+            return vm.current_page === page_label;
+        }
+
+        function getPagesMap() {
+            var pages = {}
+            for (var i=0; i < vm.pages.length; i++) {
+                pages[vm.pages[i].label] = vm.pages[i].index;
+            }
+            return pages;
+        }
+
+        function checkPage(page_label) {
+            var pages_map = vm.getPagesMap();
+            return pages_map.hasOwnProperty(page_label);
+        }
+
+        function getViewerID() {
+            return vm.viewer_identifier;
+        }
+
+        function registerViewer(viewer) {
+            SlidesSequenceViewerService.registerViewer(vm.getViewerID(), viewer);
+        }
+
+        function goToPage(page_label, trigger_event) {
+            var trigger_event =  typeof trigger_event !== 'undefined' ? trigger_event : true;
+            var pages_map = vm.getPagesMap();
+            SlidesSequenceViewerService.goToPage(vm.getViewerID(), pages_map[page_label]);
+            vm.current_page = page_label;
+            if (trigger_event) {
+                console.log('Trigger page changed event');
+                $rootScope.$broadcast('slides_sequence.page.changed',
+                    {'page': page_label, 'viewer_id': vm.getViewerID()});
+            }
+        }
+
+        function getNaviItemID(item_label) {
+            return SlidesSequenceViewerService.getNaviItemID(vm.getViewerID(), item_label);
+        }
+
+        function getSlidesSetLabel() {
+            return vm.slides_set_label;
         }
     }
 })();

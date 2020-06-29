@@ -1,18 +1,3 @@
-"""promort URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.8/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Add an import:  from blog import urls as blog_urls
-    2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
-"""
 #  Copyright (c) 2019, CRS4
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +26,8 @@ from promort.views import IndexView
 from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
-    CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail
+    CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail, SlidesSetList, SlidesSetDetail
+import questionnaires_manager.views as qmv
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation,\
     UserWorklistClinicalAnnotation, WorkListAdmin
@@ -71,6 +57,24 @@ urlpatterns = [
     url(r'^api/cases/(?P<pk>[\w\-.]+)/$', CaseDetail.as_view()),
     url(r'^api/slides/$', SlideList.as_view()),
     url(r'^api/slides/(?P<pk>[\w\-.]+)/$', SlideDetail.as_view()),
+    url(r'^api/slides_set/$', SlidesSetList.as_view()),
+    url(r'^api/slides_set/(?P<pk>[\w\-.]+)/$', SlidesSetDetail.as_view()),
+
+    # slides questionnaire
+    url(r'api/questions_sets/$', qmv.QuestionsSetList.as_view()),
+    url(r'api/questions_sets/(?P<pk>[\w\-.]+)/$', qmv.QuestionsSetDetail.as_view()),
+    url(r'api/questionnaires/$', qmv.QuestionnaireList.as_view()),
+    url(r'api/questionnaires/(?P<pk>[\w\-.]+)/$', qmv.QuestionnaireDetail.as_view()),
+    url(r'api/questionnaires/(?P<quest_pk>[\w\-.]+)/(?P<step_index>[0-9]+)/$', qmv.QuestionnaireStepDetail.as_view()),
+
+    # slides questionnaire worklist and answers
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/$', qmv.QuestionnaireRequestDetail.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/status/$', qmv.QuestionnaireRequestStatus.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/answers/$', qmv.QuestionnaireRequestAnswers.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/$',
+        qmv.QuestionnaireRequestPanelDetail.as_view()),
+    url(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/answers/$',
+        qmv.QuestionnairePanelAnswersDetail.as_view()),
 
     # ROIs annotation steps details
     url(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/$',

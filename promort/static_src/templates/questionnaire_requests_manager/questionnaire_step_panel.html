@@ -1,0 +1,16 @@
+<div>
+    <div ng-class="qpCtrl.isDualSetsPanel() ? 'col-sm-6' : 'col-sm-12'">
+        <slides-sequence-viewer sv-wait-for-it="{{ qpCtrl.getSlidesSetLoadedTriggerLabel('set_a') }}"
+                                viewer-ready="{{ qpCtrl.getViewerReadyTrigger('set_a') }}"
+                                viewer-identifier="{{ qpCtrl.getSlidesSetPanelIdentifier('set_a') }}"/>
+    </div>
+    <div ng-show="qpCtrl.isDualSetsPanel()" class="col-sm-6">
+        <slides-sequence-viewer sv-wait-for-it="{{ qpCtrl.getSlidesSetLoadedTriggerLabel('set_b') }}"
+                                viewer-ready="{{ qpCtrl.getViewerReadyTrigger('set_b') }}"
+                                viewer-identifier="{{ qpCtrl.getSlidesSetPanelIdentifier('set_b') }}"/>
+    </div>
+    <div ng-class="qpCtrl.isDualPanelQuestionnaire() ? 'col-sm-12' : 'col-sm-6 col-sm-offset-3'">
+        <questions-set-panel qsp-wait-for-it="{{ qpCtrl.getQuestionsLoadedTriggerLabel() }}"
+                             qsp-identifier="{{ qpCtrl.getQuestionsPanelIdentifier() }}"/>
+    </div>
+</div>

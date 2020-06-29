@@ -5,6 +5,7 @@ django:
     - localhost
   static_root: ./static/
   session_cookie: promort_sessionid
+  session_expire_on_close: false
 
 database:
   engine: sqlite3

@@ -26,6 +26,7 @@
         .module('promort.slides_manager.services')
         .factory('CurrentSlideDetailsService', CurrentSlideDetailsService)
         .factory('SlideService', SlideService)
+        .factory('SlidesSetService', SlidesSetService)
         .factory('SlideEvaluationService', SlideEvaluationService);
 
     CurrentSlideDetailsService.$inject = ['$http', '$log'];
@@ -81,6 +82,20 @@
 
         function get(slide_id) {
             return $http.get('api/slides/' + slide_id + '/');
+        }
+    }
+
+    SlidesSetService.$inject = ['$http', '$log'];
+
+    function SlidesSetService($http, $log) {
+        var SlidesSetService = {
+            get: get
+        };
+
+        return SlidesSetService;
+
+        function get(slides_set_id) {
+            return $http.get('api/slides_set/' + slides_set_id + '/');
         }
     }
 

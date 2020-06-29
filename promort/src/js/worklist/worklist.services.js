@@ -36,7 +36,9 @@
             startROIsAnnotation: startROIsAnnotation,
             closeROIsAnnotation: closeROIsAnnotation,
             startClinicalAnnotation: startClinicalAnnotation,
-            closeClinicalAnnotation: closeClinicalAnnotation
+            closeClinicalAnnotation: closeClinicalAnnotation,
+            startQuestionnaireRequest: startQuestionnaireRequest,
+            closeQuestionnaireRequest: closeQuestionnaireRequest
         };
 
         return WorkListService;
@@ -73,6 +75,21 @@
 
         function closeClinicalAnnotation(label) {
             return _clinicalAnnotationAction(label, 'FINISH');
+        }
+
+        function _questionnaireRequestAction(label, action) {
+            return $http.put(
+                '/api/questionnaire_requests/' + label + '/',
+                {action: action}
+            )
+        }
+
+        function startQuestionnaireRequest(label) {
+            return _questionnaireRequestAction(label, 'START');
+        }
+
+        function closeQuestionnaireRequest(label) {
+            return _questionnaireRequestAction(label, 'FINISH');
         }
     }
 

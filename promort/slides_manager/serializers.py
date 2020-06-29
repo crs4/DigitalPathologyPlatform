@@ -21,7 +21,8 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation
+from slides_manager.models import Laboratory, Case, Slide, SlideEvaluation, \
+     SlidesSet, SlidesSetItem
 from reviews_manager.models import ROIsAnnotationStep
 
 
@@ -118,3 +119,47 @@ class SlideDetailSerializer(serializers.ModelSerializer):
                   'image_type', 'image_microns_per_pixel')
         read_only_fields = ('import_date',)
 
+
+class SlidesSetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SlidesSet
+
+        fields = ('id', 'creation_date')
+
+
+class SlidesSetItemSerializer(serializers.ModelSerializer):
+    omero_id = serializers.SerializerMethodField()
+    image_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SlidesSetItem
+
+        fields = ('slide', 'omero_id', 'image_type', 'slides_set', 'set_label', 'set_index')
+
+    @staticmethod
+    def get_omero_id(obj):
+        return obj.slide.omero_id
+
+    @staticmethod
+    def get_image_type(obj):
+        return obj.slide.image_type
+
+
+class SlidesSetItemDetailedSerializer(serializers.ModelSerializer):
+    slide = SlideSerializer(read_only=True)
+    slides_set = SlidesSetSerializer(read_only=True)
+
+    class Meta:
+        model = SlidesSetItem
+
+        fields = ('slide', 'slides_set', 'set_label', 'set_index')
+
+
+class SlidesSetDetailedSerializer(serializers.ModelSerializer):
+    items = SlidesSetItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SlidesSet
+
+        fields = ('id', 'creation_date', 'items')

@@ -26,7 +26,8 @@
         .module('promort.viewer.services')
         .factory('CurrentAnnotationStepsDetailsService', CurrentAnnotationStepsDetailsService)
         .factory('ViewerService', ViewerService)
-        .factory('AnnotationsViewerService', AnnotationsViewerService);
+        .factory('AnnotationsViewerService', AnnotationsViewerService)
+        .factory('SlidesSequenceViewerService', SlidesSequenceViewerService);
 
     CurrentAnnotationStepsDetailsService.$inject = ['$http', '$log'];
 
@@ -428,6 +429,45 @@
         function setShapeStrokeColor(shape_id, color, alpha) {
             var shape = this.roisManager.getShape(shape_id);
             shape.setStrokeColor(color, alpha);
+        }
+    }
+
+    SlidesSequenceViewerService.$inject = ['$log'];
+
+    function SlidesSequenceViewerService($log) {
+        var SlidesSequenceViewerService = {
+            initialize: initialize,
+            registerViewer: registerViewer,
+            getCurrentPage: getCurrentPage,
+            getPagesCount: getPagesCount,
+            goToPage: goToPage,
+            getNaviItemID: getNaviItemID
+        };
+
+        return SlidesSequenceViewerService;
+
+        function initialize() {
+            this.slidesSetViewers = {};
+        }
+
+        function registerViewer(label, viewer) {
+            this.slidesSetViewers[label] = viewer;
+        }
+
+        function getCurrentPage(viewer_label) {
+            return this.slidesSetViewers[viewer_label].getCurrentPage();
+        }
+
+        function getPagesCount(viewer_label) {
+            return this.slidesSetViewers[viewer_label].getPagesCount();
+        }
+
+        function goToPage(viewer_label, page) {
+            return this.slidesSetViewers[viewer_label].goToPage(page);
+        }
+
+        function getNaviItemID(panel_id, item_label) {
+            return panel_id + '_' + item_label;
         }
     }
 })();
