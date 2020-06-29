@@ -72,6 +72,12 @@
                 controllerAs: 'cmc',
                 templateUrl: '/static/templates/clinical_annotations_manager/manager.html'
             })
+            // questionnaire manager
+            .when('/worklist/questionnaire_requests/:label', {
+                controller: 'QuestionnaireRequestsManagerController',
+                controllerAs: 'qrmc',
+                templateUrl: '/static/templates/questionnaire_requests_manager/manager.html'
+            })
             // homepage
             .when('/', {
                 controller: 'AuthenticationController',

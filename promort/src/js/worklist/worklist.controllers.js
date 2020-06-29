@@ -38,12 +38,14 @@
         vm.checkPendingAnnotations = checkPendingAnnotations;
         vm.isROIsAnnotation = isROIsAnnotation;
         vm.isClinicalAnnotation = isClinicalAnnotation;
+        vm.isQuestionnaireRequest = isQuestionnaireRequest;
         vm.canStartClinicalAnnotation = canStartClinicalAnnotation;
         vm.getAnnotationLink = getAnnotationLink;
         vm.startROIsAnnotation = startROIsAnnotation;
         vm.closeROIsAnnotation = closeROIsAnnotation;
         vm.startClinicalAnnotation = startClinicalAnnotation;
         vm.closeClinicalAnnotation = closeClinicalAnnotation;
+        vm.startQuestionnaireRequest = startQuestionnaireRequest;
         
         activate();
         
@@ -84,6 +86,10 @@
             return annotation.annotation_type === 'CLINICAL_ANNOTATION';
         }
 
+        function isQuestionnaireRequest(annotation) {
+            return annotation.annotation_type === 'QUESTIONNAIRE';
+        }
+
         function canStartClinicalAnnotation(annotation) {
             if (vm.isClinicalAnnotation(annotation)) {
                 return annotation.can_be_started;
@@ -97,6 +103,8 @@
                 return 'worklist/rois_annotations/' + annotation.label;
             } else if (vm.isClinicalAnnotation(annotation)) {
                 return 'worklist/clinical_annotations/' + annotation.label;
+            } else if (vm.isQuestionnaireRequest(annotation)) {
+                return 'worklist/questionnaire_requests/' + annotation.label;
             }
         }
         
@@ -114,6 +122,10 @@
 
         function closeClinicalAnnotation(annotation) {
             WorkListService.closeClinicalAnnotation(annotation.label);
+        }
+
+        function startQuestionnaireRequest(annotation) {
+            WorkListService.startQuestionnaireRequest(annotation.label);
         }
     }
     

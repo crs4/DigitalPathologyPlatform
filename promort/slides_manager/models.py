@@ -19,6 +19,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Laboratory(models.Model):
@@ -87,3 +88,26 @@ class SlideEvaluation(models.Model):
         for choice in self.STAINING_CHOICES:
             if choice[0] == self.staining:
                 return choice[1]
+
+
+class SlidesSet(models.Model):
+    id = models.CharField(max_length=40, primary_key=True)
+    creation_date = models.DateTimeField(default=timezone.now)
+
+
+class SlidesSetItem(models.Model):
+    slide = models.ForeignKey(Slide, on_delete=models.PROTECT,
+                              blank=False, unique=False, null=False)
+    slides_set = models.ForeignKey(SlidesSet, on_delete=models.PROTECT,
+                                   blank=False, unique=False, null=False,
+                                   related_name='items')
+    set_label = models.CharField(unique=False, blank=False, null=False,
+                                 max_length=20)
+    set_index = models.IntegerField(unique=False, blank=True, null=True)
+
+    class Meta:
+        unique_together = (
+            ('slide', 'slides_set'),
+            ('slide', 'slides_set', 'set_label'),
+            ('slide', 'slides_set', 'set_index')
+        )
