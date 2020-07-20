@@ -84,6 +84,7 @@ class Command(BaseCommand):
         return related_rois
 
     def _dump_slide_rois(self, slide_id, rois, output_folder):
+        logger.info('Dumping ROIs for slide %s', slide_id)
         rois = self._get_related(rois)
         labels_map = {
             'slice': dict(),
