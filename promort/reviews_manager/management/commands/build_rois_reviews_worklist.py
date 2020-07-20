@@ -24,7 +24,7 @@ from promort.settings import DEFAULT_GROUPS
 from slides_manager.models import Case
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep
 
-from csv import DictReader
+from csv import DictReader, DictWriter
 from uuid import uuid4
 import logging
 
@@ -39,6 +39,8 @@ class Command(BaseCommand):
                             help='a CSV file containing the worklist, if not present reviews will be assigned randomly')
         parser.add_argument('--allow-duplicated', action='store_true', dest='allow_duplicated',
                             help='create worklist even for cases and slides that already have a related review')
+        parser.add_argument('--report-file', dest='report_file', type=str, default=None,
+                            help='a CSV file containing a report of the created ROIs annotation steps')
 
     def _get_rois_manager_users(self):
         rois_manager_group = Group.objects.get(name=DEFAULT_GROUPS['rois_manager']['name'])
@@ -85,32 +87,40 @@ class Command(BaseCommand):
         )
         try:
             annotation_step_obj.save()
+            created = True
             logger.info('Saved new ROIs Annotation Step with label %s', annotation_step_obj.label)
         except IntegrityError:
             annotation_step_obj = ROIsAnnotationStep.objects.get(rois_annotation=rois_annotation_obj, slide=slide_obj)
+            created = False
             logger.info('There is already a ROIs Annotation Step object (label %s)', annotation_step_obj.label)
-        return annotation_step_obj
+        return annotation_step_obj, created
 
     def _create_case_annotation(self, case, reviewer, allow_duplicated):
         if allow_duplicated:
             annotation_objs = [self._create_rois_annotation(case, reviewer)]
         else:
             annotation_objs = self._get_or_create_rois_annotation(case, reviewer)
+        case_annotation_report = list()
         for slide in case.slides.all():
             logger.info('Processing slide %s', slide.id)
             for annotation_obj in annotation_objs:
                 logger.info('Creating steps for ROIs Annotation %s', annotation_obj.label)
-                self._create_rois_annotation_step(annotation_obj, slide)
+                step_obj, created = self._create_rois_annotation_step(annotation_obj, slide)
+                case_annotation_report.append({'slide_id': slide.id, 'reviewer': reviewer,
+                                               'step_label': step_obj.label, 'created': created})
+        return case_annotation_report
 
-    def create_random_worklist(self, allow_duplicated):
+    def create_random_worklist(self, allow_duplicated, report_file=None):
         logger.info('Creating RANDOM worklist')
         rois_managers = self._get_rois_manager_users()
         cases = self._get_cases_list()
         for i, case in enumerate(cases):
             logger.info('Processing case %s', case.id)
-            self._create_case_annotation(case, rois_managers[i % len(rois_managers)], allow_duplicated)
+            case_report = self._create_case_annotation(case, rois_managers[i % len(rois_managers)], allow_duplicated)
+            if report_file:
+                report_file.writerows(case_report)
 
-    def create_worklist_from_file(self, worklist_file, allow_duplicated):
+    def create_worklist_from_file(self, worklist_file, allow_duplicated, report_file=None):
         with open(worklist_file) as f:
             reader = DictReader(f)
             cases_map = self._get_cases_map()
@@ -123,15 +133,25 @@ class Command(BaseCommand):
                 if row['reviewer'] not in reviewers_map:
                     logger.error('There is no reviewer with username %s', row['reviewer'])
                     continue
-                self._create_case_annotation(cases_map[row['case_id']], reviewers_map[row['reviewer']],
-                                             allow_duplicated)
+                case_report = self._create_case_annotation(cases_map[row['case_id']], reviewers_map[row['reviewer']],
+                                                           allow_duplicated)
+                if report_file:
+                    report_file.writerows(case_report)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting ROIs worklist creation ===')
         worklist_file = opts['worklist']
         allow_duplicated = opts['allow_duplicated']
-        if worklist_file:
-            self.create_worklist_from_file(worklist_file, allow_duplicated)
+        if opts['report_file']:
+            report_file = open(opts['report_file'], 'w')
+            report_writer = DictWriter(report_file, ['slide_id', 'reviewer', 'step_label', 'created'])
+            report_writer.writeheader()
         else:
-            self.create_random_worklist(allow_duplicated)
+            report_writer = None
+        if worklist_file:
+            self.create_worklist_from_file(worklist_file, allow_duplicated, report_writer)
+        else:
+            self.create_random_worklist(allow_duplicated, report_writer)
+        if report_writer:
+            report_file.close()
         logger.info('=== ROIs worklist creation completed ===')
