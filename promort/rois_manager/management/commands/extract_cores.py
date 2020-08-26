@@ -42,11 +42,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--output_folder', dest='out_folder', type=str, required=True,
                             help='path of the output folder for the extracted JSON objects')
+        parser.add_argument('--exclude_empty_cores', dest='exclude_empty', action='store_true',
+                            help='exclude cores with 0 focus regions')
+        parser.add_argument('--exclude_rejected', dest='exclude_rejected', action='store_true',
+                            help='exclude cores from review steps rejected by the user')
         parser.add_argument('--limit-bounds', dest='limit_bounds', action='store_true',
                             help='extract ROIs considering only the non-empty slide region')
 
-    def _load_rois_annotation_steps(self):
+    def _load_rois_annotation_steps(self, exclude_rejected):
         steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
+        if exclude_rejected:
+            steps = [s for s in steps if s.slide_evaluation.adequate_slide]
         return steps
 
     def _get_slide_bounds(self, slide):
@@ -68,49 +74,46 @@ class Command(BaseCommand):
         points = list()
         shape = json.loads(roi_json)
         segments = shape['segments']
-        if len(segments) > 0:
-            for x in segments:
-                points.append(
-                    (
-                        x['point']['x'] + int(slide_bounds['bounds_x']),
-                        x['point']['y'] + int(slide_bounds['bounds_y'])
-                    )
+        for x in segments:
+            points.append(
+                (
+                    x['point']['x'] + int(slide_bounds['bounds_x']),
+                    x['point']['y'] + int(slide_bounds['bounds_y'])
                 )
-            return points
-        else:
-            return None
+            )
+        return points
 
     def _extract_bounding_box(self, roi_points):
         polygon = Polygon(roi_points)
         bounds = polygon.bounds
         return [(bounds[0], bounds[1]), (bounds[2], bounds[3])]
 
-    def _dump_focus_region(self, focus_region, slide_id, slide_bounds, out_folder):
-        file_path = os.path.join(out_folder, 'fr_%d.json' % focus_region.id)
-        points = self._extract_points(focus_region.roi_json, slide_bounds)
-        if points:
-            bbox = self._extract_bounding_box(points)
-            with open(file_path, 'w') as ofile:
-                json.dump(points, ofile)
-            return {
-                'slide_id': slide_id,
-                'region_id': focus_region.id,
-                'region_label': focus_region.label,
-                'tissue_status': focus_region.tissue_status,
-                'file_name': 'fr_%d.json' % focus_region.id,
-                'bbox': bbox
-            }
-        else:
-            return None
+    def _dump_core(self, core, slide_id, slide_bounds, out_folder):
+        file_path = os.path.join(out_folder, 'c_%d.json' % core.id)
+        points = self._extract_points(core.roi_json, slide_bounds)
+        bbox = self._extract_bounding_box(points)
+        with open(file_path, 'w') as ofile:
+            json.dump(points, ofile)
+        return {
+            'slide_id': slide_id,
+            'core_id': core.id,
+            'core_label': core.label,
+            'file_name': 'c_%d.json' % core.id,
+            'bbox': bbox,
+            'focus_regions_count': core.focus_regions.count()
+        }
 
     def _dump_details(self, details, out_folder):
-        with open(os.path.join(out_folder, 'focus_regions.csv'), 'w') as ofile:
-            writer = DictWriter(ofile, ['slide_id', 'region_id', 'region_label', 'bbox', 'tissue_status', 'file_name'])
+        with open(os.path.join(out_folder, 'cores.csv'), 'w') as ofile:
+            writer = DictWriter(ofile, ['slide_id', 'core_id', 'core_label', 'focus_regions_count',
+                                        'bbox', 'file_name'])
             writer.writeheader()
             writer.writerows(details)
 
-    def _dump_focus_regions(self, step, out_folder, limit_bounds):
-        focus_regions = step.focus_regions
+    def _dump_cores(self, step, out_folder, exclude_empty, limit_bounds):
+        cores = step.cores
+        if exclude_empty:
+            cores = [c for c in cores if c.focus_regions.count() > 0]
         slide = step.slide
         logger.info('Loading info for slide %s', slide.id)
         if not limit_bounds:
@@ -118,27 +121,27 @@ class Command(BaseCommand):
         else:
             slide_bounds = {'bounds_x': 0, 'bounds_y': 0}
         if slide_bounds:
-            logger.info('Dumping %d focus regions for step %s', len(focus_regions), step.label)
-            if len(focus_regions) > 0:
+            logger.info('Dumping %d cores for step %s', len(cores), step.label)
+            if len(cores) > 0:
                 out_path = os.path.join(out_folder, step.slide.id, step.label)
                 try:
                     os.makedirs(out_path)
                 except OSError:
                     pass
-                focus_regions_details = list()
-                for fr in focus_regions:
-                    frd = self._dump_focus_region(fr, step.slide.id, slide_bounds, out_path)
-                    if frd:
-                        focus_regions_details.append(frd)
-                self._dump_details(focus_regions_details, out_path)
+                cores_details = list()
+                for c in cores:
+                    cores_details.append(
+                        self._dump_core(c, step.slide.id, slide_bounds, out_path)
+                    )
+                self._dump_details(cores_details, out_path)
 
-    def _export_data(self, out_folder, limit_bounds=False):
-        steps = self._load_rois_annotation_steps()
+    def _export_data(self, out_folder, exclude_empty=False, exclude_rejected=False, limit_bounds=False):
+        steps = self._load_rois_annotation_steps(exclude_rejected)
         logger.info('Loaded %d ROIs Annotation Steps', len(steps))
         for s in steps:
-            self._dump_focus_regions(s, out_folder, limit_bounds)
+            self._dump_cores(s, out_folder, exclude_empty, limit_bounds)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        self._export_data(opts['out_folder'], opts['limit_bounds'])
+        self._export_data(opts['out_folder'], opts['exclude_empty'], opts['exclude_rejected'], opts['limit_bounds'])
         logger.info('=== Export completed ===')
