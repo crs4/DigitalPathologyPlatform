@@ -168,6 +168,11 @@ class ClinicalAnnotation(models.Model):
                 return False
         return True
 
+    def reopen(self):
+        if self.is_completed():
+            self.completion_date = None
+            self.save()
+
     def completed_steps_count(self):
         counter = 0
         for step in self.steps.all():
