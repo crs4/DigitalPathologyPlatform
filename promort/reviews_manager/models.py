@@ -168,6 +168,11 @@ class ClinicalAnnotation(models.Model):
                 return False
         return True
 
+    def reopen(self):
+        if self.is_completed():
+            self.completion_date = None
+            self.save()
+
     def completed_steps_count(self):
         counter = 0
         for step in self.steps.all():
@@ -215,16 +220,19 @@ class ClinicalAnnotationStep(models.Model):
     def can_be_started(self):
         return self.clinical_annotation.can_be_started()
 
-    def reopen(self):
-        for fr_ann in self.focus_region_annotations.all():
-            fr_ann.delete()
-        for c_ann in self.core_annotations.all():
-            c_ann.delete()
-        for s_ann in self.slice_annotations.all():
-            s_ann.delete()
-        self.completion_date = None
-        self.start_date = None
-        self.save()
+    def reopen(self, delete_annotations=True):
+        if self.is_completed():
+            if delete_annotations:
+                for fr_ann in self.focus_region_annotations.all():
+                    fr_ann.delete()
+                for c_ann in self.core_annotations.all():
+                    c_ann.delete()
+                for s_ann in self.slice_annotations.all():
+                    s_ann.delete()
+                self.start_date = None
+            self.completion_date = None
+            self.save()
+            self.clinical_annotation.reopen()
 
     def get_rejection_reason_text(self):
         for choice in self.REJECTION_REASONS_CHOICES:
