@@ -41,6 +41,8 @@ class Command(BaseCommand):
                             help='file containing ROIs in JSON format')
         parser.add_argument('--slide_id', dest='slide_id', type=str, required=True,
                             help='slide ID')
+        parser.add_argument('--reviewer', dest='reviewer', type=str, required=False,
+                            default=None, help='apply only to ROIs annotation steps assigned to this reviewer')
         parser.add_argument('--username', dest='username', type=str, required=True,
                             help='user that will create the new ROIs')
         parser.add_argument('--clear_rois', action='store_true',
@@ -53,10 +55,16 @@ class Command(BaseCommand):
             logger.error('There is no user with username %s', username)
             raise CommandError('There is no user with username %s' % username)
 
-    def _load_annotation_steps(self, slide_id):
-        annotations_steps = ROIsAnnotationStep.objects.filter(
-            slide_id=slide_id, start_date__isnull=True
-        )
+    def _load_annotation_steps(self, slide_id, reviewer=None):
+        filter = {
+            'slide_id': slide_id,
+            'start_date__isnull': True
+        }
+        if reviewer:
+            logger.info('Filter steps assigned to reviewer %s', reviewer)
+            filter['rois_annotation__reviewer__username'] = reviewer
+
+        annotations_steps = ROIsAnnotationStep.objects.filter(**filter)
         logger.info('Loaded %d ROIs annotation steps' % len(annotations_steps))
         return annotations_steps
 
@@ -97,7 +105,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('== Starting import job ==')
-        annotation_steps = self._load_annotation_steps(opts['slide_id'])
+        annotation_steps = self._load_annotation_steps(opts['slide_id'], opts['reviewer'])
         if len(annotation_steps) > 0:
             user = self._load_user(opts['username'])
             with open(opts['rois_file']) as jfile:
