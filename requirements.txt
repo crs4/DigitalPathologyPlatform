@@ -1,2 +1,5 @@
--r requirements_server.txt
--r requirements_tools.txt
+django==1.11.29
+djangorestframework==3.9.3
+pyyaml==5.1
+shapely==1.6.4
+requests==2.21.0
