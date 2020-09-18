@@ -20,6 +20,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from rois_manager.models import Slice, Core
 from reviews_manager.models import ROIsAnnotationStep
+from promort.settings import OME_SEADRAGON_BASE_URL
 from django.contrib.auth.models import User
 
 try:
@@ -27,7 +28,8 @@ try:
 except ImportError:
     import json
 
-import logging, math
+from urlparse import urljoin
+import logging, math, requests
 
 logger = logging.getLogger('promort_commands')
 
@@ -68,6 +70,33 @@ class Command(BaseCommand):
         logger.info('Loaded %d ROIs annotation steps' % len(annotations_steps))
         return annotations_steps
 
+    def _get_slide_bounds(self, slide_obj):
+        logger.info('Loading bounds for slide %s', slide_obj.id)
+        if slide_obj.image_type == 'MIRAX':
+            req_url = urljoin(OME_SEADRAGON_BASE_URL,
+                              'mirax/deepzoom/get/%s_metadata.json' % slide_obj.id)
+        elif slide_obj.image_type == 'OMERO_IMG':
+            req_url = urljoin(OME_SEADRAGON_BASE_URL,
+                              'deepzoom/get/%d_metadata.json' % slide_obj.omero_id)
+        else:
+            raise CommandError('Unabel to handle images with image_type %s', slide_obj.image_type)
+        response = requests.get(req_url)
+        if response.status_code == requests.codes.OK:
+            slide_details = response.json()
+            return slide_details['slide_bounds']
+        else:
+            logger.error('Unable to load slide details from OMERO server')
+            raise CommandError('Unable to load slide details from OMERO server')
+
+    def _adjust_roi_coordinates(self, roi_coordinates, slide_bounds):
+        new_coordinates = list()
+        for rc in roi_coordinates:
+            new_coordinates.append(
+                (rc[0] - int(slide_bounds['bounds_x']),
+                 rc[1] - int(slide_bounds['bounds_y']))
+            )
+        return new_coordinates
+
     def _clean_annotation_step(self, annotation_step_obj):
         for core in annotation_step_obj.cores:
             core.delete()
@@ -87,7 +116,8 @@ class Command(BaseCommand):
             'type': 'polygon'
         }
 
-    def _create_slice(self, slice_coordinates, slice_id, cores_count, annotation_step, user):
+    def _create_slice(self, slice_coordinates, slice_id, cores_count, annotation_step, user, slide_bounds):
+        slice_coordinates = self._adjust_roi_coordinates(slice_coordinates, slide_bounds)
         roi_json = self._create_roi_json(slice_coordinates, 'slice_s%02d' % slice_id, '#000000')
         slice = Slice(label=roi_json['shape_id'], annotation_step=annotation_step,
                       slide=annotation_step.slide, author=user, roi_json=json.dumps(roi_json),
@@ -95,7 +125,8 @@ class Command(BaseCommand):
         slice.save()
         return slice
 
-    def _create_core(self, core_coordinates, core_length, core_area, slice, slice_id, core_id, user):
+    def _create_core(self, core_coordinates, core_length, core_area, slice, slice_id, core_id, user, slide_bounds):
+        core_coordinates = self._adjust_roi_coordinates(core_coordinates, slide_bounds)
         roi_json = self._create_roi_json(core_coordinates, 'core_s%02d_c%02d' % (slice_id, core_id),
                                          '#0000ff')
         core = Core(label=roi_json['shape_id'], slice=slice, author=user, roi_json=json.dumps(roi_json),
@@ -106,12 +137,15 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('== Starting import job ==')
         annotation_steps = self._load_annotation_steps(opts['slide_id'], opts['reviewer'])
+        slide_bounds = None
         if len(annotation_steps) > 0:
             user = self._load_user(opts['username'])
             with open(opts['rois_file']) as jfile:
                 rois = json.loads(jfile.read())
                 for step in annotation_steps:
                     logger.info('-- Processing ROIs annotation step %s', step.label)
+                    if slide_bounds is None:
+                        slide_bounds = self._get_slide_bounds(step.slide)
                     if opts['clear_rois']:
                         logger.info('Cleaning existing ROIs')
                         self._clean_annotation_step(step)
@@ -119,13 +153,13 @@ class Command(BaseCommand):
                         logger.info('- Loading slice %d of %d', slice_index+1, len(rois))
                         slide_mpp = step.slide.image_microns_per_pixel
                         slice_obj = self._create_slice(slice['coordinates'], slice_index+1, len(slice['cores']),
-                                                       step, user)
+                                                       step, user, slide_bounds)
                         logger.info('Slice saved with ID %d', slice_obj.id)
                         for core_index, core in enumerate(slice['cores']):
                             logger.info('Loading core %d of %d', core_index+1, len(slice['cores']))
                             core_obj = self._create_core(core['coordinates'], core['length'] * slide_mpp,
-                                                         core['area'] * math.pow(slide_mpp, 2),
-                                                         slice_obj, slice_index+1, core_index+1, user)
+                                                         core['area'] * math.pow(slide_mpp, 2), slice_obj,
+                                                         slice_index+1, core_index+1, user, slide_bounds)
                             logger.info('Core saved with ID %d', core_obj.id)
         else:
             logger.info('== There are no suitable ROIs annotation steps')
