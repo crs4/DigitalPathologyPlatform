@@ -814,6 +814,7 @@
         vm.periglandularInflammation = undefined;
         vm.intraglandularInflammation = undefined;
         vm.stromalInflammation = undefined;
+        vm.gleason4Percentage = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -845,6 +846,7 @@
                 vm.periglandularInflammation = response.data.periglandular_inflammation;
                 vm.intraglandularInflammation = response.data.intraglandular_inflammation;
                 vm.stromalInflammation = response.data.stromal_inflammation;
+                vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
             }
 
             function getSliceAnnotationErrorFn(response) {

@@ -49,6 +49,12 @@ class Slice(models.Model):
                 positive_cores_counter += 1
         return positive_cores_counter
 
+    def get_focus_regions(self):
+        focus_regions = list()
+        for core in self.cores.all():
+            focus_regions.extend(core.focus_regions.all())
+        return focus_regions
+
 
 class Core(models.Model):
     label = models.CharField(max_length=25, blank=False)
