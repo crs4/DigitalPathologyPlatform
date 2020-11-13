@@ -67,7 +67,7 @@ class CoreAnnotation(models.Model):
     class Meta:
         unique_together = ('core', 'annotation_step')
 
-    def get_gleason_4_percentage(self):
+    def get_gleason_4_total_area(self):
         gleason_4_total_area = 0.0
         for focus_region in self.core.focus_regions.all():
             try:
@@ -75,13 +75,19 @@ class CoreAnnotation(models.Model):
                     annotation_step=self.annotation_step,
                     focus_region=focus_region
                 )
-                for gleason_element in focus_region_annotation.gleason_elements.all():
-                    if gleason_element.gleason_type == 'G4':
-                        gleason_4_total_area += gleason_element.area
+                gleason_4_total_area += focus_region_annotation.get_total_gleason_4_area()
             except FocusRegionAnnotation.DoesNotExist:
                 pass
+        return gleason_4_total_area
+
+    def get_total_tumor_area(self):
+        return self.core.get_total_tumor_area()
+
+    def get_gleason_4_percentage(self):
+        gleason_4_total_area = self.get_gleason_4_total_area()
+        total_tumor_area = self.get_total_tumor_area()
         try:
-            return (gleason_4_total_area / self.core.area) * 100.0
+            return (gleason_4_total_area / total_tumor_area) * 100.0
         except ZeroDivisionError:
             return -1
 
