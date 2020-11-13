@@ -37,14 +37,19 @@ class SliceAnnotationSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    gleason_4_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = SliceAnnotation
         fields = ('id', 'author', 'slice', 'annotation_step', 'creation_date', 'high_grade_pin',
                   'pah', 'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
-                  'intraglandular_inflammation', 'stromal_inflammation')
-        read_only_fields = ('id', 'creation_date')
+                  'intraglandular_inflammation', 'stromal_inflammation', 'gleason_4_percentage')
+        read_only_fields = ('id', 'creation_date', 'gleason_4_percentage')
         write_only_fields = ('annotation_step',)
+
+    @staticmethod
+    def get_gleason_4_percentage(obj):
+        return obj.get_gleason_4_percentage()
 
 
 class SliceAnnotationDetailsSerializer(SliceAnnotationSerializer):
