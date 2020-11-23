@@ -63,7 +63,7 @@ class Core(models.Model):
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
-    craetion_start_date = models.DateTimeField(null=True, default=None)
+    creation_start_date = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
