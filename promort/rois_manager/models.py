@@ -29,6 +29,7 @@ class Slice(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='slices')
+    creation_start_date = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
@@ -62,6 +63,7 @@ class Core(models.Model):
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
+    craetion_start_date = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
@@ -101,6 +103,7 @@ class FocusRegion(models.Model):
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
+    creation_start_date = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)

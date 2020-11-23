@@ -41,8 +41,8 @@ class SliceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Slice
-        fields = ('id', 'label', 'case', 'slide', 'author', 'annotation_step', 'creation_date', 'roi_json',
-                  'total_cores', 'positive_cores_count', 'cores_count')
+        fields = ('id', 'label', 'case', 'slide', 'author', 'annotation_step', 'creation_start_date', 'creation_date',
+                  'roi_json', 'total_cores', 'positive_cores_count', 'cores_count')
         read_only_fields = ('id', 'case', 'creation_date', 'positive_cores_count', 'cores_count')
         write_only_fields = ('annotation_step',)
 
@@ -79,8 +79,8 @@ class CoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_date', 'roi_json',
-                  'length', 'area', 'tumor_length', 'positive', 'focus_regions_count',
+        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_start_date', 'creation_date',
+                  'roi_json', 'length', 'area', 'tumor_length', 'positive', 'focus_regions_count',
                   'normal_tissue_percentage')
         read_only_fields = ('id', 'case', 'slide', 'creation_date', 'positive', 'focus_regions_count',
                             'normal_tissue_percentage')
@@ -124,7 +124,7 @@ class FocusRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FocusRegion
-        fields = ('id', 'label', 'case', 'slide', 'core', 'author', 'creation_date', 'roi_json',
+        fields = ('id', 'label', 'case', 'slide', 'core', 'author', 'creation_start_date', 'creation_date', 'roi_json',
                   'length', 'area', 'tissue_status', 'core_coverage_percentage')
         read_only_fields = ('id', 'case', 'slide', 'creation_date', 'core_coverage_percentage')
 
@@ -161,8 +161,8 @@ class CoreDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Core
-        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_date', 'roi_json', 'length',
-                  'area', 'tumor_length', 'positive', 'focus_regions', 'normal_tissue_percentage')
+        fields = ('id', 'label', 'case', 'slide', 'slice', 'author', 'creation_start_date', 'creation_date', 'roi_json',
+                  'length', 'area', 'tumor_length', 'positive', 'focus_regions', 'normal_tissue_percentage')
         read_only_fields = ('id', 'case', 'slide', 'creation_date', 'positive', 'normal_tissue_percentage')
 
     @staticmethod
@@ -194,7 +194,7 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Slice
-        fields = ('id', 'label', 'slide', 'author', 'creation_date','roi_json',
+        fields = ('id', 'label', 'slide', 'author', 'creation_start_date', 'creation_date', 'roi_json',
                   'total_cores', 'positive_cores_count', 'cores')
         read_only_fields = ('id', 'creation_date', 'positive_cores_count')
 
