@@ -56,6 +56,10 @@ class Command(BaseCommand):
                 self._dump_row(fr, csv_writer)
 
     def _dump_row(self, focus_region, csv_writer):
+        try:
+            creation_start_date = focus_region.creation_start_date.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            creation_start_date = None
         csv_writer.writerow(
             {
                 'case_id': focus_region.core.slice.slide.case.id,
@@ -65,6 +69,7 @@ class Command(BaseCommand):
                 'parent_core_label': focus_region.core.label,
                 'focus_region_label': focus_region.label,
                 'focus_region_id': focus_region.id,
+                'creation_start_date': creation_start_date,
                 'creation_date': focus_region.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': focus_region.author.username,
                 'length': focus_region.length,
@@ -84,7 +89,7 @@ class Command(BaseCommand):
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id', 'parent_core_label',
-                  'focus_region_label', 'focus_region_id', 'creation_date', 'reviewer', 'length',
+                  'focus_region_label', 'focus_region_id', 'creation_start_date', 'creation_date', 'reviewer', 'length',
                   'area', 'tissue_status', 'core_coverage_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
