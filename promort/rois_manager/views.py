@@ -22,8 +22,6 @@ try:
 except ImportError:
     import json
 
-import datetime
-
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -84,7 +82,6 @@ class SliceList(APIView):
         slice_data = request.data
         slice_data['annotation_step'] = annotation_step.id
         slice_data['author'] = request.user.username
-        slice_data['creation_start_date'] = datetime.datetime.fromtimestamp(slice_data['creation_start_date'])
 
         serializer = SliceSerializer(data=slice_data)
         if serializer.is_valid():
@@ -116,7 +113,6 @@ class CoreList(GenericReadOnlyDetailView):
         core_data = request.data
         core_data['author'] = request.user.username
         core_data['slice'] = pk
-        core_data['creation_start_date'] = datetime.datetime.fromtimestamp(core_data['creation_start_date'])
 
         serializer = CoreSerializer(data=core_data)
         if serializer.is_valid():
@@ -148,9 +144,6 @@ class FocusRegionList(GenericReadOnlyDetailView):
         focus_region_data = request.data
         focus_region_data['author'] = request.user.username
         focus_region_data['core'] = pk
-        focus_region_data['creation_start_date'] = datetime.datetime.fromtimestamp(
-            focus_region_data['creation_start_date']
-        )
 
         serializer = FocusRegionSerializer(data=focus_region_data)
         if serializer.is_valid():

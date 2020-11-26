@@ -46,7 +46,7 @@
                 slide: slide_id,
                 roi_json: JSON.stringify(roi_json),
                 total_cores: total_cores,
-                creation_start_date: (creation_start_date.getTime() / 1000)
+                creation_start_date: creation_start_date
             };
             return $http.post('/api/rois_annotation_steps/' + step_label + '/slices/', params);
         }
@@ -98,7 +98,7 @@
                 length: length,
                 area: area,
                 tumor_length: tumor_length,
-                creation_start_date: (creation_start_date.getTime() / 1000)
+                creation_start_date: creation_start_date
             };
             return $http.post('/api/slices/' + slice_id + '/cores/', params);
         }
@@ -140,7 +140,7 @@
                 length: length,
                 area: area,
                 tissue_status: tissue_status,
-                creation_start_date: (creation_start_date.getTime() / 1000)
+                creation_start_date: creation_start_date
             };
             return $http.post('/api/cores/' + core_id + '/focus_regions/', params);
         }
