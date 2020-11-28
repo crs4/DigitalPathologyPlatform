@@ -698,6 +698,8 @@
         vm.intraglandularInflammation = false;
         vm.stromalInflammation = false;
 
+        vm.creationStartDate = undefined;
+
         vm.clinical_annotation_step_label = undefined;
 
         vm._clean = _clean;
@@ -723,6 +725,7 @@
                 vm.slice_label = response.data.label;
                 vm.totalCores = response.data.total_cores;
                 vm.positiveCores = response.data.positive_cores_count;
+                vm.creationStartDate = new Date();
             }
 
             function getSliceErrorFn(response) {
@@ -743,6 +746,7 @@
             vm.periglandularInflammation = false;
             vm.intraglandularInflammation = false;
             vm.stromalInflammation = false;
+            vm.creationStartDate = undefined;
         }
 
         function isReadOnly() {
@@ -778,7 +782,8 @@
                 acute_inflammation: vm.acuteInflammation,
                 periglandular_inflammation: vm.periglandularInflammation,
                 intraglandular_inflammation: vm.intraglandularInflammation,
-                stromal_inflammation: vm.stromalInflammation
+                stromal_inflammation: vm.stromalInflammation,
+                creation_start_date: vm.creationStartDate
             };
             SliceAnnotationsManagerService.createAnnotation(vm.slice_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
@@ -931,6 +936,8 @@
         vm.gradeGroupWho = undefined;
         vm.gradeGroupWhoLabel = '';
 
+        vm.creationStartDate = undefined;
+
         vm.clinical_annotation_step_label = undefined;
 
         vm.scaledCoreLength = undefined;
@@ -985,6 +992,7 @@
                 vm.updateCoreLength();
                 vm.tumorLength = response.data.tumor_length;
                 vm.updateTumorLength();
+                vm.creationStartDate = new Date();
             }
 
             function getCoreErrorFn(response) {
@@ -1003,6 +1011,8 @@
             vm.secondaryGleason = undefined;
             vm.gradeGroupWho = undefined;
             vm.gradeGroupWhoLabel = '';
+
+            vm.creationStartDate = undefined;
         }
 
         function isReadOnly() {
@@ -1062,8 +1072,9 @@
             var obj_config = {
                 primary_gleason: Number(vm.primaryGleason),
                 secondary_gleason: Number(vm.secondaryGleason),
-                gleason_group: vm.gradeGroupWho
-            };
+                gleason_group: vm.gradeGroupWho,
+                creation_start_date: vm.creationStartDate
+            }
             CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
@@ -1192,7 +1203,7 @@
             }
 
             function getCoreAnnotationErrorFn(response) {
-                if (response.status === 404) {
+                if (response.status === 404) {
                     CoresManagerService.get(vm.core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
                 }
@@ -1327,6 +1338,8 @@
         vm.cellularDensity = undefined;
         vm.cellsCount = undefined;
 
+        vm.creationStartDate = undefined;
+
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
         vm.scaledRegionArea = undefined;
@@ -1353,6 +1366,8 @@
         vm.tmpGleasonCellularDensity = undefined;
         vm.tmpGleasonType = undefined;
         vm.tmpGleasonCellsCount = undefined;
+
+        vm.tmpGleasonCreationStartDate = undefined;
 
         vm.gleasonElements = undefined;
         vm.gleasonElementsLabels = undefined;
@@ -1438,6 +1453,7 @@
                 vm.updateRegionLength();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.core_coverage_percentage).toFixed(3));
                 vm.focusRegionTissueStatus = response.data.tissue_status;
+                vm.creationStartDate = new Date();
 
                 ClinicalAnnotationStepManagerService.fetchGleasonElementTypes()
                     .then(fetchGleasonElementTypesSuccessFn);
@@ -1490,6 +1506,8 @@
             vm.atrophicLesions = false;
             vm.adenosis = false;
             vm.cellsCount = undefined;
+
+            vm.creationStartDate = undefined;
 
             vm.gleasonElements = {};
             vm.gleasonElementsLabels = [];
@@ -1609,6 +1627,7 @@
                     }
                 );
             vm.ruler_tool_active = true;
+            vm.tmpGleasonCreationStartDate = new Date();
         }
 
         function temporaryRulerExists() {
@@ -1671,6 +1690,7 @@
                 .unbind('area_ruler_empty_intersection')
                 .unbind('area_ruler_cleared');
             vm.ruler_tool_active = false;
+            vm.tmpGleasonCreationStartDate = undefined;
             AnnotationsViewerService.disableActiveTool();
         }
 
@@ -1714,7 +1734,8 @@
                 cells_count: vm.tmpGleasonCellsCount,
                 gleason_type: vm.tmpGleasonType,
                 gleason_label: vm.gleason_types_map[vm.tmpGleasonType],
-                creation_date: new Date()
+                creation_date: new Date(),
+                creation_start_date: vm.tmpGleasonCreationStartDate
             };
             vm.gleasonElementsLabels.push(gleason_shape_id);
             vm.gleasonElements[gleason_shape_id] = tmp_g_object;
@@ -1777,7 +1798,8 @@
                 atrophic_lesions: vm.atrophicLesions,
                 adenosis: vm.adenosis,
                 cells_count: vm.cellsCount,
-                gleason_elements: gleason_elements
+                gleason_elements: gleason_elements,
+                creation_start_date: vm.creationStartDate
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_label, obj_config)

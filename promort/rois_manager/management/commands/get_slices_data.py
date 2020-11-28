@@ -56,6 +56,10 @@ class Command(BaseCommand):
                 self._dump_row(s, csv_writer)
 
     def _dump_row(self, slice, csv_writer):
+        try:
+            creation_start_date = slice.creation_start_date.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            creation_start_date = None
         csv_writer.writerow(
             {
                 'case_id': slice.slide.case.id,
@@ -63,6 +67,7 @@ class Command(BaseCommand):
                 'roi_review_step_id': slice.annotation_step.label,
                 'slice_label': slice.label,
                 'slice_id': slice.id,
+                'creation_start_date': creation_start_date,
                 'creation_date': slice.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': slice.author.username,
                 'positive_slice': slice.is_positive(),
@@ -72,8 +77,8 @@ class Command(BaseCommand):
         )
 
     def _export_data(self, out_file, page_size):
-        header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id', 'creation_date',
-                  'reviewer', 'positive_slice', 'positive_cores', 'total_cores']
+        header = ['case_id', 'slide_id', 'roi_review_step_id', 'slice_label', 'slice_id', 'creation_start_date',
+                  'creation_date', 'reviewer', 'positive_slice', 'positive_cores', 'total_cores']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

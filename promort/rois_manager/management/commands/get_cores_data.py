@@ -56,6 +56,10 @@ class Command(BaseCommand):
                 self._dump_row(c, csv_writer)
 
     def _dump_row(self, core, csv_writer):
+        try:
+            creation_start_date = core.creation_start_date.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            creation_start_date = None
         csv_writer.writerow(
             {
                 'case_id': core.slice.slide.case.id,
@@ -64,6 +68,7 @@ class Command(BaseCommand):
                 'parent_slice_id': core.slice.id,
                 'core_label': core.label,
                 'core_id': core.id,
+                'creation_start_date': creation_start_date,
                 'creation_date': core.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': core.author.username,
                 'length': core.length,
@@ -76,8 +81,8 @@ class Command(BaseCommand):
         )
 
     def _export_data(self, out_file, page_size):
-        header = ['case_id', 'slide_id', 'roi_review_step_id', 'parent_slice_id',
-                  'core_label', 'core_id', 'creation_date', 'reviewer', 'length', 'area', 'tumor_length',
+        header = ['case_id', 'slide_id', 'roi_review_step_id', 'parent_slice_id', 'core_label', 'core_id',
+                  'creation_start_date', 'creation_date', 'reviewer', 'length', 'area', 'tumor_length',
                   'positive_core', 'normal_tissue_percentage', 'total_tumor_area']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
