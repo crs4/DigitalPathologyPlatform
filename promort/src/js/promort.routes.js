@@ -36,6 +36,12 @@
                 controllerAs: 'vm',
                 templateUrl: '/static/templates/authentication/login.html'
             })
+            // password change template
+            .when('/change_password', {
+                controller: 'ChangePasswordController',
+                controllerAs: 'cpc',
+                templateUrl: '/static/templates/authentication/change_password.html'
+            })
             // user worklist template
             .when('/worklist', {
                 controller: 'WorkListController',

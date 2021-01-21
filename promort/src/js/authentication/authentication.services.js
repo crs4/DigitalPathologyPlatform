@@ -37,7 +37,8 @@
             isAuthenticated: isAuthenticated,
             setAuthenticationCookie: setAuthenticationCookie,
             unauthenticate: unauthenticate,
-            getCurrentUser: getCurrentUser
+            getCurrentUser: getCurrentUser,
+            changePassword: changePassword
         };
 
         return Authentication;
@@ -107,6 +108,12 @@
 
         function getCurrentUser() {
             return $cookies.getObject('currentUser');
+        }
+
+        function changePassword(old_password, new_password) {
+            return $http.put('/api/auth/change_password/', {
+                'old_password': old_password, 'new_password': new_password
+            });
         }
     }
 })();
