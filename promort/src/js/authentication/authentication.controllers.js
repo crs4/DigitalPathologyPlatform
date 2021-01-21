@@ -25,7 +25,8 @@
     angular
         .module('promort.authentication.controllers')
         .controller('LoginController', LoginController)
-        .controller('AuthenticationController', AuthenticationController);
+        .controller('AuthenticationController', AuthenticationController)
+        .controller('ChangePasswordController', ChangePasswordController);
     
     LoginController.$inject = ['$location', '$scope', '$log', 'Authentication'];
     
@@ -56,6 +57,124 @@
 
         function isAuthenticated() {
             return Authentication.isAuthenticated();
+        }
+    }
+
+    ChangePasswordController.$inject = ['$scope', '$log', 'Authentication', 'ngDialog'];
+
+    function ChangePasswordController($location, $log, Authentication, ngDialog) {
+        var vm = this;
+
+        vm.old_password = undefined;
+        vm.new_password = undefined;
+        vm.new_password_check = undefined;
+
+        vm.newPasswordMatch = newPasswordMatch;
+        vm.newPasswordMismatch = newPasswordMismatch;
+        vm.checkPasswordLength = checkPasswordLength;
+        vm.checkAgainstOldPassword = checkAgainstOldPassword;
+        vm.passwordValid = passwordValid;
+        vm.formValid = formValid;
+        vm.formEmpty = formEmpty;
+        vm.clearForm = clearForm;
+        vm.changePassword = changePassword;
+
+        function newPasswordMatch() {
+            if(typeof vm.new_password !== 'undefined' && typeof vm.new_password_check !== 'undefined') {
+                return vm.new_password === vm.new_password_check;
+            } else {
+                return false;
+            }
+        }
+
+        function newPasswordMismatch() {
+            if(typeof vm.new_password !== 'undefined' && typeof vm.new_password_check !== 'undefined') {
+                return vm.new_password !== vm.new_password_check;
+            } else {
+                return false;
+            }
+        }
+
+        function checkPasswordLength() {
+            return (typeof vm.new_password !== 'undefined' && vm.new_password.length >= 8);
+        }
+
+        function checkAgainstOldPassword() {
+            return (
+                typeof vm.old_password !== 'undefined' &&
+                typeof vm.new_password !== 'undefined' &&
+                vm.old_password !== vm.new_password
+            );
+        }
+
+        function passwordValid() {
+            return (vm.checkPasswordLength() && vm.checkAgainstOldPassword());
+        }
+
+        function formValid() {
+            return (typeof vm.old_password !== 'undefined' && vm.newPasswordMatch());
+        }
+
+        function formEmpty() {
+            return (
+                typeof vm.old_password === 'undefined' &&
+                typeof vm.new_password === 'undefined' &&
+                typeof vm.new_password_check === 'undefined'
+            )
+        }
+
+        function clearForm() {
+            vm.old_password = undefined;
+            vm.new_password = undefined;
+            vm.new_password_check = undefined;
+        }
+
+        function changePassword() {
+            var dialog = undefined;
+            dialog = ngDialog.open({
+                template: '/static/templates/dialogs/updating_password.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
+
+            Authentication.changePassword(
+                vm.old_password, vm.new_password
+            ).then(changePasswordSuccessFn, changePasswordErrorFn);
+
+            function changePasswordSuccessFn(response) {
+                console.log('Password changed successfully! You need to login again');
+                dialog.close();
+
+                ngDialog.openConfirm({
+                    template: '/static/templates/dialogs/password_update_success.html',
+                    showClose: false,
+                    closeByEscape: false,
+                    closeByNavigation: false,
+                    closeByDocument: false
+                }).then(confirmFn);
+
+                function confirmFn() {
+                    Authentication.unauthenticate();
+                    window.location = '/login';
+                }
+            }
+
+            function changePasswordErrorFn(response) {
+                dialog.close();
+                if(response.data.status === 'password_check_failed') {
+                    ngDialog.open({
+                        template: '/static/templates/dialogs/old_password_check_error.html'
+                    });
+                    clearForm();
+                } else {
+                    ngDialog.open({
+                        template: '/static/templates/dialogs/error_dialog.html'
+                    });
+                    console.log(response.data.status, response.data.message);
+                }
+            }
         }
     }
 })();

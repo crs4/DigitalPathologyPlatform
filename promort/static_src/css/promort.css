@@ -61,7 +61,7 @@ button.prm-btn-sm {
     margin-right: 15px;
 }
 
-#nav_worklist, #nav_send_report, #nav_user_guide, #nav_logout, #nav_login {
+#nav_worklist, #nav_send_report, #nav_user_guide, #nav_logout, #nav_login, #nav_change_passwd {
     padding: 7px;
     margin-left: 10px;
     width: 100px;
@@ -69,6 +69,10 @@ button.prm-btn-sm {
 
 i.prm-warning-icon {
     color: #d9534f;
+}
+
+i.prm-confirm-icon {
+    color: #5b975bde;
 }
 
 h3.prm-dialog-container {
@@ -362,6 +366,16 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0 auto;
     max-width: 350px;
     min-width: 250px;
+}
+
+.prm-input-text-error {
+    border: 2px solid red !important;
+    background-color: #ff000025;
+}
+
+.prm-input-text-match {
+    border: 2px solid green !important;
+    background-color: #00ff0025;;
 }
 
 /* Input range style

@@ -24,7 +24,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from promort.views import IndexView
 from authentication.views import LoginView, LogoutView, \
-    GroupListView, GroupDetailsView, CheckUserView
+    GroupListView, GroupDetailsView, CheckUserView, ChangePasswordView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
     CaseList, CaseDetail, SlideList, SlideDetail, SlideEvaluationDetail, SlidesSetList, SlidesSetDetail
 import questionnaires_manager.views as qmv
@@ -44,6 +44,7 @@ urlpatterns = [
     url(r'^api/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/auth/logout/$', LogoutView.as_view(), name='logout'),
     url(r'^api/auth/check/$', CheckUserView.as_view()),
+    url(r'api/auth/change_password/$', ChangePasswordView.as_view(), name='change_password'),
 
     # groups
     url(r'api/groups/$', GroupListView.as_view()),
