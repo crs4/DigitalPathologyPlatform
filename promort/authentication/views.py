@@ -25,9 +25,10 @@ except ImportError:
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 
-from rest_framework import status, views, permissions
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import UpdateAPIView
 
 from serializers import UserSerializer, GroupSerializer, GroupDetailsSerializer
 
@@ -37,14 +38,14 @@ import logging
 logger = logging.getLogger('promort')
 
 
-class CheckUserView(views.APIView):
+class CheckUserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
         return Response({'username': request.user.username}, status=status.HTTP_200_OK)
 
 
-class LoginView(views.APIView):
+class LoginView(APIView):
 
     def post(self, request, format=None):
         data = json.loads(request.body)
@@ -74,13 +75,33 @@ class LoginView(views.APIView):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutView(views.APIView):
+class LogoutView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
         logout(request)
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+
+class ChangePasswordView(UpdateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def update(self, request, format=None):
+        user = request.user
+
+        if not user.check_password(request.data.get('old_password')):
+            return Response({
+                'status': 'password_check_failed',
+                'message': 'old password check failed'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user.set_password(request.data.get('new_password'))
+            user.save()
+            return Response({
+                'status': 'success',
+                'message': 'Password updated successfully'
+            }, status=status.HTTP_200_OK)
 
 
 class GroupListView(APIView):
