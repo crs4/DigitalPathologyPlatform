@@ -36,10 +36,16 @@ class Command(BaseCommand):
     """
 
     def _split_slide_name(self, slide_name):
-        regex = re.compile(r'[A-Z]-[A-Z]-[0-9]{2}-[0-9]{4}-(GAF|PBF)-[A-Z0-9]{2,4}$')
-        if regex.match(slide_name):
-            return '-'.join(slide_name.split('-')[0:3]), slide_name
+        regex = re.compile(
+            r'^(?P<lab>[CBM]{1})(?P<tissue_type>[A-Z]{1}) +(?P<case_id>[0-9]{2}) +(?P<fixative>(GAF|PBF){1}) +(?P<staining>[\w]+)$'
+        )
+        res = regex.match(slide_name)
+        if res:
+            case = '{0}-{1}-{2}'.format(*res.group('lab', 'tissue_type', 'case_id'))
+            slide = '{0}-{1}-{2}-{3}-{4}'.format(*res.group('lab', 'tissue_type', 'case_id', 'fixative', 'staining'))
+            return case, slide
         else:
+            logger.warning('Slide "{0}" not matching standard slide name format'.format(slide_name))
             return None, None
 
     def _get_bigger_in_fileset(self, slides):
@@ -71,9 +77,10 @@ class Command(BaseCommand):
             slides = self._filter_slides(response.json())
             slides_map = dict()
             for s in slides:
-                case_id, _ = self._split_slide_name(s['name'])
-                logger.debug('Slide %s --- Case ID: %s', s, case_id)
+                case_id, slide_id = self._split_slide_name(s['name'].split('.')[0])
+                logger.debug('Slide %s --- Case ID: %s', slide_id, case_id)
                 if case_id:
+                    s['new_name'] = slide_id
                     slides_map.setdefault(case_id, []).append(s)
                 else:
                     logger.warning('%s is not a valid slide name', s['name'])
@@ -124,7 +131,7 @@ class Command(BaseCommand):
         for case_id, slides in slides_map.items():
             case = self._get_or_create_case(case_id)
             for slide_json in slides:
-                slide = self._get_or_create_slide(slide_json['name'], case)
+                slide = self._get_or_create_slide(slide_json['new_name'], case)
                 # this will automatically relink ProMort slides to related OMERO slide (if previously unlinked)
                 self._update_ome_info(slide, slide_json['omero_id'], slide_json['img_type'],
                                       self._get_slide_mpp(slide_json))
