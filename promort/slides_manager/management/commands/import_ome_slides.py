@@ -42,11 +42,33 @@ class Command(BaseCommand):
         else:
             return None, None
 
+    def _get_bigger_in_fileset(self, slides):
+        slides_res = dict()
+        for s in slides:
+            if s['img_type'] == 'OMERO_IMG':
+                url = urljoin(OME_SEADRAGON_BASE_URL, 'deepzoom/get/%s.json' % s['omero_id'])
+            else:
+                url = urljoin(OME_SEADRAGON_BASE_URL, 'mirax/deepzoom/get/%s.json' % s['name'])
+            response = requests.get(url)
+            if response.status_code == requests.codes.OK:
+                res = int(response.json()['Image']['Size']['Height']) * int(response.json()['Image']['Size']['Width'])
+                slides_res[res] = s
+        return slides_res[max(slides_res.keys())]
+
+    def _filter_slides(self, slides):
+        filesets = dict()
+        filtered_slides = list()
+        for s in slides:
+            filesets.setdefault(s['name'].split('.')[0], []).append(s)
+        for _, fs_slides in filesets.iteritems():
+            filtered_slides.append(self._get_bigger_in_fileset(fs_slides))
+        return filtered_slides
+
     def _load_ome_images(self):
         url = urljoin(OME_SEADRAGON_BASE_URL, 'get/images/index')
-        response = requests.get(url)
+        response = requests.get(url, params={'full_series': True})
         if response.status_code == requests.codes.OK:
-            slides = response.json()
+            slides = self._filter_slides(response.json())
             slides_map = dict()
             for s in slides:
                 case_id, _ = self._split_slide_name(s['name'])
