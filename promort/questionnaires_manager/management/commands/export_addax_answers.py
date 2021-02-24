@@ -98,24 +98,31 @@ class Command(BaseCommand):
             writer = DictWriter(f, file_headers)
             writer.writeheader()
             for case, answers in answers_map.iteritems():
-                row = {
-                    'local_reviewer': reviewers_map[case],
-                    'case_label': case,
-                    'morphology_1': answers['local']['morph_1'],
-                    'morphology_2': answers['local']['morph_2'],
-                    'morphology_3': answers['local']['morph_3'],
-                    'diagnostic_1': answers['local']['diag_1'],
-                    'satisfaction_1': answers['local'].get('sat-loc_1'),
-                    'satisfaction_2': answers['local'].get('sat-loc_2'),
-                    'morphology_1_cntr': answers['central']['morph_1'],
-                    'morphology_2_cntr': answers['central']['morph_2'],
-                    'morphology_3_cntr': answers['central']['morph_3'],
-                    'diagnostic_1_cntr': answers['central']['diag_1'],
-                }
+                local_rev_answers = answers.get('local')
+                central_rev_answers = answers.get('central')
+                row = dict()
+                if local_rev_answers:
+                    row.update({
+                        'local_reviewer': reviewers_map[case],
+                        'case_label': case,
+                        'morphology_1': local_rev_answers['morph_1'],
+                        'morphology_2': local_rev_answers['morph_2'],
+                        'morphology_3': local_rev_answers['morph_3'],
+                        'diagnostic_1': local_rev_answers['diag_1'],
+                        'satisfaction_1': local_rev_answers.get('sat-loc_1'),
+                        'satisfaction_2': local_rev_answers.get('sat-loc_2')
+                    })
+                if central_rev_answers:
+                    row.update({
+                        'morphology_1_cntr': central_rev_answers['morph_1'],
+                        'morphology_2_cntr': central_rev_answers['morph_2'],
+                        'morphology_3_cntr': central_rev_answers['morph_3'],
+                        'diagnostic_1_cntr': central_rev_answers['diag_1'],
+                    })
                 if extended_output:
                     row.update({
-                        'satisfaction_3': answers['local'].get('sat-loc_3'),
-                        'satisfaction_3_cntr': answers['central'].get('sat-cnt_1')
+                        'satisfaction_3': local_rev_answers.get('sat-loc_3'),
+                        'satisfaction_3_cntr': central_rev_answers.get('sat-cnt_1')
                     })
                 writer.writerow(row)
 
