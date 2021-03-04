@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--questionnaire-steps', dest='questionnaire_steps_file', type=str, required=True,
-                            help='The CSV file containing the questionnare steps definitions')
+                            help='The CSV file containing the questionnaire steps definitions')
 
     def _load_questionnaires_map(self, qsteps_file):
         try:
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                 except QuestionsSet.DoesNotExist:
                     logger.error('There is no QuestionsSet object with label %s', step['questions_set'])
                     break
-                if not step['slides_set_a'] is None:
+                if not step['slides_set_a'] in (None, ''):
                     if step['slides_set_a_label'] in (None, ''):
                         logger.info('Using random label %s for slides set A', step_a_random_label)
                         step['slides_set_a_label'] = step_a_random_label
@@ -82,7 +82,7 @@ class Command(BaseCommand):
                     except SlidesSet.DoesNotExist:
                         logger.error('There is no SlidesSet object with ID %s', step['slides_set_a'])
                         break
-                if not step['slides_set_b'] is None:
+                if not step['slides_set_b'] in (None, ''):
                     if step['slides_set_b_label'] in (None, ''):
                         logger.info('Using random label %s for slides set B', step_b_random_label)
                         step['slides_set_b_label'] = step_b_random_label
