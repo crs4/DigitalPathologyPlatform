@@ -86,8 +86,8 @@ class QuestionnaireRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireRequest
 
-        fields = ('id', 'label', 'annotation_type', 'questionnaire_panel_a', 'questionnaire_panel_b', 'reviewer',
-                  'creation_date', 'start_date', 'completion_date', 'answers', 'started', 'completed')
+        fields = ('id', 'label', 'extended_label', 'annotation_type', 'questionnaire_panel_a', 'questionnaire_panel_b',
+                  'reviewer', 'creation_date', 'start_date', 'completion_date', 'answers', 'started', 'completed')
         read_only_fields = ('id', 'answers', 'annotation_type')
 
     @staticmethod
@@ -115,8 +115,8 @@ class QuestionnaireRequestStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionnaireRequest
 
-        fields = ('id', 'label', 'reviewer', 'creation_date', 'start_date', 'completion_date', 'started',
-                  'completed', 'can_be_closed')
+        fields = ('id', 'label', 'extended_label', 'reviewer', 'creation_date', 'start_date', 'completion_date',
+                  'started', 'completed', 'can_be_closed')
 
     @staticmethod
     def get_started(obj):

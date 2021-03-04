@@ -74,6 +74,7 @@ class QuestionnaireStep(models.Model):
 
 class QuestionnaireRequest(models.Model):
     label = models.CharField(unique=True, blank=False, null=False, max_length=40)
+    extended_label = models.CharField(unique=True, blank=False, null=False, max_length=100)
     questionnaire_panel_a = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=False,
                                               null=False, related_name='panel_a_steps')
     questionnaire_panel_b = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=True,
