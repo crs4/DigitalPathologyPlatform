@@ -28,7 +28,12 @@
                 <div class="well row">
                     <div class="col-sm-9 col-md-9 prm-valign">
                         <div>
-                            <p><strong>Review ID:</strong> {{ annotation.label }}</p>
+                            <p ng-show="!wlc.isQuestionnaireRequest(annotation)">
+                                <strong>Review ID:</strong> {{ annotation.label }}
+                            </p>
+                            <p ng-show="wlc.isQuestionnaireRequest(annotation)">
+                                <strong>Review ID:</strong> {{ annotation.extended_label }}
+                            </p>
                             <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
                             <p ng-show="!wlc.isQuestionnaireRequest(annotation)">
                                 <strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}
