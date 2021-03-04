@@ -63,8 +63,10 @@ class Command(BaseCommand):
             if req['label'] in (None, ''):
                 logger.info('Missing label, assigning a random one')
                 req['label'] = self._get_request_random_label()
+            if req['label'] and req['extended_label'] in (None, ''):
+                req['extended_label'] = req['label']
             if req['questionnaire_a'] is None:
-                logger.error('Missing mandatody questionnaire_a, skipping row')
+                logger.error('Missing mandatory questionnaire_a, skipping row')
                 continue
             try:
                 q_panel_a_obj = Questionnaire.objects.get(label=req['questionnaire_a'])
@@ -73,6 +75,7 @@ class Command(BaseCommand):
                 continue
             req_details = {
                 'label': req['label'],
+                'extended_label': req['extended_label'],
                 'questionnaire_panel_a': q_panel_a_obj,
                 'reviewer': reviewer_obj
             }

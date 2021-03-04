@@ -41,6 +41,7 @@
         vm.panel_b_label = 'qm_panel_b';
 
         vm.request_label = undefined;
+        vm.request_extended_label = undefined;
         vm.panel_a_questionnaire_label = undefined;
         vm.panel_b_questionnaire_label = undefined;
         vm.panel_a_last_completed_step = undefined;
@@ -79,6 +80,7 @@
                 .then(questionnaireRequestSuccessFn, questionnaireRequestErrorFn);
 
             function questionnaireRequestSuccessFn(response) {
+                vm.request_extended_label = response.data.extended_label;
                 vm.panel_a_questionnaire_label = response.data.questionnaire_panel_a.label;
                 vm.panel_a_last_completed_step = response.data.answers.questionnaire_panel_a.last_completed_step_index;
                 vm.panel_a_remaining_steps = response.data.answers.questionnaire_panel_a.remaining_steps;

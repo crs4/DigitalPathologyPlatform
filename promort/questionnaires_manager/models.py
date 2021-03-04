@@ -26,14 +26,14 @@ from slides_manager.models import SlidesSet
 
 
 class QuestionsSet(models.Model):
-    label = models.CharField(max_length=20, blank=False, unique=True)
+    label = models.CharField(max_length=50, blank=False, unique=True)
     questions_json = models.TextField(blank=False)
     creation_date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
 
 
 class Questionnaire(models.Model):
-    label = models.CharField(max_length=20, blank=False, unique=True)
+    label = models.CharField(max_length=50, blank=False, unique=True)
     creation_date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
 
@@ -59,10 +59,10 @@ class QuestionnaireStep(models.Model):
     questions = models.ForeignKey(QuestionsSet, on_delete=models.PROTECT, blank=False)
     slides_set_a = models.ForeignKey(SlidesSet, on_delete=models.PROTECT, blank=True, null=True,
                                      default=None, related_name='slides_set_a')
-    slides_set_a_label = models.CharField(max_length=20, blank=True, null=True, default=None)
+    slides_set_a_label = models.CharField(max_length=50, blank=True, null=True, default=None)
     slides_set_b = models.ForeignKey(SlidesSet, on_delete=models.PROTECT, blank=True, null=True,
                                      default=None, related_name='slides_set_b')
-    slides_set_b_label = models.CharField(max_length=20, blank=True, null=True, default=None)
+    slides_set_b_label = models.CharField(max_length=50, blank=True, null=True, default=None)
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=False,
                                       related_name='steps')
     step_index = models.IntegerField(blank=False)
@@ -74,6 +74,7 @@ class QuestionnaireStep(models.Model):
 
 class QuestionnaireRequest(models.Model):
     label = models.CharField(unique=True, blank=False, null=False, max_length=40)
+    extended_label = models.CharField(unique=True, blank=False, null=False, max_length=100)
     questionnaire_panel_a = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=False,
                                               null=False, related_name='panel_a_steps')
     questionnaire_panel_b = models.ForeignKey(Questionnaire, on_delete=models.PROTECT, blank=True,
