@@ -134,7 +134,7 @@ class Command(BaseCommand):
         logger.debug('Checking if folder %s exists' % output_folder)
         if not os.path.isdir(output_folder):
             raise CommandError('Output folder %s does not exist, exit' % output_folder)
-        for slide, rois in rois_map.iteritems():
+        for slide, rois in rois_map.items():
             self._dump_slide_rois(slide, rois, output_folder)
 
     def handle(self, *args, **opts):

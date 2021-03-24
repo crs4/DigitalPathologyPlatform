@@ -21,7 +21,7 @@ from django.core.management.base import BaseCommand, CommandError
 from slides_manager.models import Case, Slide
 from promort.settings import OME_SEADRAGON_BASE_URL
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 import requests, re
 
 import logging
@@ -60,7 +60,7 @@ class Command(BaseCommand):
         filtered_slides = list()
         for s in slides:
             filesets.setdefault(s['name'].split('.')[0], []).append(s)
-        for _, fs_slides in filesets.iteritems():
+        for _, fs_slides in filesets.items():
             filtered_slides.append(self._get_bigger_in_fileset(fs_slides))
         return filtered_slides
 
@@ -121,7 +121,7 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')
         slides_map = self._load_ome_images()
-        for case_id, slides in slides_map.iteritems():
+        for case_id, slides in slides_map.items():
             case = self._get_or_create_case(case_id)
             for slide_json in slides:
                 slide = self._get_or_create_slide(slide_json['name'], case)

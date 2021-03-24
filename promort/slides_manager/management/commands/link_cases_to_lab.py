@@ -64,7 +64,7 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting update job ===')
         cases_map = self._get_cases_map(opts['cases_map'])
-        for lab, cases in cases_map.iteritems():
+        for lab, cases in cases_map.items():
             lab_obj = self._get_laboratory(lab)
             if lab_obj:
                 logger.info('Processing cases for laboratory %s', lab)

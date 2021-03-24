@@ -64,7 +64,7 @@ class Command(BaseCommand):
                 q_obj = Questionnaire(label=q, author=author)
                 q_obj.save()
             except IntegrityError:
-                logger.warn('A questionnaire with label "%s" already exists, skipping it', q)
+                logger.warning('A questionnaire with label "%s" already exists, skipping it', q)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')

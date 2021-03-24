@@ -20,7 +20,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 import requests
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from slides_manager.models import Slide
 from promort.settings import OME_SEADRAGON_BASE_URL

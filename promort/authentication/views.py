@@ -109,7 +109,7 @@ class GroupListView(APIView):
 
     def get(self, request, format=None):
         groups = []
-        for _, group in settings.DEFAULT_GROUPS.iteritems():
+        for _, group in settings.DEFAULT_GROUPS.items():
             logger.debug('Loading data for group %s', group)
             groups.append(Group.objects.get(name=group['name']))
         serializer = GroupSerializer(groups, many=True)
