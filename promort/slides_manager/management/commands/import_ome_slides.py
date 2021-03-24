@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 if case_id:
                     slides_map.setdefault(case_id, []).append(s)
                 else:
-                    logger.warn('%s is not a valid slide name', s['name'])
+                    logger.warning('%s is not a valid slide name', s['name'])
             return slides_map
         else:
             logger.error('Unable to load slides from OMERO server')
@@ -92,7 +92,7 @@ class Command(BaseCommand):
             logger.info('Loaded image microns per pixel value')
             return response.json()['image_mpp']
         else:
-            logger.warn('Unable to load image microns per pixel value, response code %s', response.status_code)
+            logger.warning('Unable to load image microns per pixel value, response code %s', response.status_code)
             return 0
 
     def _get_or_create_case(self, case_id):
