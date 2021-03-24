@@ -27,7 +27,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('rois_manager', '0004_auto_20160914_0848'),
@@ -45,7 +44,8 @@ class Migration(migrations.Migration):
                 ('area', models.FloatField(default=0)),
                 ('cancerous_region', models.BooleanField()),
                 ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.PROTECT)),
-                ('core', models.ForeignKey(related_name='focus_regions', to='rois_manager.Core')),
+                ('core', models.ForeignKey(related_name='focus_regions', to='rois_manager.Core',
+                                           on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(
@@ -65,6 +65,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='focusregion',
-            unique_together=set([('label', 'core')]),
+            unique_together={('label', 'core')},
         ),
     ]
