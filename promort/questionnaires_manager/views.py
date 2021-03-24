@@ -129,7 +129,7 @@ class QuestionnaireRequestDetail(APIView):
                                                                  questionnaire_request.questionnaire_panel_a,
                                                                  questionnaire_request.reviewer)
             q_answers_a.save()
-        except IntegrityError, ie:
+        except IntegrityError as ie:
             raise ie
         if questionnaire_request.questionnaire_panel_b is not None:
             q_answers_b = self._create_questionnaire_answers_obj(questionnaire_request,
@@ -137,7 +137,7 @@ class QuestionnaireRequestDetail(APIView):
                                                                  questionnaire_request.reviewer)
             try:
                 q_answers_b.save()
-            except IntegrityError, ie:
+            except IntegrityError as ie:
                 q_answers_a.delete()
                 raise ie
 

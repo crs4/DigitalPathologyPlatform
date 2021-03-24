@@ -22,7 +22,7 @@ from django.contrib import admin
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from promort.views import IndexView
+from .views import IndexView
 from authentication.views import LoginView, LogoutView, \
     GroupListView, GroupDetailsView, CheckUserView, ChangePasswordView
 from slides_manager.views import LaboratoryList, LaboratoryDetail, LaboratoryCaseLink, \
