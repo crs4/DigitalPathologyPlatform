@@ -79,7 +79,7 @@ class Command(BaseCommand):
         return steps_map
 
     def _restore_rois(self, rois_map, steps_map, author):
-        for slide, rois in rois_map.iteritems():
+        for slide, rois in rois_map.items():
             logger.info('Processing slide %s', slide)
             steps = steps_map[slide]
             if steps:

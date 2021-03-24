@@ -147,7 +147,7 @@ class ReviewersDetailsReport(ReviewersDetails):
         send_mail_status = dict()
 
         reviews_map = self._get_reviewers_details()
-        for reviewer, annotations_details in reviews_map.iteritems():
+        for reviewer, annotations_details in reviews_map.items():
             try:
                 self._send_mail(reviewer, annotations_details, text_template, html_template)
                 send_mail_status[reviewer] = True

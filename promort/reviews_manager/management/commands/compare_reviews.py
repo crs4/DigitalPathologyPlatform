@@ -54,7 +54,7 @@ class Command(BaseCommand):
         for x in (r1_slices, r2_slices):
             for sl in x:
                 slices_map.setdefault(sl.slice.label, []).append(sl)
-        for label, annotations in slices_map.iteritems():
+        for label, annotations in slices_map.items():
             logger.info('Comparing annotations for slice %s', label)
             result = self._compare_slice_annotations(*annotations)
             if not result:
@@ -75,7 +75,7 @@ class Command(BaseCommand):
         for x in (r1_cores, r2_cores):
             for cr in x:
                 cores_map.setdefault(cr.core.label, []).append(cr)
-        for label, annotations in cores_map.iteritems():
+        for label, annotations in cores_map.items():
             logger.info('Comparing annotations for core %s', label)
             result = self._compare_core_annotations(*annotations)
             if not result:
@@ -95,7 +95,7 @@ class Command(BaseCommand):
         for x in (r1_focus_regions, r2_focus_regions):
             for fr in x:
                 focus_regions_map.setdefault(fr.focus_region.label, []).append(fr)
-        for label, annotations in focus_regions_map.iteritems():
+        for label, annotations in focus_regions_map.items():
             logger.info('Comparing annotations for focus region %s', label)
             result = self._compare_focus_region_annotations(*annotations)
             if not result:

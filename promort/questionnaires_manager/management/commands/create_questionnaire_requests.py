@@ -94,6 +94,6 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')
         requests_map = self._load_requests_map(opts['questionnaire_requests'])
-        for k, v in requests_map.iteritems():
+        for k, v in requests_map.items():
             self._create_requests(k, v)
         logger.info('=== Import job completed ===')

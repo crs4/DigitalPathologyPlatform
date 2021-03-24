@@ -108,6 +108,6 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')
         questionnaires_map = self._load_questionnaires_map(opts['questionnaire_steps_file'])
-        for k, v in questionnaires_map.iteritems():
+        for k, v in questionnaires_map.items():
             self._import_questionnaire_steps(k, v)
         logger.info('=== Import job completed ===')

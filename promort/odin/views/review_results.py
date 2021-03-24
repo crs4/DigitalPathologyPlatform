@@ -44,7 +44,7 @@ class CaseReviewResults(APIView):
 
     def _filter_not_compared(self, review_comparisons_map):
         to_be_removed = []
-        for r_ann, comparisons in review_comparisons_map.iteritems():
+        for r_ann, comparisons in review_comparisons_map.items():
             for comp in comparisons:
                 if comp.is_evaluation_pending() or \
                         (not comp.positive_match and comp.positive_quality_control and comp.review_3 is None):
@@ -76,7 +76,7 @@ class CaseReviewResults(APIView):
         for r_ann in rc_map.keys():
             rc_map[r_ann] = self._filter_by_quality_control(rc_map[r_ann])
         reviews_map = dict()
-        for r_ann, rcs in rc_map.iteritems():
+        for r_ann, rcs in rc_map.items():
             for rc in rcs:
                 reviews_map.setdefault(r_ann, []).append(self._get_final_review(rc))
         logger.info(reviews_map)
@@ -84,7 +84,7 @@ class CaseReviewResults(APIView):
 
     def _get_max(self, primary_scores_counter):
         ct2 = dict()
-        for gleason, count in primary_scores_counter.iteritems():
+        for gleason, count in primary_scores_counter.items():
             ct2.setdefault(count, []).append(gleason)
         return max(ct2[max(ct2.keys())])
 
@@ -107,7 +107,7 @@ class CaseReviewResults(APIView):
 
     def _get_scores(self, reviews_map):
         scores = dict()
-        for (r_ann_obj, c_ann_objs) in reviews_map.iteritems():
+        for (r_ann_obj, c_ann_objs) in reviews_map.items():
             oscore = self._get_overall_score(c_ann_objs)
             if len(oscore) > 0:
                 scores[r_ann_obj.label] = oscore
@@ -140,7 +140,7 @@ class CaseReviewResultsDetails(CaseReviewResults):
 
     def _get_scores(self, reviews_map):
         reviews_scores = dict()
-        for r_ann_obj, c_ann_objs in reviews_map.iteritems():
+        for r_ann_obj, c_ann_objs in reviews_map.items():
             reviews_scores[r_ann_obj.label] = {
                 'overall_score': self._get_overall_score(c_ann_objs),
                 'slides_details': self._get_details(c_ann_objs)

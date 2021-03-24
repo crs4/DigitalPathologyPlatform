@@ -28,7 +28,7 @@ try:
 except ImportError:
     import json
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 import logging, math, requests
 
 logger = logging.getLogger('promort_commands')
