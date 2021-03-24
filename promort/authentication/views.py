@@ -30,9 +30,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import UpdateAPIView
 
-from serializers import UserSerializer, GroupSerializer, GroupDetailsSerializer
+from .serializers import UserSerializer, GroupSerializer, GroupDetailsSerializer
 
-from promort.settings import DEFAULT_GROUPS
+from django.conf import settings
 
 import logging
 logger = logging.getLogger('promort')
@@ -109,7 +109,7 @@ class GroupListView(APIView):
 
     def get(self, request, format=None):
         groups = []
-        for _, group in DEFAULT_GROUPS.iteritems():
+        for _, group in settings.DEFAULT_GROUPS.iteritems():
             logger.debug('Loading data for group %s', group)
             groups.append(Group.objects.get(name=group['name']))
         serializer = GroupSerializer(groups, many=True)
@@ -120,6 +120,6 @@ class GroupDetailsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, group, format=None):
-        group = Group.objects.get(name=DEFAULT_GROUPS[group]['name'])
+        group = Group.objects.get(name=settings.DEFAULT_GROUPS[group]['name'])
         serializer = GroupDetailsSerializer(group)
         return Response(serializer.data, status=status.HTTP_200_OK)

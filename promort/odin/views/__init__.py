@@ -17,10 +17,10 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from utils import CheckAccessPrivileges
-from rois_extraction import GetCaseDetails, GetSlideDetails, GetReviewerDetails, \
+from .utils import CheckAccessPrivileges
+from .rois_extraction import GetCaseDetails, GetSlideDetails, GetReviewerDetails, \
     GetDetailsByROIType, GetROIDetails, GetSlicesDetails, GetSliceDetails, GetCoresDetails,\
     GetCoreDetails, GetFocusRegionsDetails, GetFocusRegionDetails
-from review_results import CaseReviewResults, CaseReviewResultsDetails
-from reviewers_report import ReviewersDetails, ReviewersDetailsReport, ReviewsActivityReport
-from quality_control import BadSlideDetails
+from .review_results import CaseReviewResults, CaseReviewResultsDetails
+from .reviewers_report import ReviewersDetails, ReviewersDetailsReport, ReviewsActivityReport
+from .quality_control import BadSlideDetails

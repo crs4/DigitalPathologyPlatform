@@ -88,8 +88,7 @@ class UserWorkList(APIView):
             data[c_ann['label']] = c_ann
         for r_ann in rois_serializer.data:
             data[r_ann['label']] = r_ann
-        worklist = data.values()
-        worklist.extend(questionnaire_serializer.data)
+        worklist = list(data.values()) + questionnaire_serializer.data
         return Response(worklist, status=status.HTTP_200_OK)
 
 
