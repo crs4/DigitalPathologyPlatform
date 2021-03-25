@@ -37,7 +37,5 @@ promort_groups:
     name: ODIN_USERS
 
 ome_seadragon:
-  base_url: https://ome-digipath-demo.crs4.it/ome_seadragon/
-  static_files_url: https://ome-digipath-demo.crs4.it/static/
-#  base_url: http://localhost:8080/ome_seadragon/
-#  static_files_url: http://localhost:8080/static/
+  base_url: http://localhost:8080/ome_seadragon/
+  static_files_url: http://localhost:8080/static/
