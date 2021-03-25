@@ -18,7 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, register_converter
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -39,6 +39,33 @@ from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAn
 import odin.views as od
 import utils.views as promort_utils
 
+
+class NumericString:
+    regex = '[0-9]+'
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+
+
+class SemiSlug:
+    """
+    A slug comprising letters from A to F
+    """
+    regex = r'[A-Fa-f0-9\-.]+'
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+
+
+register_converter(NumericString, 'num')
+register_converter(SemiSlug, 'semislug')
+
 urlpatterns = [
     # authentication
     path('api/auth/login/', LoginView.as_view(), name='login'),
@@ -52,95 +79,89 @@ urlpatterns = [
 
     # laboratories, cases and slides
     path('api/laboratories/', LaboratoryList.as_view()),
-    re_path(r'api/laboratories/(?P<pk>[\w\-.]+)/', LaboratoryDetail.as_view()),
-    re_path(r'api/laboratories/(?P<laboratory>[\w\-.]+)/(?P<case>[\w\-.]+)/', LaboratoryCaseLink.as_view()),
+    path('api/laboratories/<slug:pk>/', LaboratoryDetail.as_view()),
+    path('api/laboratories/<slug:laboratory>/<slug:case>/', LaboratoryCaseLink.as_view()),
     path('api/cases/', CaseList.as_view()),
-    re_path(r'api/cases/(?P<pk>[\w\-.]+)/', CaseDetail.as_view()),
+    path('api/cases/<slug:pk>/', CaseDetail.as_view()),
     path('api/slides/', SlideList.as_view()),
-    re_path(r'api/slides/(?P<pk>[\w\-.]+)/', SlideDetail.as_view()),
+    path('api/slides/<slug:pk>/', SlideDetail.as_view()),
     path('api/slides_set/', SlidesSetList.as_view()),
-    re_path(r'api/slides_set/(?P<pk>[\w\-.]+)/', SlidesSetDetail.as_view()),
+    path('api/slides_set/<slug:pk>/', SlidesSetDetail.as_view()),
 
     # slides questionnaire
     path('api/questions_sets/', qmv.QuestionsSetList.as_view()),
-    re_path(r'api/questions_sets/(?P<pk>[\w\-.]+)/', qmv.QuestionsSetDetail.as_view()),
+    path('api/questions_sets/<slug:pk>/', qmv.QuestionsSetDetail.as_view()),
     path('api/questionnaires/', qmv.QuestionnaireList.as_view()),
-    re_path(r'api/questionnaires/(?P<pk>[\w\-.]+)/', qmv.QuestionnaireDetail.as_view()),
-    re_path(r'api/questionnaires/(?P<quest_pk>[\w\-.]+)/(?P<step_index>[0-9]+)/',
-            qmv.QuestionnaireStepDetail.as_view()),
+    path('api/questionnaires/<slug:pk>/', qmv.QuestionnaireDetail.as_view()),
+    path('api/questionnaires/<slug:quest_pk>/<num:step_index>/', qmv.QuestionnaireStepDetail.as_view()),
 
     # slides questionnaire worklist and answers
-    re_path(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/', qmv.QuestionnaireRequestDetail.as_view()),
-    re_path(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/status/', qmv.QuestionnaireRequestStatus.as_view()),
-    re_path(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/answers/', qmv.QuestionnaireRequestAnswers.as_view()),
+    path('api/questionnaire_requests/<slug:label>/', qmv.QuestionnaireRequestDetail.as_view()),
+    path('api/questionnaire_requests/<slug:label>/status/', qmv.QuestionnaireRequestStatus.as_view()),
+    path('api/questionnaire_requests/<slug:label>/answers/', qmv.QuestionnaireRequestAnswers.as_view()),
     re_path(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/',
             qmv.QuestionnaireRequestPanelDetail.as_view()),
     re_path(r'api/questionnaire_requests/(?P<label>[\w\-.]+)/(?P<panel>panel_a|panel_b)/answers/',
             qmv.QuestionnairePanelAnswersDetail.as_view()),
 
     # ROIs annotation steps details
-    re_path(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/clinical_annotation_steps/',
-            rmv.ClinicalAnnotationStepsList.as_view()),
+    path('api/rois_annotation_steps/<semislug:label>/clinical_annotation_steps/',
+         rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
-    re_path(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/rois_list/', ROIsTreeList.as_view()),
-    re_path(r'api/rois_annotation_steps/(?P<label>[A-Fa-f0-9\-.]+)/slices/', SliceList.as_view()),
-    re_path(r'api/slices/(?P<pk>[0-9]+)/cores/', CoreList.as_view()),
-    re_path(r'api/slices/(?P<pk>[0-9]+)/', SliceDetail.as_view()),
-    re_path(r'api/cores/(?P<pk>[0-9]+)/focus_regions/', FocusRegionList.as_view()),
-    re_path(r'api/cores/(?P<pk>[0-9]+)/', CoreDetail.as_view()),
-    re_path(r'api/focus_regions/(?P<pk>[0-9]+)/', FocusRegionDetail.as_view()),
+    path('api/rois_annotation_steps/<semislug:label>/rois_list/', ROIsTreeList.as_view()),
+    path('api/rois_annotation_steps/<semislug:label>/slices/', SliceList.as_view()),
+    path('api/slices/<num:pk>/cores/', CoreList.as_view()),
+    path('api/slices/<num:pk>/', SliceDetail.as_view()),
+    path('api/cores/<num:pk>/focus_regions/', FocusRegionList.as_view()),
+    path('api/cores/<num:pk>/', CoreDetail.as_view()),
+    path('api/focus_regions/<num:pk>/', FocusRegionDetail.as_view()),
 
     # clinical annotations data
-    re_path(
-        r'api/rois_annotation_steps/(?P<rois_annotation_step>[A-Fa-f0-9\-.]+)/rois_list/(?P<clinical_annotation_step>[A-Fa-f0-9\-.]+)/',
-        AnnotatedROIsTreeList.as_view()),
-    re_path(r'api/clinical_annotation_steps/(?P<clinical_annotation_step>[A-Fa-f0-9\-.]+)/annotations_list/',
-            ClinicalAnnotationStepAnnotationsList.as_view()),
-    re_path('api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/', SliceAnnotationList.as_view()),
-    re_path(r'api/slices/(?P<slice_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/',
-            SliceAnnotationDetail.as_view()),
-    re_path('api/cores/(?P<core_id>[0-9]+)/clinical_annotations/', CoreAnnotationList.as_view()),
-    re_path(r'api/cores/(?P<core_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/',
-            CoreAnnotationDetail.as_view()),
-    re_path('api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/',
-            FocusRegionAnnotationList.as_view()),
-    re_path(r'api/focus_regions/(?P<focus_region_id>[0-9]+)/clinical_annotations/(?P<label>[A-Fa-f0-9\-.]+)/',
-            FocusRegionAnnotationDetail.as_view()),
+    path('api/rois_annotation_steps/<semislug:rois_annotation_step>/rois_list/<semislug:clinical_annotation_step>/',
+         AnnotatedROIsTreeList.as_view()),
+    path('api/clinical_annotation_steps/<semislug:clinical_annotation_step>/annotations_list/',
+         ClinicalAnnotationStepAnnotationsList.as_view()),
+    path('api/slices/<num:slice_id>/clinical_annotations/', SliceAnnotationList.as_view()),
+    path('api/slices/<num:slice_id>/clinical_annotations/<semislug:label>/',
+         SliceAnnotationDetail.as_view()),
+    path('api/cores/<num:core_id>/clinical_annotations/', CoreAnnotationList.as_view()),
+    path('api/cores/<num:core_id>/clinical_annotations/<semislug:label>/',
+         CoreAnnotationDetail.as_view()),
+    path('api/focus_regions/<num:focus_region_id>/clinical_annotations/',
+         FocusRegionAnnotationList.as_view()),
+    path('api/focus_regions/<num:focus_region_id>/clinical_annotations/(<semislug:label>/',
+         FocusRegionAnnotationDetail.as_view()),
 
     # ROIs annotations
     path('api/rois_annotations/', rmv.ROIsAnnotationsList.as_view()),
-    re_path('api/rois_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/',
-            rmv.ROIsAnnotationDetail.as_view()),
-    re_path(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/reset/', rmv.ROIsAnnotationStepReopen.as_view()),
-    re_path(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/', rmv.ROIsAnnotationStepDetail.as_view()),
-    re_path(r'api/rois_annotations/(?P<case>[\w\-.]+)/', rmv.ROIsAnnotationsDetail.as_view()),
+    path('api/rois_annotations/annotations/<semislug:label>/', rmv.ROIsAnnotationDetail.as_view()),
+    path('api/rois_annotations/steps/<semislug:label>/reset/', rmv.ROIsAnnotationStepReopen.as_view()),
+    path('api/rois_annotations/steps/<semislug:label>/', rmv.ROIsAnnotationStepDetail.as_view()),
+    path('api/rois_annotations/<slug:case>/', rmv.ROIsAnnotationsDetail.as_view()),
 
     # quality control
-    re_path(r'api/rois_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/slide_evaluation/',
-            SlideEvaluationDetail.as_view()),
+    path('api/rois_annotations/steps/<semislug:label>/slide_evaluation/', SlideEvaluationDetail.as_view()),
 
-    re_path(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/', rmv.ROIsAnnotationCreation.as_view()),
-    re_path(r'api/rois_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<slide>[\w\-.]+)/',
-            rmv.ROIsAnnotationStepCreation.as_view()),
+    path('api/rois_annotations/<slug:case>/<slug:reviewer>/', rmv.ROIsAnnotationCreation.as_view()),
+    path('api/rois_annotations/<slug:case>/<slug:reviewer>/<slug:slide>/', rmv.ROIsAnnotationStepCreation.as_view()),
 
     # clinical annotations
     path('api/clinical_annotations/', rmv.ClinicalAnnotationsList.as_view()),
-    re_path(r'api/clinical_annotations/(?P<case>[\w\-.]+)/', rmv.ClinicalAnnotationsDetail.as_view()),
-    re_path('api/clinical_annotations/annotations/(?P<label>[A-Fa-f0-9]+)/', rmv.ClinicalAnnotationDetail.as_view()),
-    re_path(r'api/clinical_annotations/steps/(?P<label>[A-Fa-f0-9\-.]+)/', rmv.ClinicalAnnotationStepDetail.as_view()),
+    path('api/clinical_annotations/<slug:case>/', rmv.ClinicalAnnotationsDetail.as_view()),
+    path('api/clinical_annotations/annotations/<semislug:label>/', rmv.ClinicalAnnotationDetail.as_view()),
+    path('api/clinical_annotations/steps/<semislug:label>/', rmv.ClinicalAnnotationStepDetail.as_view()),
 
-    re_path(r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/',
-            rmv.ClinicalAnnotationCreation.as_view()),
-    re_path(
-        r'api/clinical_annotations/(?P<case>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/(?P<rois_review>[0-9]+)/(?P<slide>[\w\-.]+)/',
-        rmv.ClinicalAnnotationStepCreation.as_view()),
+    path('api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/',
+         rmv.ClinicalAnnotationCreation.as_view()),
+    path('api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/<slug:slide>/',
+         rmv.ClinicalAnnotationStepCreation.as_view()),
 
     # worklists
     path('api/worklist/', UserWorkList.as_view()),
-    re_path('api/worklist/rois_annotations/(?P<label>[A-Fa-f0-9]+)/', UserWorklistROIsAnnotation.as_view()),
-    re_path('api/worklist/clinical_annotations/(?P<label>[A-Fa-f0-9]+)/', UserWorklistClinicalAnnotation.as_view()),
-    re_path(r'api/worklist/admin/(?P<username>[\w\-.]+)/', WorkListAdmin.as_view()),
+    path('api/worklist/rois_annotations/<semislug:label>/', UserWorklistROIsAnnotation.as_view()),
+    path('api/worklist/clinical_annotations/<semislug:label>/', UserWorklistClinicalAnnotation.as_view()),
+    path('api/worklist/admin/<slug:username>/', WorkListAdmin.as_view()),
 
     # utils
     path('api/utils/omeseadragon_base_urls/', promort_utils.get_ome_seadragon_base_url),
@@ -155,24 +176,23 @@ urlpatterns = [
     path('api/odin/check_permissions/', od.CheckAccessPrivileges.as_view()),
 
     # ROIs extraction tool
-    re_path(r'api/odin/rois/(?P<case>[\w\-.]+)/', od.GetCaseDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/slices/', od.GetSlicesDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/slices/(?P<pk>[0-9]+)/', od.GetSliceDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/cores/', od.GetCoresDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/cores/(?P<pk>[0-9]+)/', od.GetCoreDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/focus_regions/', od.GetFocusRegionsDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<slide>[\w\-.]+)/focus_regions/(?P<pk>[0-9]+)/', od.GetFocusRegionDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/', od.GetSlideDetails.as_view()),
-    re_path(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/',
-            od.GetReviewerDetails.as_view()),
+    path('api/odin/rois/<slug:case>/', od.GetCaseDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/slices/', od.GetSlicesDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/slices/<num:pk>/', od.GetSliceDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/cores/', od.GetCoresDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/cores/<num:pk>/', od.GetCoreDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/focus_regions/', od.GetFocusRegionsDetails.as_view()),
+    path('api/odin/rois/<slug:slide>/focus_regions/<num:pk>/', od.GetFocusRegionDetails.as_view()),
+    path('api/odin/rois/<slug:case>/<slug:slide>/', od.GetSlideDetails.as_view()),
+    path('api/odin/rois/<slug:case>/<slug:slide>/<slug:reviewer>/', od.GetReviewerDetails.as_view()),
     re_path(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
-            '(?P<roi_type>slice|core|focus_region)/', od.GetDetailsByROIType.as_view()),
+            r'(?P<roi_type>slice|core|focus_region)/', od.GetDetailsByROIType.as_view()),
     re_path(r'api/odin/rois/(?P<case>[\w\-.]+)/(?P<slide>[\w\-.]+)/(?P<reviewer>[\w\-.]+)/'
             r'(?P<roi_type>slice|core|focus_region)/(?P<roi_label>[\w]+)/', od.GetROIDetails.as_view()),
 
     # clinical reviews report tools
-    re_path(r'api/odin/reviews/(?P<case>[\w\-.]+)/score/', od.CaseReviewResults.as_view()),
-    re_path(r'api/odin/reviews/(?P<case>[\w\-.]+)/score/details/', od.CaseReviewResultsDetails.as_view()),
+    path('api/odin/reviews/<slug:case>/score/', od.CaseReviewResults.as_view()),
+    path('api/odin/reviews/<slug:case>/score/details/', od.CaseReviewResultsDetails.as_view()),
 
     # reviewers activity report
     path('api/odin/reviewers_report/', od.ReviewersDetails.as_view()),
