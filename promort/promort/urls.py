@@ -206,7 +206,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # catch'em all
-    path('', IndexView.as_view(), name='index'),
+    re_path(r'.*', IndexView.as_view(), name='index'),
+    # path('', IndexView.as_view(), name='index'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
