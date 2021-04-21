@@ -56,7 +56,7 @@ class Command(BaseCommand):
         reviews_stime = dict()
         for r in rois_annotation_steps:
             reviews_stime.setdefault(r.slide.id, dict())
-            reviews_stime[r.slide.id][r.label] = r.start_date
+            reviews_stime[r.slide.id][r.label] = r.creation_date
         reviews_index = dict()
         for _, revs in reviews_stime.iteritems():
             sorted_revs = OrderedDict(sorted(revs.items(), key=operator.itemgetter(1)))
