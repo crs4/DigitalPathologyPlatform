@@ -53,6 +53,6 @@ class Command(BaseCommand):
         logger.info('Unfinished Slide annotation(s): %d', stats_counter['not_completed_review_comparisons'])
         if stats_counter['not_completed_review_comparisons'] > 0:
             logger.info('--- Stats for each reviewer ---')
-            for reviewer, counter in reviewers_counter.iteritems():
+            for reviewer, counter in reviewers_counter.items():
                 logger.info('Reviewer "%s" still needs to complete %d clinical review(s)', reviewer, counter)
         logger.info('############################')

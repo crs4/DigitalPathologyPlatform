@@ -53,7 +53,7 @@ def rename_groups(apps, schema_editor):
             group_obj.save()
             logger.info('Group name updated')
         except Group.DoesNotExist:
-            logger.warn('No group with name %s, no need to update', group_desc['old_name'])
+            logger.warning('No group with name %s, no need to update', group_desc['old_name'])
 
 
 class Migration(migrations.Migration):

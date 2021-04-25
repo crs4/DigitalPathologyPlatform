@@ -29,11 +29,11 @@ from odin.permissions import CanEnterGodMode
 
 from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation
 
-from promort.settings import DEFAULT_GROUPS, EMAIL_HOST_USER, REPORT_RECIPIENTS
+from django.conf import settings
 
 from collections import Counter
 from datetime import datetime
-from StringIO import StringIO
+from io import StringIO
 from csv import DictWriter
 
 import logging
@@ -76,7 +76,7 @@ class ReviewersDetails(APIView):
     def _get_reviewers_list(self):
         reviewers = set()
         for glabel in ['rois_manager', 'clinical_manager', 'gold_standard']:
-            reviewers.update(self._get_reviewers_by_group(DEFAULT_GROUPS[glabel]['name']))
+            reviewers.update(self._get_reviewers_by_group(settings.DEFAULT_GROUPS[glabel]['name']))
         return reviewers
 
     def _get_reviewers_details(self):
@@ -131,8 +131,8 @@ class ReviewersDetailsReport(ReviewersDetails):
         template_ctx = self._get_template_context(usr_details, reviews_details)
 
         subject = '[ProMort] Reviewer activity report'
-        from_email = EMAIL_HOST_USER
-        bcc_mails = REPORT_RECIPIENTS
+        from_email = settings.EMAIL_HOST_USER
+        bcc_mails = settings.REPORT_RECIPIENTS
 
         msg = EmailMultiAlternatives(subject=subject, body=text_mail_template.render(template_ctx),
                                      from_email=from_email, to=[destination_mail], bcc=bcc_mails)
@@ -147,7 +147,7 @@ class ReviewersDetailsReport(ReviewersDetails):
         send_mail_status = dict()
 
         reviews_map = self._get_reviewers_details()
-        for reviewer, annotations_details in reviews_map.iteritems():
+        for reviewer, annotations_details in reviews_map.items():
             try:
                 self._send_mail(reviewer, annotations_details, text_template, html_template)
                 send_mail_status[reviewer] = True
@@ -208,7 +208,7 @@ class ReviewsActivityReport(APIView):
         msg = EmailMessage(
             subject='ProMort reviews report %s' % datetime.now().strftime("%B %d %Y"),
             body=get_template('annotations_report.txt').render(),
-            from_email=EMAIL_HOST_USER,
+            from_email=settings.EMAIL_HOST_USER,
             to=[receiver],
             attachments=[
                 ('rois_report.csv', rois_report_stream.getvalue(), 'text/csv'),

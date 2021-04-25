@@ -47,14 +47,14 @@ class Command(BaseCommand):
         try:
             return Laboratory.objects.get(label__iexact=lab_label)
         except Laboratory.DoesNotExist:
-            logger.warn('Laboratory %s does not exist' % lab_label)
+            logger.warning('Laboratory %s does not exist' % lab_label)
             return None
 
     def _get_case(self, case_id):
         try:
             return Case.objects.get(id=case_id)
         except Case.DoesNotExist:
-            logger.warn('Case %s does not exist' % case_id)
+            logger.warning('Case %s does not exist' % case_id)
             return None
 
     def _update_case(self, case_obj, laboratory_obj):
@@ -64,7 +64,7 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting update job ===')
         cases_map = self._get_cases_map(opts['cases_map'])
-        for lab, cases in cases_map.iteritems():
+        for lab, cases in cases_map.items():
             lab_obj = self._get_laboratory(lab)
             if lab_obj:
                 logger.info('Processing cases for laboratory %s', lab)

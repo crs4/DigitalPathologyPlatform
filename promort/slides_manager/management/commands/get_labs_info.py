@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         logger.info('#########################')
         no_labs = labs_counter.pop('NO_LAB', 0)
-        for lab, count in labs_counter.iteritems():
+        for lab, count in labs_counter.items():
             logger.info('Laboratory %s - %d case(s)', lab, count)
         logger.info('%d case(s)  not assigned to a lab', no_labs)
         logger.info('#########################')

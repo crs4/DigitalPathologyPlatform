@@ -73,7 +73,7 @@ class Command(BaseCommand):
         ss_item_obj.save()
 
     def _load_sets(self, sets_map, slides_set_objs, slides_objs):
-        for set_id, items in sets_map.iteritems():
+        for set_id, items in sets_map.items():
             for index, set_item in enumerate(items):
                 try:
                     self._load_slides_set_item(

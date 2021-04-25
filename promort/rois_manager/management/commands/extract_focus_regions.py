@@ -28,7 +28,7 @@ except ImportError:
     import json
 
 import logging, sys, os, requests
-from urlparse import urljoin
+from urllib.parse import urljoin
 from shapely.geometry import Polygon
 
 logger = logging.getLogger('promort_commands')

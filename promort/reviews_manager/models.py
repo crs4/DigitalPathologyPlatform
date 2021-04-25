@@ -248,8 +248,8 @@ class ReviewsComparison(models.Model):
     creation_date = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True, default=None)
     completion_date = models.DateTimeField(blank=True, null=True, default=None)
-    positive_match = models.NullBooleanField(blank=True, null=True, default=None)
-    positive_quality_control = models.NullBooleanField(blank=True, null=True, default=None)
+    positive_match = models.BooleanField(blank=True, null=True, default=None)
+    positive_quality_control = models.BooleanField(blank=True, null=True, default=None)
     review_3 = models.OneToOneField(ClinicalAnnotationStep, on_delete=models.PROTECT, blank=True,
                                     null=True, default=None, related_name='gold_standard')
 

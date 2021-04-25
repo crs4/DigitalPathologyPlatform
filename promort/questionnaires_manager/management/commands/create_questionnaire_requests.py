@@ -53,7 +53,7 @@ class Command(BaseCommand):
         return str(uuid4())
 
     def _create_requests(self, reviewer, requests):
-        logger.info('-- Creating %d questionnare requests for user %s', len(requests), reviewer)
+        logger.info('-- Creating %d questionnaire requests for user %s', len(requests), reviewer)
         try:
             reviewer_obj = User.objects.get(username=reviewer)
         except User.DoesNotExist:
@@ -94,6 +94,6 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')
         requests_map = self._load_requests_map(opts['questionnaire_requests'])
-        for k, v in requests_map.iteritems():
+        for k, v in requests_map.items():
             self._create_requests(k, v)
         logger.info('=== Import job completed ===')
