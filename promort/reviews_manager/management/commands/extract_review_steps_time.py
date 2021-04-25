@@ -23,7 +23,6 @@ import random
 import logging
 import operator
 from csv import DictWriter
-from itertools import izip
 from collections import OrderedDict
 
 from slides_manager.models import SlideEvaluation
@@ -58,15 +57,15 @@ class Command(BaseCommand):
             reviews_stime.setdefault(r.slide.id, dict())
             reviews_stime[r.slide.id][r.label] = r.creation_date
         reviews_index = dict()
-        for _, revs in reviews_stime.iteritems():
+        for _, revs in reviews_stime.items():
             sorted_revs = OrderedDict(sorted(revs.items(), key=operator.itemgetter(1)))
             for i, k in enumerate(sorted_revs.keys()):
                 reviews_index[k] = i+1
         return reviews_index
 
     def _get_random_slide_ids(self, slides_list):
-        ids = random.sample(xrange(1, 10000000), len(slides_list))
-        return dict(izip(slides_list, ids))
+        ids = random.sample(range(1, 10000000), len(slides_list))
+        return dict(zip(slides_list, ids))
 
     def _get_rois_annotation_step_times(self, step):
         total_time = (step.completion_date - step.start_date).total_seconds()
