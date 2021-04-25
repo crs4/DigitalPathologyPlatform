@@ -53,7 +53,7 @@ class Command(BaseCommand):
         return str(uuid4())
 
     def _create_requests(self, reviewer, requests):
-        logger.info('-- Creating %d questionnare requests for user %s', len(requests), reviewer)
+        logger.info('-- Creating %d questionnaire requests for user %s', len(requests), reviewer)
         try:
             reviewer_obj = User.objects.get(username=reviewer)
         except User.DoesNotExist:
