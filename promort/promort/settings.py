@@ -63,7 +63,8 @@ INSTALLED_APPS = (
     'clinical_annotations_manager',
     'odin',
     'utils',
-    'questionnaires_manager'
+    'questionnaires_manager',
+    'shared_datasets_manager'
 )
 
 MIDDLEWARE = (
