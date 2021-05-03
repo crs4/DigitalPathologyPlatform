@@ -25,7 +25,7 @@ import operator
 from csv import DictWriter
 from collections import OrderedDict
 
-from slides_manager.models import SlideEvaluation
+from reviews_manager.models import ROIsAnnotationStep
 
 
 logger = logging.getLogger('promort_commands')
@@ -48,19 +48,17 @@ class Command(BaseCommand):
         return f, writer
 
     def _get_rois_annotation_steps(self):
-        slide_evaluations = SlideEvaluation.objects.filter(adequate_slide=True)
-        return [x.rois_annotation_step for x in slide_evaluations]
+        return ROIsAnnotationStep.objects.all()
 
     def _get_reviews_index(self, rois_annotation_steps):
         reviews_stime = dict()
         for r in rois_annotation_steps:
             reviews_stime.setdefault(r.slide.id, dict())
-            reviews_stime[r.slide.id][r.label] = r.creation_date
+            reviews_stime[r.slide.id][r.creation_date] = r.label
         reviews_index = dict()
-        for _, revs in reviews_stime.items():
-            sorted_revs = OrderedDict(sorted(revs.items(), key=operator.itemgetter(1)))
-            for i, k in enumerate(sorted_revs.keys()):
-                reviews_index[k] = i+1
+        for _, revs in sorted(reviews_stime.items()):
+            for i, (k, l) in enumerate(revs.items()):
+                reviews_index[l] = i+1
         return reviews_index
 
     def _get_random_slide_ids(self, slides_list):
