@@ -40,9 +40,19 @@ class Command(BaseCommand):
             r'^(?P<lab>[CBM]{1})(?P<tissue_type>[A-Z]{1}) +(?P<case_id>[0-9]{2}) +(?P<fixative>(GAF|PBF){1}) +(?P<staining>[\w]+)$'
         )
         res = regex.match(slide_name)
+        
+        test_public_dataset_regex = re.compile(
+            r'(?P<case_id>[\w_]+)-(?P<slide_id>[0-9]+)_(?P<fixative>(GAF|PBF){1})$'
+        )
+        test_res = test_public_dataset_regex.match(slide_name)
+        
         if res:
             case = '{0}-{1}-{2}'.format(*res.group('lab', 'tissue_type', 'case_id'))
             slide = '{0}-{1}-{2}-{3}-{4}'.format(*res.group('lab', 'tissue_type', 'case_id', 'fixative', 'staining'))
+            return case, slide
+        elif test_res:
+            case = test_res.group('case_id')
+            slide = slide_name
             return case, slide
         else:
             logger.warning('Slide "{0}" not matching standard slide name format'.format(slide_name))
