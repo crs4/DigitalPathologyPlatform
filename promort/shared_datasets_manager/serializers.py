@@ -55,3 +55,17 @@ class SharedDatasetItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'dataset', 'slides_set_a', 'slides_set_a_label', 'slides_set_b', 'slides_set_b_label',
                   'creation_date', 'notes')
         read_only_fields = ('id', 'creation_date')
+
+
+class SharedDatasetDetailsSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    items = SharedDatasetItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SharedDataset
+
+        fields = ('id', 'label', 'creation_date', 'author', 'description', 'expiry_date', 'hidden', 'items')
+        read_only_fields = ('id', 'creation_date', 'items')
