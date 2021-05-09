@@ -26,7 +26,7 @@ from rest_framework.exceptions import MethodNotAllowed, NotFound
 
 from django.db import IntegrityError
 
-from view_templates.views import GenericListView, GenericReadOnlyDetailView, GenericDetailView
+from view_templates.views import GenericListView, GenericReadOnlyDetailView
 
 from questionnaires_manager.models import QuestionsSet, Questionnaire, QuestionnaireStep, \
     QuestionnaireRequest, QuestionnaireAnswers, QuestionnaireStepAnswers
