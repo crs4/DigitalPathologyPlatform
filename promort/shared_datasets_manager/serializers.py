@@ -34,12 +34,18 @@ class SharedDatasetSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    items_count = serializers.SerializerMethodField()
 
     class Meta:
         model = SharedDataset
 
-        fields = ('id', 'label', 'creation_date', 'author', 'description', 'expiry_date', 'hidden')
-        read_only_fields = ('id', 'creation_date')
+        fields = ('id', 'label', 'creation_date', 'author', 'description', 'expiry_date', 'hidden',
+                  'items_count')
+        read_only_fields = ('id', 'creation_date', 'items_count')
+        
+    @staticmethod
+    def get_items_count(self):
+        return self.items.count()
 
 
 class SharedDatasetItemSerializer(serializers.ModelSerializer):
