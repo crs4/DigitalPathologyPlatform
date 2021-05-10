@@ -54,30 +54,31 @@ class Command(BaseCommand):
         logger.info('-- Creating {0} items for dataset {1}'.format(len(items), dataset_label))
         try:
             dataset_obj = SharedDataset.objects.get(label=dataset_label)
-            for i in items:
+            for i, item in enumerate(items):
                 dset_item_config = {
-                    'dataset': dataset_obj
+                    'dataset': dataset_obj,
+                    'dataset_index': i+1
                 }
                 try:
-                    dset_item_config['slides_set_a'] = SlidesSet.objects.get(id=i['slides_set_a'])
-                    dset_item_config['slides_set_a_label'] = i['slides_set_a_label']
+                    dset_item_config['slides_set_a'] = SlidesSet.objects.get(id=item['slides_set_a'])
+                    dset_item_config['slides_set_a_label'] = item['slides_set_a_label']
                 except KeyError:
                     logger.error('Missing mandatory field for slides set a')
                     break
                 except SlidesSet.DoesNotExist:
-                    logger.error('There is no SlidesSet object with label {0}', i['slides_set_a'])
+                    logger.error('There is no SlidesSet object with label {0}', item['slides_set_a'])
                     break
-                if i.get('slides_set_b'):
+                if item.get('slides_set_b'):
                     try:
-                        dset_item_config['slides_set_b'] = SlidesSet.objects.get(id=i['slides_set_b'])
-                        dset_item_config['slides_set_b_label'] = i['slides_set_b_label']
+                        dset_item_config['slides_set_b'] = SlidesSet.objects.get(id=item['slides_set_b'])
+                        dset_item_config['slides_set_b_label'] = item['slides_set_b_label']
                     except KeyError:
                         logger.error('Missing mandatory field for slides set b')
                         break
                     except SlidesSet.DoesNotExist:
-                        logger.error('There is no SlidesSet object with label {0}', i['slides_set_b'])
+                        logger.error('There is no SlidesSet object with label {0}', item['slides_set_b'])
                         break
-                dset_item_config['notes'] = i.get('notes')
+                dset_item_config['notes'] = item.get('notes')
                 dset_item_obj = SharedDatasetItem(**dset_item_config)
                 try:
                     dset_item_obj.save()

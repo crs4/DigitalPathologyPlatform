@@ -52,8 +52,8 @@ class SharedDatasetItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = SharedDatasetItem
 
-        fields = ('id', 'dataset', 'slides_set_a', 'slides_set_a_label', 'slides_set_b', 'slides_set_b_label',
-                  'creation_date', 'notes')
+        fields = ('id', 'dataset', 'dataset_index', 'slides_set_a', 'slides_set_a_label', 'slides_set_b',
+                  'slides_set_b_label', 'creation_date', 'notes')
         read_only_fields = ('id', 'creation_date')
 
 

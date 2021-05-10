@@ -44,6 +44,7 @@ class SharedDataset(models.Model):
 class SharedDatasetItem(models.Model):
     dataset = models.ForeignKey(SharedDataset, on_delete=models.PROTECT, blank=False, null=False,
                                 related_name='items')
+    dataset_index = models.IntegerField(blank=False, null=False)
     slides_set_a = models.ForeignKey(SlidesSet, on_delete=models.PROTECT, blank=False, null=False, unique=False,
                                      related_name='shared_dataset_item_a')
     slides_set_a_label = models.CharField(max_length=50, blank=False, null=False)
@@ -55,6 +56,7 @@ class SharedDatasetItem(models.Model):
 
     class Meta:
         unique_together = (
+            ('dataset', 'dataset_index'),
             ('slides_set_a', 'slides_set_b'),
             ('dataset', 'slides_set_a_label'),
             ('dataset', 'slides_set_b_label')
