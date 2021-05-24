@@ -175,6 +175,7 @@ urlpatterns = [
     # ===== SHARED DATASETS =====
     path('api/shared_datasets/', shdv.SharedDatasetList.as_view()),
     path('api/shared_datasets/<slug:pk>/', shdv.SharedDatasetDetail.as_view()),
+    path('api/shared_datasets/<slug:dataset>/<slug:index>/', shdv.SharedDatasetItemDetail.as_view()),
 
     # ===== ODIN BACKEND ======
     # utils

@@ -26,7 +26,7 @@ from view_templates.views import GenericListView, GenericReadOnlyDetailView
 
 from shared_datasets_manager.models import SharedDataset, SharedDatasetItem
 from shared_datasets_manager.serializers import SharedDatasetSerializer, SharedDatasetDetailsSerializer,\
-                                                SharedDatasetItemSerializer
+    SharedDatasetItemDetailsSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -43,3 +43,22 @@ class SharedDatasetList(GenericListView):
 class SharedDatasetDetail(GenericReadOnlyDetailView):
     model = SharedDataset
     model_serializer = SharedDatasetDetailsSerializer
+
+
+class SharedDatasetItemDetail(APIView):
+    models = SharedDatasetItem
+    model_serializer = SharedDatasetItemDetailsSerializer
+
+    def get_object(self, dataset_id, item_index):
+        try:
+            dset_obj = SharedDataset.objects.get(pk=dataset_id)
+            return dset_obj.items.get(dataset_index=item_index)
+        except SharedDataset.DoesNotExist:
+            raise NotFound('There is no SharedDataset object with ID %s' % dataset_id)
+        except SharedDatasetItem.DoesNotExist:
+            raise NotFound('There is not item with index %s for SharedDataset %s' % (item_index, dataset_id))
+
+    def get(self, request, dataset, index, format=None):
+        dataset_item = self.get_object(dataset, index)
+        serializer = self.model_serializer(dataset_item)
+        return Response(serializer.data, status=status.HTTP_200_OK)

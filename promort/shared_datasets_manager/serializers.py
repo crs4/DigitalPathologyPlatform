@@ -27,6 +27,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from shared_datasets_manager.models import SharedDataset, SharedDatasetItem
+from slides_manager.serializers import SlidesSetSerializer
 
 
 class SharedDatasetSerializer(serializers.ModelSerializer):
@@ -69,3 +70,15 @@ class SharedDatasetDetailsSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'label', 'creation_date', 'author', 'description', 'expiry_date', 'hidden', 'items')
         read_only_fields = ('id', 'creation_date', 'items')
+
+
+class SharedDatasetItemDetailsSerializer(serializers.ModelSerializer):
+    slides_set_a = SlidesSetSerializer(many=False, read_only=True)
+    slides_set_b = SlidesSetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = SharedDatasetItem
+
+        fields = ('id', 'dataset', 'dataset_index', 'slides_set_a', 'slides_set_a_label', 'slides_set_b',
+                  'slides_set_b_label', 'creation_date', 'notes')
+        read_only_fields = ('id', 'creation_date', 'slides_set_a', 'slides_set_b')
