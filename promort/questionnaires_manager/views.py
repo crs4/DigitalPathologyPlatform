@@ -96,9 +96,9 @@ class QuestionnaireStepDetail(APIView):
             return quest_obj.steps.get(step_index=step_index)
         except Questionnaire.DoesNotExist:
             logger.debug('Questionnaire object not found!')
-            raise NotFound('There is no Questionnare with label %s' % quest_pk)
+            raise NotFound('There is no Questionnaire with label %s' % quest_pk)
         except QuestionnaireStep.DoesNotExist:
-            logger.debug('QuestionnareStep object not found!')
+            logger.debug('QuestionnaireStep object not found!')
             raise NotFound('There is no QuestionnaireStep with index %s for Questionnaire %s' % (step_index, quest_pk))
 
     def get(self, request, quest_pk, step_index, format=None):
