@@ -33,12 +33,12 @@ class SharedDataset(models.Model):
 
     def hide(self):
         if not self.hidden:
-            self.hidden=True
+            self.hidden = True
             self.save()
 
     def show(self):
         if set.hidden:
-            self.hidden=False
+            self.hidden = False
             self.save()
 
 class SharedDatasetItem(models.Model):
