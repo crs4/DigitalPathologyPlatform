@@ -220,6 +220,9 @@ REPORT_SUBJECT_PREFIX = cfg['report']['subject_prefix']
 REPORT_RECIPIENTS = cfg['report']['recipients']
 
 # CUSTOM SETTINGS
+SHARED_DATASETS_ENABLED = cfg['promort_config']['enable_shared_datasets']
+
+
 DEFAULT_GROUPS = {
     'rois_manager': {
         'name': cfg['promort_groups']['rois_manager']['name'],

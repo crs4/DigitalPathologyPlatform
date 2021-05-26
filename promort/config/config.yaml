@@ -15,6 +15,9 @@ database:
   host:
   port:
 
+promort_config:
+  enable_shared_datasets: true
+
 email:
   use_tls: true
   host:

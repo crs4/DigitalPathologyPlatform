@@ -27,6 +27,7 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
     ome_seadragon_base_url = settings.OME_SEADRAGON_STATIC_FILES_URL
+    enable_shared_datasets = settings.SHARED_DATASETS_ENABLED
     promort_version = settings.VERSION
 
     @method_decorator(ensure_csrf_cookie)

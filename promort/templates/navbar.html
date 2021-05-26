@@ -70,6 +70,14 @@
                         </a>
                     </li>
                 {% endif %}
+                {% if view.enable_shared_datasets %}
+                    <li>
+                        <a href="#" role="button" id="nav_shared_dsets" class="btn btn-default navbar-btn">
+                            <i class="icon-data_science"></i>
+                            <span>Datasets</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <li>
                     <a id="nav_user_guide" href="http://crs4.github.io/ProMort/" target="_blank"
                        role="button" class="btn btn-default navbar-btn">
