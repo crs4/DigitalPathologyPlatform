@@ -48,6 +48,12 @@
                 controllerAs: 'sdc',
                 templateUrl: '/static/templates/shared_datasets/datasets_index.html'
             })
+            // shared dataset items template
+            .when('/datasets/:dataset_id', {
+                controller: 'SharedDatasetItemsController',
+                controllerAs: 'sdic',
+                templateUrl: '/static/templates/shared_datasets/dataset_details.html'
+            })
             // user worklist template
             .when('/worklist', {
                 controller: 'WorkListController',

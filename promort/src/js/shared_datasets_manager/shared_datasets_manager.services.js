@@ -31,7 +31,7 @@
     function SharedDatasetsService($http, $log) {
         var SharedDatasetsService = {
             list_datasets: list_datasets,
-            get_dataset: get_dataset,
+            get_dataset_details: get_dataset_details,
             get_dataset_item: get_dataset_item
         };
 
@@ -41,7 +41,7 @@
             return $http.get('/api/shared_datasets/');
         }
 
-        function get_dataset(dataset_id) {
+        function get_dataset_details(dataset_id) {
             return $http.get('/api/shared_datasets/' + dataset_id + '/');
         }
 

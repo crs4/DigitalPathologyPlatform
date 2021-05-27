@@ -24,13 +24,15 @@
 
     angular
         .module('promort.shared_datasets_manager.controllers')
-        .controller('SharedDatasetsController', SharedDatasetsController);
+        .controller('SharedDatasetsController', SharedDatasetsController)
+        .controller('SharedDatasetItemsController', SharedDatasetItemsController);
 
     SharedDatasetsController.$inject = ['$scope', '$log', 'SharedDatasetsService'];
 
     function SharedDatasetsController($scope, $log, SharedDatasetsService) {
         var vm = this;
         vm.datasets = [];
+        vm.getDatasetLink = getDatasetLink;
 
         activate();
 
@@ -44,6 +46,41 @@
             function listDatasetsErrorFn(response) {
                 $log.error(response.error);
             }
+        }
+
+        function getDatasetLink(dataset) {
+            return 'datasets/' + dataset.id;
+        }
+    }
+
+    SharedDatasetItemsController.$inject = ['$scope', '$routeParams', '$log', 'SharedDatasetsService'];
+
+    function SharedDatasetItemsController($scope, $routeParams,  $log, SharedDatasetsService) {
+        var vm = this;
+        vm.dataset_id = undefined;
+        vm.dataset_label = undefined;
+        vm.items = [];
+        vm.getDatasetItemLink = getDatasetItemLink;
+
+        activate();
+
+        function activate() {
+            vm.dataset_id = $routeParams.dataset_id;
+            SharedDatasetsService.get_dataset_details(vm.dataset_id)
+                .then(getDatasetDetailsSuccessFn, getDatasetDetailsErrorFn);
+
+            function getDatasetDetailsSuccessFn(response) {
+                vm.dataset_label = response.data.label;
+                vm.items = response.data.items;
+            }
+
+            function getDatasetDetailsErrorFn(response) {
+                $log.error(response.error);
+            }
+        }
+
+        function getDatasetItemLink(dataset_item) {
+            return 'datasets/' + vm.dataset_id + '/' + dataset_item.dataset_index;
         }
     }
 })();
