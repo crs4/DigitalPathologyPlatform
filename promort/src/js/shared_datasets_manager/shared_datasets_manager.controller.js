@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, CRS4
+ * Copyright (c) 2021, CRS4
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,37 +19,31 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager',
-            'promort.shared_datasets_manager'
-        ])
-        .run(run);
+        .module('promort.shared_datasets_manager.controllers')
+        .controller('SharedDatasetsController', SharedDatasetsController);
 
-    run.$inject = ['$http'];
+    SharedDatasetsController.$inject = ['$scope', '$log', 'SharedDatasetsService'];
 
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
+    function SharedDatasetsController($scope, $log, SharedDatasetsService) {
+        var vm = this;
+        vm.datasets = [];
+
+        activate();
+
+        function activate() {
+            SharedDatasetsService.list_datasets().then(listDatasetsSuccessFn, listDatasetsErrorFn);
+
+            function listDatasetsSuccessFn(response) {
+                vm.datasets = response.data;
+            }
+
+            function listDatasetsErrorFn(response) {
+                $log.error(response.error);
+            }
+        }
     }
-
-    angular
-        .module('promort.config', []);
-
-    angular
-        .module('promort.routes', ['ngRoute']);
 })();

@@ -67,6 +67,12 @@ button.prm-btn-sm {
     width: 100px;
 }
 
+a.prm-dataset-btn {
+    width: 165px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 i.prm-warning-icon {
     color: #d9534f;
 }

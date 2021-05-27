@@ -42,6 +42,12 @@
                 controllerAs: 'cpc',
                 templateUrl: '/static/templates/authentication/change_password.html'
             })
+            // shared datasets template
+            .when('/datasets', {
+                controller: 'SharedDatasetsController',
+                controllerAs: 'sdc',
+                templateUrl: '/static/templates/shared_datasets/datasets_index.html'
+            })
             // user worklist template
             .when('/worklist', {
                 controller: 'WorkListController',

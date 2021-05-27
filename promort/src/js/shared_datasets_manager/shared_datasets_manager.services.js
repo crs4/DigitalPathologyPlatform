@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, CRS4
+ * Copyright (c) 2021, CRS4
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,37 +19,34 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager',
-            'promort.shared_datasets_manager'
-        ])
-        .run(run);
+        .module('promort.shared_datasets_manager.services')
+        .factory('SharedDatasetsService', SharedDatasetsService);
 
-    run.$inject = ['$http'];
+    SharedDatasetsService.$inject = ['$http', '$log'];
 
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
+    function SharedDatasetsService($http, $log) {
+        var SharedDatasetsService = {
+            list_datasets: list_datasets,
+            get_dataset: get_dataset,
+            get_dataset_item: get_dataset_item
+        };
+
+        return SharedDatasetsService;
+
+        function list_datasets() {
+            return $http.get('/api/shared_datasets/');
+        }
+
+        function get_dataset(dataset_id) {
+            return $http.get('/api/shared_datasets/' + dataset_id + '/');
+        }
+
+        function get_dataset_item(dataset_id, item_index) {
+            return $http.get('/api/shared_datasets/' + dataset_id + '/' + item_index +'/');
+        }
     }
-
-    angular
-        .module('promort.config', []);
-
-    angular
-        .module('promort.routes', ['ngRoute']);
 })();
