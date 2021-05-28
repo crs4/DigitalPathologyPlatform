@@ -17,11 +17,6 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
@@ -43,10 +38,18 @@ class SharedDatasetSerializer(serializers.ModelSerializer):
         fields = ('id', 'label', 'creation_date', 'author', 'description', 'expiry_date', 'hidden',
                   'items_count')
         read_only_fields = ('id', 'creation_date', 'items_count')
-        
+
     @staticmethod
     def get_items_count(self):
         return self.items.count()
+
+
+class SharedDatasetCompactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharedDataset
+
+        fields = ('id', 'label', 'creation_date', 'description')
+        read_only_fields = ('id', 'label', 'creation_date', 'description')
 
 
 class SharedDatasetItemSerializer(serializers.ModelSerializer):
@@ -75,6 +78,7 @@ class SharedDatasetDetailsSerializer(serializers.ModelSerializer):
 class SharedDatasetItemDetailsSerializer(serializers.ModelSerializer):
     slides_set_a = SlidesSetSerializer(many=False, read_only=True)
     slides_set_b = SlidesSetSerializer(many=False, read_only=True)
+    dataset = SharedDatasetCompactSerializer(many=False, read_only=True)
 
     class Meta:
         model = SharedDatasetItem
