@@ -25,7 +25,7 @@ import operator
 from csv import DictWriter
 from collections import OrderedDict
 
-from slides_manager.models import SlideEvaluation
+from reviews_manager.models import ROIsAnnotationStep
 
 
 logger = logging.getLogger('promort_commands')
@@ -42,25 +42,25 @@ class Command(BaseCommand):
 
     def _prepare_output_writer(self, out_file):
         f = open(out_file, 'w')
-        writer = DictWriter(f, ['slide_id', 'review_index', 'rois_annotation_step', 'rois_start_date', 'rois_completion_date', 'rois_total_time', 'rois_activity_time',
-                                'clinical_annotation_step', 'clinical_start_date', 'clinical_completion_date', 'clinical_total_time', 'clinical_activity_time'])
+        writer = DictWriter(f, ['slide_id', 'review_index', 'rois_annotation_step', 'quality_check_passed', 
+                                'rois_start_date', 'rois_completion_date', 'rois_total_time', 'rois_activity_time',
+                                'clinical_annotation_step', 'clinical_step_rejected', 'clinical_start_date',
+                                'clinical_completion_date', 'clinical_total_time', 'clinical_activity_time'])
         writer.writeheader()
         return f, writer
 
     def _get_rois_annotation_steps(self):
-        slide_evaluations = SlideEvaluation.objects.filter(adequate_slide=True)
-        return [x.rois_annotation_step for x in slide_evaluations]
+        return ROIsAnnotationStep.objects.all()
 
     def _get_reviews_index(self, rois_annotation_steps):
         reviews_stime = dict()
         for r in rois_annotation_steps:
             reviews_stime.setdefault(r.slide.id, dict())
-            reviews_stime[r.slide.id][r.label] = r.creation_date
+            reviews_stime[r.slide.id][r.creation_date] = r.label
         reviews_index = dict()
-        for _, revs in reviews_stime.items():
-            sorted_revs = OrderedDict(sorted(revs.items(), key=operator.itemgetter(1)))
-            for i, k in enumerate(sorted_revs.keys()):
-                reviews_index[k] = i+1
+        for _, revs in sorted(reviews_stime.items()):
+            for i, (k, l) in enumerate(revs.items()):
+                reviews_index[l] = i+1
         return reviews_index
 
     def _get_random_slide_ids(self, slides_list):
@@ -114,23 +114,31 @@ class Command(BaseCommand):
                 slide_id = "{:08d}".format(slide_ids_map[rstep.slide.id])
             else:
                 slide_id = rstep.slide.id
-            rstep_times = self._get_rois_annotation_step_times(rstep)
+            qc_passed = rstep.slide_evaluation.adequate_slide
+            if qc_passed:
+                rstep_times = self._get_rois_annotation_step_times(rstep)
+            else:
+                rstep_times = {
+                    'rois_total_time': None,
+                    'rois_activity_time': None
+                }
             for cstep in rstep.clinical_annotation_steps.all():
                 row_data = {
                     'slide_id': slide_id,
                     'review_index': ra_rev_index[rstep.label],
                     'rois_annotation_step': rstep.label,
+                    'quality_check_passed': qc_passed,
                     'rois_start_date': rstep.start_date,
                     'rois_completion_date': rstep.completion_date,
                 }
-                if not cstep.rejected:
-                    cstep_times = self._get_clinical_annotation_step_times(cstep)
-                    row_data.update({
-                        'clinical_annotation_step': cstep.label,
-                        'clinical_start_date': cstep.start_date,
-                        'clinical_completion_date': cstep.completion_date
-                    })
-                    row_data.update(cstep_times)
+                row_data.update({
+                    'clinical_annotation_step': cstep.label,
+                    'clinical_step_rejected': cstep.rejected,
+                    'clinical_start_date': cstep.start_date,
+                    'clinical_completion_date': cstep.completion_date
+                })
+                if not cstep.rejected and qc_passed:
+                    row_data.update(self._get_clinical_annotation_step_times(cstep))
                 row_data.update(rstep_times)
                 of_writer.writerow(row_data)
         ofp.close()

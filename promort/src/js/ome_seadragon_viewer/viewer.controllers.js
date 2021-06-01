@@ -277,6 +277,7 @@
         vm.static_files_url = undefined;
         vm.viewer_identifier = undefined;
         vm.current_page = undefined;
+        vm.compact_viewer = undefined;
 
         vm.addSetItem = addSetItem;
         vm.isMultiSlidesSet = isMultiSlidesSet;
@@ -291,11 +292,13 @@
         vm.goToPage = goToPage;
         vm.getNaviItemID = getNaviItemID;
         vm.getSlidesSetLabel = getSlidesSetLabel;
+        vm.enableCompactViewer = enableCompactViewer;
 
         activate();
 
         function activate() {
             vm.viewer_identifier = $scope.viewerIdentifier;
+            vm.compact_viewer = $.parseJSON($scope.compactViewer);
 
             $scope.$on(
                 $scope.svWaitForIt,
@@ -425,6 +428,10 @@
 
         function getSlidesSetLabel() {
             return vm.slides_set_label;
+        }
+
+        function enableCompactViewer() {
+            return vm.compact_viewer;
         }
     }
 })();

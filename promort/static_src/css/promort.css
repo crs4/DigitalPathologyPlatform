@@ -61,10 +61,16 @@ button.prm-btn-sm {
     margin-right: 15px;
 }
 
-#nav_worklist, #nav_send_report, #nav_user_guide, #nav_logout, #nav_login, #nav_change_passwd {
+#nav_worklist, #nav_send_report, #nav_user_guide, #nav_logout, #nav_login, #nav_change_passwd, #nav_shared_dsets {
     padding: 7px;
     margin-left: 10px;
     width: 100px;
+}
+
+a.prm-dataset-btn {
+    width: 165px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 i.prm-warning-icon {

@@ -160,10 +160,10 @@ class SlideEvaluationDetail(APIView):
 class SlidesSetList(GenericListView):
     model = SlidesSet
     model_serializer = SlidesSetSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class SlidesSetDetail(GenericDetailView):
     model = SlidesSet
     model_serializer = SlidesSetDetailedSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
