@@ -300,10 +300,27 @@
             scope: {
                 svWaitForIt: '@',
                 viewerReady: '@',
-                viewerIdentifier: '@'
+                viewerIdentifier: '@',
+                compactViewer: '@'
             },
             link: function(scope, element, attrs) {
                 scope.$on(scope.viewerReady, function(event, args) {
+                    if (!scope.ssvc.enableCompactViewer()) {
+                        function setViewerHeight() {
+                            var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
+                                + $("#index_navbar").height() + 200;
+        
+                            var available_v_space = $(window).height() - used_v_space;
+                            
+                            console.log(scope.ssvc.getViewerID());
+                            $('#' + scope.ssvc.getViewerID()).height(available_v_space);
+                        }
+        
+                        setViewerHeight();
+                        $(window).resize(setViewerHeight);
+                        $(window).bind('resize_simple_viewer', setViewerHeight);
+                    }
+
                     var viewer_config = {
                         'showNavigator': false,
                         'showFullPageControl': false,
