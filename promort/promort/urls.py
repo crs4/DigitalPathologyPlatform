@@ -36,6 +36,7 @@ from rois_manager.views import SliceList, SliceDetail, CoreList, \
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList, \
     SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
     FocusRegionAnnotationList, FocusRegionAnnotationDetail
+import shared_datasets_manager.views as shdv
 import odin.views as od
 import utils.views as promort_utils
 
@@ -170,6 +171,11 @@ urlpatterns = [
     path('api/utils/clinical_step_rejection_reasons/', promort_utils.get_clinical_step_rejection_reasons),
     path('api/utils/gleason_element_types/', promort_utils.get_gleason_element_types),
     path('api/utils/send_report/', promort_utils.send_user_report),
+
+    # ===== SHARED DATASETS =====
+    path('api/shared_datasets/', shdv.SharedDatasetList.as_view()),
+    path('api/shared_datasets/<slug:pk>/', shdv.SharedDatasetDetail.as_view()),
+    path('api/shared_datasets/<slug:dataset>/<slug:index>/', shdv.SharedDatasetItemDetail.as_view()),
 
     # ===== ODIN BACKEND ======
     # utils

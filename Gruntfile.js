@@ -41,7 +41,10 @@ module.exports = function(grunt) {
         "promort/src/js/questionnaires_manager/questionnaires_manager.module.js",
         "promort/src/js/questionnaires_manager/questionnaires_manager.services.js",
         "promort/src/js/questionnaires_manager/questionnaires_manager.controller.js",
-        "promort/src/js/questionnaires_manager/questionnaires_manager.directives.js"
+        "promort/src/js/questionnaires_manager/questionnaires_manager.directives.js",
+        "promort/src/js/shared_datasets_manager/shared_datasets_manager.module.js",
+        "promort/src/js/shared_datasets_manager/shared_datasets_manager.services.js",
+        "promort/src/js/shared_datasets_manager/shared_datasets_manager.controller.js"
     ];
 
     grunt.initConfig({

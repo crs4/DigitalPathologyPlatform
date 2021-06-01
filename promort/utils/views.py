@@ -32,7 +32,7 @@ logger = logging.getLogger('promort')
 
 
 @api_view()
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def get_ome_seadragon_base_url(request):
     return Response({
         'base_url': prs.OME_SEADRAGON_BASE_URL,

@@ -42,6 +42,24 @@
                 controllerAs: 'cpc',
                 templateUrl: '/static/templates/authentication/change_password.html'
             })
+            // shared datasets template
+            .when('/datasets', {
+                controller: 'SharedDatasetsController',
+                controllerAs: 'sdc',
+                templateUrl: '/static/templates/shared_datasets/datasets_index.html'
+            })
+            // shared dataset items template
+            .when('/datasets/:dataset_id', {
+                controller: 'SharedDatasetItemsController',
+                controllerAs: 'sdic',
+                templateUrl: '/static/templates/shared_datasets/dataset_details.html'
+            })
+            //shared dataset item viewer template
+            .when('/datasets/:dataset_id/:dataset_item_index', {
+                controller: 'SharedDatasetItemViewController',
+                controllerAs: 'sdivc',
+                templateUrl: '/static/templates/shared_datasets/dataset_item.html'
+            })
             // user worklist template
             .when('/worklist', {
                 controller: 'WorkListController',

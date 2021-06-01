@@ -23,12 +23,11 @@
         <div class="col-sm-12 text-left prm-valign">
             <h3>Questionnaire: {{ qrmc.request_extended_label }} --- Step {{ qrmc.getPanelAStepIndex() + 1 }}</h3>
         </div>
-
     </div>
 
     <div id="pg_body" class="col-sm-12">
         <div id="toolbar" class="col-sm-2 col-sm-offset-10">
-            <div id="slydes-sync" ng-show="qrmc.slidesSyncRequired()" class="material-switch pull-right">
+            <div id="slides-sync" ng-show="qrmc.slidesSyncRequired()" class="material-switch pull-right">
                 <span class="label prm-label"
                       ng-class="qrmc.slidesSyncEnabled() ? 'label-primary' : 'label-info'">Sync Staining</span>
                 <input id="sync_slides" name="sync_stainings" type="checkbox"
