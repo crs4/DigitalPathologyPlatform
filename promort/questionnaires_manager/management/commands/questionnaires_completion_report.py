@@ -63,6 +63,6 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         logger.info('--- Building report ---\n')
         qreq_map = self._load_questionnaire_requests_map()
-        for user, qreqs in qreq_map.iteritems():
+        for user, qreqs in qreq_map.items():
             report = self._build_report(qreqs)
             self._print_report(user, report)

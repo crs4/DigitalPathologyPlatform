@@ -29,7 +29,7 @@ logger = logging.getLogger('promort_commands')
 
 
 class Command(BaseCommand):
-    help="""
+    help = """
     """
 
     def add_arguments(self, parser):
@@ -74,7 +74,7 @@ class Command(BaseCommand):
     def _build_answers_map(self, answers, reviewer):
         answers_map = dict()
         local_reviewers_map = dict()
-        for req_label, q_answers in answers.iteritems():
+        for req_label, q_answers in answers.items():
             label = self._extract_case_label(req_label)
             answers_map.setdefault(label, dict())
             for a in q_answers:
@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 file_headers.append('satisfaction_3_cntr')
             writer = DictWriter(f, file_headers)
             writer.writeheader()
-            for case, answers in answers_map.iteritems():
+            for case, answers in answers_map.items():
                 local_rev_answers = answers.get('local')
                 central_rev_answers = answers.get('central')
                 row = dict()
