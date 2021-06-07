@@ -39,6 +39,13 @@
                        ng-click="sdivc.switchSlidesSync()"/>
                 <label for="sync_slides" class="label-primary"></label>
             </div>
+            <div id="hide-labels" class="material-switch pull-right">
+                <span class="label prm-label"
+                      ng-class="sdivc.hideLabelsEnabled() ? 'label-primary' : 'label-info'">Hide Samples Labels</span>
+                <input id="hide_labels" name="hide_labels" type="checkbox" checked
+                       ng-click="sdivc.switchHideLabels()"/>
+                <label for="hide_labels" class="label-primary"></label>
+            </div>
         </div>
 
         <div id="slides_panel">

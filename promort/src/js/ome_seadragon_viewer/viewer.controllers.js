@@ -272,12 +272,14 @@
         var vm = this;
         vm.slides_set_id = undefined;
         vm.slides_set_label = undefined;
+        vm.anonymous_slides_set_label = undefined;
         vm.dzi_urls = undefined;
         vm.pages = [];
         vm.static_files_url = undefined;
         vm.viewer_identifier = undefined;
         vm.current_page = undefined;
         vm.compact_viewer = undefined;
+        vm.hide_label = true;
 
         vm.addSetItem = addSetItem;
         vm.isMultiSlidesSet = isMultiSlidesSet;
@@ -292,7 +294,9 @@
         vm.goToPage = goToPage;
         vm.getNaviItemID = getNaviItemID;
         vm.getSlidesSetLabel = getSlidesSetLabel;
+        vm.getSlidesSetAnonymousLabel = getSlidesSetAnonymousLabel;
         vm.enableCompactViewer = enableCompactViewer;
+        vm.hideLabel = hideLabel;
 
         activate();
 
@@ -307,6 +311,7 @@
                     vm.pages = [];
                     vm.slides_set_id = args.slides_set_id;
                     vm.slides_set_label = args.slides_set_label;
+                    vm.anonymous_slides_set_label = args.slides_set_anonymous_label;
 
                     ViewerService.getOMEBaseURLs()
                         .then(OMEBaseUrlSuccessFn, OMEBaseUrlErrorFn);
@@ -353,6 +358,10 @@
                         console.log('SlidesSet has no page ' + args.page);
                     }
                 }
+            });
+
+            $scope.$on('update_dataset_label', function(event, args) {
+                vm.hide_label = !vm.hide_label;
             });
         }
 
@@ -430,8 +439,16 @@
             return vm.slides_set_label;
         }
 
+        function getSlidesSetAnonymousLabel() {
+            return vm.anonymous_slides_set_label;
+        }
+
         function enableCompactViewer() {
             return vm.compact_viewer;
+        }
+
+        function hideLabel() {
+            return vm.hide_label;
         }
     }
 })();

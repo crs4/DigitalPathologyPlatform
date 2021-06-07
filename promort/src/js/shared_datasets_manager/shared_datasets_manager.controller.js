@@ -107,6 +107,7 @@
         vm.viewer_panels_details = undefined;
         vm.slides_set_a_panel = 'slides_panel_a';
         vm.slides_set_b_panel = 'slides_panel_b';
+        vm.hide_labels = undefined;
 
         vm.slidesSyncRequired = slidesSyncRequired;
         vm.slidesSyncEnabled = slidesSyncEnabled;
@@ -116,6 +117,9 @@
         vm.getSlidesSetBDetails = getSlidesSetBDetails;
         vm.getSlidesSetLoadedTriggerLabel = getSlidesSetLoadedTriggerLabel;
         vm.getViewerReadyTrigger = getViewerReadyTrigger;
+        vm.hideLabelsEnabled = hideLabelsEnabled;
+        vm.switchLabels = switchLabels;
+        vm.switchHideLabels = switchHideLabels;
 
         activate();
 
@@ -126,6 +130,7 @@
                 'set_a': undefined,
                 'set_b': undefined
             };
+            vm.hide_labels = true;
 
             SharedDatasetsService.get_dataset_item(vm.dataset_id, vm.dataset_item_index)
                 .then(getDatasetItemSuccessFn, getDatasetItemErrorFn);
@@ -197,14 +202,16 @@
         function getSlidesSetADetails() {
             return {
                 'slides_set_id': vm.slides_set_a,
-                'slides_set_label': vm.slides_set_a_label
+                'slides_set_label': vm.slides_set_a_label,
+                'slides_set_anonymous_label': 'SAMPLE A'
             }
         }
 
         function getSlidesSetBDetails() {
             return {
                 'slides_set_id': vm.slides_set_b,
-                'slides_set_label': vm.slides_set_b_label
+                'slides_set_label': vm.slides_set_b_label,
+                'slides_set_anonymous_label': 'SAMPLE B'
             }
         }
 
@@ -214,6 +221,19 @@
 
         function getViewerReadyTrigger(slides_set) {
             return slides_set + '.viewer.ready';
+        }
+
+        function hideLabelsEnabled() {
+            return vm.hide_labels;
+        }
+
+        function switchLabels() {
+            $rootScope.$broadcast('update_dataset_label', {'hide_label': vm.hide_labels});
+        }
+
+        function switchHideLabels() {
+            vm.hide_labels = !vm.hide_labels;
+            vm.switchLabels();
         }
     }
 })();
