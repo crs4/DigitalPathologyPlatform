@@ -38,6 +38,7 @@ class CaseSerializer(serializers.ModelSerializer):
     laboratory = serializers.SlugRelatedField(
         slug_field='label',
         queryset=Laboratory.objects.all(),
+        required=False
     )
 
     class Meta:
