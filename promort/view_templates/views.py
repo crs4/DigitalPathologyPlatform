@@ -45,8 +45,12 @@ class GenericListView(APIView):
             serializer.save()
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        else:
+            for errors in serializer.errors.values():
+                for err in errors:
+                    if err.code == 'unique':
+                        return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenericReadOnlyDetailView(APIView):
