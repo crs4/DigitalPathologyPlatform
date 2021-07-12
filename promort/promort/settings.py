@@ -64,7 +64,8 @@ INSTALLED_APPS = (
     'odin',
     'utils',
     'questionnaires_manager',
-    'shared_datasets_manager'
+    'shared_datasets_manager',
+    'predictions_manager'
 )
 
 MIDDLEWARE = (
