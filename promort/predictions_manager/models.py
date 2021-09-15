@@ -30,7 +30,7 @@ class Prediction(models.Model):
         ('GLEASON', 'Gleason patterns detection')
     )
 
-    label = models.CharField(max_length=40, unique=True)
+    label = models.CharField(max_length=100, unique=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     slide = models.ForeignKey(Slide, on_delete=models.PROTECT, blank=False,
                               related_name='predictions')
