@@ -36,6 +36,7 @@ from rois_manager.views import SliceList, SliceDetail, CoreList, \
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList, \
     SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
     FocusRegionAnnotationList, FocusRegionAnnotationDetail
+import predictions_manager.views as pmv
 import shared_datasets_manager.views as shdv
 import odin.views as od
 import utils.views as promort_utils
@@ -157,6 +158,10 @@ urlpatterns = [
          rmv.ClinicalAnnotationCreation.as_view()),
     path('api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/<slug:slide>/',
          rmv.ClinicalAnnotationStepCreation.as_view()),
+
+    # predictions
+    path('api/predictions/', pmv.PredictionList.as_view()),
+    path('api/predictions/<slug:pk>/', pmv.PredictionDetail.as_view()),
 
     # worklists
     path('api/worklist/', UserWorkList.as_view()),

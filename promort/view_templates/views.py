@@ -17,11 +17,6 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -50,8 +45,12 @@ class GenericListView(APIView):
             serializer.save()
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        else:
+            for errors in serializer.errors.values():
+                for err in errors:
+                    if err.code == 'unique':
+                        return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenericReadOnlyDetailView(APIView):
