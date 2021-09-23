@@ -17,7 +17,7 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from reviews_manager.models import ROIsAnnotationStep
 from promort.settings import OME_SEADRAGON_BASE_URL
 
@@ -27,7 +27,7 @@ try:
 except ImportError:
     import json
 
-import logging, sys, os, requests
+import logging, os, requests
 from urllib.parse import urljoin
 from shapely.geometry import Polygon
 
@@ -94,7 +94,9 @@ class Command(BaseCommand):
                 json.dump(points, ofile)
             return {
                 'slide_id': slide_id,
+                'core_id': focus_region.core.id,
                 'region_id': focus_region.id,
+                'author': focus_region.author.username, 
                 'region_label': focus_region.label,
                 'tissue_status': focus_region.tissue_status,
                 'file_name': 'fr_%d.json' % focus_region.id,
@@ -105,7 +107,8 @@ class Command(BaseCommand):
 
     def _dump_details(self, details, out_folder):
         with open(os.path.join(out_folder, 'focus_regions.csv'), 'w') as ofile:
-            writer = DictWriter(ofile, ['slide_id', 'region_id', 'region_label', 'bbox', 'tissue_status', 'file_name'])
+            writer = DictWriter(ofile, ['slide_id', 'core_id', 'region_id', 'author', 'region_label', 'bbox',
+                                        'tissue_status','file_name'])
             writer.writeheader()
             writer.writerows(details)
 
