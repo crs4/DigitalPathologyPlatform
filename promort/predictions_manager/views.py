@@ -46,19 +46,21 @@ class PredictionDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated, )
 
 
-#  TODO: restore permissions
 class TissueFragmentsCollectionList(GenericListView):
     model = TissueFragmentsCollection
     model_serializer = TissueFragmentsCollectionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
 
 class TissueFragmentsCollectionDetail(GenericDetailView):
     model = TissueFragmentsCollection
     model_serializer = TissueFragmentsCollectionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
 
 class TissueFragmentList(APIView):
     model_serializer = TissueFragmentSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, coll_id, format=None):
         collection = TissueFragmentsCollection.objects.get(pk=coll_id)
