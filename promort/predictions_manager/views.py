@@ -17,18 +17,19 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from rest_framework import permissions, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
-
-from view_templates.views import GenericDetailView, GenericListView
-
-from predictions_manager.models import Prediction, TissueFragment, TissueFragmentsCollection
-from predictions_manager.serializers import PredictionSerializer, TissueFragmentsCollectionSerializer, \
-    TissueFragmentSerializer, TissueFragmentsCollectionDetailsSerializer
-
+import json
 import logging
+
+from predictions_manager.models import (Prediction, TissueFragment,
+                                        TissueFragmentsCollection)
+from predictions_manager.serializers import (
+    PredictionSerializer, TissueFragmentsCollectionDetailsSerializer,
+    TissueFragmentsCollectionSerializer, TissueFragmentSerializer)
+from rest_framework import permissions, status
+from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from view_templates.views import GenericDetailView, GenericListView
 
 logger = logging.getLogger('promort')
 
@@ -66,7 +67,10 @@ class TissueFragmentList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, coll_id, format=None):
+        logger.info('post TissueFragmentList with data %s and coll_id %s',
+                    request.data, coll_id)
         data = request.data
+        data['shape_json'] = json.dumps(data['shape_json'])
         data['collection'] = coll_id
         serializer = self.model_serializer(data=data)
         if serializer.is_valid():
