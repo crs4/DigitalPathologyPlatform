@@ -1,3 +1,4 @@
 psycopg2-binary==2.8.6
 ipython
+pytest-django==4.4.0
 - requirements.txt
