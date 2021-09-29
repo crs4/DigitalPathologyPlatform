@@ -21,6 +21,21 @@ from django.core.management import call_command
 from rois_manager.models import Core, Slice
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize("slide__image_type", ["MIRAX"])
+def test_tissue2roi_single_fragment(mocker, user, reviewer, slide, tissue_fragment):
+    mocker.patch("requests.get", side_effect=mock_requests_get)
+    out = ""
+    call_command("build_rois_reviews_worklist")
+    call_command("tissue2roi", username=user.username, stdout=out)
+    assert Slice.objects.count() == 1
+    assert Core.objects.count() == 1
+
+    slice_ = Slice.objects.get(pk=1)
+    core = Core.objects.get(pk=1)
+    assert core.slice == slice_
+
+
 class MockResponse:
     @property
     def status_code(self):
@@ -50,17 +65,3 @@ class MockResponse:
 
 def mock_requests_get(*args, **kwargs):
     return MockResponse()
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("slide__image_type", ["MIRAX"])
-def test_dummy(mocker, user, reviewer, slide, tissue_fragment):
-    mocker.patch("requests.get", side_effect=mock_requests_get)
-    out = ""
-    call_command("build_rois_reviews_worklist")
-    call_command("tissue2roi", username=user.username, stdout=out)
-    assert Slice.objects.count() == 1
-    assert Core.objects.count() == 1
-
-    slice_ = Slice.objects.get(pk=1)
-    core = Core.objects.get(pk=1)
