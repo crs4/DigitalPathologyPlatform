@@ -21,6 +21,7 @@ import json
 import logging
 import math
 from urllib.parse import urljoin
+from shapely.geometry import Polygon
 
 import requests
 from django.contrib.auth.models import User
@@ -60,7 +61,7 @@ class Command(BaseCommand):
             user = self._load_user(opts["username"])
             slide_bounds = None
 
-            for step in annotation_steps:
+            for idx, step in enumerate(annotation_steps):
                 logger.info("Processing ROIs annotation step %s", step.label)
                 fragments = TissueFragment.objects.filter(
                     collection__prediction__slide=step.slide
@@ -68,40 +69,52 @@ class Command(BaseCommand):
 
                 if slide_bounds is None:
                     slide_bounds = self._get_slide_bounds(step.slide)
-                for slice_index, slice in enumerate(fragments):
+
+                shapes = [json.loads(fragment.shape_json) for fragment in fragments]
+                shapes_coords = self._get_slice_coordinates(shapes)
+
+                slide_mpp = step.slide.image_microns_per_pixel
+                slice_obj = self._create_slice(
+                    shapes_coords,
+                    idx + 1,
+                    len(shapes),
+                    step,
+                    user,
+                    slide_bounds,
+                )
+                logger.info("Slice saved with ID %d", slice_obj.id)
+                for core_index, core in enumerate(shapes):
                     logger.info(
-                        "Loading slice %d of %d", slice_index + 1, len(fragments)
+                        "Loading core %d of %d",
+                        core_index + 1,
+                        len(shapes),
                     )
-                    slide_mpp = step.slide.image_microns_per_pixel
-                    slice_obj = self._create_slice(
-                        slice["coordinates"],
-                        slice_index + 1,
-                        len(slice["cores"]),
-                        step,
+                    core_obj = self._create_core(
+                        core["coordinates"],
+                        core["length"] * slide_mpp,
+                        core["area"] * math.pow(slide_mpp, 2),
+                        slice_obj,
+                        idx + 1,
+                        core_index + 1,
                         user,
                         slide_bounds,
                     )
-                    logger.info("Slice saved with ID %d", slice_obj.id)
-                    for core_index, core in enumerate(slice["cores"]):
-                        logger.info(
-                            "Loading core %d of %d",
-                            core_index + 1,
-                            len(slice["cores"]),
-                        )
-                        core_obj = self._create_core(
-                            core["coordinates"],
-                            core["length"] * slide_mpp,
-                            core["area"] * math.pow(slide_mpp, 2),
-                            slice_obj,
-                            slice_index + 1,
-                            core_index + 1,
-                            user,
-                            slide_bounds,
-                        )
-                        logger.info("Core saved with ID %d", core_obj.id)
+                    logger.info("Core saved with ID %d", core_obj.id)
         else:
             logger.info("== There are no suitable ROIs annotation steps")
         logger.info("== Job completed ==")
+
+    def _get_slice_coordinates(self, shapes):
+        polygons = [Polygon(s["coordinates"]) for s in shapes]
+        x_min = min([p.bounds[0] for p in polygons])
+        y_min = min([p.bounds[1] for p in polygons])
+        x_max = max([p.bounds[2] for p in polygons])
+        y_max = max([p.bounds[3] for p in polygons])
+        return list(
+            Polygon(
+                [(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)]
+            ).exterior.coords
+        )
 
     def _load_annotation_steps(self, reviewer=None):
         filter_ = {"start_date__isnull": True}

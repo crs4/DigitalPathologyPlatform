@@ -66,4 +66,4 @@ class TissueFragmentsFactory(factory.django.DjangoModelFactory):
         model = "predictions_manager.TissueFragment"
 
     collection = factory.SubFactory(TissueFragmentsCollectionFactory)
-    shape_json = '{"coordinates": []}'
+    shape_json = '{"coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0,0]], "area": 100, "length": 40}'
