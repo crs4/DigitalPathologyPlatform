@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import pytest
 from django.core.management import call_command
+from rois_manager.models import Core, Slice
 
 
 class MockResponse:
@@ -58,3 +59,8 @@ def test_dummy(mocker, user, reviewer, slide, tissue_fragment):
     out = ""
     call_command("build_rois_reviews_worklist")
     call_command("tissue2roi", username=user.username, stdout=out)
+    assert Slice.objects.count() == 1
+    assert Core.objects.count() == 1
+
+    slice_ = Slice.objects.get(pk=1)
+    core = Core.objects.get(pk=1)
