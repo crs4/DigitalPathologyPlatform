@@ -17,17 +17,64 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from django.contrib.auth.models import Group
-from predictions_manager.tests.factories import (
-    CaseFactory,
-    SlideFactory,
-    UserFactory,
-    TissueFragmentsCollectionFactory,
-    TissueFragmentsFactory,
-    PredictionFactory,
-)
+import factory
+from django.contrib.auth.models import Group, User
 from pytest import fixture
 from pytest_factoryboy import register
+
+
+@register
+class UserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = User
+
+    username = factory.Faker("user_name")
+
+
+@register
+class CaseFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "slides_manager.Case"
+
+    id = factory.Sequence(lambda n: f"case_{n}")
+
+
+@register
+class SlideFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "slides_manager.Slide"
+
+    id = factory.Sequence(lambda n: f"slide_{n}")
+    case = factory.SubFactory(CaseFactory)
+    image_type = ""
+
+
+@register
+class PredictionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "predictions_manager.Prediction"
+
+    label = factory.Sequence(lambda n: f"prediction_{n}")
+    slide = factory.SubFactory(SlideFactory)
+    type = "TISSUE"
+    omero_id = factory.Sequence(lambda n: n)
+
+
+@register
+class TissueFragmentsCollectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "predictions_manager.TissueFragmentsCollection"
+
+    prediction = factory.SubFactory(PredictionFactory)
+
+
+@register
+class TissueFragmentsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "predictions_manager.TissueFragment"
+
+    collection = factory.SubFactory(TissueFragmentsCollectionFactory)
+    shape_json = '{"coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0,0]], "area": 100, "length": 40}'
 
 
 @fixture
@@ -36,11 +83,3 @@ def reviewer():
     group = Group.objects.get(name="ROIS_MANAGERS")
     group.user_set.add(user)
     return user
-
-
-register(UserFactory)
-register(SlideFactory)
-register(CaseFactory)
-register(PredictionFactory)
-register(TissueFragmentsFactory)
-register(TissueFragmentsCollectionFactory)
