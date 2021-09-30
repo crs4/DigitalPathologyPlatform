@@ -19,7 +19,6 @@
 import pytest
 from django.core.management import call_command
 from rois_manager.models import Core, Slice
-from slides_manager.models import Slide
 
 
 @pytest.mark.django_db
