@@ -17,10 +17,14 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import json
+
 import factory
 from django.contrib.auth.models import Group, User
 from pytest import fixture
 from pytest_factoryboy import register
+from shapely.affinity import translate
+from shapely.geometry import box
 
 
 @register
@@ -74,7 +78,7 @@ class TissueFragmentsFactory(factory.django.DjangoModelFactory):
         model = "predictions_manager.TissueFragment"
 
     collection = factory.SubFactory(TissueFragmentsCollectionFactory)
-    shape_json = '{"coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0,0]], "area": 100, "length": 40}'
+    #  shape_json = '{"coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0,0]], "area": 100, "length": 40}'
 
 
 @fixture
@@ -83,3 +87,34 @@ def reviewer():
     group = Group.objects.get(name="ROIS_MANAGERS")
     group.user_set.add(user)
     return user
+
+
+@fixture
+def fragments_factory():
+    def _create_fragments(n: int, collection):
+        fragments = []
+
+        base_shape = box(0, 0, 10, 10)
+        #  base_shape = {
+        #      "coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
+        #      "area": 100,
+        #      "length": 40,
+        #  }
+        for i in range(n):
+            shape = translate(base_shape, 10 * i)
+            fragments.append(
+                TissueFragmentsFactory(
+                    shape_json=json.dumps(
+                        {
+                            "coordinates": list(shape.exterior.coords),
+                            "area": shape.area,
+                            "length": shape.length,
+                        }
+                    ),
+                    collection=collection,
+                )
+            )
+
+        return fragments
+
+    return _create_fragments
