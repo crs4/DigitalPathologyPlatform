@@ -20,8 +20,8 @@
 import json
 import logging
 import math
+import os
 from urllib.parse import urljoin
-from shapely.geometry import Polygon
 
 import requests
 from django.contrib.auth.models import User
@@ -29,6 +29,7 @@ from django.core.management.base import BaseCommand, CommandError
 from predictions_manager.models import TissueFragment
 from reviews_manager.models import ROIsAnnotationStep
 from rois_manager.models import Core, Slice
+from shapely.geometry import Polygon
 
 from promort.settings import OME_SEADRAGON_BASE_URL
 
@@ -207,7 +208,8 @@ class Command(BaseCommand):
         if slide_obj.image_type == "MIRAX":
             req_url = urljoin(
                 OME_SEADRAGON_BASE_URL,
-                "mirax/deepzoom/get/%s_metadata.json" % slide_obj.id,
+                "ome_seadragon/mirax/deepzoom/get/%s_metadata.json"
+                % os.path.splitext(slide_obj.id)[0],
             )
         elif slide_obj.image_type == "OMERO_IMG":
             req_url = urljoin(
