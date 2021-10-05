@@ -208,7 +208,7 @@ class Command(BaseCommand):
         if slide_obj.image_type == "MIRAX":
             req_url = urljoin(
                 OME_SEADRAGON_BASE_URL,
-                "ome_seadragon/mirax/deepzoom/get/%s_metadata.json"
+                "mirax/deepzoom/get/%s_metadata.json"
                 % os.path.splitext(slide_obj.id)[0],
             )
         elif slide_obj.image_type == "OMERO_IMG":
