@@ -60,7 +60,6 @@ class Command(BaseCommand):
 
         if len(annotation_steps) > 0:
             user = self._load_user(opts["username"])
-            slide_bounds = None
 
             for idx, step in enumerate(annotation_steps):
                 logger.info("Processing ROIs annotation step %s", step.label)
@@ -68,8 +67,7 @@ class Command(BaseCommand):
                     collection__prediction__slide=step.slide
                 )
 
-                if slide_bounds is None:
-                    slide_bounds = self._get_slide_bounds(step.slide)
+                slide_bounds = self._get_slide_bounds(step.slide)
 
                 shapes = [json.loads(fragment.shape_json) for fragment in fragments]
                 shapes_coords = self._get_slice_coordinates(shapes)
