@@ -23,17 +23,23 @@ from rois_manager.models import Core, Slice
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("slide__image_type", ["MIRAX"])
-@pytest.mark.parametrize("n_fragments", [1, 2])
-def test_tissue2roi(
-    mocker, user, reviewer, tissue_fragments_collection, fragments_factory, n_fragments
+@pytest.mark.parametrize("n_fragments, n_groups", [(1, 1), (2, 1), (2, 2)])
+def test_tissue_to_rois(
+    mocker,
+    user,
+    reviewer,
+    tissue_fragments_collection,
+    fragments_factory,
+    n_fragments,
+    n_groups,
 ):
-    fragments_factory(n_fragments, tissue_fragments_collection)
+    fragments_factory(n_fragments, tissue_fragments_collection, n_groups)
     mocker.patch("requests.get", side_effect=mock_requests_get)
     out = ""
     call_command("build_rois_reviews_worklist")
-    call_command("tissue2roi", username=user.username, stdout=out)
-    assert Slice.objects.count() == 1
-    assert Core.objects.count() == n_fragments
+    call_command("tissue_to_rois", username=user.username, stdout=out)
+    assert Slice.objects.count() == n_groups
+    assert Core.objects.count() == n_fragments * n_groups
 
     slice_ = Slice.objects.get(pk=1)
     core = Core.objects.get(pk=1)
