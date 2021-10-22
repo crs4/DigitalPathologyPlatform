@@ -67,6 +67,12 @@ class Command(BaseCommand):
                 fragments = TissueFragment.objects.filter(
                     collection__prediction__slide=step.slide
                 )
+                if not fragments:
+                    logger.info(
+                        "Skipping step %s, no tissue fragment found",
+                        step,
+                    )
+                    continue
 
                 slide_bounds = self._get_slide_bounds(step.slide)
 
