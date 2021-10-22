@@ -21,6 +21,7 @@ import json
 import logging
 import math
 import os
+from typing import Dict
 from urllib.parse import urljoin
 
 import requests
@@ -61,7 +62,7 @@ class Command(BaseCommand):
         if len(annotation_steps) > 0:
             user = self._load_user(opts["username"])
 
-            for idx, step in enumerate(annotation_steps):
+            for step in annotation_steps:
                 logger.info("Processing ROIs annotation step %s", step.label)
                 fragments = TissueFragment.objects.filter(
                     collection__prediction__slide=step.slide
@@ -69,36 +70,39 @@ class Command(BaseCommand):
 
                 slide_bounds = self._get_slide_bounds(step.slide)
 
-                shapes = [json.loads(fragment.shape_json) for fragment in fragments]
-                shapes_coords = self._get_slice_coordinates(shapes)
-
                 slide_mpp = step.slide.image_microns_per_pixel
-                slice_obj = self._create_slice(
-                    shapes_coords,
-                    idx + 1,
-                    len(shapes),
-                    step,
-                    user,
-                    slide_bounds,
-                )
-                logger.info("Slice saved with ID %d", slice_obj.id)
-                for core_index, core in enumerate(shapes):
-                    logger.info(
-                        "Loading core %d of %d",
-                        core_index + 1,
+                all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
+                grouped_shapes = self._group_nearest_cores(all_shapes)
+                for idx, shapes in enumerate(grouped_shapes):
+                    slice_label = idx + 1
+                    shapes_coords = self._get_slice_coordinates(shapes)
+
+                    slice_obj = self._create_slice(
+                        shapes_coords,
+                        slice_label,
                         len(shapes),
-                    )
-                    core_obj = self._create_core(
-                        core["coordinates"],
-                        core["length"] * slide_mpp,
-                        core["area"] * math.pow(slide_mpp, 2),
-                        slice_obj,
-                        idx + 1,
-                        core_index + 1,
+                        step,
                         user,
                         slide_bounds,
                     )
-                    logger.info("Core saved with ID %d", core_obj.id)
+                    logger.info("Slice saved with ID %d", slice_obj.id)
+                    for core_index, core in enumerate(shapes):
+                        logger.info(
+                            "Loading core %d of %d",
+                            core_index + 1,
+                            len(shapes),
+                        )
+                        core_obj = self._create_core(
+                            core["coordinates"],
+                            core["length"] * slide_mpp,
+                            core["area"] * math.pow(slide_mpp, 2),
+                            slice_obj,
+                            slice_label,
+                            core_index + 1,
+                            user,
+                            slide_bounds,
+                        )
+                        logger.info("Core saved with ID %d", core_obj.id)
         else:
             logger.info("== There are no suitable ROIs annotation steps")
         logger.info("== Job completed ==")
@@ -233,3 +237,43 @@ class Command(BaseCommand):
         except User.DoesNotExist:
             logger.error("There is no user with username %s", username)
             raise CommandError("There is no user with username %s" % username)
+
+    def _get_sorted_cores_map(self, cores):
+        cores_map = dict()
+        for c in cores:
+            bounds = self._get_core_bounds(c)
+            cores_map.setdefault((bounds["y_min"], bounds["y_max"]), []).append(c)
+        sorted_y_coords = list(cores_map.keys())
+        sorted_y_coords.sort(key=lambda x: x[0])
+        return cores_map, sorted_y_coords
+
+    def _get_core_bounds(self, core: Dict) -> Dict:
+        polygon = Polygon(core["coordinates"])
+        bounds = polygon.bounds
+        try:
+            return {
+                "x_min": bounds[0],
+                "y_min": bounds[1],
+                "x_max": bounds[2],
+                "y_max": bounds[3],
+            }
+        except IndexError:
+            raise InvalidPolygonError()
+
+    def _group_nearest_cores(self, cores, height_tolerance=0.01):
+        cores_map, sorted_y_coords = self._get_sorted_cores_map(cores)
+        cores_groups = list()
+        tolerance = sorted_y_coords[-1][1] * height_tolerance
+        current_group = cores_map[sorted_y_coords[0]]
+        for i, yc in enumerate(sorted_y_coords[1:]):
+            if yc[0] <= sorted_y_coords[i][1] + tolerance:
+                current_group.extend(cores_map[yc])
+            else:
+                cores_groups.append(current_group)
+                current_group = cores_map[yc]
+        cores_groups.append(current_group)
+        return cores_groups
+
+
+class InvalidPolygonError(Exception):
+    pass

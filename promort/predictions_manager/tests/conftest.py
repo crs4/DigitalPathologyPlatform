@@ -91,7 +91,7 @@ def reviewer():
 
 @fixture
 def fragments_factory():
-    def _create_fragments(n: int, collection):
+    def _create_fragments(n: int, collection, rows: int = 1):
         fragments = []
 
         base_shape = box(0, 0, 10, 10)
@@ -100,20 +100,21 @@ def fragments_factory():
         #      "area": 100,
         #      "length": 40,
         #  }
-        for i in range(n):
-            shape = translate(base_shape, 10 * i)
-            fragments.append(
-                TissueFragmentsFactory(
-                    shape_json=json.dumps(
-                        {
-                            "coordinates": list(shape.exterior.coords),
-                            "area": shape.area,
-                            "length": shape.length,
-                        }
-                    ),
-                    collection=collection,
+        for row in range(rows):
+            for i in range(n):
+                shape = translate(base_shape, 20 * i, 20 * row)
+                fragments.append(
+                    TissueFragmentsFactory(
+                        shape_json=json.dumps(
+                            {
+                                "coordinates": list(shape.exterior.coords),
+                                "area": shape.area,
+                                "length": shape.length,
+                            }
+                        ),
+                        collection=collection,
+                    )
                 )
-            )
 
         return fragments
 
