@@ -46,6 +46,21 @@ def test_tissue_to_rois(
     assert core.slice == slice_
 
 
+@pytest.mark.django_db
+@pytest.mark.parametrize("n_steps, with_fragments", [(1, 0), (1, 1), (2, 1), (2, 2)])
+def test_tissue_to_rois_no_tissue(
+    mocker,
+    reviewer,
+    rois_annotation_steps,
+    n_steps,
+    with_fragments,
+):
+    rois_annotation_steps(n_steps, with_fragments)
+    mocker.patch("requests.get", side_effect=mock_requests_get)
+    call_command("tissue_to_rois", username=reviewer.username)
+    assert Core.objects.count() == with_fragments
+
+
 class MockResponse:
     @property
     def status_code(self):

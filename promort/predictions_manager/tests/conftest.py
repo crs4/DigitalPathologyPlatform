@@ -50,7 +50,7 @@ class SlideFactory(factory.django.DjangoModelFactory):
 
     id = factory.Sequence(lambda n: f"slide_{n}")
     case = factory.SubFactory(CaseFactory)
-    image_type = ""
+    image_type = "MIRAX"
 
 
 @register
@@ -78,7 +78,6 @@ class TissueFragmentsFactory(factory.django.DjangoModelFactory):
         model = "predictions_manager.TissueFragment"
 
     collection = factory.SubFactory(TissueFragmentsCollectionFactory)
-    #  shape_json = '{"coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0,0]], "area": 100, "length": 40}'
 
 
 @fixture
@@ -89,33 +88,74 @@ def reviewer():
     return user
 
 
+def _create_fragments(n: int, collection, rows: int = 1):
+    fragments = []
+
+    base_shape = box(0, 0, 10, 10)
+    for row in range(rows):
+        for i in range(n):
+            shape = translate(base_shape, 20 * i, 20 * row)
+            fragments.append(
+                TissueFragmentsFactory(
+                    shape_json=json.dumps(
+                        {
+                            "coordinates": list(shape.exterior.coords),
+                            "area": shape.area,
+                            "length": shape.length,
+                        }
+                    ),
+                    collection=collection,
+                )
+            )
+
+    return fragments
+
+
 @fixture
 def fragments_factory():
-    def _create_fragments(n: int, collection, rows: int = 1):
-        fragments = []
-
-        base_shape = box(0, 0, 10, 10)
-        #  base_shape = {
-        #      "coordinates": [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],
-        #      "area": 100,
-        #      "length": 40,
-        #  }
-        for row in range(rows):
-            for i in range(n):
-                shape = translate(base_shape, 20 * i, 20 * row)
-                fragments.append(
-                    TissueFragmentsFactory(
-                        shape_json=json.dumps(
-                            {
-                                "coordinates": list(shape.exterior.coords),
-                                "area": shape.area,
-                                "length": shape.length,
-                            }
-                        ),
-                        collection=collection,
-                    )
-                )
-
-        return fragments
 
     return _create_fragments
+
+
+@register
+class ROIsAnnotationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "reviews_manager.ROIsAnnotation"
+
+    label = factory.Sequence(lambda n: f"annotation_{n}")
+    case = factory.SubFactory(CaseFactory)
+    reviewer = factory.SubFactory(UserFactory)
+
+
+class ROIsAnnotationStepFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "reviews_manager.ROIsAnnotationStep"
+
+    label = factory.Sequence(lambda n: f"annotation_step_{n}")
+    rois_annotation = factory.SubFactory(ROIsAnnotationFactory)
+    slide = factory.SubFactory(SlideFactory)
+
+
+register(ROIsAnnotationStepFactory, "rois_annotation_step")
+
+
+@fixture
+def rois_annotation_steps(reviewer):
+    def _create(n_steps, with_fragments):
+        steps = []
+        for i in range(n_steps):
+            slide = SlideFactory()
+            step = ROIsAnnotationStepFactory(
+                slide=slide, rois_annotation__reviewer=reviewer
+            )
+            steps.append(step)
+            if with_fragments:
+                collection = TissueFragmentsCollectionFactory(
+                    prediction=PredictionFactory(slide=slide)
+                )
+                _create_fragments(1, collection)
+                with_fragments -= 1
+
+        return steps
+
+    return _create
