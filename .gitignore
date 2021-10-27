@@ -69,11 +69,14 @@ target/
 node_modules
 promort/static_src/js/promort.min.js
 
+# NPM
+package-lock.json
+
 # Django collectstatics default output folder
 promort/static
 
 # Jupyter notebooks folder
 notebooks
 
-# Visual Studio Code
+# Visual Studio Code
 .vscode
