@@ -22,7 +22,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
-    ClinicalAnnotation, ClinicalAnnotationStep
+    ClinicalAnnotation, ClinicalAnnotationStep, PredictionReview
 from slides_manager.serializers import SlideSerializer, SlideEvaluationSerializer
 from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
 from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
@@ -272,3 +272,28 @@ class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_annotation_type(obj):
         return 'CLINICAL_ANNOTATION'
+
+
+class PredictionReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model  = PredictionReview
+
+        fields = ('id', 'label', 'prediction', 'slide', 'reviewer', 'creation_date',
+                  'start_date', 'completion_date', 'started', 'completed')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started()
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed()
