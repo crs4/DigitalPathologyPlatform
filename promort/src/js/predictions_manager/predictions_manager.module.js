@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, CRS4
+ * Copyright (c) 2021, CRS4
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,38 +19,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
-    angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager',
-            'promort.shared_datasets_manager',
-            'promort.predictions_manager'
-        ])
-        .run(run);
-
-    run.$inject = ['$http'];
-
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
-    }
 
     angular
-        .module('promort.config', []);
+        .module('promort.predictions_manager', [
+            'promort.predictions_manager.services',
+            'promort.predictions_manager.controllers',
+            'promort.predictions_manager.directives'
+        ]);
 
     angular
-        .module('promort.routes', ['ngRoute']);
+        .module('promort.predictions_manager.services', []);
+
+    angular
+        .module('promort.predictions_manager.controllers', []);
+
+    angular
+        .module('promort.predictions_manager.directives', []);
 })();

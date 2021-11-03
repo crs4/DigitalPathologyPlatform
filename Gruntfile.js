@@ -45,6 +45,10 @@ module.exports = function(grunt) {
         "promort/src/js/shared_datasets_manager/shared_datasets_manager.module.js",
         "promort/src/js/shared_datasets_manager/shared_datasets_manager.services.js",
         "promort/src/js/shared_datasets_manager/shared_datasets_manager.controllers.js",
+        "promort/src/js/predictions_manager/predictions_manager.module.js",
+        "promort/src/js/predictions_manager/predictions_manager.services.js",
+        "promort/src/js/predictions_manager/predictions_manager.controllers.js",
+        "promort/src/js/predictions_manager/predictions_manager.directives.js"
     ];
 
     grunt.initConfig({
