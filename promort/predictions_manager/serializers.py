@@ -25,6 +25,7 @@ except ImportError:
 from rest_framework import serializers
 
 from predictions_manager.models import Prediction, TissueFragmentsCollection, TissueFragment
+from slides_manager.serializers import SlideSerializer
 
 
 class PredictionSerializer(serializers.ModelSerializer):
@@ -40,6 +41,15 @@ class PredictionSerializer(serializers.ModelSerializer):
             return value
         except ValueError:
             raise serializers.ValidationError('Not a valid JSON in \'provenance\' field')
+
+
+class PredictionDetailsSerializer(serializers.ModelSerializer):
+    slide = SlideSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Prediction
+        fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance')
+        read_only_fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance')
 
 
 class TissueFragmentsCollectionSerializer(serializers.ModelSerializer):
