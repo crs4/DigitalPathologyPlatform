@@ -187,6 +187,12 @@ urlpatterns = [
     path(
         'api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/<slug:slide>/',
         rmv.ClinicalAnnotationStepCreation.as_view()),
+    
+    # predictions reviews
+    path('api/prediction_reviews/', rmv.PredictionReviewsList.as_view()),
+    path('api/prediction_reviews/<slug:slide>/', rmv.PredictionReviewsDetail.as_view()),
+    path('api/prediction_review/<semislug:label>/', rmv.PredictionReviewDetail.as_view()),
+    path('api/prediction_review/<semislug:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
 
     # predictions
     path('api/predictions/', pmv.PredictionList.as_view()),
