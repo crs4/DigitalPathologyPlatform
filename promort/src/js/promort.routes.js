@@ -102,6 +102,12 @@
                 controllerAs: 'qrmc',
                 templateUrl: '/static/templates/questionnaire_requests_manager/manager.html'
             })
+            // predictions review manager
+            .when('/worklist/:label/prediction_review', {
+                controller: 'PredictionsManagerController',
+                controllerAs: 'pmc',
+                templateUrl: '/static/templates/predictions_manager/manager.html'
+            })
             // homepage
             .when('/', {
                 controller: 'AuthenticationController',

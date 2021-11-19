@@ -23,5 +23,65 @@
     'use strict';
 
     angular
-        .module('promort.predictions_manager.services');
+        .module('promort.predictions_manager.services')
+        .factory('CurrentPredictionDetailsService', CurrentPredictionDetailsService)
+        .factory('PredictionsManagerService', PredictionsManagerService);
+
+    CurrentPredictionDetailsService.$inject = ['$http', '$log'];
+
+    function CurrentPredictionDetailsService($http, $log) {
+        var predictionID = undefined;
+        var slideID = undefined;
+        var caseID = undefined;
+
+        var CurrentPredictionDetailsService = {
+            getPredictionByReviewStep: getPredictionByReviewStep,
+            registerCurrentPrediction: registerCurrentPrediction,
+            getPredictionId: getPredictionId,
+            getSlideId: getSlideId,
+            getCaseId: getCaseId
+        }
+
+        return CurrentPredictionDetailsService;
+
+        function getPredictionByReviewStep(review_step_label) {
+            predictionID = undefined;
+            slideID = undefined;
+            caseID = undefined;
+
+            return $http.get('api/prediction_review/' + review_step_label + '/prediction/');
+        }
+
+        function registerCurrentPrediction(prediction_id, slide_id, case_id) {
+            predictionID = prediction_id;
+            slideID = slide_id;
+            caseID = case_id;
+        }
+
+        function getPredictionId() {
+            return predictionID;
+        }
+
+        function getSlideId() {
+            return slideID;
+        }
+
+        function getCaseId() {
+            return caseID;
+        }
+    }
+
+    PredictionsManagerService.$inject = ['$http', '$log'];
+
+    function PredictionsManagerService($http, $log) {
+        var PredictionsManagerService = {
+            getDetails: getDetails
+        };
+
+        return PredictionsManagerService;
+
+        function getDetails(prediction_label) {
+            return $http.get('api/prediction_review/' + prediction_label + '/');
+        }
+    }
 })();

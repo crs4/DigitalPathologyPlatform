@@ -35,7 +35,7 @@
                                 <strong>Review ID:</strong> {{ annotation.extended_label }}
                             </p>
                             <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
-                            <p ng-show="!wlc.isQuestionnaireRequest(annotation)">
+                            <p ng-show="!wlc.isQuestionnaireRequest(annotation) && !wlc.isPredictionReview(annotation)">
                                 <strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}
                             </p>
                         </div>
@@ -88,6 +88,17 @@
                                ng-show="wlc.isQuestionnaireRequest(annotation) && wlc.annotationInProgress(annotation)"
                                ng-href="{{ wlc.getAnnotationLink(annotation) }}">
                                 Continue Questionnaire
+                            </a>
+                            <!-- Prediction review buttons -->
+                            <a class="btn btn-success"
+                               ng-show="wlc.isPredictionReview(annotation) && !wlc.annotationInProgress(annotation)"
+                               ng-click="wlc.startPredictionReview(annotation)">
+                                Start Prediction Review
+                            </a>
+                            <a class="btn btn-warning"
+                               ng-show="wlc.isPredictionReview(annotation) && wlc.annotationInProgress(annotation)"
+                               ng-click="wlc.startPredictionReview(annotation)">
+                                Continue Prediction Review
                             </a>
                         </div>
                     </div>

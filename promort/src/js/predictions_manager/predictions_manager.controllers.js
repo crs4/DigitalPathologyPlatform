@@ -23,6 +23,26 @@
     'use strict';
 
     angular
-        .module('promort.predictions_manager.controllers');
+        .module('promort.predictions_manager.controllers')
+        .controller('PredictionsManagerController', PredictionsManagerController);
 
+    PredictionsManagerController.$inject = ['$scope', '$routeParams', '$location', '$log',
+        'PredictionsManagerService', 'CurrentPredictionDetailsService'];
+
+    function PredictionsManagerController($scope, $routerParams, $location, $log, PredictionsManagerService,
+                                          CurrentPredictionDetailsService) {
+        var vm = this;
+        vm.prediction_review_label = undefined;
+        vm.slide_id = undefined;
+        vm.prediction_id = undefined;
+
+        activate();
+
+        function activate() {
+            vm.prediction_review_label = $routerParams.label;
+            
+            vm.slide_id = CurrentPredictionDetailsService.getSlideId();
+            vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
+        }
+    }
 })();

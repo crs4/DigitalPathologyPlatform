@@ -123,13 +123,13 @@
             return $http.get('api/utils/slide_not_adequacy_reasons/');
         }
 
-        function create(annotation_step_label, staining, adequacy, not_adequancy_reason, notes) {
+        function create(annotation_step_label, staining, adequacy, not_adequacy_reason, notes) {
             var params = {
                 adequate_slide: adequacy,
                 staining: staining
             };
-            if (not_adequancy_reason) {
-                params.not_adequacy_reason = not_adequancy_reason;
+            if (not_adequacy_reason) {
+                params.not_adequacy_reason = not_adequacy_reason;
             }
             if (notes) {
                 params.notes = notes;

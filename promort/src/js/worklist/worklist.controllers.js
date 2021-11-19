@@ -26,11 +26,14 @@
         .module('promort.worklist.controllers')
         .controller('WorkListController', WorkListController)
         .controller('ROIsAnnotationController', ROIsAnnotationController)
-        .controller('ClinicalAnnotationController', ClinicalAnnotationController);
+        .controller('ClinicalAnnotationController', ClinicalAnnotationController)
+        .controller('PredictionReviewController', PredictionReviewController);
     
-    WorkListController.$inject = ['$scope', '$log', 'Authentication', 'WorkListService'];
+    WorkListController.$inject = ['$scope', '$log', '$location', 'Authentication', 'WorkListService',
+                                  'CurrentPredictionDetailsService'];
     
-    function WorkListController($scope, $log, Authentication, WorkListService) {
+    function WorkListController($scope, $log, $location, Authentication, WorkListService,
+                                CurrentPredictionDetailsService) {
         var vm = this;
         vm.pendingAnnotations = [];
         vm.annotationInProgress = annotationInProgress;
@@ -39,6 +42,7 @@
         vm.isROIsAnnotation = isROIsAnnotation;
         vm.isClinicalAnnotation = isClinicalAnnotation;
         vm.isQuestionnaireRequest = isQuestionnaireRequest;
+        vm.isPredictionReview = isPredictionReview;
         vm.canStartClinicalAnnotation = canStartClinicalAnnotation;
         vm.getAnnotationLink = getAnnotationLink;
         vm.startROIsAnnotation = startROIsAnnotation;
@@ -46,6 +50,7 @@
         vm.startClinicalAnnotation = startClinicalAnnotation;
         vm.closeClinicalAnnotation = closeClinicalAnnotation;
         vm.startQuestionnaireRequest = startQuestionnaireRequest;
+        vm.startPredictionReview = startPredictionReview;
         
         activate();
         
@@ -90,6 +95,10 @@
             return annotation.annotation_type === 'QUESTIONNAIRE';
         }
 
+        function isPredictionReview(annotation) {
+            return annotation.annotation_type === 'PREDICTION_REVIEW';
+        }
+
         function canStartClinicalAnnotation(annotation) {
             if (vm.isClinicalAnnotation(annotation)) {
                 return annotation.can_be_started;
@@ -105,6 +114,9 @@
                 return 'worklist/clinical_annotations/' + annotation.label;
             } else if (vm.isQuestionnaireRequest(annotation)) {
                 return 'worklist/questionnaire_requests/' + annotation.label;
+            } else if (vm.isPredictionReview(annotation)) {
+                // TODO: switch to a case based pagination
+                return 'worklist/' + annotation.label + '/prediction_review';
             }
         }
         
@@ -126,6 +138,24 @@
 
         function startQuestionnaireRequest(annotation) {
             WorkListService.startQuestionnaireRequest(annotation.label);
+        }
+
+        function startPredictionReview(annotation) {
+            // TODO: move to PredictionReviewController when switching to a case based interface
+            CurrentPredictionDetailsService.getPredictionByReviewStep(annotation.label)
+                .then(getPredictionSuccessFn, getPredictionErrorFn);
+
+            function getPredictionSuccessFn(response) {
+                CurrentPredictionDetailsService.registerCurrentPrediction(
+                    response.data.id, response.data.slide.id, response.data.slide.case
+                );
+                $location.url(vm.getAnnotationLink(annotation));
+            }
+
+            function getPredictionErrorFn(response) {
+                $log.error('Error when starting prediction review');
+                $log.error(response);
+            }
         }
     }
     
@@ -399,6 +429,41 @@
                     $log.error(response);
                 }
             }
+        }
+    }
+
+    PredictionReviewController.$inject = ['$scope', '$routeParams', '$location', '$route', '$log',
+                                          'CurrentPredictionDetailsService'];
+
+    function PredictionReviewController($scope, $routeParams, $location, $route, $log,
+                                        CurrentPredictionDetailsService) {
+        var vm = this;
+        vm.startPredictionReview = startPredictionReview;
+        vm.getPredictionReviewLink = getPredictionReviewLink;
+
+        activate();
+
+        function activate() {
+            // TODO: needed when switching to a case based view for prediction reviews
+        }
+
+        function startPredictionReview(label) {
+            CurrentPredictionDetailsService.getPredictionByReviewStep(label)
+                .then(getPredictionSuccessFn, getPredictionErrorFn);
+
+            function getPredictionSuccessFn(response) {
+                CurrentPredictionDetailsService.registerCurrentSlide(
+                    response.data.id, response.data.slide.id, response.data.slide.case
+                );
+            }
+
+            function getPredictionErrorFn(response) {
+                // TODO: implement
+            }
+        }
+
+        function getPredictionReviewLink(label) {
+            // TODO: implement
         }
     }
 })();
