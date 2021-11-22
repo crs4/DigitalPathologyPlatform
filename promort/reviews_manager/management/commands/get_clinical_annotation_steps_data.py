@@ -62,9 +62,9 @@ class Command(BaseCommand):
                 'slide_id': step.slide.id,
                 'roi_review_step_id': step.rois_review_step.label,
                 'clinical_annotation_step_id': step.label,
-                'creation_date': step.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'start_date': step.start_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'completion_date': step.completion_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'creation_date': self._get_formatted_time(step.creation_date),
+                'start_date': self._get_formatted_time(step.start_date),
+                'completion_date': self._get_formatted_time(step.completion_date),
                 'reviewer': step.clinical_annotation.reviewer.username,
                 'rejected': step.rejected,
                 'rejection_reason': step.get_rejection_reason_text(),
@@ -75,6 +75,14 @@ class Command(BaseCommand):
     def _get_encoded_note(self, step):
         try:
             return step.notes.encode('utf-8').replace('\n', ' ')
+        except TypeError:
+            return step.notes.replace('\n', ' ')
+        except AttributeError:
+            return None
+
+    def _get_formatted_time(self, timestamp):
+        try:
+            return timestamp.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
             return None
 

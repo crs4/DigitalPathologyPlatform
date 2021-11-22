@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, CRS4
+ * Copyright (c) 2021, CRS4
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,38 +19,30 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     angular
-        .module('promort', [
-            'promort.config',
-            'promort.routes',
-            'promort.authentication',
-            'promort.window_manager',
-            'promort.layout',
-            'promort.worklist',
-            'promort.slides_manager',
-            'promort.viewer',
-            'promort.user_report',
-            'promort.rois_manager',
-            'promort.clinical_annotations_manager',
-            'promort.questionnaires_manager',
-            'promort.shared_datasets_manager',
-            'promort.predictions_manager'
-        ])
-        .run(run);
+        .module('promort.predictions_manager.controllers')
+        .controller('PredictionsManagerController', PredictionsManagerController);
 
-    run.$inject = ['$http'];
+    PredictionsManagerController.$inject = ['$scope', '$routeParams', '$location', '$log',
+        'PredictionsManagerService', 'CurrentPredictionDetailsService'];
 
-    function run($http) {
-        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-        $http.defaults.xsrfCookieName = 'csrftoken';
+    function PredictionsManagerController($scope, $routerParams, $location, $log, PredictionsManagerService,
+                                          CurrentPredictionDetailsService) {
+        var vm = this;
+        vm.prediction_review_label = undefined;
+        vm.slide_id = undefined;
+        vm.prediction_id = undefined;
+
+        activate();
+
+        function activate() {
+            vm.prediction_review_label = $routerParams.label;
+            
+            vm.slide_id = CurrentPredictionDetailsService.getSlideId();
+            vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
+        }
     }
-
-    angular
-        .module('promort.config', []);
-
-    angular
-        .module('promort.routes', ['ngRoute']);
 })();

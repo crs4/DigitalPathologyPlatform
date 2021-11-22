@@ -17,11 +17,6 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -30,6 +25,7 @@ from rest_framework.exceptions import NotFound
 from django.db import IntegrityError
 
 import logging
+
 logger = logging.getLogger('promort')
 
 
@@ -40,18 +36,23 @@ class GenericListView(APIView):
     def get(self, request, format=None):
         objs = self.model.objects.all()
         serializer = self.model_serializer(objs, many=True)
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        logger.debug('Serializing data %r -- Object class %r', request.data, self.model)
+        logger.debug('Serializing data %r -- Object class %r', request.data,
+                     self.model)
         serializer = self.model_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            for errors in serializer.errors.values():
+                for err in errors:
+                    if err.code == 'unique':
+                        return Response(serializer.errors,
+                                        status=status.HTTP_409_CONFLICT)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenericReadOnlyDetailView(APIView):
@@ -59,7 +60,8 @@ class GenericReadOnlyDetailView(APIView):
     model_serializer = None
 
     def get_object(self, pk):
-        logger.debug('Loading object with PK %r -- Object class %r', pk, self.model)
+        logger.debug('Loading object with PK %r -- Object class %r', pk,
+                     self.model)
         try:
             return self.model.objects.get(pk__iexact=pk)
         except self.model.DoesNotExist:
@@ -73,24 +75,37 @@ class GenericReadOnlyDetailView(APIView):
 
 
 class GenericDetailView(GenericReadOnlyDetailView):
-
     def put(self, request, pk, format=None):
-        logger.debug('Updating object with PK %r -- Object class %r', pk, self.model)
+        logger.debug('Updating object with PK %r -- Object class %r', pk,
+                     self.model)
         obj = self.get_object(pk)
-        serializer = self.model_serializer(obj, data=request.data, partial=True)
+        serializer = self.model_serializer(obj,
+                                           data=request.data,
+                                           partial=True)
+        return self._generate_put_response(serializer)
+
+    def delete(self, request, pk, format=None):
+        logger.debug('Deleting object with PK %r -- Object class %r', pk,
+                     self.model)
+        obj = self.get_object(pk)
+        return self._generate_delete_response(obj)
+
+    def _generate_put_response(self, serializer):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        logger.debug('Deleting object with PK %r -- Object class %r', pk, self.model)
-        obj = self.get_object(pk)
+    def _generate_delete_response(self, obj):
         try:
             obj.delete()
         except IntegrityError:
-            return Response({
-                'status': 'ERROR',
-                'message': 'unable to complete delete operation, there are still references to this object'
-            }, status=status.HTTP_409_CONFLICT)
+            return Response(
+                {
+                    'status':
+                    'ERROR',
+                    'message':
+                    'unable to complete delete operation, there are still references to this object'
+                },
+                status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)

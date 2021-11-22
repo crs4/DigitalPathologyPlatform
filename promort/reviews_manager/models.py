@@ -17,12 +17,13 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from datetime import datetime
+
 from django.db import models, IntegrityError
 from django.utils import timezone
 from django.contrib.auth.models import User
 from slides_manager.models import Case, Slide
-
-from datetime import datetime
+from predictions_manager.models import Prediction
 
 
 class ROIsAnnotation(models.Model):
@@ -39,10 +40,10 @@ class ROIsAnnotation(models.Model):
                                            default=None)
 
     def is_started(self):
-        return not(self.start_date is None)
+        return not self.start_date is None
 
     def is_completed(self):
-        return not(self.completion_date is None)
+        return not self.completion_date is None
 
     def can_be_closed(self):
         for rs in self.steps.all():
@@ -99,10 +100,10 @@ class ROIsAnnotationStep(models.Model):
         return focus_regions
 
     def is_started(self):
-        return not(self.start_date is None)
+        return not self.start_date is None
 
     def is_completed(self):
-        return not(self.completion_date is None)
+        return not self.completion_date is None
 
     def has_reopen_permission(self, username):
         return self.rois_annotation.reviewer.username == username
@@ -154,10 +155,10 @@ class ClinicalAnnotation(models.Model):
         unique_together = ('rois_review', 'reviewer')
 
     def is_started(self):
-        return not(self.start_date is None)
+        return not self.start_date is None
 
     def is_completed(self):
-        return not(self.completion_date is None)
+        return not self.completion_date is None
 
     def can_be_started(self):
         return self.rois_review.is_completed()
@@ -212,10 +213,10 @@ class ClinicalAnnotationStep(models.Model):
         unique_together = ('rois_review_step', 'clinical_annotation')
 
     def is_started(self):
-        return not(self.start_date is None)
+        return not self.start_date is None
 
     def is_completed(self):
-        return not(self.completion_date is None)
+        return not self.completion_date is None
 
     def can_be_started(self):
         return self.clinical_annotation.can_be_started()
@@ -260,13 +261,13 @@ class ReviewsComparison(models.Model):
                self.review_2.clinical_annotation.is_completed()
 
     def is_started(self):
-        return not(self.start_date is None)
+        return not self.start_date is None
 
     def is_evaluation_pending(self):
         return self.positive_match is None
 
     def is_completed(self):
-        return not(self.completion_date is None)
+        return not self.completion_date is None
 
     def link_review_3(self, review_obj):
         self.review_3 = review_obj
@@ -291,3 +292,25 @@ class ReviewsComparison(models.Model):
 
     def get_slide(self):
         return self.review_1.slide
+
+
+class PredictionReview(models.Model):
+    label = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    prediction = models.ForeignKey(Prediction, on_delete=models.PROTECT,
+                                   blank=False, related_name='reviews')
+    slide = models.ForeignKey(Slide, on_delete=models.PROTECT, blank=False,
+                              related_name='prediction_reviews')
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
+    creation_date = models.DateTimeField(default=timezone.now)
+    start_date = models.DateTimeField(blank=True, null=True, default=None)
+    completion_date = models.DateTimeField(blank=True, null=True, default=None)
+
+    def is_started(self):
+        return not self.start_date is None
+
+    def is_completed(self):
+        return not self.completion_date is None
+
+    def reopen(self):
+        self.completion_date = None
+        self.save()

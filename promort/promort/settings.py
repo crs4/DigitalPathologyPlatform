@@ -64,7 +64,8 @@ INSTALLED_APPS = (
     'odin',
     'utils',
     'questionnaires_manager',
-    'shared_datasets_manager'
+    'shared_datasets_manager',
+    'predictions_manager'
 )
 
 MIDDLEWARE = (
@@ -235,6 +236,9 @@ DEFAULT_GROUPS = {
     },
     'odin_members': {
         'name': cfg['promort_groups']['odin_members']['name']
+    },
+    'prediction_manager': {
+        'name': cfg['promort_groups']['prediction_manager']['name']
     }
 }
 

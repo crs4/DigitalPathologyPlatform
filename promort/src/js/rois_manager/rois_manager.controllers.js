@@ -779,7 +779,7 @@
         }
 
         function newFreehand() {
-            $log.debug('Start freehabd drawing tool');
+            $log.debug('Start freehand drawing tool');
             AnnotationsViewerService.setFreehandToolLabelPrefix('slice');
             AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();

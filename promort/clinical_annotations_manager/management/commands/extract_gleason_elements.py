@@ -1,4 +1,4 @@
-#  Copyright (c) 2019, CRS4
+#  Copyright (c) 2021, CRS4
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy of
 #  this software and associated documentation files (the "Software"), to deal in
@@ -18,16 +18,12 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand
-from reviews_manager.models import ROIsAnnotationStep
+from reviews_manager.models import ClinicalAnnotationStep
 from promort.settings import OME_SEADRAGON_BASE_URL
 
 from csv import DictWriter
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
-import logging, os, requests
+import logging, os, requests, json
 from urllib.parse import urljoin
 from shapely.geometry import Polygon
 
@@ -36,7 +32,7 @@ logger = logging.getLogger('promort_commands')
 
 class Command(BaseCommand):
     help = """
-    Extract focus regions as JSON objects
+    Extract Gleason elements as JSON objects
     """
 
     def add_arguments(self, parser):
@@ -45,8 +41,8 @@ class Command(BaseCommand):
         parser.add_argument('--limit-bounds', dest='limit_bounds', action='store_true',
                             help='extract ROIs considering only the non-empty slide region')
 
-    def _load_rois_annotation_steps(self):
-        steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
+    def _load_clinical_annotation_steps(self):
+        steps = ClinicalAnnotationStep.objects.filter(completion_date__isnull=False)
         return steps
 
     def _get_slide_bounds(self, slide):
@@ -85,35 +81,31 @@ class Command(BaseCommand):
         bounds = polygon.bounds
         return [(bounds[0], bounds[1]), (bounds[2], bounds[3])]
 
-    def _dump_focus_region(self, focus_region, slide_id, slide_bounds, out_folder):
-        file_path = os.path.join(out_folder, 'fr_%d.json' % focus_region.id)
-        points = self._extract_points(focus_region.roi_json, slide_bounds)
+    def _dump_gleason_element(self, gleason_element, slide_id, slide_bounds, out_folder):
+        file_path = os.path.join(out_folder, 'gl_{0}.json'.format(gleason_element.id))
+        points = self._extract_points(gleason_element.json_path, slide_bounds)
         if points:
             bbox = self._extract_bounding_box(points)
             with open(file_path, 'w') as ofile:
                 json.dump(points, ofile)
             return {
                 'slide_id': slide_id,
-                'core_id': focus_region.core.id,
-                'region_id': focus_region.id,
-                'author': focus_region.author.username, 
-                'region_label': focus_region.label,
-                'tissue_status': focus_region.tissue_status,
-                'file_name': 'fr_%d.json' % focus_region.id,
+                'focus_region_id': gleason_element.focus_region_annotation.focus_region.id,
+                'author': gleason_element.focus_region_annotation.author.username,
+                'gleason_element_id': gleason_element.id,
+                'gleason_type': gleason_element.gleason_type,
+                'file_name': 'gl_{0}.json'.format(gleason_element.id),
                 'bbox': bbox
             }
-        else:
-            return None
 
     def _dump_details(self, details, out_folder):
-        with open(os.path.join(out_folder, 'focus_regions.csv'), 'w') as ofile:
-            writer = DictWriter(ofile, ['slide_id', 'core_id', 'region_id', 'author', 'region_label', 'bbox',
-                                        'tissue_status','file_name'])
+        with open(os.path.join(out_folder, 'gleason_elements.csv'), 'w') as ofile:
+            writer = DictWriter(ofile, ['slide_id', 'focus_region_id', 'author', 'gleason_element_id', 'gleason_type',
+                                        'file_name', 'bbox'])
             writer.writeheader()
             writer.writerows(details)
 
-    def _dump_focus_regions(self, step, out_folder, limit_bounds):
-        focus_regions = step.focus_regions
+    def _dump_gleason_elements(self, step, out_folder, limit_bounds):
         slide = step.slide
         logger.info('Loading info for slide %s', slide.id)
         if not limit_bounds:
@@ -121,25 +113,28 @@ class Command(BaseCommand):
         else:
             slide_bounds = {'bounds_x': 0, 'bounds_y': 0}
         if slide_bounds:
-            logger.info('Dumping %d focus regions for step %s', len(focus_regions), step.label)
-            if len(focus_regions) > 0:
-                out_path = os.path.join(out_folder, step.slide.id, step.label)
-                try:
-                    os.makedirs(out_path)
-                except OSError:
-                    pass
-                focus_regions_details = list()
-                for fr in focus_regions:
-                    frd = self._dump_focus_region(fr, step.slide.id, slide_bounds, out_path)
-                    if frd:
-                        focus_regions_details.append(frd)
-                self._dump_details(focus_regions_details, out_path)
+            focus_regions = step.focus_region_annotations.all()
+            logger.info('Found %d focus region annotations for step %s', len(focus_regions), step.label)
+            out_path = os.path.join(out_folder, slide.id, step.label)
+            gleason_elements_details = list()
+            for fr in focus_regions:
+                gleason_elements = fr.gleason_elements.all()
+                for ge in gleason_elements:
+                    try:
+                        os.makedirs(out_path)
+                    except OSError:
+                        pass
+                    ged = self._dump_gleason_element(ge, slide.id, slide_bounds, out_path)
+                    if ged:
+                        gleason_elements_details.append(ged)
+            if len(gleason_elements_details) > 0:
+                self._dump_details(gleason_elements_details, out_path)
 
     def _export_data(self, out_folder, limit_bounds=False):
-        steps = self._load_rois_annotation_steps()
-        logger.info('Loaded %d ROIs Annotation Steps', len(steps))
+        steps = self._load_clinical_annotation_steps()
+        logger.info('Loaded %d Clinical Annotation Steps', len(steps))
         for s in steps:
-            self._dump_focus_regions(s, out_folder, limit_bounds)
+            self._dump_gleason_elements(s, out_folder, limit_bounds)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')

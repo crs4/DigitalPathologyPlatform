@@ -17,11 +17,6 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from collections import OrderedDict
 
 from django.contrib.auth.models import User
@@ -32,10 +27,10 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, \
-    ClinicalAnnotation, ClinicalAnnotationStep
+    ClinicalAnnotation, ClinicalAnnotationStep, PredictionReview
 from questionnaires_manager.models import QuestionnaireRequest
 from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
-    ClinicalAnnotationSerializer, ClinicalAnnotationStepSerializer
+    ClinicalAnnotationSerializer, ClinicalAnnotationStepSerializer, PredictionReviewSerializer
 from questionnaires_manager.serializers import QuestionnaireRequestSerializer
 
 import logging
@@ -48,6 +43,7 @@ class UserWorkList(APIView):
     def _get_pending_reviews(self, username):
         rois_reviews = []
         clinical_reviews = []
+        prediction_reviews = []
         try:
             rois_reviews = ROIsAnnotation.objects.filter(
                 reviewer=User.objects.get(username=username),
@@ -62,7 +58,15 @@ class UserWorkList(APIView):
             ).order_by('case')
         except ClinicalAnnotation.DoesNotExist:
             pass
-        return rois_reviews, clinical_reviews
+        try:
+            prediction_reviews = PredictionReview.objects.filter(
+                reviewer=User.objects.get(username=username),
+                completion_date=None,
+                prediction__type__in=['TUMOR', 'GLEASON']
+            ).order_by('slide')
+        except PredictionReview.DoesNotExist:
+            pass
+        return rois_reviews, clinical_reviews, prediction_reviews
 
     def _get_pending_questionnaire_requests(self, username):
         questionnaire_requests = []
@@ -76,9 +80,10 @@ class UserWorkList(APIView):
         return questionnaire_requests
 
     def get(self, request, format=None):
-        rois_reviews, clinical_reviews = self._get_pending_reviews(request.user.username)
+        rois_reviews, clinical_reviews, prediction_reviews = self._get_pending_reviews(request.user.username)
         rois_serializer = ROIsAnnotationSerializer(rois_reviews, many=True)
         clinical_serializer = ClinicalAnnotationSerializer(clinical_reviews, many=True)
+        prediction_serializer = PredictionReviewSerializer(prediction_reviews, many=True)
         questionnaire_requests = self._get_pending_questionnaire_requests(request.user.username)
         questionnaire_serializer = QuestionnaireRequestSerializer(questionnaire_requests, many=True)
         data = OrderedDict()
@@ -88,7 +93,7 @@ class UserWorkList(APIView):
             data[c_ann['label']] = c_ann
         for r_ann in rois_serializer.data:
             data[r_ann['label']] = r_ann
-        worklist = list(data.values()) + questionnaire_serializer.data
+        worklist = list(data.values()) + prediction_serializer.data + questionnaire_serializer.data
         return Response(worklist, status=status.HTTP_200_OK)
 
 

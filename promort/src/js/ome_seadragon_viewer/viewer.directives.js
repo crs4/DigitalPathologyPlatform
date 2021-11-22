@@ -27,6 +27,7 @@
         .directive('viewerNavigationPanel', viewerNavigationPanel)
         .directive('miniViewerNavigationPanel', miniViewerNavigationPanel)
         .directive('simpleViewer', simpleViewer)
+        .directive('simpleHeatmapViewer', simpleHeatmapViewer)
         .directive('roiAnnotationsViewer', roiAnnotationsViewer)
         .directive('clinicalAnnotationsViewer', clinicalAnnotationsViewer)
         .directive('slidesSequenceViewer', slidesSequenceViewer);
@@ -97,7 +98,7 @@
                     ome_seadragon_viewer.buildViewer();
 
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
-                        ome_seadragon_viewer.setMinDZILevel(8);
+                        ome_seadragon_viewer.setMinDZILevel(11);
                     });
 
                     var scalebar_config = {
@@ -110,6 +111,76 @@
                     };
                     ome_seadragon_viewer.enableScalebar(
                         scope.svc.getSlideMicronsPerPixel(), scalebar_config
+                    );
+                });
+            }
+        };
+        return directive;
+    }
+
+    function simpleHeatmapViewer() {
+        var directive = {
+            replace: true,
+            controller: 'SimpleHeatmapViewerController',
+            controllerAs: 'shvc',
+            restrict: 'E',
+            templateUrl: '/static/templates/viewer/simple_viewer.html',
+            link: function(scope, element, attrs) {
+                function setViewerHeight() {
+                    var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
+                        + $("#index_navbar").height() + 100;
+
+                    var available_v_space = $(window).height() - used_v_space;
+
+                    $('#simple_viewer').height(available_v_space);
+                }
+
+                setViewerHeight();
+                $(window).resize(setViewerHeight);
+                $(window).bind('resize_simple_viewer', setViewerHeight);
+
+                scope.$on('viewer.controller_initialized', function() {
+                    // clean navigator div
+                    $('#navi').empty();
+
+                    var viewer_config = {
+                        'showNavigator': true,
+                        'showFullPageControl': false,
+                        'navigatorId': 'navi',
+                        'zoomInButton': 'navi_zoom_in',
+                        'zoomOutButton': 'navi_zoom_out',
+                        'homeButton': 'navi_home'
+                    };
+
+                    var ome_seadragon_viewer = new ViewerController(
+                        'simple_viewer',
+                        scope.shvc.getStaticFilesURL(),
+                        scope.shvc.getDZIURL(),
+                        viewer_config
+                    );
+                    ome_seadragon_viewer.buildViewer();
+
+                    ome_seadragon_viewer.viewer.addHandler('open', function() {
+                        ome_seadragon_viewer.setMinDZILevel(8);
+
+                        ome_seadragon_viewer.initOverlaysLayer(
+                            {
+                                'green': scope.shvc.getDatasetDZIURL('Greens_9')
+                            }, 0.5
+                        );
+                        ome_seadragon_viewer.activateOverlay('green');
+                    });
+
+                    var scalebar_config = {
+                        'xOffset': 10,
+                        'yOffset': 10,
+                        'barThickness': 5,
+                        'color': '#777',
+                        'fontColor': '#000',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.5)'
+                    };
+                    ome_seadragon_viewer.enableScalebar(
+                        scope.shvc.getSlideMicronsPerPixel(), scalebar_config
                     );
                 });
             }

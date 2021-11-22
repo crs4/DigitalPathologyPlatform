@@ -178,7 +178,7 @@
             if (vm.slides_set_b === undefined) {
                 return false;
             } else {
-
+                // TODO: implement slides sync control
             }
         }
 
