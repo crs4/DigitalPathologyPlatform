@@ -38,6 +38,8 @@ promort_groups:
     name: GOLD_STANDARD
   odin_members:
     name: ODIN_USERS
+  prediction_manager:
+    name: PREDICTION_MANAGERS
 
 ome_seadragon:
   base_url: http://localhost:8080/ome_seadragon/

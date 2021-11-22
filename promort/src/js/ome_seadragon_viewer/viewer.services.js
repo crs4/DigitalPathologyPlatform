@@ -26,6 +26,7 @@
         .module('promort.viewer.services')
         .factory('CurrentAnnotationStepsDetailsService', CurrentAnnotationStepsDetailsService)
         .factory('ViewerService', ViewerService)
+        .factory('HeatmapViewerService', HeatmapViewerService)
         .factory('AnnotationsViewerService', AnnotationsViewerService)
         .factory('SlidesSequenceViewerService', SlidesSequenceViewerService);
 
@@ -82,6 +83,20 @@
 
         function getSlideInfo(slide_id) {
             return $http.get('api/slides/' + slide_id + '/');
+        }
+    }
+
+    HeatmapViewerService.$inject = ['$http', '$log'];
+
+    function HeatmapViewerService($http, $log) {
+        var HeatmapViewerService = {
+            getPredictionInfo: getPredictionInfo
+        };
+
+        return HeatmapViewerService;
+
+        function getPredictionInfo(prediction_id) {
+            return $http.get('api/predictions/' + prediction_id + '/');
         }
     }
     

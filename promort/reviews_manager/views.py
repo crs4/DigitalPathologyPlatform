@@ -32,10 +32,12 @@ from django.db import IntegrityError
 from view_templates.views import GenericListView
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, ClinicalAnnotation, \
-    ClinicalAnnotationStep
+    ClinicalAnnotationStep, PredictionReview
 from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
     ROIsAnnotationDetailsSerializer, ROIsAnnotationStepDetailsSerializer, ClinicalAnnotationSerializer, \
-    ClinicalAnnotationStepSerializer, ClinicalAnnotationDetailsSerializer
+    ClinicalAnnotationStepSerializer, ClinicalAnnotationDetailsSerializer, PredictionReviewSerializer, \
+    PredictionReviewDetailsSerializer
+from predictions_manager.serializers import PredictionDetailsSerializer
 from reviews_manager.permissions import IsReviewManager
 
 import logging
@@ -54,6 +56,15 @@ class ROIsAnnotationsList(GenericListView):
 class ClinicalAnnotationsList(GenericListView):
     model = ClinicalAnnotation
     model_serializer = ClinicalAnnotationSerializer
+    permission_classes = (IsReviewManager,)
+
+    def post(self, request, format=None):
+        raise MethodNotAllowed
+
+
+class PredictionReviewsList(GenericListView):
+    model = PredictionReview
+    model_serializer = PredictionReviewSerializer
     permission_classes = (IsReviewManager,)
 
     def post(self, request, format=None):
@@ -88,6 +99,21 @@ class ClinicalAnnotationsDetail(APIView):
     def get(self, request, case, format=None):
         clinical_annotations = self._find_clinical_annotation(case)
         serializer = ClinicalAnnotationSerializer(clinical_annotations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PredictionReviewsDetail(APIView):
+    permission_classes = (IsReviewManager,)
+
+    def _find_prediction_reviews(self, slide_id):
+        try:
+            return PredictionReview.objects.filter(slide=slide_id)
+        except PredictionReview.DoesNotExist:
+            raise NotFound('No prediction reviews found for slide ID {0}'.format(slide_id))
+
+    def get(self, request, slide, format=None):
+        prediction_reviews = self._find_prediction_reviews(slide)
+        serializer = PredictionReviewSerializer(prediction_reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -606,7 +632,7 @@ class ClinicalAnnotationStepDetail(APIView):
         else:
             return Response({
                 'status': 'ERROR',
-                'message': 'missing \'action\' field in requesta data'
+                'message': 'missing \'action\' field in request data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, label, format=None):
@@ -619,3 +645,35 @@ class ClinicalAnnotationStepDetail(APIView):
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PredictionReviewDetail(APIView):
+    permission_classes = (IsReviewManager,)
+    
+    def _find_prediction_review(self, label):
+        try:
+            prediction_review = PredictionReview.objects.get(label=label)
+            return prediction_review
+        except PredictionReview.DoesNotExist:
+            raise NotFound(f'No prediction review with label {label}')
+    
+    def get(self, request, label, format=None):
+        prediction_review = self._find_prediction_review(label)
+        serializer = PredictionReviewDetailsSerializer(prediction_review)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PredictionByReviewDetail(APIView):
+    permission_classes = (IsReviewManager,)
+    
+    def _find_prediction_by_review(self, review_label):
+        try:
+            prediction_review = PredictionReview.objects.get(label=review_label)
+            return prediction_review.prediction
+        except PredictionReview.DoesNotExist:
+            raise NotFound(f'No prediction review with label {review_label}')
+        
+    def get(self, request, label, format=None):
+        prediction = self._find_prediction_by_review(label)
+        serializer = PredictionDetailsSerializer(prediction)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -22,10 +22,11 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
-    ClinicalAnnotation, ClinicalAnnotationStep
+    ClinicalAnnotation, ClinicalAnnotationStep, PredictionReview
 from slides_manager.serializers import SlideSerializer, SlideEvaluationSerializer
 from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
 from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
+from predictions_manager.serializers import PredictionSerializer
 
 
 class ROIsAnnotationSerializer(serializers.ModelSerializer):
@@ -272,3 +273,66 @@ class ClinicalAnnotationDetailsSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_annotation_type(obj):
         return 'CLINICAL_ANNOTATION'
+
+
+class PredictionReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+    annotation_type = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model  = PredictionReview
+
+        fields = ('id', 'label', 'annotation_type', 'prediction', 'slide', 'reviewer',
+                  'creation_date', 'start_date', 'completion_date', 'started', 'completed')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed', 'annotation_type')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started()
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed()
+
+    @staticmethod
+    def get_annotation_type(obj):
+        return 'PREDICTION_REVIEW'
+
+
+class PredictionReviewDetailsSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+    started = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+    annotation_type = serializers.SerializerMethodField()
+    slide = SlideSerializer(many=False, read_only=True)
+    prediction = PredictionSerializer(many=False, read_only=True)
+
+
+    class Meta:
+        model  = PredictionReview
+
+        fields = ('id', 'label', 'annotation_type', 'prediction', 'slide', 'reviewer',
+                  'creation_date', 'start_date', 'completion_date', 'started', 'completed')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed', 'annotation_type',
+                            'slide', 'prediction')
+
+    @staticmethod
+    def get_started(obj):
+        return obj.is_started()
+
+    @staticmethod
+    def get_completed(obj):
+        return obj.is_completed()
+
+    @staticmethod
+    def get_annotation_type(obj):
+        return 'PREDICTION_REVIEW'

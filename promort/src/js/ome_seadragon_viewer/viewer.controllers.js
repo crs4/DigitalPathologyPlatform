@@ -26,6 +26,7 @@
         .module('promort.viewer.controllers')
         .controller('MiniViewerNavigationController', MiniViewerNavigationController)
         .controller('SimpleViewerController', SimpleViewerController)
+        .controller('SimpleHeatmapViewerController', SimpleHeatmapViewerController)
         .controller('AnnotationsViewerController', AnnotationsViewerController)
         .controller('SlidesSequenceViewerController', SlidesSequenceViewerController);
 
@@ -100,6 +101,91 @@
 
         function getDZIURL() {
             return vm.dzi_url;
+        }
+
+        function getStaticFilesURL() {
+            return vm.static_files_url;
+        }
+
+        function getSlideMicronsPerPixel() {
+            return vm.slide_details.image_microns_per_pixel;
+        }
+    }
+
+    SimpleHeatmapViewerController.$inject = ['$scope', '$routeParams', '$rootScope', '$location', '$log',
+        'ViewerService', 'HeatmapViewerService', 'CurrentPredictionDetailsService'];
+    
+    function SimpleHeatmapViewerController($scope, $routeParams, $rootScope, $location, $log, ViewerService,
+                                           HeatmapViewerService, CurrentPredictionDetailsService) {
+        var vm = this;
+        vm.slide_id = undefined;
+        vm.prediction_id = undefined;
+        vm.slide_details = undefined;
+        vm.prediction_details = undefined;
+        vm.dzi_url = undefined;
+        vm.dataset_dzi_url = undefined;
+        vm.static_files_url = undefined;
+        vm.getDZIURL = getDZIURL;
+        vm.getDatasetDZIURL = getDatasetDZIURL;
+        vm.getStaticFilesURL = getStaticFilesURL;
+        vm.getSlideMicronsPerPixel = getSlideMicronsPerPixel;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = CurrentPredictionDetailsService.getSlideId();
+            vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
+
+            ViewerService.getOMEBaseURLs()
+                .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
+            
+            function OMEBaseURLSuccessFn(response) {
+                var base_url = response.data.base_url;
+                vm.static_files_url = response.data.static_files_url + '/ome_seadragon/img/openseadragon/';
+
+                ViewerService.getSlideInfo(vm.slide_id)
+                    .then(SlideInfoSuccessFn, SlideInfoErrorFn);
+
+                function SlideInfoSuccessFn(response) {
+                    vm.slide_details = response.data;
+                    if (vm.slide_details.image_type === 'MIRAX') {
+                        vm.dzi_url = base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
+                    } else {
+                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
+                    }
+
+                    HeatmapViewerService.getPredictionInfo(vm.prediction_id)
+                        .then(PredictionInfoSuccessFn, PredictionInfoErrorFn);
+
+                    function PredictionInfoSuccessFn(response) {
+                        vm.prediction_details = response.data;
+                        vm.dataset_dzi_url = base_url + 'arrays/deepzoom/get/' + vm.prediction_details.omero_id + '.dzi';
+
+                        $rootScope.$broadcast('viewer.controller_initialized');
+                    }
+
+                    function PredictionInfoErrorFn(response) {
+
+                    }
+                }
+
+                function SlideInfoErrorFn(response) {
+                    $log.error(response.error);
+                    $location.url('404');
+                }
+            }
+
+            function OMEBaseURLErrorFn(response) {
+                $log.error(response.error);
+            }
+        }
+
+        function getDZIURL() {
+            return vm.dzi_url + '?limit_bounds=false';
+        }
+
+        function getDatasetDZIURL(color_palette) {
+            return vm.dataset_dzi_url + '?palette=' + color_palette;
         }
 
         function getStaticFilesURL() {
