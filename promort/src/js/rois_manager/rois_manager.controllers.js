@@ -682,7 +682,7 @@
         vm.shape = undefined;
         vm.totalCores = 0;
 
-        vm.creationStartDate = undefined;
+        vm.actionStartTime = undefined;
 
         vm.edit_shape_label = false;
         vm.previuos_shape_label = undefined;
@@ -752,7 +752,7 @@
                 function() {
                     vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('slice');
                     vm.shape_label = vm.default_shape_label;
-                    vm.creationStartDate = new Date();
+                    vm.actionStartTime = new Date();
                 }
             );
         }
@@ -996,7 +996,7 @@
             vm.totalCores = 0;
             vm.shape_label = undefined;
             vm.default_shape_label = undefined;
-            vm.creationStartDate = undefined;
+            vm.actionStartTime = undefined;
         }
 
         function abortTool() {
@@ -1049,7 +1049,7 @@
                 closeByDocument: false
             });
             ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_label, vm.slide_id, vm.shape.shape_id,
-                vm.shape, vm.totalCores, vm.creationStartDate)
+                vm.shape, vm.totalCores, vm.actionStartTime)
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
             function createSliceSuccessFn(response) {
@@ -1273,7 +1273,7 @@
         vm.coreArea = undefined;
         vm.tumorLength = undefined;
 
-        vm.creationStartDate = undefined;
+        vm.actionStartTime = undefined;
 
         vm.scaledCoreLength = undefined;
         vm.coreLengthScaleFactor = undefined;
@@ -1411,7 +1411,7 @@
                 function() {
                     vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('core');
                     vm.shape_label = vm.default_shape_label;
-                    vm.creationStartDate = new Date();
+                    vm.actionStartTime = new Date();
                 }
             );
         }
@@ -1879,7 +1879,7 @@
             vm.deleteTumorRuler();
             vm.shape_label = undefined;
             vm.default_shape_label = undefined;
-            vm.creationStartDate = undefined;
+            vm.actionStartTime = undefined;
         }
 
         function abortTool() {
@@ -1992,7 +1992,7 @@
                 closeByDocument: false
             });
             SlicesManagerService.createCore(vm.parentSlice.id, vm.shape.shape_id, vm.shape,
-                vm.coreLength, vm.coreArea, vm.tumorLength, vm.creationStartDate)
+                vm.coreLength, vm.coreArea, vm.tumorLength, vm.actionStartTime)
                 .then(createCoreSuccessFn, createCoreErrorFn);
 
             function createCoreSuccessFn(response) {
@@ -2621,7 +2621,7 @@
         vm.coreCoverage = undefined;
         vm.tissueStatus = undefined;
 
-        vm.creationStartDate = undefined;
+        vm.actionStartTime = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -2740,7 +2740,7 @@
                 function() {
                     vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('focus_region');
                     vm.shape_label = vm.default_shape_label;
-                    vm.creationStartDate = new Date();
+                    vm.actionStartTime = new Date();
                 }
             );
         }
@@ -3146,7 +3146,7 @@
             vm.isTumor = false;
             vm.shape_label = undefined;
             vm.default_shape_label = undefined;
-            vm.creationStartDate = undefined;
+            vm.actionStartTime = undefined;
         }
 
         function abortTool() {
@@ -3220,7 +3220,7 @@
                 closeByDocument: false
             });
             CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
-                vm.regionLength, vm.regionArea, vm.tissueStatus, vm.creationStartDate)
+                vm.regionLength, vm.regionArea, vm.tissueStatus, vm.actionStartTime)
                 .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
 
             function createFocusRegionSuccessFn(response) {

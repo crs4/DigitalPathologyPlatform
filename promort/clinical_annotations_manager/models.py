@@ -30,7 +30,7 @@ class SliceAnnotation(models.Model):
                               related_name='clinical_annotations')
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='slice_annotations')
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     high_grade_pin = models.BooleanField(blank=False, null=False, default=False)
     pah = models.BooleanField(blank=False, null=False, default=False)
@@ -85,7 +85,7 @@ class CoreAnnotation(models.Model):
                              related_name='clinical_annotations')
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='core_annotations')
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     primary_gleason = models.IntegerField(blank=False)
     secondary_gleason = models.IntegerField(blank=False)
@@ -132,7 +132,7 @@ class FocusRegionAnnotation(models.Model):
                                      blank=False, related_name='clinical_annotations')
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='focus_region_annotations')
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     # cancerous region fields
     perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
@@ -190,7 +190,7 @@ class GleasonElement(models.Model):
     cellular_density_helper_json = models.TextField(blank=True, null=True)
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
 
     def get_gleason_type_label(self):
