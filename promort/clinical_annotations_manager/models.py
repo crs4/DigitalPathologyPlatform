@@ -31,6 +31,7 @@ class SliceAnnotation(models.Model):
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='slice_annotations')
     action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     high_grade_pin = models.BooleanField(blank=False, null=False, default=False)
     pah = models.BooleanField(blank=False, null=False, default=False)
@@ -86,6 +87,7 @@ class CoreAnnotation(models.Model):
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='core_annotations')
     action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     primary_gleason = models.IntegerField(blank=False)
     secondary_gleason = models.IntegerField(blank=False)
@@ -133,6 +135,7 @@ class FocusRegionAnnotation(models.Model):
     annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='focus_region_annotations')
     action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     # cancerous region fields
     perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
@@ -191,6 +194,7 @@ class GleasonElement(models.Model):
     cellular_density = models.IntegerField(blank=True, null=True)
     cells_count = models.IntegerField(blank=True, null=True)
     action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
 
     def get_gleason_type_label(self):
