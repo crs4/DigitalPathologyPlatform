@@ -60,6 +60,10 @@ class Command(BaseCommand):
             action_start_time = core_annotation.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
             action_start_time = None
+        try:
+            action_complete_time = core_annotation.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            action_complete_time = None
         csv_writer.writerow(
             {
                 'case_id': core_annotation.core.slice.slide.case.id,
@@ -70,6 +74,7 @@ class Command(BaseCommand):
                 'core_id': core_annotation.core.id,
                 'core_label': core_annotation.core.label,
                 'action_start_time': action_start_time,
+                'action_complete_time': action_complete_time,
                 'creation_date': core_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'primary_gleason': core_annotation.primary_gleason,
                 'secondary_gleason': core_annotation.secondary_gleason,
@@ -79,8 +84,8 @@ class Command(BaseCommand):
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
-                  'core_id', 'core_label', 'action_start_time', 'creation_date', 'primary_gleason',
-                  'secondary_gleason', 'gleason_group_who_16']
+                  'core_id', 'core_label', 'action_start_time', 'action_complete_time', 'creation_date',
+                  'primary_gleason', 'secondary_gleason', 'gleason_group_who_16']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

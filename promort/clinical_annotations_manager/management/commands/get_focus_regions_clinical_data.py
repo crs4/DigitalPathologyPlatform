@@ -59,6 +59,10 @@ class Command(BaseCommand):
             action_start_time = focus_region_annotation.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
             action_start_time = None
+        try:
+            action_complete_time = focus_region_annotation.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            action_complete_time = None
         csv_writer.writerow(
             {
                 'case_id': focus_region_annotation.focus_region.core.slice.slide.case.id,
@@ -71,6 +75,7 @@ class Command(BaseCommand):
                 'core_id': focus_region_annotation.focus_region.core.id,
                 'core_label': focus_region_annotation.focus_region.core.label,
                 'action_start_time': action_start_time,
+                'action_complete_time': action_complete_time,
                 'creation_date': focus_region_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'perineural_involvement': focus_region_annotation.perineural_involvement,
                 'intraductal_carcinoma': focus_region_annotation.intraductal_carcinoma,
@@ -89,9 +94,9 @@ class Command(BaseCommand):
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'focus_region_id', 'focus_region_label', 'core_id', 'core_label', 'action_start_time',
-                  'creation_date', 'perineural_involvement', 'intraductal_carcinoma', 'ductal_carcinoma',
-                  'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern',
-                  'mucinous', 'comedo_necrosis', 'total_gleason_4_area', 'gleason_4_percentage']
+                  'action_complete_time', 'creation_date', 'perineural_involvement', 'intraductal_carcinoma',
+                  'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring',
+                  'hypernephroid_pattern', 'mucinous', 'comedo_necrosis', 'total_gleason_4_area', 'gleason_4_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

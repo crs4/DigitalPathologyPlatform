@@ -60,6 +60,10 @@ class Command(BaseCommand):
             action_start_time = focus_region.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
             action_start_time = None
+        try:
+            action_complete_time = focus_region.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            action_complete_time = None
         csv_writer.writerow(
             {
                 'case_id': focus_region.core.slice.slide.case.id,
@@ -70,6 +74,7 @@ class Command(BaseCommand):
                 'focus_region_label': focus_region.label,
                 'focus_region_id': focus_region.id,
                 'action_start_time': action_start_time,
+                'action_complete_time': action_complete_time,
                 'creation_date': focus_region.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': focus_region.author.username,
                 'length': focus_region.length,
@@ -89,8 +94,8 @@ class Command(BaseCommand):
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_core_id', 'parent_core_label',
-                  'focus_region_label', 'focus_region_id', 'action_start_time', 'creation_date', 'reviewer', 'length',
-                  'area', 'tissue_status', 'core_coverage_percentage']
+                  'focus_region_label', 'focus_region_id', 'action_start_time', 'action_complete_time', 'creation_date',
+                  'reviewer', 'length', 'area', 'tissue_status', 'core_coverage_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
