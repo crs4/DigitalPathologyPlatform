@@ -685,7 +685,7 @@
         vm.actionStartTime = undefined;
 
         vm.edit_shape_label = false;
-        vm.previuos_shape_label = undefined;
+        vm.previous_shape_label = undefined;
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
@@ -797,7 +797,7 @@
 
         function activateEditLabelMode() {
             vm.edit_shape_label = true;
-            vm.previuos_shape_label = vm.shape_label;
+            vm.previous_shape_label = vm.shape_label;
         }
 
         function labelValid() {
@@ -824,7 +824,7 @@
         }
 
         function deactivateEditLabelMode() {
-            vm.previuos_shape_label = undefined;
+            vm.previous_shape_label = undefined;
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
@@ -836,7 +836,7 @@
         }
 
         function abortEditLabelMode() {
-            vm.shape_label = vm.previuos_shape_label;
+            vm.shape_label = vm.previous_shape_label;
             vm.deactivateEditLabelMode();
         }
 
@@ -1049,7 +1049,7 @@
                 closeByDocument: false
             });
             ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_label, vm.slide_id, vm.shape.shape_id,
-                vm.shape, vm.totalCores, vm.actionStartTime)
+                vm.shape, vm.totalCores, vm.actionStartTime, new Date())
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
             function createSliceSuccessFn(response) {
@@ -1992,7 +1992,7 @@
                 closeByDocument: false
             });
             SlicesManagerService.createCore(vm.parentSlice.id, vm.shape.shape_id, vm.shape,
-                vm.coreLength, vm.coreArea, vm.tumorLength, vm.actionStartTime)
+                vm.coreLength, vm.coreArea, vm.tumorLength, vm.actionStartTime, new Date())
                 .then(createCoreSuccessFn, createCoreErrorFn);
 
             function createCoreSuccessFn(response) {
@@ -3220,7 +3220,7 @@
                 closeByDocument: false
             });
             CoresManagerService.createFocusRegion(vm.parentCore.id, vm.shape.shape_id, vm.shape,
-                vm.regionLength, vm.regionArea, vm.tissueStatus, vm.actionStartTime)
+                vm.regionLength, vm.regionArea, vm.tissueStatus, vm.actionStartTime, new Date())
                 .then(createFocusRegionSuccessFn, createFocusRegionErrorFn);
 
             function createFocusRegionSuccessFn(response) {

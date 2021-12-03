@@ -40,13 +40,15 @@
 
         return ROIsAnnotationStepManagerService;
 
-        function createSlice(step_label, slide_id, slice_label, roi_json, total_cores, action_start_time) {
+        function createSlice(step_label, slide_id, slice_label, roi_json, total_cores,
+                             action_start_time, action_complete_time) {
             var params = {
                 label: slice_label,
                 slide: slide_id,
                 roi_json: JSON.stringify(roi_json),
                 total_cores: total_cores,
-                action_start_time: action_start_time
+                action_start_time: action_start_time,
+                action_complete_time: action_complete_time
             };
             return $http.post('/api/rois_annotation_steps/' + step_label + '/slices/', params);
         }
@@ -91,14 +93,16 @@
             return $http.delete('/api/slices/' + slice_id + '/');
         }
 
-        function createCore(slice_id, core_label, roi_json, length, area, tumor_length, action_start_time) {
+        function createCore(slice_id, core_label, roi_json, length, area, tumor_length,
+                            action_start_time, action_complete_time) {
             var params = {
                 label: core_label,
                 roi_json: JSON.stringify(roi_json),
                 length: length,
                 area: area,
                 tumor_length: tumor_length,
-                action_start_time: action_start_time
+                action_start_time: action_start_time,
+                action_complete_time: action_complete_time
             };
             return $http.post('/api/slices/' + slice_id + '/cores/', params);
         }
@@ -133,14 +137,15 @@
         }
 
         function createFocusRegion(core_id, focus_region_label, roi_json, length, area, tissue_status,
-                                   action_start_time) {
+                                   action_start_time, action_complete_time) {
             var params = {
                 label: focus_region_label,
                 roi_json: JSON.stringify(roi_json),
                 length: length,
                 area: area,
                 tissue_status: tissue_status,
-                action_start_time: action_start_time
+                action_start_time: action_start_time,
+                action_complete_time: action_complete_time
             };
             return $http.post('/api/cores/' + core_id + '/focus_regions/', params);
         }

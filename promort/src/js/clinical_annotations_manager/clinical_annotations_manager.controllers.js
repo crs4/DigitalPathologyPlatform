@@ -783,7 +783,8 @@
                 periglandular_inflammation: vm.periglandularInflammation,
                 intraglandular_inflammation: vm.intraglandularInflammation,
                 stromal_inflammation: vm.stromalInflammation,
-                action_start_time: vm.actionStartTime
+                action_start_time: vm.actionStartTime,
+                action_complete_time: new Date()
             };
             SliceAnnotationsManagerService.createAnnotation(vm.slice_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
@@ -1073,7 +1074,8 @@
                 primary_gleason: Number(vm.primaryGleason),
                 secondary_gleason: Number(vm.secondaryGleason),
                 gleason_group: vm.gradeGroupWho,
-                action_start_time: vm.actionStartTime
+                action_start_time: vm.actionStartTime,
+                action_complete_time: new Date()
             }
             CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
@@ -1735,7 +1737,8 @@
                 gleason_type: vm.tmpGleasonType,
                 gleason_label: vm.gleason_types_map[vm.tmpGleasonType],
                 creation_date: new Date(),
-                action_start_time: vm.tmpGleasonActionStartTime
+                action_start_time: vm.tmpGleasonActionStartTime,
+                action_complete_time: new Date()
             };
             vm.gleasonElementsLabels.push(gleason_shape_id);
             vm.gleasonElements[gleason_shape_id] = tmp_g_object;
@@ -1799,7 +1802,8 @@
                 adenosis: vm.adenosis,
                 cells_count: vm.cellsCount,
                 gleason_elements: gleason_elements,
-                action_start_time: vm.actionStartTime
+                action_start_time: vm.actionStartTime,
+                action_complete_time: new Date()
             };
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_label, obj_config)
