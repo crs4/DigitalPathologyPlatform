@@ -29,7 +29,8 @@ class Slice(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
     annotation_step = models.ForeignKey(ROIsAnnotationStep, on_delete=models.PROTECT,
                                         blank=False, related_name='slices')
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
@@ -56,6 +57,12 @@ class Slice(models.Model):
             focus_regions.extend(core.focus_regions.all())
         return focus_regions
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class Core(models.Model):
     label = models.CharField(max_length=25, blank=False)
@@ -63,7 +70,8 @@ class Core(models.Model):
                               blank=False, related_name='cores')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
@@ -90,6 +98,12 @@ class Core(models.Model):
                 return True
         return False
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class FocusRegion(models.Model):
     TISSUE_STATUS_CHOICES = (
@@ -103,7 +117,8 @@ class FocusRegion(models.Model):
                              blank=False, related_name='focus_regions')
     author = models.ForeignKey(User, on_delete=models.PROTECT,
                                blank=False)
-    creation_start_date = models.DateTimeField(null=True, default=None)
+    action_start_time = models.DateTimeField(null=True, default=None)
+    action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     length = models.FloatField(blank=False, default=0.0)
@@ -124,3 +139,9 @@ class FocusRegion(models.Model):
 
     def is_normal_region(self):
         return self.tissue_status == 'NORMAL'
+
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
