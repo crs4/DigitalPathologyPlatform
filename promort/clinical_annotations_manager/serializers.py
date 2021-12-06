@@ -41,9 +41,10 @@ class SliceAnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SliceAnnotation
-        fields = ('id', 'author', 'slice', 'annotation_step', 'creation_start_date', 'creation_date', 'high_grade_pin',
-                  'pah', 'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
-                  'intraglandular_inflammation', 'stromal_inflammation', 'gleason_4_percentage')
+        fields = ('id', 'author', 'slice', 'annotation_step', 'action_start_time', 'action_complete_time', 
+                  'creation_date', 'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation',
+                  'periglandular_inflammation', 'intraglandular_inflammation', 'stromal_inflammation',
+                  'gleason_4_percentage')
         read_only_fields = ('id', 'creation_date', 'gleason_4_percentage')
         write_only_fields = ('annotation_step',)
 
@@ -73,8 +74,9 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CoreAnnotation
-        fields = ('id', 'author', 'core', 'annotation_step', 'creation_start_date', 'creation_date', 'primary_gleason',
-                  'secondary_gleason', 'gleason_score', 'gleason_4_percentage', 'gleason_group')
+        fields = ('id', 'author', 'core', 'annotation_step', 'action_start_time', 'action_complete_time',
+                  'creation_date', 'primary_gleason', 'secondary_gleason', 'gleason_score',
+                  'gleason_4_percentage', 'gleason_group')
         read_only_fields = ('id', 'creation_date', 'gleason_score', 'gleason_4_percentage')
         write_only_fields = ('annotation_step',)
 
@@ -105,7 +107,7 @@ class GleasonElementSerializer(serializers.ModelSerializer):
         model = GleasonElement
         fields = ('id', 'gleason_type', 'gleason_label', 'json_path', 'area',
                   'cellular_density_helper_json', 'cellular_density', 'cells_count',
-                  'creation_date', 'creation_start_date')
+                  'creation_date', 'action_start_time', 'action_complete_time')
         read_only_fields = ('gleason_label',)
 
     @staticmethod
@@ -140,10 +142,10 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FocusRegionAnnotation
-        fields = ('id', 'author', 'focus_region', 'annotation_step', 'creation_start_date', 'creation_date',
-                  'perineural_involvement', 'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands',
-                  'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern', 'mucinous',
-                  'comedo_necrosis', 'inflammation', 'pah', 'atrophic_lesions', 'adenosis',
+        fields = ('id', 'author', 'focus_region', 'annotation_step', 'action_start_time', 'action_complete_time',
+                  'creation_date', 'perineural_involvement', 'intraductal_carcinoma', 'ductal_carcinoma',
+                  'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern',
+                  'mucinous', 'comedo_necrosis', 'inflammation', 'pah', 'atrophic_lesions', 'adenosis',
                   'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements')
         read_only_fields = ('creation_date',)
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')

@@ -57,18 +57,23 @@ class Command(BaseCommand):
 
     def _dump_row(self, core, csv_writer):
         try:
-            creation_start_date = core.creation_start_date.strftime('%Y-%m-%d %H:%M:%S')
+            action_start_time = core.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
-            creation_start_date = None
+            action_start_time = None
+        try:
+            action_complete_time = core.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            action_complete_time = None
         csv_writer.writerow(
             {
                 'case_id': core.slice.slide.case.id,
                 'slide_id': core.slice.slide.id,
-                'roi_review_step_id': core.slice.annotation_step.label,
+                'rois_review_step_id': core.slice.annotation_step.label,
                 'parent_slice_id': core.slice.id,
                 'core_label': core.label,
                 'core_id': core.id,
-                'creation_start_date': creation_start_date,
+                'action_start_time': action_start_time,
+                'action_complete_time': action_complete_time,
                 'creation_date': core.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': core.author.username,
                 'length': core.length,
@@ -81,9 +86,9 @@ class Command(BaseCommand):
         )
 
     def _export_data(self, out_file, page_size):
-        header = ['case_id', 'slide_id', 'roi_review_step_id', 'parent_slice_id', 'core_label', 'core_id',
-                  'creation_start_date', 'creation_date', 'reviewer', 'length', 'area', 'tumor_length',
-                  'positive_core', 'normal_tissue_percentage', 'total_tumor_area']
+        header = ['case_id', 'slide_id', 'rois_review_step_id', 'parent_slice_id', 'core_label', 'core_id',
+                  'action_start_time', 'action_complete_time', 'creation_date', 'reviewer', 'length', 'area',
+                  'tumor_length', 'positive_core', 'normal_tissue_percentage', 'total_tumor_area']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

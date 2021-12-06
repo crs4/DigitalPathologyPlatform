@@ -57,9 +57,13 @@ class Command(BaseCommand):
 
     def _dump_row(self, slice_annotation, csv_writer):
         try:
-            creation_start_date = slice_annotation.creation_start_date.strftime('%Y-%m-%d %H:%M:%S')
+            action_start_time = slice_annotation.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
-            creation_start_date = None
+            action_start_time = None
+        try:
+            action_complete_time = slice_annotation.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            action_complete_time = None
         csv_writer.writerow(
             {
                 'case_id': slice_annotation.slice.slide.case.id,
@@ -69,7 +73,8 @@ class Command(BaseCommand):
                 'reviewer': slice_annotation.author.username,
                 'slice_id': slice_annotation.slice.id,
                 'slice_label': slice_annotation.slice.label,
-                'creation_start_date': creation_start_date,
+                'action_start_time': action_start_time,
+                'action_complete_time': action_complete_time,
                 'creation_date': slice_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'high_grade_pin': slice_annotation.high_grade_pin,
                 'pah': slice_annotation.pah,
@@ -83,8 +88,8 @@ class Command(BaseCommand):
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
-                  'slice_id', 'slice_label', 'creation_start_date', 'creation_date', 'high_grade_pin', 'pah',
-                  'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
+                  'slice_id', 'slice_label', 'action_start_time', 'action_complete_time', 'creation_date',
+                  'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
                   'intraglandular_inflammation', 'stromal_inflammation']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)

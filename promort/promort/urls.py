@@ -151,7 +151,7 @@ urlpatterns = [
     path('api/focus_regions/<num:focus_region_id>/clinical_annotations/',
          FocusRegionAnnotationList.as_view()),
     path(
-        'api/focus_regions/<num:focus_region_id>/clinical_annotations/(<semislug:label>/',
+        'api/focus_regions/<num:focus_region_id>/clinical_annotations/<semislug:label>/',
         FocusRegionAnnotationDetail.as_view()),
 
     # ROIs annotations
