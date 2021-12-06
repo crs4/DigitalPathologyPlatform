@@ -71,6 +71,12 @@ class SliceAnnotation(models.Model):
         except ZeroDivisionError:
             return -1
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class CoreAnnotation(models.Model):
     GLEASON_GROUP_WHO_16 = (
@@ -127,6 +133,12 @@ class CoreAnnotation(models.Model):
             if choice[0] == self.gleason_group:
                 return choice[1]
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class FocusRegionAnnotation(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
@@ -176,6 +188,12 @@ class FocusRegionAnnotation(models.Model):
         except ZeroDivisionError:
             return -1
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class GleasonElement(models.Model):
     GLEASON_TYPES = (
@@ -201,3 +219,9 @@ class GleasonElement(models.Model):
         for choice in self.GLEASON_TYPES:
             if choice[0] == self.gleason_type:
                 return choice[1]
+
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None

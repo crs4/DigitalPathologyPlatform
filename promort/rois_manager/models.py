@@ -57,6 +57,12 @@ class Slice(models.Model):
             focus_regions.extend(core.focus_regions.all())
         return focus_regions
 
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
+
 
 class Core(models.Model):
     label = models.CharField(max_length=25, blank=False)
@@ -91,6 +97,12 @@ class Core(models.Model):
             if fr.is_cancerous_region():
                 return True
         return False
+
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
 
 
 class FocusRegion(models.Model):
@@ -127,3 +139,9 @@ class FocusRegion(models.Model):
 
     def is_normal_region(self):
         return self.tissue_status == 'NORMAL'
+
+    def get_action_duration(self):
+        if self.action_start_time and self.action_complete_time:
+            return (self.action_complete_time-self.action_start_time).total_seconds()
+        else:
+            return None
