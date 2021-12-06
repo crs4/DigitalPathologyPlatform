@@ -1736,7 +1736,6 @@
                 cells_count: vm.tmpGleasonCellsCount,
                 gleason_type: vm.tmpGleasonType,
                 gleason_label: vm.gleason_types_map[vm.tmpGleasonType],
-                creation_date: new Date(),
                 action_start_time: vm.tmpGleasonActionStartTime,
                 action_complete_time: new Date()
             };
