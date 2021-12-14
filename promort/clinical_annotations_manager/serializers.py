@@ -37,20 +37,18 @@ class SliceAnnotationSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
-    gleason_4_percentage = serializers.SerializerMethodField()
+    # gleason_4_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = SliceAnnotation
+        # fields = ('id', 'author', 'slice', 'annotation_step', 'action_start_time', 'action_complete_time', 
+        #           'creation_date', 'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation',
+        #           'periglandular_inflammation', 'intraglandular_inflammation', 'stromal_inflammation',
+        #           'gleason_4_percentage')
         fields = ('id', 'author', 'slice', 'annotation_step', 'action_start_time', 'action_complete_time', 
-                  'creation_date', 'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation',
-                  'periglandular_inflammation', 'intraglandular_inflammation', 'stromal_inflammation',
-                  'gleason_4_percentage')
-        read_only_fields = ('id', 'creation_date', 'gleason_4_percentage')
+                  'creation_date', 'high_grade_pin', 'chronic_inflammation', 'acute_inflammation')
+        read_only_fields = ('id', 'creation_date')
         write_only_fields = ('annotation_step',)
-
-    @staticmethod
-    def get_gleason_4_percentage(obj):
-        return obj.get_gleason_4_percentage()
 
 
 class SliceAnnotationDetailsSerializer(SliceAnnotationSerializer):
@@ -70,23 +68,23 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     gleason_score = serializers.SerializerMethodField()
-    gleason_4_percentage = serializers.SerializerMethodField()
+    # gleason_4_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = CoreAnnotation
         fields = ('id', 'author', 'core', 'annotation_step', 'action_start_time', 'action_complete_time',
                   'creation_date', 'primary_gleason', 'secondary_gleason', 'gleason_score',
-                  'gleason_4_percentage', 'gleason_group')
-        read_only_fields = ('id', 'creation_date', 'gleason_score', 'gleason_4_percentage')
+                  'gleason_four_percentage', 'gleason_group')
+        read_only_fields = ('id', 'creation_date', 'gleason_score')
         write_only_fields = ('annotation_step',)
 
     @staticmethod
     def get_gleason_score(obj):
         return '%d + %d' % (obj.primary_gleason, obj.secondary_gleason)
 
-    @staticmethod
-    def get_gleason_4_percentage(obj):
-        return obj.get_gleason_4_percentage()
+    # @staticmethod
+    # def get_gleason_4_percentage(obj):
+    #     return obj.get_gleason_4_percentage()
 
 
 class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):
@@ -143,10 +141,10 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FocusRegionAnnotation
         fields = ('id', 'author', 'focus_region', 'annotation_step', 'action_start_time', 'action_complete_time',
-                  'creation_date', 'perineural_involvement', 'intraductal_carcinoma', 'ductal_carcinoma',
-                  'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring', 'hypernephroid_pattern',
-                  'mucinous', 'comedo_necrosis', 'inflammation', 'pah', 'atrophic_lesions', 'adenosis',
-                  'cellular_density_helper_json', 'cellular_density', 'cells_count', 'gleason_elements')
+                  'creation_date', 'atrophy', 'phlogosis', 'perineural_invasion', 'extra_prostatic_extension',
+                  'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
+                  'small_cell', 'stroma_rich', 'atypical_intraductal_proliferation', 'mucinous',
+                  'gleason_elements')
         read_only_fields = ('creation_date',)
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 

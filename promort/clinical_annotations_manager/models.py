@@ -20,6 +20,8 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 from reviews_manager.models import ClinicalAnnotationStep
 from rois_manager.models import Slice, Core, FocusRegion
 
@@ -34,12 +36,12 @@ class SliceAnnotation(models.Model):
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
     high_grade_pin = models.BooleanField(blank=False, null=False, default=False)
-    pah = models.BooleanField(blank=False, null=False, default=False)
+    # pah = models.BooleanField(blank=False, null=False, default=False)
     chronic_inflammation = models.BooleanField(blank=False, null=False, default=False)
     acute_inflammation = models.BooleanField(blank=False, null=False, default=False)
-    periglandular_inflammation = models.BooleanField(blank=False, null=False, default=False)
-    intraglandular_inflammation = models.BooleanField(blank=False, null=False, default=False)
-    stromal_inflammation = models.BooleanField(blank=False, null=False, default=False)
+    # periglandular_inflammation = models.BooleanField(blank=False, null=False, default=False)
+    # intraglandular_inflammation = models.BooleanField(blank=False, null=False, default=False)
+    # stromal_inflammation = models.BooleanField(blank=False, null=False, default=False)
 
     class Meta:
         unique_together = ('slice', 'annotation_step')
@@ -100,6 +102,8 @@ class CoreAnnotation(models.Model):
     gleason_group = models.CharField(
         max_length=3, choices=GLEASON_GROUP_WHO_16, blank=False
     )
+    gleason_four_percentage = models.IntegerField(blank=False, null=False, default=0,
+                                                  validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
         unique_together = ('core', 'annotation_step')
@@ -149,25 +153,20 @@ class FocusRegionAnnotation(models.Model):
     action_start_time = models.DateTimeField(null=True, default=None)
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
+    # normal region fields
+    atrophy = models.BooleanField(blank=False, null=False, default=False)
+    phlogosis = models.BooleanField(blank=False, null=False, default=False)
     # cancerous region fields
-    perineural_involvement = models.BooleanField(blank=False, null=False, default=False)
+    perineural_invasion = models.BooleanField(blank=False, null=False, default=False)
+    extra_prostatic_extension = models.BooleanField(blank=False, null=False, default=False)
     intraductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     ductal_carcinoma = models.BooleanField(blank=False, null=False, default=False)
     poorly_formed_glands = models.BooleanField(blank=False, null=False, default=False)
     cribriform_pattern = models.BooleanField(blank=False, null=False, default=False)
-    small_cell_signet_ring = models.BooleanField(blank=False, null=False, default=False)
-    hypernephroid_pattern = models.BooleanField(blank=False, null=False, default=False)
+    small_cell = models.BooleanField(blank=False, null=False, default=False)
+    stroma_rich = models.BooleanField(blank=False, null=False, default=False)
+    atypical_intraductal_proliferation = models.BooleanField(blank=False, null=False, default=False)
     mucinous = models.BooleanField(blank=False, null=False, default=False)
-    comedo_necrosis = models.BooleanField(blank=False, null=False, default=False)
-    # stressed region fields
-    inflammation = models.BooleanField(blank=False, null=False, default=False)
-    pah = models.BooleanField(blank=False, null=False, default=False)
-    atrophic_lesions = models.BooleanField(blank=False, null=False, default=False)
-    adenosis = models.BooleanField(blank=False, null=False, default=False)
-    # ---
-    cellular_density_helper_json = models.TextField(blank=True, null=True)
-    cellular_density = models.IntegerField(blank=True, null=True)
-    cells_count = models.IntegerField(blank=True, null=True)
 
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
