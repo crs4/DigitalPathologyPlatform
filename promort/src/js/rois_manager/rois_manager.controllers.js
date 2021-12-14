@@ -2654,7 +2654,7 @@
         vm.RULER_TOOL = 'ruler_tool';
 
         vm.shape_config = {
-            'stroke_color': '#00ff00',
+            'stroke_color': '#ff0000',
             'stroke_width': 20
         };
 
@@ -2724,8 +2724,8 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
-            // by default, mark region as NORMAL
-            vm.tissueStatus = 'NORMAL';
+            // by default, mark region as TUMOR
+            vm.tissueStatus = 'TUMOR';
 
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];
@@ -2748,7 +2748,7 @@
         function _updateShapeConfig() {
             switch(vm.tissueStatus) {
                 case 'NORMAL':
-                    vm.shape_config.stroke_color = '#32fc46';
+                    vm.shape_config.stroke_color = '#00ff00';
                     break;
                 case 'STRESSED':
                     vm.shape_config.stroke_color = '#fd6402';
@@ -3190,7 +3190,7 @@
                 vm.scaledRegionLength = undefined;
                 vm.parentCore = undefined;
                 vm.coreCoverage = undefined;
-                vm.tissueStatus = 'NORMAL';
+                vm.tissueStatus = 'TUMOR';
             }
         }
 

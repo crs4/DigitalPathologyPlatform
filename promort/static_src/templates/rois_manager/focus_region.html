@@ -283,9 +283,8 @@
             <select class="form-control" id="tissueStatus" ng-model="rmCtrl.tissueStatus"
                     ng-change="rmCtrl.switchShapeColor()"
                     ng-disabled="rmCtrl.isReadOnly() || rmCtrl.isRulerToolActive()">
-                <option value="NORMAL" selected>Normal</option>
-                <option value="STRESSED">Stressed</option>
-                <option value="TUMOR">Tumor</option>
+                <option value="TUMOR" selected>Tumor</option>
+                <option value="NORMAL">Normal</option>
             </select>
         </fieldset>
     </div>

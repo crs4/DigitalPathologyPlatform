@@ -282,9 +282,7 @@
         function _registerFocusRegion(focus_region_info) {
             $rootScope.focus_regions.push(focus_region_info);
             vm.focus_regions_map[focus_region_info.id] = focus_region_info.label;
-            if (focus_region_info.tumor === true || focus_region_info.stressed === true) {
-                vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
-            }
+            vm.focus_regions_edit_mode[focus_region_info.id] = !focus_region_info.annotated;
         }
 
         function _getFocusRegionLabel(focus_region_id) {
@@ -691,12 +689,12 @@
         vm.totalCores = undefined;
         vm.positiveCores = undefined;
         vm.highGradePin = false;
-        vm.pah = false;
+        // vm.pah = false;
         vm.chronicInflammation = false;
         vm.acuteInflammation = false;
-        vm.periglandularInflammation = false;
-        vm.intraglandularInflammation = false;
-        vm.stromalInflammation = false;
+        // vm.periglandularInflammation = false;
+        // vm.intraglandularInflammation = false;
+        // vm.stromalInflammation = false;
 
         vm.actionStartTime = undefined;
 
@@ -740,12 +738,12 @@
             vm.totalCores = undefined;
             vm.positiveCores = undefined;
             vm.highGradePin = false;
-            vm.pah = false;
+            // vm.pah = false;
             vm.chronicInflammation = false;
             vm.acuteInflammation = false;
-            vm.periglandularInflammation = false;
-            vm.intraglandularInflammation = false;
-            vm.stromalInflammation = false;
+            // vm.periglandularInflammation = false;
+            // vm.intraglandularInflammation = false;
+            // vm.stromalInflammation = false;
             vm.actionStartTime = undefined;
         }
 
@@ -777,12 +775,12 @@
             });
             var obj_config = {
                 high_grade_pin: vm.highGradePin,
-                pah: vm.pah,
+                // pah: vm.pah,
                 chronic_inflammation: vm.chronicInflammation,
                 acute_inflammation: vm.acuteInflammation,
-                periglandular_inflammation: vm.periglandularInflammation,
-                intraglandular_inflammation: vm.intraglandularInflammation,
-                stromal_inflammation: vm.stromalInflammation,
+                // periglandular_inflammation: vm.periglandularInflammation,
+                // intraglandular_inflammation: vm.intraglandularInflammation,
+                // stromal_inflammation: vm.stromalInflammation,
                 action_start_time: vm.actionStartTime,
                 action_complete_time: new Date()
             };
@@ -814,13 +812,13 @@
         vm.totalCores = undefined;
         vm.positiveCores = undefined;
         vm.highGradePin = undefined;
-        vm.pah = undefined;
+        // vm.pah = undefined;
         vm.chronicInflammation = undefined;
         vm.acuteInflammation = undefined;
-        vm.periglandularInflammation = undefined;
-        vm.intraglandularInflammation = undefined;
-        vm.stromalInflammation = undefined;
-        vm.gleason4Percentage = undefined;
+        // vm.periglandularInflammation = undefined;
+        // vm.intraglandularInflammation = undefined;
+        // vm.stromalInflammation = undefined;
+        // vm.gleason4Percentage = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -846,13 +844,13 @@
                 vm.totalCores = response.data.slice.total_cores;
                 vm.positiveCores = response.data.slice.positive_cores_count;
                 vm.highGradePin = response.data.high_grade_pin;
-                vm.pah = response.data.pah;
+                // vm.pah = response.data.pah;
                 vm.chronicInflammation = response.data.chronic_inflammation;
                 vm.acuteInflammation = response.data.acute_inflammation;
-                vm.periglandularInflammation = response.data.periglandular_inflammation;
-                vm.intraglandularInflammation = response.data.intraglandular_inflammation;
-                vm.stromalInflammation = response.data.stromal_inflammation;
-                vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
+                // vm.periglandularInflammation = response.data.periglandular_inflammation;
+                // vm.intraglandularInflammation = response.data.intraglandular_inflammation;
+                // vm.stromalInflammation = response.data.stromal_inflammation;
+                // vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
             }
 
             function getSliceAnnotationErrorFn(response) {
@@ -904,12 +902,12 @@
                 vm.totalCores = undefined;
                 vm.positiveCores = undefined;
                 vm.highGradePin = undefined;
-                vm.pah = undefined;
+                // vm.pah = undefined;
                 vm.chronicInflammation = undefined;
                 vm.acuteInflammation = undefined;
-                vm.periglandularInflammation = undefined;
-                vm.intraglandularInflammation = undefined;
-                vm.stromalInflammation = undefined;
+                // vm.periglandularInflammation = undefined;
+                // vm.intraglandularInflammation = undefined;
+                // vm.stromalInflammation = undefined;
                 dialog.close();
             }
 
@@ -936,6 +934,7 @@
         vm.secondaryGleason = undefined;
         vm.gradeGroupWho = undefined;
         vm.gradeGroupWhoLabel = '';
+        vm.gleasonFourPercentage = undefined;
 
         vm.actionStartTime = undefined;
 
@@ -1012,6 +1011,7 @@
             vm.secondaryGleason = undefined;
             vm.gradeGroupWho = undefined;
             vm.gradeGroupWhoLabel = '';
+            vm.gleasonFourPercentage = undefined;
 
             vm.actionStartTime = undefined;
         }
@@ -1026,7 +1026,8 @@
 
         function formValid() {
             return ((typeof vm.primaryGleason !== 'undefined') &&
-            (typeof vm.secondaryGleason !== 'undefined'));
+            (typeof vm.secondaryGleason !== 'undefined')) &&
+            vm.gleasonFourPercentage >= 0 && vm.gleasonFourPercentage <= 100;
         }
 
         function destroy() {
@@ -1075,7 +1076,8 @@
                 secondary_gleason: Number(vm.secondaryGleason),
                 gleason_group: vm.gradeGroupWho,
                 action_start_time: vm.actionStartTime,
-                action_complete_time: new Date()
+                action_complete_time: new Date(),
+                gleason_four_percentage: vm.gleasonFourPercentage
             }
             CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
@@ -1126,7 +1128,7 @@
         vm.normalTissuePercentage = undefined;
         vm.gleasonScore = undefined;
         vm.gradeGroupWhoLabel = undefined;
-        vm.gleason4Percentage = undefined;
+        vm.gleasonFourPercentage = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -1184,7 +1186,7 @@
                 vm.updateTumorLength();
                 vm.normalTissuePercentage = Number(parseFloat(response.data.core.normal_tissue_percentage).toFixed(3));
                 vm.gleasonScore = response.data.gleason_score;
-                vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
+                vm.gleasonFourPercentage = Number(parseInt(response.data.gleason_four_percentage));
                 switch (response.data.gleason_group) {
                     case 'GG1':
                         vm.gradeGroupWhoLabel = 'Group 1';
@@ -1279,7 +1281,7 @@
                 vm.normalTissuePercentage = undefined;
                 vm.gleasonScore = undefined;
                 vm.gradeGroupWhoLabel = undefined;
-                vm.gleason4Percentage = undefined;
+                vm.gleasonFourPercentage = undefined;
                 dialog.close();
             }
 
@@ -1323,22 +1325,17 @@
         vm.coreCoveragePercentage = undefined;
         vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
-        vm.perineuralInvolvement = false;
+        vm.atrophy = undefined;
+        vm.phlogosis = undefined;
+        vm.perineuralInvasion = false;
+        vm.extraProstaticExtension = false;
         vm.intraductalCarcinoma = false;
         vm.ductalCarcinoma = false;
         vm.poorlyFormedGlands = false;
         vm.cribriformPattern = false;
-        vm.smallCellSignetRing = false;
-        vm.hypernephroidPattern = false;
+        vm.smallCell = false;
+        vm.stromaRich = false;
         vm.mucinous = false;
-        vm.comedoNecrosis = false;
-        vm.inflammation = false;
-        vm.pah = false;
-        vm.atrophicLesions = false;
-        vm.adenosis = false;
-        vm.cellularDensityHelperShape = undefined;
-        vm.cellularDensity = undefined;
-        vm.cellsCount = undefined;
 
         vm.actionStartTime = undefined;
 
@@ -1385,7 +1382,7 @@
         vm.isReadOnly = isReadOnly;
         vm.isLocked = isLocked;
         vm.isCancerousRegion = isCancerousRegion;
-        vm.isStressedRegion = isStressedRegion;
+        vm.isNormalRegion = isNormalRegion;
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.save = save;
@@ -1494,20 +1491,17 @@
             vm.coreCoveragePercentage = undefined;
             vm.focusRegionTissueStatus = undefined;
             vm.focusRegionLength = undefined;
-            vm.perineuralInvolvement = false;
+            vm.atrophy = undefined;
+            vm.phlogosis = undefined;
+            vm.perineuralInvasion = false;
+            vm.extraProstaticExtension = false;
             vm.intraductalCarcinoma = false;
             vm.ductalCarcinoma = false;
             vm.poorlyFormedGlands = false;
             vm.cribriformPattern = false;
-            vm.smallCellSignetRing = false;
-            vm.hypernephroidPattern = false;
+            vm.smallCell = false;
+            vm.stromaRich = false;
             vm.mucinous = false;
-            vm.comedoNecrosis = false;
-            vm.inflammation = false;
-            vm.pah = false;
-            vm.atrophicLesions = false;
-            vm.adenosis = false;
-            vm.cellsCount = undefined;
 
             vm.actionStartTime = undefined;
 
@@ -1757,8 +1751,8 @@
             return vm.focusRegionTissueStatus === 'TUMOR';
         }
 
-        function isStressedRegion() {
-            return vm.focusRegionTissueStatus === 'STRESSED';
+        function isNormalRegion() {
+            return vm.focusRegionTissueStatus === 'NORMAL';
         }
 
         function formValid() {
@@ -1786,20 +1780,17 @@
                 }
             );
             var obj_config = {
-                perineural_involvement: vm.perineuralInvolvement,
+                atrophy: vm.atrophy,
+                phlogosis: vm.phlogosis,
+                perineural_invasion: vm.perineuralInvasion,
+                extra_prostatic_extension: vm.extraProstaticExtension,
                 intraductal_carcinoma: vm.intraductalCarcinoma,
                 ductal_carcinoma: vm.ductalCarcinoma,
                 poorly_formed_glands: vm.poorlyFormedGlands,
                 cribriform_pattern: vm.cribriformPattern,
-                small_cell_signet_ring: vm.smallCellSignetRing,
-                hypernephroid_pattern: vm.hypernephroidPattern,
+                small_cell: vm.smallCell,
+                stroma_rich: vm.stromaRich,
                 mucinous: vm.mucinous,
-                comedo_necrosis: vm.comedoNecrosis,
-                inflammation: vm.inflammation,
-                pah: vm.pah,
-                atrophic_lesions: vm.atrophicLesions,
-                adenosis: vm.adenosis,
-                cells_count: vm.cellsCount,
                 gleason_elements: gleason_elements,
                 action_start_time: vm.actionStartTime,
                 action_complete_time: new Date()
@@ -1904,21 +1895,18 @@
         vm.coreCoveragePercentage = undefined;
         vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
-        vm.perineuralInvolvement = false;
+        vm.atrophy = undefined;
+        vm.phlogosis = undefined;
+        vm.perineuralInvasion = false;
+        vm.extraProstaticExtension = false;
         vm.intraductalCarcinoma = false;
         vm.ductalCarcinoma = false;
         vm.poorlyFormedGlands = false;
         vm.cribriformPattern = false;
-        vm.smallCellSignetRing = false;
-        vm.hypernephroidPattern = false;
+        vm.smallCell = false;
+        vm.stromaRich = false;
+        vm.atypicalIntraductalProliferation = false;
         vm.mucinous = false;
-        vm.comedoNecrosis = false;
-        vm.inflammation = false;
-        vm.pah = false;
-        vm.atrophicLesions = false;
-        vm.adenosis = false;
-        vm.cellularDensityHelperShape = undefined;
-        vm.cellsCount = undefined;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -1946,7 +1934,7 @@
 
         vm.isReadOnly = isReadOnly;
         vm.isCancerousRegion = isCancerousRegion;
-        vm.isStressedRegion = isStressedRegion;
+        vm.isNormalRegion = isNormalRegion;
         vm.isLocked = isLocked;
         vm.destroy = destroy;
         vm.deleteAnnotation = deleteAnnotation;
@@ -1984,20 +1972,18 @@
                 vm.focusRegionTissueStatus = response.data.focus_region.tissue_status;
                 vm.focusRegionLength = response.data.focus_region.length;
                 vm.updateRegionLength();
-                vm.perineuralInvolvement = response.data.perineural_involvement;
+                vm.atrophy = response.data.atrophy;
+                vm.phlogosis = response.data.phlogosis;
+                vm.perineuralInvasion = response.data.perineural_invasion;
+                vm.extraProstaticExtension = response.data.extra_prostatic_extension;
                 vm.intraductalCarcinoma = response.data.intraductal_carcinoma;
                 vm.ductalCarcinoma = response.data.ductal_carcinoma;
                 vm.poorlyFormedGlands = response.data.poorly_formed_glands;
                 vm.cribriformPattern = response.data.cribriform_pattern;
-                vm.smallCellSignetRing = response.data.small_cell_signet_ring;
-                vm.hypernephroidPattern = response.data.hypernephroid_pattern;
+                vm.smallCell = response.data.small_cell;
+                vm.stromaRich = response.data.stroma_rich;
+                vm.atypicalIntraductalProliferation = response.data.atypical_intraductal_proliferation;
                 vm.mucinous = response.data.mucinous;
-                vm.comedoNecrosis = response.data.comedo_necrosis;
-                vm.inflammation = response.data.inflammation;
-                vm.pah = response.data.pah;
-                vm.atrophicLesions = response.data.atrophic_lesions;
-                vm.adenosis = response.data.adenosis;
-                vm.cellsCount = response.data.cells_count;
 
                 vm.gleasonElements = {};
                 vm.gleasonElementsLabels = [];
@@ -2048,12 +2034,12 @@
             return true;
         }
 
-        function isCancerousRegion() {
-            return vm.focusRegionTissueStatus === 'TUMOR';
+        function isNormalRegion() {
+            return vm.focusRegionTissueStatus === 'NORMAL';
         }
 
-        function isStressedRegion() {
-            return vm.focusRegionTissueStatus === 'STRESSED';
+        function isCancerousRegion() {
+            return vm.focusRegionTissueStatus === 'TUMOR';
         }
 
         function isLocked() {
@@ -2102,20 +2088,18 @@
                 vm.coreCoveragePercentage = undefined;
                 vm.focusRegionTissueStatus = undefined;
                 vm.focusRegionLength = undefined;
-                vm.perineuralInvolvement = false;
+                vm.atrophy = undefined;
+                vm.phlogosis = undefined;
+                vm.perineuralInvasion = false;
+                vm.extraProstaticExtension = false;
                 vm.intraductalCarcinoma = false;
                 vm.ductalCarcinoma = false;
                 vm.poorlyFormedGlands = false;
                 vm.cribriformPattern = false;
-                vm.smallCellSignetRing = false;
-                vm.hypernephroidPattern = false;
+                vm.smallCell = false;
+                vm.stromaRich = false;
+                vm.atypicalIntraductalProliferation = false;
                 vm.mucinous = false;
-                vm.comedoNecrosis = false;
-                vm.inflammation = false;
-                vm.pah = false;
-                vm.atrophicLesions = false;
-                vm.adenosis = false;
-                vm.cellsCount = undefined;
 
                 for (var el in vm.gleasonElementsLabels) {
                     vm._hideGleasonElement(vm.gleasonElementsLabels[el]);

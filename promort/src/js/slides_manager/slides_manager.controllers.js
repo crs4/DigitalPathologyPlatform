@@ -54,6 +54,9 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
+            // Set H&E as default staining
+            vm.slideStaining = 'HE'
+
             ROIsAnnotationStepService.getDetails(vm.annotation_step_label)
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
 
