@@ -116,14 +116,26 @@
                 <input class="form-control prm-text-input" ng-model="cmCtrl.gleasonScore" readonly>
             </div>
         </div>
+        <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
+            <div class="col-sm-6 prm-valign prm-label-elem">
+                <label>Gleason 4 Percentage</label>
+            </div><!--
+         --><div class="col-sm-6 prm-valign prm-form-elem">
+                <div class="input-group">
+                    <input class="form-control prm-text-input" type="number" min="0" max="100"
+                           ng-model="cmCtrl.gleasonFourPercentage">
+                    <div class="input-group-addon prm-addon">%</div>
+                </div>
+            </div>
+        </div>
         <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
             <div class="col-sm-6 prm-valign prm-label-elem">
-                <label>Gleason pattern 4</label>
+                <label>Gleason 4 Percentage</label>
             </div><!--
          --><div class="col-sm-6 prm-valign prm-form-elem">
                 <div class="input-group">
                     <input class="form-control prm-text-input" type="number"
-                           ng-model="cmCtrl.gleason4Percentage" readonly>
+                           ng-model="cmCtrl.gleasonFourPercentage" readonly>
                     <div class="input-group-addon prm-addon">%</div>
                 </div>
             </div>

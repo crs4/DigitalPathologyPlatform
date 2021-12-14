@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked() || cmCtrl.isStressedRegion()">
+    <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked() || cmCtrl.isNormalRegion()">
         <legend class="prm-legend">Gleason Data</legend>
 
         <!-- ACQUIRE NEW GLEASON AREA -->
@@ -250,18 +250,46 @@
 
     <fieldset class="promort_fieldset" ng-hide="cmCtrl.isLocked()">
         <legend class="prm-legend">patterns</legend>
+        <!-- normal region paths -->
+        <div ng-show="cmCtrl.isNormalRegion()">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.atrophy"
+                           ng-disabled="cmCtrl.isReadOnly()">Atrophy
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.phlogosis"
+                           ng-disabled="cmCtrl.isReadOnly()">Phlogosis
+                </label>
+            </div>
+        </div>
+        <!-- -->
         <!-- tumor region paths -->
         <div ng-show="cmCtrl.isCancerousRegion()">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="cmCtrl.perineuralInvolvement"
-                           ng-disabled="cmCtrl.isReadOnly()">Perineural involvement
+                    <input type="checkbox" ng-model="cmCtrl.perineuralInvasion"
+                           ng-disabled="cmCtrl.isReadOnly()">Perineural invasion
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.extraProstaticExtension"
+                           ng-disabled="cmCtrl.isReadOnly()">Extra prostatic extension
                 </label>
             </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.intraductalCarcinoma"
                            ng-disabled="cmCtrl.isReadOnly()">Intraductal carcinoma
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.ductalCarcinoma"
+                           ng-disabled="cmCtrl.isReadOnly()">Ductal carcinoma
                 </label>
             </div>
             <div class="checkbox">
@@ -278,58 +306,20 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="cmCtrl.smallCellSignetRing"
-                           ng-disabled="cmCtrl.isReadOnly()"> Small cell/signet ring
+                    <input type="checkbox" ng-model="cmCtrl.smallCell"
+                           ng-disabled="cmCtrl.isReadOnly()"> Small cell
                 </label>
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="cmCtrl.hypernephroidPattern"
-                           ng-disabled="cmCtrl.isReadOnly()"> Hypernephroid pattern
+                    <input type="checkbox" ng-model="cmCtrl.stromaRich"
+                           ng-disabled="cmCtrl.isReadOnly()"> Stroma rich
                 </label>
             </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.mucinous"
                            ng-disabled="cmCtrl.isReadOnly()"> Mucinous
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.comedoNecrosis"
-                           ng-disabled="cmCtrl.isReadOnly()"> Comedo-necrosis
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.ductalCarcinoma"
-                           ng-disabled="cmCtrl.isReadOnly()"> Ductal carcinoma
-                </label>
-            </div>
-        </div>
-        <div ng-show="cmCtrl.isStressedRegion()">
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.inflammation"
-                           ng-disabled="cmCtrl.isReadOnly()">Inflammation
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.pah"
-                           ng-disabled="cmCtrl.isReadOnly()">PAH
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.atrophicLesions"
-                           ng-disabled="cmCtrl.isReadOnly()">Atrophic Lesions
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.adenosis"
-                           ng-disabled="cmCtrl.isReadOnly()">Adenosis
                 </label>
             </div>
         </div>
