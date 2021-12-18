@@ -35,10 +35,16 @@ class Command(BaseCommand):
     related Case and Slide objects
     """
 
+    def _is_valid_slide_label(self, slide_label):
+        regex = re.compile(r'^(?P<case_id>[\w]+)[_-](?P<slide_index>[\w]{1,2})(?:[ \(\)\w]+){0,1}.(?P<ext>[a-w]+) +\[0\]$')
+        res = regex.match(slide_label)
+        return res is not None
+
     def _split_slide_name(self, slide_name):
-        regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+(_[a-zA-Z][0-9]?)?(\.[a-zA-Z0-9]{2,4})?$')
-        if regex.match(slide_name):
-            return slide_name.split('-')
+        regex = re.compile(r'^(?P<case_id>[\w]+)[_-](?P<slide_index>[\w]{1,2})(?:[ \(\)\w]+){0,1}.(?P<ext>[a-w]+) +\[0\]$')
+        res = regex.match(slide_name)
+        if res:
+            return res.group("case_id", "slide_index")
         else:
             return None, None
 
@@ -53,27 +59,35 @@ class Command(BaseCommand):
             if response.status_code == requests.codes.OK:
                 res = int(response.json()['Image']['Size']['Height']) * int(response.json()['Image']['Size']['Width'])
                 slides_res[res] = s
+            else:
+                logger.error(f'ERROR WHEN LOADING IMAGE DETAILS FOR {s}: {response.status_code}')
         return slides_res[max(slides_res.keys())]
 
     def _filter_slides(self, slides):
         filesets = dict()
         filtered_slides = list()
         for s in slides:
-            filesets.setdefault(s['name'].split('.')[0], []).append(s)
+            if self._is_valid_slide_label(s['name']):
+                filesets.setdefault(s['name'].split('.')[0], []).append(s)
         for _, fs_slides in filesets.items():
-            filtered_slides.append(self._get_bigger_in_fileset(fs_slides))
+            if len(fs_slides) > 1:
+                filtered_slides.append(self._get_bigger_in_fileset(fs_slides))
+            else:
+                filtered_slides.append(fs_slides[0])
         return filtered_slides
 
     def _load_ome_images(self):
-        url = urljoin(OME_SEADRAGON_BASE_URL, 'get/images/index')
+        url = urljoin(OME_SEADRAGON_BASE_URL, 'get/images/index/')
         response = requests.get(url, params={'full_series': True})
         if response.status_code == requests.codes.OK:
             slides = self._filter_slides(response.json())
             slides_map = dict()
             for s in slides:
-                case_id, _ = self._split_slide_name(s['name'])
-                logger.debug('Slide %s --- Case ID: %s', s, case_id)
+                case_id, slide_index = self._split_slide_name(s['name'])
+                slide_label = f'{case_id}-{slide_index}'
+                logger.debug('Slide %s --- Case ID: %s', slide_label, case_id)
                 if case_id:
+                    s['name'] = slide_label
                     slides_map.setdefault(case_id, []).append(s)
                 else:
                     logger.warning('%s is not a valid slide name', s['name'])
