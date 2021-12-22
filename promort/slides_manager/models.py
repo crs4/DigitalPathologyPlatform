@@ -56,6 +56,7 @@ class SlideEvaluation(models.Model):
         ('BAD_TILES', 'Bad tiles stitching'),
         ('BAD_FOCUS', 'Non uniform focus'),
         ('DMG_SMP', 'Damaged samples'),
+        ('NO_CANCER', 'Non-cancer slide'),
         ('OTHER', 'Other (see notes)')
     )
 
