@@ -63,7 +63,7 @@ class RandomCaseLabel:
    
 
 class RandomSlideLabel:
-    regex = r'[A-Fa-f0-9]+\-[A-Za-z0-9]+'
+    regex = r'[A-Fa-f0-9]+\-[A-Za-z0-9]{1,2}'
 
     def to_python(self, value):
         return value
@@ -126,8 +126,9 @@ urlpatterns = [
         qmv.QuestionnairePanelAnswersDetail.as_view()),
 
     # ROIs annotation steps details
-    path('api/rois_annotation_steps/<rslabel:label>/clinical_annotation_steps/',
-         rmv.ClinicalAnnotationStepsList.as_view()),
+    path(
+        'api/rois_annotation_steps/<rslabel:label>/clinical_annotation_steps/',
+        rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
     path('api/rois_annotation_steps/<rslabel:label>/rois_list/',
@@ -199,7 +200,7 @@ urlpatterns = [
     path('api/prediction_reviews/', rmv.PredictionReviewsList.as_view()),
     path('api/prediction_reviews/<slug:slide>/', rmv.PredictionReviewsDetail.as_view()),
     path('api/prediction_review/<rclabel:label>/', rmv.PredictionReviewDetail.as_view()),
-    path('api/prediction_review/<rclabel:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
+    path('api/prediction_review/<rslabel:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
 
     # predictions
     path('api/predictions/', pmv.PredictionList.as_view()),
