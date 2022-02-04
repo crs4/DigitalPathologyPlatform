@@ -51,8 +51,8 @@ class Command(BaseCommand):
                     self._dump_row(cas, csv_writer)
         else:
             logger.info('Loading full batch')
-            slices = ClinicalAnnotationStep.objects.all()
-            for cas in slices:
+            steps = ClinicalAnnotationStep.objects.all()
+            for cas in steps:
                 self._dump_row(cas, csv_writer)
 
     def _dump_row(self, step, csv_writer):
@@ -65,6 +65,9 @@ class Command(BaseCommand):
                 'creation_date': self._get_formatted_time(step.creation_date),
                 'start_date': self._get_formatted_time(step.start_date),
                 'completion_date': self._get_formatted_time(step.completion_date),
+                'slices_ann_count': step.slice_annotations.count(),
+                'cores_ann_count': step.core_annotations.count(),
+                'focus_regions_ann_count': step.focus_region_annotations.count(),
                 'reviewer': step.clinical_annotation.reviewer.username,
                 'rejected': step.rejected,
                 'rejection_reason': step.get_rejection_reason_text(),
@@ -88,8 +91,9 @@ class Command(BaseCommand):
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'clinical_annotation_step_id',
-                  'creation_date', 'start_date', 'completion_date', 'reviewer', 'rejected',
-                  'rejection_reason', 'notes']
+                  'creation_date', 'start_date', 'completion_date', 'reviewer',
+                  'slices_ann_count', 'cores_ann_count', 'focus_regions_ann_count',
+                  'rejected', 'rejection_reason', 'notes']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
