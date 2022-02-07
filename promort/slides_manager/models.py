@@ -54,6 +54,7 @@ class SlideEvaluation(models.Model):
 
     NOT_ADEQUACY_REASONS_CHOICES = (
         ('BAD_TILES', 'Bad tiles stitching'),
+        ('BAD_STAINING', 'Faded staining'),
         ('BAD_FOCUS', 'Non uniform focus'),
         ('DMG_SMP', 'Damaged samples'),
         ('NO_CANCER', 'Non-cancer slide'),
@@ -73,7 +74,7 @@ class SlideEvaluation(models.Model):
     staining = models.CharField(max_length=3, choices=STAINING_CHOICES, blank=False)
     adequate_slide = models.BooleanField(blank=False)
     not_adequacy_reason = models.CharField(
-        max_length=10, choices=NOT_ADEQUACY_REASONS_CHOICES,
+        max_length=15, choices=NOT_ADEQUACY_REASONS_CHOICES,
         blank=True, null=True, default=None
     )
     notes = models.TextField(blank=True, null=True)
