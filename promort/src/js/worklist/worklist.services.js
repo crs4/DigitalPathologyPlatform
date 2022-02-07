@@ -165,6 +165,7 @@
             getDetails: getDetails,
             startAnnotationStep: startAnnotationStep,
             closeAnnotationStep: closeAnnotationStep,
+            confirmAnnotationStep: confirmAnnotationStep,
             startAndCloseAnnotationStep: startAndCloseAnnotationStep
         };
 
@@ -178,7 +179,8 @@
             return $http.get('/api/clinical_annotations/steps/' + annotation_step_label + '/');
         }
 
-        function _annotationStepAction(annotation_step_label, action, notes, rejected, rejection_reason) {
+        function _annotationStepAction(annotation_step_label, action, notes, rejected, rejection_reason,
+                                       faded_staining, out_of_focus) {
             var params = {action: action};
             if (typeof notes !== 'undefined') {
                 params.notes = notes;
@@ -189,6 +191,13 @@
             if (typeof rejection_reason !== 'undefined') {
                 params.rejection_reason = rejection_reason
             }
+            if (typeof faded_staining !== 'undefined') {
+                params.faded_staining = faded_staining;
+            }
+            if (typeof out_of_focus !== 'undefined') {
+                params.out_of_focus = out_of_focus;
+            }
+            console.log(params);
             return $http.put(
                 '/api/clinical_annotations/steps/' + annotation_step_label + '/',
                 params
@@ -201,6 +210,11 @@
 
         function closeAnnotationStep(annotation_step_label, notes, rejected, rejection_reason) {
             return _annotationStepAction(annotation_step_label, 'FINISH', notes, rejected, rejection_reason);
+        }
+
+        function confirmAnnotationStep(annotation_step_label, notes, faded_staining, out_of_focus) {
+            return _annotationStepAction(annotation_step_label, 'FINISH', notes, undefined, undefined,
+                                         faded_staining, out_of_focus);
         }
 
         function startAndCloseAnnotationStep(annotation_step_label, notes) {

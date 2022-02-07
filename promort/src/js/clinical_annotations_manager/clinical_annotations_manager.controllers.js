@@ -391,9 +391,17 @@
 
             function confirmFn(confirm_obj) {
                 if (confirm_obj.value === true) {
-                    ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label,
-                        confirm_obj.notes).then(closeClinicalAnnotationStepSuccessFn,
-                                                closeClinicalAnnotationStepErrorFn);
+                    if (typeof confirm_obj.fadedStaining === 'undefined') {
+                        confirm_obj.fadedStaining = false;
+                    }
+                    if (typeof confirm_obj.outOfFocus === 'undefined') {
+                        confirm_obj.outOfFocus = false;
+                    }
+
+                    ClinicalAnnotationStepService.confirmAnnotationStep(vm.clinical_annotation_step_label,
+                        confirm_obj.notes, confirm_obj.fadedStaining, confirm_obj.outOfFocus).then(
+                            closeClinicalAnnotationStepSuccessFn, closeClinicalAnnotationStepErrorFn
+                        );
                 }
 
                 function closeClinicalAnnotationStepSuccessFn(response) {
