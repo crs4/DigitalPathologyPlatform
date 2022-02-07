@@ -52,6 +52,19 @@
     <div>
         <div class="form-group">
             <span>
+                Plase, select one or more fields if you encountered problems during the review
+            </span>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="confirmCtrl.fadedStaining">Faded staining
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="confirmCtrl.outOfFocus">Partially out of focus
+                </label>
+            </div>
+            <span>
                 You can also attach a short text to the annotation step when closing it.
             </span>
             <textarea class="form-control" id="annotation_step_notes"
@@ -60,10 +73,10 @@
     </div>
     <div class="ngdialog-buttons prm-ngdialog-buttons">
         <button type="button" class="ngdialog-button ngdialog-button-primary"
-                ng-click="confirm({value: true, notes: confirmCtrl.notes})">Yes
+                ng-click="confirm({value: true, notes: confirmCtrl.notes, fadedStaining: confirmCtrl.fadedStaining, outOfFocus:confirmCtrl.outOfFocus})">Yes
         </button>
         <button type="button" class="ngdialog-button ngdialog-button-secondary"
-                ng-click="confirm({value: false, notes: undeinfed})">No
+                ng-click="confirm({value: false, notes: undeinfed, fadedStaining: undefined, outOfFocus: undefined})">No
         </button>
     </div>
 </div>
