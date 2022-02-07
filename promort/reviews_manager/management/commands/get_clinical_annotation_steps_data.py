@@ -71,6 +71,8 @@ class Command(BaseCommand):
                 'reviewer': step.clinical_annotation.reviewer.username,
                 'rejected': step.rejected,
                 'rejection_reason': step.get_rejection_reason_text(),
+                'faded_staining': step.faded_staining,
+                'out_of_focus': step.out_of_focus,
                 'notes': self._get_encoded_note(step)
             }
         )
@@ -93,7 +95,7 @@ class Command(BaseCommand):
         header = ['case_id', 'slide_id', 'roi_review_step_id', 'clinical_annotation_step_id',
                   'creation_date', 'start_date', 'completion_date', 'reviewer',
                   'slices_ann_count', 'cores_ann_count', 'focus_regions_ann_count',
-                  'rejected', 'rejection_reason', 'notes']
+                  'rejected', 'rejection_reason', 'faded_staining', 'out_of_focus', 'notes']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

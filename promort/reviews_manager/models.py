@@ -184,6 +184,8 @@ class ClinicalAnnotation(models.Model):
 
 class ClinicalAnnotationStep(models.Model):
     REJECTION_REASONS_CHOICES = (
+        ('BAD_STAINING', 'Faded staining'),
+        ('BAD_FOCUS', 'Non uniform focus'),
         ('BAD_QUALITY', 'Bad image quality'),
         ('BAD_ROIS', 'Wrong or inaccurate ROIs'),
         ('OTHER', 'Other (see notes)')
@@ -207,6 +209,8 @@ class ClinicalAnnotationStep(models.Model):
         max_length=20, choices=REJECTION_REASONS_CHOICES,
         blank=True, null=True, default=None
     )
+    faded_staining = models.BooleanField(default=False)
+    out_of_focus = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True, default=None)
 
     class Meta:

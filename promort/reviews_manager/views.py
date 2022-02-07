@@ -597,6 +597,8 @@ class ClinicalAnnotationStepDetail(APIView):
                     if not request.data.get('rejected') is None:
                         annotation_step.rejected = request.data.get('rejected')
                     annotation_step.rejection_reason = request.data.get('rejection_reason')
+                    annotation_step.faded_staining = request.data.get('faded_staining', False)
+                    annotation_step.out_of_focus = request.data.get('out_of_focus', False)
                 else:
                     return Response({
                         'status': 'ERROR',
@@ -611,6 +613,8 @@ class ClinicalAnnotationStepDetail(APIView):
                     if not request.data.get('rejected') is None:
                         annotation_step.rejected = request.data.get('rejected')
                     annotation_step.rejection_reason = request.data.get('rejection_reason')
+                    annotation_step.faded_staining = request.data.get('faded_staining', False)
+                    annotation_step.out_of_focus = request.data.get('out_of_focus', False)
             else:
                 return Response({
                     'status': 'ERROR',
