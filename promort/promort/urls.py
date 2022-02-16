@@ -199,7 +199,7 @@ urlpatterns = [
     path('api/prediction_reviews/', rmv.PredictionReviewsList.as_view()),
     path('api/prediction_reviews/<slug:slide>/', rmv.PredictionReviewsDetail.as_view()),
     path('api/prediction_review/<rclabel:label>/', rmv.PredictionReviewDetail.as_view()),
-    path('api/prediction_review/<rslabel:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
+    path('api/prediction_review/<rclabel:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
 
     # predictions
     path('api/predictions/', pmv.PredictionList.as_view()),
