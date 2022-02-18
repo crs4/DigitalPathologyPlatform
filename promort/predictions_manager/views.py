@@ -46,6 +46,22 @@ class PredictionDetail(GenericDetailView):
     permission_classes = (permissions.IsAuthenticated, )
 
 
+class PredictionRequireReview(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    
+    def _find_prediction(self, label):
+        try:
+            prediction = Prediction.objects.get(label=label)
+            return prediction
+        except Prediction.DoesNotExist:
+            raise NotFound(f'No prediction review item with label \'{label}\'')
+    
+    def put(self, request, label, format=None):
+        prediction = self._find_prediction(label)
+        prediction.require_review()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class TissueFragmentsCollectionList(GenericListView):
     model = TissueFragmentsCollection
     model_serializer = TissueFragmentsCollectionSerializer
