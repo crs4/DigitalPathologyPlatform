@@ -48,7 +48,7 @@ class Command(BaseCommand):
         return prev_manager_group.user_set.all()
 
     def _get_predictions_list(self, prediction_type):
-        return Prediction.objects.filter(type=prediction_type).all()
+        return Prediction.objects.filter(type=prediction_type, review_required=True).all()
 
     def _check_duplicated(self, prediction, reviewer):
         annotation_objs = PredictionReview.objects.filter(prediction=prediction, reviewer=reviewer)
