@@ -43,7 +43,7 @@ import utils.views as promort_utils
 
 
 class NumericString:
-    regex = '[0-9]+'
+    regex = r'[0-9]+'
 
     def to_python(self, value):
         return value
@@ -52,11 +52,18 @@ class NumericString:
         return value
 
 
-class SemiSlug:
-    """
-    A slug comprising letters from A to F
-    """
-    regex = r'[A-Fa-f0-9\-.]+'
+class RandomCaseLabel:
+    regex = r'[A-Fa-f0-9]+'
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+   
+
+class RandomSlideLabel:
+    regex = r'[A-Fa-f0-9]+\-[A-Za-z0-9]+'
 
     def to_python(self, value):
         return value
@@ -66,7 +73,8 @@ class SemiSlug:
 
 
 register_converter(NumericString, 'num')
-register_converter(SemiSlug, 'semislug')
+register_converter(RandomCaseLabel, 'rclabel')
+register_converter(RandomSlideLabel, 'rslabel')
 
 urlpatterns = [
     # authentication
@@ -118,14 +126,13 @@ urlpatterns = [
         qmv.QuestionnairePanelAnswersDetail.as_view()),
 
     # ROIs annotation steps details
-    path(
-        'api/rois_annotation_steps/<semislug:label>/clinical_annotation_steps/',
-        rmv.ClinicalAnnotationStepsList.as_view()),
+    path('api/rois_annotation_steps/<rslabel:label>/clinical_annotation_steps/',
+         rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
-    path('api/rois_annotation_steps/<semislug:label>/rois_list/',
+    path('api/rois_annotation_steps/<rslabel:label>/rois_list/',
          ROIsTreeList.as_view()),
-    path('api/rois_annotation_steps/<semislug:label>/slices/',
+    path('api/rois_annotation_steps/<rslabel:label>/slices/',
          SliceList.as_view()),
     path('api/slices/<num:pk>/cores/', CoreList.as_view()),
     path('api/slices/<num:pk>/', SliceDetail.as_view()),
@@ -135,38 +142,38 @@ urlpatterns = [
 
     # clinical annotations data
     path(
-        'api/rois_annotation_steps/<semislug:rois_annotation_step>/rois_list/<semislug:clinical_annotation_step>/',
+        'api/rois_annotation_steps/<rslabel:rois_annotation_step>/rois_list/<rslabel:clinical_annotation_step>/',
         AnnotatedROIsTreeList.as_view()),
     path(
-        'api/clinical_annotation_steps/<semislug:clinical_annotation_step>/annotations_list/',
+        'api/clinical_annotation_steps/<rslabel:clinical_annotation_step>/annotations_list/',
         ClinicalAnnotationStepAnnotationsList.as_view()),
     path('api/slices/<num:slice_id>/clinical_annotations/',
          SliceAnnotationList.as_view()),
-    path('api/slices/<num:slice_id>/clinical_annotations/<semislug:label>/',
+    path('api/slices/<num:slice_id>/clinical_annotations/<rslabel:label>/',
          SliceAnnotationDetail.as_view()),
     path('api/cores/<num:core_id>/clinical_annotations/',
          CoreAnnotationList.as_view()),
-    path('api/cores/<num:core_id>/clinical_annotations/<semislug:label>/',
+    path('api/cores/<num:core_id>/clinical_annotations/<rslabel:label>/',
          CoreAnnotationDetail.as_view()),
     path('api/focus_regions/<num:focus_region_id>/clinical_annotations/',
          FocusRegionAnnotationList.as_view()),
     path(
-        'api/focus_regions/<num:focus_region_id>/clinical_annotations/<semislug:label>/',
+        'api/focus_regions/<num:focus_region_id>/clinical_annotations/<rslabel:label>/',
         FocusRegionAnnotationDetail.as_view()),
 
     # ROIs annotations
     path('api/rois_annotations/', rmv.ROIsAnnotationsList.as_view()),
-    path('api/rois_annotations/annotations/<semislug:label>/',
+    path('api/rois_annotations/annotations/<rclabel:label>/',
          rmv.ROIsAnnotationDetail.as_view()),
-    path('api/rois_annotations/steps/<semislug:label>/reset/',
+    path('api/rois_annotations/steps/<rslabel:label>/reset/',
          rmv.ROIsAnnotationStepReopen.as_view()),
-    path('api/rois_annotations/steps/<semislug:label>/',
+    path('api/rois_annotations/steps/<rslabel:label>/',
          rmv.ROIsAnnotationStepDetail.as_view()),
     path('api/rois_annotations/<slug:case>/',
          rmv.ROIsAnnotationsDetail.as_view()),
 
     # quality control
-    path('api/rois_annotations/steps/<semislug:label>/slide_evaluation/',
+    path('api/rois_annotations/steps/<rslabel:label>/slide_evaluation/',
          SlideEvaluationDetail.as_view()),
     path('api/rois_annotations/<slug:case>/<slug:reviewer>/',
          rmv.ROIsAnnotationCreation.as_view()),
@@ -177,9 +184,9 @@ urlpatterns = [
     path('api/clinical_annotations/', rmv.ClinicalAnnotationsList.as_view()),
     path('api/clinical_annotations/<slug:case>/',
          rmv.ClinicalAnnotationsDetail.as_view()),
-    path('api/clinical_annotations/annotations/<semislug:label>/',
+    path('api/clinical_annotations/annotations/<rclabel:label>/',
          rmv.ClinicalAnnotationDetail.as_view()),
-    path('api/clinical_annotations/steps/<semislug:label>/',
+    path('api/clinical_annotations/steps/<rslabel:label>/',
          rmv.ClinicalAnnotationStepDetail.as_view()),
     path(
         'api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/',
@@ -191,12 +198,13 @@ urlpatterns = [
     # predictions reviews
     path('api/prediction_reviews/', rmv.PredictionReviewsList.as_view()),
     path('api/prediction_reviews/<slug:slide>/', rmv.PredictionReviewsDetail.as_view()),
-    path('api/prediction_review/<semislug:label>/', rmv.PredictionReviewDetail.as_view()),
-    path('api/prediction_review/<semislug:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
+    path('api/prediction_review/<rclabel:label>/', rmv.PredictionReviewDetail.as_view()),
+    path('api/prediction_review/<rclabel:label>/prediction/', rmv.PredictionByReviewDetail.as_view()),
 
     # predictions
     path('api/predictions/', pmv.PredictionList.as_view()),
     path('api/predictions/<slug:pk>/', pmv.PredictionDetail.as_view()),
+    path('api/predictions/<slug:pk>/require_review/', pmv.PredictionRequireReview.as_view()),
 
     #  tissue fragments
     path('api/tissue_fragments_collections/',
@@ -206,15 +214,14 @@ urlpatterns = [
          ),  # GET, DELETE, PUT (se usi GenericDetailView)
     path('api/tissue_fragments_collections/<slug:coll_id>/fragments/',
          pmv.TissueFragmentList.as_view()),  # POST
-    path(
-        'api/tissue_fragments_collections/<slug:coll_id>/fragments/<slug:pk>/',
-        pmv.TissueFragmentsDetail.as_view()),  # DELETE
+    path('api/tissue_fragments_collections/<slug:coll_id>/fragments/<slug:pk>/',
+         pmv.TissueFragmentsDetail.as_view()),  # DELETE
 
     # worklists
     path('api/worklist/', UserWorkList.as_view()),
-    path('api/worklist/rois_annotations/<semislug:label>/',
+    path('api/worklist/rois_annotations/<rclabel:label>/',
          UserWorklistROIsAnnotation.as_view()),
-    path('api/worklist/clinical_annotations/<semislug:label>/',
+    path('api/worklist/clinical_annotations/<rclabel:label>/',
          UserWorklistClinicalAnnotation.as_view()),
     path('api/worklist/admin/<slug:username>/', WorkListAdmin.as_view()),
 
