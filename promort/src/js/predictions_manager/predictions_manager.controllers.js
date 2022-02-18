@@ -27,14 +27,21 @@
         .controller('PredictionsManagerController', PredictionsManagerController);
 
     PredictionsManagerController.$inject = ['$scope', '$routeParams', '$location', '$log',
-        'PredictionsManagerService', 'CurrentPredictionDetailsService'];
+        'PredictionsManagerService', 'CurrentPredictionDetailsService', 'HeatmapViewerService'];
 
     function PredictionsManagerController($scope, $routerParams, $location, $log, PredictionsManagerService,
-                                          CurrentPredictionDetailsService) {
+                                          CurrentPredictionDetailsService, HeatmapViewerService) {
         var vm = this;
         vm.prediction_review_label = undefined;
         vm.slide_id = undefined;
         vm.prediction_id = undefined;
+        vm.overlay_palette = undefined;
+        vm.overlay_opacity = undefined;
+        vm.overlay_threshold = undefined;
+
+        vm.updateOverlayOpacity = updateOverlayOpacity;
+        vm.updateOverlayThreshold = updateOverlayThreshold;
+        vm.updateOverlayPalette = updateOverlayPalette;
 
         activate();
 
@@ -43,6 +50,25 @@
             
             vm.slide_id = CurrentPredictionDetailsService.getSlideId();
             vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
+
+            vm.overlay_palette = 'Greens_9';
+            vm.overlay_opacity = 0.5;
+            vm.overlay_threshold = 0;
+        }
+
+        function updateOverlayOpacity() {
+            console.log('Current overlay opacity is: ' + vm.overlay_opacity);
+            HeatmapViewerService.setOverlayOpacity(vm.overlay_opacity);
+        }
+
+        function updateOverlayThreshold() {
+            console.log('Current overlay threshold is: ' + vm.overlay_threshold);
+            HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
+        }
+
+        function updateOverlayPalette() {
+            console.log('Current overlay palette is: ' + vm.overlay_palette);
+            HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
         }
     }
 })();

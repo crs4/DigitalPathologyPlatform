@@ -27,6 +27,47 @@
     <div id="pg_body" class="col-sm-12">
         <div id="hm_viewer_ctrl" class="col-sm-3 col-md-3">
             <viewer-navigation-panel></viewer-navigation-panel>
+            <div class="prm-form-header">
+                <h4 class="text-left">Overlay Controls</h4>
+            </div>
+            <div id="hm_ctrl" class="well" style="background-color:white">
+                <fieldset class="hm-palette">
+                    <div class="form-group row">
+                        <div class="col-sm-5 prm-valign prm-label-elem">
+                            <label for="hm-palette">COLOR PALETTE</label>
+                        </div><!--
+                     --><div class="col-sm-7 prm-valign prm-form-elem">
+                            <select class="form-control prm-text-input" id="palette_ctrl"
+                                    ng-model="pmc.overlay_palette"
+                                    ng-change="pmc.updateOverlayPalette()">
+                                <option value="Greens_9" selected>Green (10 values)</option>
+                                <option value="Blues_9">Blue (10 values)</option>
+                                <option value="Reds_9">Red (10 values)</option>
+                            </select>
+                        </div>
+                    </dev>
+                </fieldset>
+                <div class="text-center">
+                    <h4 class="text-center">OPACITY</h4>
+                </div>
+                <div id="opacity_ctrl" class="input-group prm-row-elem prm-range-selector">
+                    <div class="input-group-addon prm-range-label">0</div>
+                    <input type="range" min="0.0" max="1.0" step="0.01"
+                           ng-model="pmc.overlay_opacity"
+                           ng-change="pmc.updateOverlayOpacity()" />
+                    <div class="input-group-addon prm-range-label">100</div>
+                </div>
+                <div>
+                    <h4 class="text-center">THRESHOLD</h4>
+                </div>
+                <div id="threshodl_ctrl" class="input-group prm-row-elem prm-range-selector">
+                    <div class="input-group-addon prm-range-label">0</div>
+                    <input type="range" min="0.0" max="1.0" step="0.1" 
+                           ng-model="pmc.overlay_threshold"
+                           ng-mouseup="pmc.updateOverlayThreshold()" />
+                    <div class="input-group-addon prm-range-label">100</div>
+                </div>
+            </div>
         </div>
         <div class="col-sm-9 col-md-9">
             <div id="viewer_container" class="prm-viewer_frame well">
