@@ -204,6 +204,7 @@ urlpatterns = [
     # predictions
     path('api/predictions/', pmv.PredictionList.as_view()),
     path('api/predictions/<slug:pk>/', pmv.PredictionDetail.as_view()),
+    path('api/predictions/<slug:pk>/require_review/', pmv.PredictionRequireReview.as_view()),
 
     #  tissue fragments
     path('api/tissue_fragments_collections/',
