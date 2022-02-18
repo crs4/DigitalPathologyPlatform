@@ -37,6 +37,11 @@ class Prediction(models.Model):
     type = models.CharField(max_length=7, choices=PREDICTION_TYPES, blank=False, null=False)
     omero_id = models.IntegerField(blank=True, null=True, default=None)
     provenance = models.TextField(blank=True, null=True)
+    review_required = models.BooleanField(blank=False, null=False, default=False)
+    
+    def require_review(self):
+        self.review_required = True
+        self.save()
 
 
 class TissueFragmentsCollection(models.Model):

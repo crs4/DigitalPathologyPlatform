@@ -32,7 +32,8 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prediction
-        fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance')
+        fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance',
+                  'review_required')
         read_only_fields = ('id', 'creation_date')
 
     def validate_provenance(self, value):
@@ -48,8 +49,9 @@ class PredictionDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prediction
-        fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance')
-        read_only_fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance')
+        fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance', 'review_required')
+        read_only_fields = ('id', 'label', 'creation_date', 'slide', 'type', 'omero_id', 'provenance',
+                            'review_required')
 
 
 class TissueFragmentsCollectionSerializer(serializers.ModelSerializer):
