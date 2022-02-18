@@ -125,10 +125,14 @@
         vm.dzi_url = undefined;
         vm.dataset_dzi_url = undefined;
         vm.static_files_url = undefined;
+        vm.current_opacity = undefined;
         vm.getDZIURL = getDZIURL;
         vm.getDatasetDZIURL = getDatasetDZIURL;
         vm.getStaticFilesURL = getStaticFilesURL;
         vm.getSlideMicronsPerPixel = getSlideMicronsPerPixel;
+        vm.registerComponents = registerComponents;
+        vm.setOverlayOpacity = setOverlayOpacity;
+        vm.updateOverlayOpacity = updateOverlayOpacity;
 
         activate();
 
@@ -165,7 +169,8 @@
                     }
 
                     function PredictionInfoErrorFn(response) {
-
+                        $log.error(response.error);
+                        $location.url('404');
                     }
                 }
 
@@ -194,6 +199,21 @@
 
         function getSlideMicronsPerPixel() {
             return vm.slide_details.image_microns_per_pixel;
+        }
+
+        function registerComponents(viewer_manager, dataset_base_url) {
+            HeatmapViewerService.registerComponents(viewer_manager, dataset_base_url);
+        }
+
+        function setOverlayOpacity(opacity, update) {
+            this.current_opacity = opacity;
+            if (typeof(update) !== 'undefined' && update === true) {
+                this.updateOverlayOpacity();
+            }
+        }
+
+        function updateOverlayOpacity() {
+            HeatmapViewerService.setOverlayOpacity(this.current_opacity);
         }
     }
 

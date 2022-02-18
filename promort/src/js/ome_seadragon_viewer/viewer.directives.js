@@ -168,6 +168,9 @@
                                 'green': scope.shvc.getDatasetDZIURL('Greens_9')
                             }, 0.5
                         );
+                        scope.shvc.registerComponents(ome_seadragon_viewer, scope.shvc.dataset_dzi_url);
+                        scope.shvc.setOverlayOpacity(0.5);
+
                         ome_seadragon_viewer.activateOverlay('green');
                     });
 
