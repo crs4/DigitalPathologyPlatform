@@ -160,7 +160,17 @@
                     );
                     ome_seadragon_viewer.buildViewer();
 
-                    ome_seadragon_viewer.viewer.addHandler('open', function() {
+                    ome_seadragon_viewer.viewer.world.addHandler('add-item', function(data) {
+                        scope.$broadcast('viewer.tiledimage.added');
+
+                        data.item.addHandler('fully-loaded-change', function(data) {
+                            if (data.fullyLoaded === true) {
+                                scope.$broadcast('viewer.tiledimage.loaded');
+                            }
+                        });
+                    });
+
+                    ome_seadragon_viewer.viewer.addHandler('open', function(data) {
                         ome_seadragon_viewer.setMinDZILevel(8);
 
                         ome_seadragon_viewer.initOverlaysLayer(
