@@ -86,17 +86,34 @@
         }
     }
 
-    HeatmapViewerService.$inject = ['$http', '$log'];
+    HeatmapViewerService.$inject = ['$http', '$rootScope', '$log'];
 
-    function HeatmapViewerService($http, $log) {
+    function HeatmapViewerService($http, $rootScope, $log) {
         var HeatmapViewerService = {
-            getPredictionInfo: getPredictionInfo
+            registerComponents: registerComponents,
+            getPredictionInfo: getPredictionInfo,
+            setOverlay: setOverlay,
+            setOverlayOpacity: setOverlayOpacity
         };
 
         return HeatmapViewerService;
 
+        function registerComponents(viewer_manager, dataset_base_url) {
+            this.viewerManager = viewer_manager;
+            this.dataset_base_url = dataset_base_url;
+            $rootScope.$broadcast('viewerctrl.components.registered');
+        }
+
         function getPredictionInfo(prediction_id) {
             return $http.get('api/predictions/' + prediction_id + '/');
+        }
+
+        function setOverlay(palette, threshold) {
+            this.viewerManager.setOverlay(this.dataset_base_url, palette, threshold);
+        }
+
+        function setOverlayOpacity(opacity) {
+            this.viewerManager.setOverlayOpacity(opacity);
         }
     }
     
