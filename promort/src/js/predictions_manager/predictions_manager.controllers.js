@@ -39,9 +39,15 @@
         vm.overlay_opacity = undefined;
         vm.overlay_threshold = undefined;
 
+        vm.oo_percentage = undefined;
+        vm.ot_percentage = undefined;
+        vm.threshold_update = undefined;
+
         vm.updateOverlayOpacity = updateOverlayOpacity;
         vm.updateOverlayThreshold = updateOverlayThreshold;
+        vm.updateOverlayThresholdPercentage = updateOverlayThresholdPercentage;
         vm.updateOverlayPalette = updateOverlayPalette;
+        vm.isThresholdUpdate = isThresholdUpdate;
 
         activate();
 
@@ -54,21 +60,34 @@
             vm.overlay_palette = 'Greens_9';
             vm.overlay_opacity = 0.5;
             vm.overlay_threshold = 0;
+
+            vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
+            vm.ot_percentage = Math.floor(vm.overlay_threshold * 100);
+            vm.threshold_update = false;
         }
 
         function updateOverlayOpacity() {
-            console.log('Current overlay opacity is: ' + vm.overlay_opacity);
             HeatmapViewerService.setOverlayOpacity(vm.overlay_opacity);
+            vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
         }
 
         function updateOverlayThreshold() {
-            console.log('Current overlay threshold is: ' + vm.overlay_threshold);
             HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
+            vm.threshold_update = false;
+        }
+
+        function updateOverlayThresholdPercentage() {
+            vm.ot_percentage = Math.floor(vm.overlay_threshold * 100);
+            vm.threshold_update = true;
         }
 
         function updateOverlayPalette() {
             console.log('Current overlay palette is: ' + vm.overlay_palette);
             HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
+        }
+
+        function isThresholdUpdate() {
+            return vm.threshold_update;
         }
     }
 })();

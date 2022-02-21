@@ -32,11 +32,11 @@
             </div>
             <div id="hm_ctrl" class="well" style="background-color:white">
                 <fieldset class="hm-palette">
-                    <div class="form-group row">
-                        <div class="col-sm-5 prm-valign prm-label-elem">
-                            <label for="hm-palette">COLOR PALETTE</label>
-                        </div><!--
-                     --><div class="col-sm-7 prm-valign prm-form-elem">
+                    <div class="form-group row text-center">
+                        <div class="col-sm-6 prm-label-elem text-right">
+                            <h4 for="hm-palette">COLOR PALETTE</h4>
+                        </div>
+                        <div class="col-sm-6 prm-form-elem">
                             <select class="form-control prm-text-input" id="palette_ctrl"
                                     ng-model="pmc.overlay_palette"
                                     ng-change="pmc.updateOverlayPalette()">
@@ -47,8 +47,17 @@
                         </div>
                     </dev>
                 </fieldset>
-                <div class="text-center">
-                    <h4 class="text-center">OPACITY</h4>
+                <div class="form-group row text-center" style="margin-top:20px; margin-bottom:0px;">
+                    <div class="col-sm-6 prm-label-elem text-right">
+                        <h4>OPACITY</h4>
+                    </div>
+                    <div class="col-sm-3 text-left prm-form-elem">
+                        <div class="input-group">
+                            <input class="form-control prm-text-input" type="number" readonly
+                                   ng-model="pmc.oo_percentage">
+                            <div class="input-group-addon prm-addon">%</div>
+                        </div>
+                    </div>
                 </div>
                 <div id="opacity_ctrl" class="input-group prm-row-elem prm-range-selector">
                     <div class="input-group-addon prm-range-label">0</div>
@@ -57,15 +66,33 @@
                            ng-change="pmc.updateOverlayOpacity()" />
                     <div class="input-group-addon prm-range-label">100</div>
                 </div>
-                <div>
-                    <h4 class="text-center">THRESHOLD</h4>
+                <div class="form-group row text-center" style="margin-top:30px; margin-bottom:0px;">
+                    <div class="col-sm-6 prm-label-elem text-right">
+                        <h4>THRESHOLD</h4>
+                    </div>
+                    <div class="col-sm-3 text-left prm-form-elem">
+                        <div class="input-group">
+                            <input class="form-control prm-text-input" type="number" readonly
+                                   ng-model="pmc.ot_percentage">
+                            <div class="input-group-addon prm-addon">%</div>
+                        </div>
+                    </div>
                 </div>
                 <div id="threshodl_ctrl" class="input-group prm-row-elem prm-range-selector">
                     <div class="input-group-addon prm-range-label">0</div>
                     <input type="range" min="0.0" max="1.0" step="0.1" 
                            ng-model="pmc.overlay_threshold"
-                           ng-mouseup="pmc.updateOverlayThreshold()" />
+                           ng-mouseup="pmc.updateOverlayThreshold()"
+                           ng-change="pmc.updateOverlayThresholdPercentage()" />
                     <div class="input-group-addon prm-range-label">100</div>
+                </div>
+                <div class="row" ng-hide="!pmc.isThresholdUpdate()">
+                    <div class="col-sm-offset-2 col-sm-8 well">
+                        <h3 class="text-center" style="margin-top:0px;">
+                            <i class="icon-information_black"></i>
+                        </h3>
+                        <p class="text-center">Release the mouse to confirm threshold value</p>
+                    </div>
                 </div>
             </div>
         </div>
