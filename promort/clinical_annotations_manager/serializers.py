@@ -141,10 +141,11 @@ class FocusRegionAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FocusRegionAnnotation
         fields = ('id', 'author', 'focus_region', 'annotation_step', 'action_start_time', 'action_complete_time',
-                  'creation_date', 'atrophy', 'phlogosis', 'perineural_invasion', 'extra_prostatic_extension',
+                  'creation_date', 'atrophy', 'inflammation', 'perineural_invasion', 'extra_prostatic_extension',
                   'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern',
-                  'small_cell', 'stroma_rich', 'atypical_intraductal_proliferation', 'mucinous',
-                  'gleason_elements')
+                  'stroma_rich', 'atypical_intraductal_proliferation', 'mucinous', 'acinar', 'signet_ring_cell',
+                  'sarcomatoid', 'pleomorphic_giant_cell', 'pin_like_carcinoma', 'small_cell',
+                  'neuro_endocrine_differentiation', 'gleason_elements')
         read_only_fields = ('creation_date',)
         write_only_fields = ('id', 'annotation_step', 'gleason_elements', 'author')
 
