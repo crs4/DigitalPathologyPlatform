@@ -260,8 +260,8 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="cmCtrl.phlogosis"
-                           ng-disabled="cmCtrl.isReadOnly()">Phlogosis
+                    <input type="checkbox" ng-model="cmCtrl.inflammation"
+                           ng-disabled="cmCtrl.isReadOnly()">Inflammation
                 </label>
             </div>
         </div>
@@ -295,31 +295,73 @@
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.poorlyFormedGlands"
-                           ng-disabled="cmCtrl.isReadOnly()"> Poorly formed glands
+                           ng-disabled="cmCtrl.isReadOnly()">Poorly formed glands
                 </label>
             </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.cribriformPattern"
-                           ng-disabled="cmCtrl.isReadOnly()"> Cribriform pattern
-                </label>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="cmCtrl.smallCell"
-                           ng-disabled="cmCtrl.isReadOnly()"> Small cell
+                           ng-disabled="cmCtrl.isReadOnly()">Cribriform pattern
                 </label>
             </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.stromaRich"
-                           ng-disabled="cmCtrl.isReadOnly()"> Stroma rich
+                           ng-disabled="cmCtrl.isReadOnly()">Stroma rich
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.atypicalIntraductalProliferation"
+                           ng-disabled="cmCtrl.isReadOnly()">Atypical Intraductal Proliferation
                 </label>
             </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="cmCtrl.mucinous"
-                           ng-disabled="cmCtrl.isReadOnly()"> Mucinous
+                           ng-disabled="cmCtrl.isReadOnly()">Mucinous
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.acinar"
+                           ng-disabled="cmCtrl.isReadOnly()">Acinar
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.signetRingCell"
+                           ng-disabled="cmCtrl.isReadOnly()">Signet Ring Cell
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.sarcomatoid"
+                           ng-disabled="cmCtrl.isReadOnly()">Sarcomatoid
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.pleomorphicGiantCell"
+                           ng-disabled="cmCtrl.isReadOnly()">Pleomorphic Giant Cell
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.pinLikeCarcinoma"
+                           ng-disabled="cmCtrl.isReadOnly()">PIN Like Carcinoma
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.smallCell"
+                           ng-disabled="cmCtrl.isReadOnly()">Small Cell
+                </label>
+            </div>
+            <div class="checkbox" ng-hide="cmCtrl.acinar">
+                <label>
+                    <input type="checkbox" ng-model="cmCtrl.neuroEndocrineDifferentiation"
+                           ng-disabled="cmCtrl.isReadOnly()">Neuro-endocrine Differentiation
                 </label>
             </div>
         </div>

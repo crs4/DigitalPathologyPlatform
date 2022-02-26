@@ -1334,16 +1334,23 @@
         vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
         vm.atrophy = undefined;
-        vm.phlogosis = undefined;
+        vm.inflammation = undefined;
         vm.perineuralInvasion = false;
         vm.extraProstaticExtension = false;
         vm.intraductalCarcinoma = false;
         vm.ductalCarcinoma = false;
         vm.poorlyFormedGlands = false;
         vm.cribriformPattern = false;
-        vm.smallCell = false;
         vm.stromaRich = false;
+        vm.atypicalIntraductalProliferation = false;
         vm.mucinous = false;
+        vm.acinar = false;
+        vm.signetRingCell = false;
+        vm.sarcomatoid = false;
+        vm.pleomorphicGiantCell = false;
+        vm.pinLikeCarcinoma = false;
+        vm.smallCell = false;
+        vm.neuroEndocrineDifferentiation = false;
 
         vm.actionStartTime = undefined;
 
@@ -1500,16 +1507,23 @@
             vm.focusRegionTissueStatus = undefined;
             vm.focusRegionLength = undefined;
             vm.atrophy = undefined;
-            vm.phlogosis = undefined;
+            vm.inflammation = undefined;
             vm.perineuralInvasion = false;
             vm.extraProstaticExtension = false;
             vm.intraductalCarcinoma = false;
             vm.ductalCarcinoma = false;
             vm.poorlyFormedGlands = false;
             vm.cribriformPattern = false;
-            vm.smallCell = false;
             vm.stromaRich = false;
+            vm.atypicalIntraductalProliferation = false;
             vm.mucinous = false;
+            vm.acinar = false;
+            vm.signetRingCell = false;
+            vm.sarcomatoid = false;
+            vm.pleomorphicGiantCell = false;
+            vm.pinLikeCarcinoma = false;
+            vm.smallCell = false;
+            vm.neuroEndocrineDifferentiation = false;
 
             vm.actionStartTime = undefined;
 
@@ -1789,20 +1803,29 @@
             );
             var obj_config = {
                 atrophy: vm.atrophy,
-                phlogosis: vm.phlogosis,
+                inflammation: vm.inflammation,
                 perineural_invasion: vm.perineuralInvasion,
                 extra_prostatic_extension: vm.extraProstaticExtension,
                 intraductal_carcinoma: vm.intraductalCarcinoma,
                 ductal_carcinoma: vm.ductalCarcinoma,
                 poorly_formed_glands: vm.poorlyFormedGlands,
                 cribriform_pattern: vm.cribriformPattern,
-                small_cell: vm.smallCell,
                 stroma_rich: vm.stromaRich,
+                atypical_intraductal_proliferation: vm.atypicalIntraductalProliferation,
                 mucinous: vm.mucinous,
+                acinar: vm.acinar,
                 gleason_elements: gleason_elements,
                 action_start_time: vm.actionStartTime,
                 action_complete_time: new Date()
             };
+            if(vm.acinar == false) {
+                obj_config[signet_ring_cell] = vm.signetRingCell;
+                obj_config[sarcomatoid] = vm.sarcomatoid;
+                obj_config[pleomorphic_giant_cell] = vm.pleomorphicGiantCell;
+                obj_config[pin_like_carcinoma] = vm.pinLikeCarcinoma;
+                obj_config[small_cell] = vm.smallCell;
+                obj_config[neuro_endocrine_differentiation] = vm.neuroEndocrineDifferentiation;
+            }
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
@@ -1904,17 +1927,23 @@
         vm.focusRegionTissueStatus = undefined;
         vm.focusRegionLength = undefined;
         vm.atrophy = undefined;
-        vm.phlogosis = undefined;
+        vm.inflammation = undefined;
         vm.perineuralInvasion = false;
         vm.extraProstaticExtension = false;
         vm.intraductalCarcinoma = false;
         vm.ductalCarcinoma = false;
         vm.poorlyFormedGlands = false;
         vm.cribriformPattern = false;
-        vm.smallCell = false;
         vm.stromaRich = false;
         vm.atypicalIntraductalProliferation = false;
         vm.mucinous = false;
+        vm.acinar = false;
+        vm.signetRingCell = false;
+        vm.sarcomatoid = false;
+        vm.pleomorphicGiantCell = false;
+        vm.pinLikeCarcinoma = false;
+        vm.smallCell = false;
+        vm.neuroEndocrineDifferentiation = false;
 
         vm.scaledRegionLength = undefined;
         vm.regionLengthScaleFactor = undefined;
@@ -1981,17 +2010,23 @@
                 vm.focusRegionLength = response.data.focus_region.length;
                 vm.updateRegionLength();
                 vm.atrophy = response.data.atrophy;
-                vm.phlogosis = response.data.phlogosis;
+                vm.inflammation = response.data.inflammation;
                 vm.perineuralInvasion = response.data.perineural_invasion;
                 vm.extraProstaticExtension = response.data.extra_prostatic_extension;
                 vm.intraductalCarcinoma = response.data.intraductal_carcinoma;
                 vm.ductalCarcinoma = response.data.ductal_carcinoma;
                 vm.poorlyFormedGlands = response.data.poorly_formed_glands;
                 vm.cribriformPattern = response.data.cribriform_pattern;
-                vm.smallCell = response.data.small_cell;
                 vm.stromaRich = response.data.stroma_rich;
                 vm.atypicalIntraductalProliferation = response.data.atypical_intraductal_proliferation;
                 vm.mucinous = response.data.mucinous;
+                vm.acinar = response.data.acinar;
+                vm.signetRingCell = response.data.signet_ring_cell;
+                vm.sarcomatoid = response.data.sarcomatoid;
+                vm.pleomorphicGiantCell = response.data.pleomorphic_giant_cell;
+                vm.pinLikeCarcinoma = response.data.pin_like_carcinoma;
+                vm.smallCell = response.data.small_cell;
+                vm.neuroEndocrineDifferentiation = response.data.neuro_endocrine_differentiation;
 
                 vm.gleasonElements = {};
                 vm.gleasonElementsLabels = [];
@@ -2097,17 +2132,23 @@
                 vm.focusRegionTissueStatus = undefined;
                 vm.focusRegionLength = undefined;
                 vm.atrophy = undefined;
-                vm.phlogosis = undefined;
+                vm.inflammation = undefined;
                 vm.perineuralInvasion = false;
                 vm.extraProstaticExtension = false;
                 vm.intraductalCarcinoma = false;
                 vm.ductalCarcinoma = false;
                 vm.poorlyFormedGlands = false;
                 vm.cribriformPattern = false;
-                vm.smallCell = false;
                 vm.stromaRich = false;
                 vm.atypicalIntraductalProliferation = false;
                 vm.mucinous = false;
+                vm.acinar = false;
+                vm.signetRingCell = false;
+                vm.sarcomatoid = false;
+                vm.pleomorphicGiantCell = false;
+                vm.pinLikeCarcinoma = false;
+                vm.smallCell = false;
+                vm.neuroEndocrineDifferentiation = false;
 
                 for (var el in vm.gleasonElementsLabels) {
                     vm._hideGleasonElement(vm.gleasonElementsLabels[el]);
