@@ -77,26 +77,35 @@ class Command(BaseCommand):
                 'action_start_time': action_start_time,
                 'action_complete_time': action_complete_time,
                 'creation_date': focus_region_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'perineural_involvement': focus_region_annotation.perineural_involvement,
+                'atrophy': focus_region_annotation.atrophy,
+                'inflammation': focus_region_annotation.inflammation,
+                'perineural_invasion': focus_region_annotation.perineural_invasion,
+                'extra_prostatic_extension': focus_region_annotation.extra_prostatic_extension,
                 'intraductal_carcinoma': focus_region_annotation.intraductal_carcinoma,
                 'ductal_carcinoma': focus_region_annotation.ductal_carcinoma,
                 'poorly_formed_glands': focus_region_annotation.poorly_formed_glands,
                 'cribriform_pattern': focus_region_annotation.cribriform_pattern,
-                'small_cell_signet_ring': focus_region_annotation.small_cell_signet_ring,
-                'hypernephroid_pattern': focus_region_annotation.hypernephroid_pattern,
+                'stroma_rich': focus_region_annotation.stroma_rich,
+                'atypical_intraductal_proliferation': focus_region_annotation.atypical_intraductal_proliferation,
                 'mucinous': focus_region_annotation.mucinous,
-                'comedo_necrosis': focus_region_annotation.comedo_necrosis,
-                'total_gleason_4_area': focus_region_annotation.get_total_gleason_4_area(),
-                'gleason_4_percentage': focus_region_annotation.get_gleason_4_percentage()
+                'acinar': focus_region_annotation.acinar,
+                'signet_ring_cell': focus_region_annotation.signet_ring_cell,
+                'sarcomatoid': focus_region_annotation.sarcomatoid,
+                'pleomorphic_giant_cell': focus_region_annotation.pleomorphic_giant_cell,
+                'pin_like_carcinoma': focus_region_annotation.pin_like_carcinoma,
+                'small_cell': focus_region_annotation.small_cell,
+                'neuro_endocrine_differentiation': focus_region_annotation.neuro_endocrine_differentiation
             }
         )
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'focus_region_id', 'focus_region_label', 'core_id', 'core_label', 'action_start_time',
-                  'action_complete_time', 'creation_date', 'perineural_involvement', 'intraductal_carcinoma',
-                  'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring',
-                  'hypernephroid_pattern', 'mucinous', 'comedo_necrosis', 'total_gleason_4_area', 'gleason_4_percentage']
+                  'action_complete_time', 'creation_date', 'atrophy', 'inflammation', 'perineural_invasion',
+                  'extra_prostatic_extension', 'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands',
+                  'cribriform_pattern', 'stroma_rich', 'atypical_intraductal_proliferation', 'mucinous',
+                  'acinar', 'signet_ring_cell', 'sarcomatoid', 'pleomorphic_giant_cell', 'pin_like_carcinoma',
+                  'small_cell', 'neuro_endocrine_differentiation']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
