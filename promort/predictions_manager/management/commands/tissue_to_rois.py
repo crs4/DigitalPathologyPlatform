@@ -27,7 +27,7 @@ from urllib.parse import urljoin
 import requests
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
-from predictions_manager.models import TissueFragment
+from predictions_manager.models import TissueFragment, Prediction
 from reviews_manager.models import ROIsAnnotationStep
 from rois_manager.models import Core, Slice
 from shapely.geometry import Polygon
@@ -64,51 +64,56 @@ class Command(BaseCommand):
 
             for step in annotation_steps:
                 logger.info("Processing ROIs annotation step %s", step.label)
-                fragments = TissueFragment.objects.filter(
-                    collection__prediction__slide=step.slide
-                )
-                if not fragments:
-                    logger.info(
-                        "Skipping step %s, no tissue fragment found",
-                        step,
-                    )
-                    continue
+                latest_prediction = Prediction.objects.filter(
+                    slide=step.slide, type='TISSUE'
+                ).order_by('-creation_date').first()
+                
+                fragments_collection = latest_prediction.tissue_fragments.order_by('-creation_date').first()
+                
+                if fragments_collection and fragments_collection.fragments.count() > 0:
+                    fragments = fragments_collection.fragments.all()
 
-                slide_bounds = self._get_slide_bounds(step.slide)
+                    slide_bounds = self._get_slide_bounds(step.slide)
 
-                slide_mpp = step.slide.image_microns_per_pixel
-                all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
-                grouped_shapes = self._group_nearest_cores(all_shapes)
-                for idx, shapes in enumerate(grouped_shapes):
-                    slice_label = idx + 1
-                    shapes_coords = self._get_slice_coordinates(shapes)
+                    slide_mpp = step.slide.image_microns_per_pixel
+                    all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
+                    grouped_shapes = self._group_nearest_cores(all_shapes)
+                    for idx, shapes in enumerate(grouped_shapes):
+                        slice_label = idx + 1
+                        shapes_coords = self._get_slice_coordinates(shapes)
 
-                    slice_obj = self._create_slice(
-                        shapes_coords,
-                        slice_label,
-                        len(shapes),
-                        step,
-                        user,
-                        slide_bounds,
-                    )
-                    logger.info("Slice saved with ID %d", slice_obj.id)
-                    for core_index, core in enumerate(shapes):
-                        logger.info(
-                            "Loading core %d of %d",
-                            core_index + 1,
-                            len(shapes),
-                        )
-                        core_obj = self._create_core(
-                            core["coordinates"],
-                            core["length"] * slide_mpp,
-                            core["area"] * math.pow(slide_mpp, 2),
-                            slice_obj,
+                        slice_obj = self._create_slice(
+                            shapes_coords,
                             slice_label,
-                            core_index + 1,
+                            len(shapes),
+                            step,
                             user,
                             slide_bounds,
                         )
-                        logger.info("Core saved with ID %d", core_obj.id)
+                        logger.info("Slice saved with ID %d", slice_obj.id)
+                        for core_index, core in enumerate(shapes):
+                            logger.info(
+                                "Loading core %d of %d",
+                                core_index + 1,
+                                len(shapes),
+                            )
+                            core_obj = self._create_core(
+                                core["coordinates"],
+                                core["length"] * slide_mpp,
+                                core["area"] * math.pow(slide_mpp, 2),
+                                slice_obj,
+                                slice_label,
+                                core_index + 1,
+                                user,
+                                slide_bounds,
+                            )
+                            logger.info("Core saved with ID %d", core_obj.id)
+                else:
+                    logger.info(
+                        "Skipping prediction %s for step %s, no tissue fragment found",
+                        latest_prediction.label, step.label,
+                    )
+                    continue
         else:
             logger.info("== There are no suitable ROIs annotation steps")
         logger.info("== Job completed ==")
