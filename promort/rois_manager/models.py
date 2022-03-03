@@ -21,6 +21,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from slides_manager.models import Slide
 from reviews_manager.models import ROIsAnnotationStep
+from predictions_manager.models import TissueFragmentsCollection
 
 
 class Slice(models.Model):
@@ -34,6 +35,8 @@ class Slice(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
+    source_collection = models.ForeignKey(TissueFragmentsCollection, on_delete=models.PROTECT, blank=False,
+                                          null=True, default=None, related_name='slices')
 
     class Meta:
         unique_together = ('label', 'annotation_step')
@@ -77,6 +80,8 @@ class Core(models.Model):
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0.0)
     tumor_length = models.FloatField(blank=True, null=True)
+    source_collection = models.ForeignKey(TissueFragmentsCollection, on_delete=models.PROTECT, blank=False,
+                                          null=True, default=None, related_name='cores')
 
     class Meta:
         unique_together = ('label', 'slice')
@@ -124,6 +129,8 @@ class FocusRegion(models.Model):
     length = models.FloatField(blank=False, default=0.0)
     area = models.FloatField(blank=False, default=0.0)
     tissue_status = models.CharField(max_length=8, choices=TISSUE_STATUS_CHOICES, blank=False)
+    source_collection = models.ForeignKey(TissueFragmentsCollection, on_delete=models.PROTECT, blank=False,
+                                          null=True, default=None, related_name='focus_regions')
 
     class Meta:
         unique_together = ('label', 'core')
