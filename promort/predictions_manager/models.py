@@ -46,7 +46,7 @@ class Prediction(models.Model):
 
 class TissueFragmentsCollection(models.Model):
     prediction = models.ForeignKey(Prediction, on_delete=models.PROTECT, blank=False,
-                                   related_name='tissue_fragments')
+                                   related_name='fragments_collection')
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def get_slide(self):

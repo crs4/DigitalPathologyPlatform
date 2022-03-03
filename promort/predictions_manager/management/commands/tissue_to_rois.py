@@ -68,7 +68,7 @@ class Command(BaseCommand):
                     slide=step.slide, type='TISSUE'
                 ).order_by('-creation_date').first()
                 
-                fragments_collection = latest_prediction.tissue_fragments.order_by('-creation_date').first()
+                fragments_collection = latest_prediction.fragments_collection.order_by('-creation_date').first()
                 
                 if fragments_collection and fragments_collection.fragments.count() > 0:
                     fragments = fragments_collection.fragments.all()
