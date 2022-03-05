@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 'creation_date': focus_region_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'atrophy': focus_region_annotation.atrophy,
                 'phlogosis': focus_region_annotation.phlogosis,
-                'perineural_involvement': focus_region_annotation.perineural_involvement,
+                'perineural_invasion': focus_region_annotation.perineural_invasion,
                 'extra_prostatic_extension': focus_region_annotation.extra_prostatic_extension,
                 'intraductal_carcinoma': focus_region_annotation.intraductal_carcinoma,
                 'ductal_carcinoma': focus_region_annotation.ductal_carcinoma,
@@ -95,7 +95,7 @@ class Command(BaseCommand):
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'focus_region_id', 'focus_region_label', 'core_id', 'core_label', 'action_start_time',
-                  'action_complete_time', 'creation_date', 'atrophy', 'phlogosis', 'perineural_involvement',
+                  'action_complete_time', 'creation_date', 'atrophy', 'phlogosis', 'perineural_invasion',
                   'extra_prostatic_extension', 'intraductal_carcinoma', 'ductal_carcinoma', 'poorly_formed_glands',
                   'cribriform_pattern', 'small_cell', 'stroma_rich', 'atypical_intraductal_proliferation',
                   'mucinous']
