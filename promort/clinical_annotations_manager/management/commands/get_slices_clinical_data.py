@@ -77,20 +77,15 @@ class Command(BaseCommand):
                 'action_complete_time': action_complete_time,
                 'creation_date': slice_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'high_grade_pin': slice_annotation.high_grade_pin,
-                'pah': slice_annotation.pah,
                 'chronic_inflammation': slice_annotation.chronic_inflammation,
-                'acute_inflammation': slice_annotation.acute_inflammation,
-                'periglandular_inflammation': slice_annotation.periglandular_inflammation,
-                'intraglandular_inflammation': slice_annotation.intraglandular_inflammation,
-                'stromal_inflammation': slice_annotation.stromal_inflammation
+                'acute_inflammation': slice_annotation.acute_inflammation
             }
         )
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'slice_id', 'slice_label', 'action_start_time', 'action_complete_time', 'creation_date',
-                  'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
-                  'intraglandular_inflammation', 'stromal_inflammation']
+                  'high_grade_pin', 'chronic_inflammation', 'acute_inflammation']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

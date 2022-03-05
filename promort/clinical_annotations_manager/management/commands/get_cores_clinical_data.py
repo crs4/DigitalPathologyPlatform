@@ -78,14 +78,15 @@ class Command(BaseCommand):
                 'creation_date': core_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'primary_gleason': core_annotation.primary_gleason,
                 'secondary_gleason': core_annotation.secondary_gleason,
-                'gleason_group_who_16': core_annotation.get_grade_group_text()
+                'gleason_group_who_16': core_annotation.get_grade_group_text(),
+                'gleason_four_percentage': core_annotation.gleason_four_percentage
             }
         )
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'core_id', 'core_label', 'action_start_time', 'action_complete_time', 'creation_date',
-                  'primary_gleason', 'secondary_gleason', 'gleason_group_who_16']
+                  'primary_gleason', 'secondary_gleason', 'gleason_group_who_16', 'gleason_four_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()
