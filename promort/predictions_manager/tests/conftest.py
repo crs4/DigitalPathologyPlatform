@@ -17,6 +17,7 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import datetime as dt
 import json
 
 import factory
@@ -25,6 +26,7 @@ from pytest import fixture
 from pytest_factoryboy import register
 from shapely.affinity import translate
 from shapely.geometry import box
+from slides_manager.models import Case, Slide
 
 
 @register
@@ -159,3 +161,21 @@ def rois_annotation_steps(reviewer):
         return steps
 
     return _create
+
+
+@fixture
+def prediction_data(provenance_data):
+
+    case = Case.objects.create(id="case")
+    slide = Slide.objects.create(id="slide", case=case)
+    now = dt.datetime.now()
+    data = {"label": "label", "slide": slide.id, "type": "TUMOR"}
+
+    if provenance_data:
+        data["provenance"] = {
+            "model": "model",
+            "start_date": now,
+            "end_date": now,
+            "params": "{}",
+        }
+    return data

@@ -19,6 +19,7 @@
 import pytest
 from django.core.management import call_command
 from rois_manager.models import Core, Slice
+from predictions_manager.serializers import PredictionSerializer
 
 
 @pytest.mark.django_db
@@ -86,6 +87,27 @@ class MockResponse:
                 "bounds_width": 100000,
             },
         }
+
+
+@pytest.mark.django_db
+class TestPredictionSerializer:
+    @pytest.mark.parametrize('provenance_data', [False])
+    def test_create(self, prediction_data):
+        serializer = PredictionSerializer(data=prediction_data)
+        assert serializer.is_valid()
+        prediction = serializer.save()
+        assert prediction.provenance == None
+
+    @pytest.mark.parametrize('provenance_data', [True])
+    def test_create_with_provenance(self, prediction_data):
+        serializer = PredictionSerializer(data=prediction_data)
+        assert serializer.is_valid()
+        prediction = serializer.save()
+        assert prediction.provenance.model == prediction_data["provenance"]["model"]
+        assert prediction.provenance.params == prediction_data["provenance"]["params"]
+        assert prediction.provenance.start_date == prediction_data["provenance"]["start_date"]
+
+        assert prediction.provenance.end_date == prediction_data["provenance"]["end_date"]
 
 
 def mock_requests_get(*args, **kwargs):
