@@ -164,7 +164,7 @@ def rois_annotation_steps(reviewer):
 
 
 @fixture
-def prediction_data(provenance_data):
+def prediction_data(provenance_data: bool, depends_on: bool):
 
     case = Case.objects.create(id="case")
     slide = Slide.objects.create(id="slide", case=case)

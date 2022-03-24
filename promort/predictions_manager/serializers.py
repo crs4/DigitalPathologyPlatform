@@ -43,12 +43,14 @@ class PredictionSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'creation_date')
 
     def create(self, validated_data):
-        if 'provenance' in validated_data:
+        try:
             provenance_kwargs = validated_data.pop('provenance')
-            provenance = Provenance.objects.create(**provenance_kwargs)
-            validated_data['provenance'] = provenance
-
+        except KeyError:
+            provenance_kwargs = {}
         prediction = Prediction.objects.create(**validated_data)
+        if provenance_kwargs:
+            provenance_kwargs['prediction'] = prediction
+            prov = Provenance.objects.create(**provenance_kwargs)
 
         return prediction
 
