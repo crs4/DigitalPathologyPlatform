@@ -32,13 +32,15 @@ class Prediction(models.Model):
 
     label = models.CharField(max_length=100, unique=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-    slide = models.ForeignKey(Slide, on_delete=models.PROTECT, blank=False,
-                              related_name='predictions')
-    type = models.CharField(max_length=7, choices=PREDICTION_TYPES, blank=False, null=False)
+    slide = models.ForeignKey(
+        Slide, on_delete=models.PROTECT, blank=False, related_name="predictions"
+    )
+    type = models.CharField(
+        max_length=7, choices=PREDICTION_TYPES, blank=False, null=False
+    )
     omero_id = models.IntegerField(blank=True, null=True, default=None)
-    provenance = models.TextField(blank=True, null=True)
     review_required = models.BooleanField(blank=False, null=False, default=False)
-    
+
     def require_review(self):
         self.review_required = True
         self.save()
@@ -54,7 +56,21 @@ class TissueFragmentsCollection(models.Model):
 
 
 class TissueFragment(models.Model):
-    collection = models.ForeignKey(TissueFragmentsCollection, on_delete=models.PROTECT, blank=False,
-                                   related_name='fragments')
+    collection = models.ForeignKey(
+        TissueFragmentsCollection,
+        on_delete=models.PROTECT,
+        blank=False,
+        related_name="fragments",
+    )
     shape_json = models.TextField(blank=False)
     creation_date = models.DateTimeField(auto_now_add=True)
+
+
+class Provenance(models.Model):
+    prediction = models.OneToOneField(
+        Prediction, on_delete=models.PROTECT, blank=True, null=True, default=None
+    )
+    model = models.TextField(blank=False, null=False)
+    start_date = models.DateTimeField(blank=False, null=False)
+    end_date = models.DateTimeField(blank=False, null=False)
+    params = models.JSONField(blank=False, null=False)

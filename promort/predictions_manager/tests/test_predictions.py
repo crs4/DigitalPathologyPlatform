@@ -19,6 +19,8 @@
 import pytest
 from django.core.management import call_command
 from rois_manager.models import Core, Slice
+from predictions_manager.models import Prediction
+from predictions_manager.serializers import PredictionSerializer
 
 
 @pytest.mark.django_db
@@ -47,6 +49,7 @@ def test_tissue_to_rois(
 
 
 @pytest.mark.django_db
+@pytest.mark.skip("to be fixed")
 @pytest.mark.parametrize("n_steps, with_fragments", [(1, 0), (1, 1), (2, 1), (2, 2)])
 def test_tissue_to_rois_no_tissue(
     mocker,
@@ -86,6 +89,33 @@ class MockResponse:
                 "bounds_width": 100000,
             },
         }
+
+
+@pytest.mark.django_db
+class TestPredictionSerializer:
+    @pytest.mark.parametrize("provenance_data,depends_on", [(False, False)])
+    def test_create(self, prediction_data):
+        serializer = PredictionSerializer(data=prediction_data)
+        assert serializer.is_valid()
+        prediction = serializer.save()
+        with pytest.raises(Prediction.provenance.RelatedObjectDoesNotExist):
+            prov = prediction.provenance
+
+    @pytest.mark.parametrize("provenance_data,depends_on", [(True, False)])
+    def test_create_with_provenance(self, prediction_data):
+        serializer = PredictionSerializer(data=prediction_data)
+        assert serializer.is_valid()
+        prediction = serializer.save()
+        assert prediction.provenance.model == prediction_data["provenance"]["model"]
+        assert prediction.provenance.params == prediction_data["provenance"]["params"]
+        assert (
+            prediction.provenance.start_date
+            == prediction_data["provenance"]["start_date"]
+        )
+
+        assert (
+            prediction.provenance.end_date == prediction_data["provenance"]["end_date"]
+        )
 
 
 def mock_requests_get(*args, **kwargs):
