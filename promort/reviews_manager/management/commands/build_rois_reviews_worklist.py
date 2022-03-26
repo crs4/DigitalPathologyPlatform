@@ -126,7 +126,7 @@ class Command(BaseCommand):
             cases_map = self._get_cases_map()
             reviewers_map = self._get_rois_manager_map()
             for row in reader:
-                logger.info('Processing case %s and assigning to reviewers %s', row['case_id'], row['reviewer'])
+                logger.info('Processing case %s and assigning to reviewer %s', row['case_id'], row['reviewer'])
                 if row['case_id'] not in cases_map:
                     logger.error('Case with ID %s is not on the system', row['case_id'])
                     continue
