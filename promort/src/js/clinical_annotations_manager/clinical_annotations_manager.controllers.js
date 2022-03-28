@@ -1819,12 +1819,12 @@
                 action_complete_time: new Date()
             };
             if(vm.acinar == false) {
-                obj_config[signet_ring_cell] = vm.signetRingCell;
-                obj_config[sarcomatoid] = vm.sarcomatoid;
-                obj_config[pleomorphic_giant_cell] = vm.pleomorphicGiantCell;
-                obj_config[pin_like_carcinoma] = vm.pinLikeCarcinoma;
-                obj_config[small_cell] = vm.smallCell;
-                obj_config[neuro_endocrine_differentiation] = vm.neuroEndocrineDifferentiation;
+                obj_config.signet_ring_cell = vm.signetRingCell;
+                obj_config.sarcomatoid = vm.sarcomatoid;
+                obj_config.pleomorphic_giant_cell = vm.pleomorphicGiantCell;
+                obj_config.pin_like_carcinoma = vm.pinLikeCarcinoma;
+                obj_config.small_cell = vm.smallCell;
+                obj_config.neuro_endocrine_differentiation = vm.neuroEndocrineDifferentiation;
             }
             FocusRegionAnnotationsManagerService.createAnnotation(vm.focus_region_id,
                 vm.clinical_annotation_step_label, obj_config)
