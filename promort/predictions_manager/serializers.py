@@ -22,13 +22,19 @@ try:
 except ImportError:
     import json
 
+from predictions_manager.models import (Prediction, Provenance, TissueFragment,
+                                        TissueFragmentsCollection)
 from rest_framework import serializers
-
-from predictions_manager.models import Prediction, TissueFragmentsCollection, TissueFragment
 from slides_manager.serializers import SlideSerializer
+
+class ProvenanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Provenance
+        fields = ('id', 'model', 'start_date', 'end_date','params')
 
 
 class PredictionSerializer(serializers.ModelSerializer):
+    provenance = ProvenanceSerializer(required=False)
 
     class Meta:
         model = Prediction
@@ -36,12 +42,18 @@ class PredictionSerializer(serializers.ModelSerializer):
                   'review_required')
         read_only_fields = ('id', 'creation_date')
 
-    def validate_provenance(self, value):
+    def create(self, validated_data):
         try:
-            json.loads(value)
-            return value
-        except ValueError:
-            raise serializers.ValidationError('Not a valid JSON in \'provenance\' field')
+            provenance_kwargs = validated_data.pop('provenance')
+        except KeyError:
+            provenance_kwargs = {}
+        prediction = Prediction.objects.create(**validated_data)
+        if provenance_kwargs:
+            provenance_kwargs['prediction'] = prediction
+            prov = Provenance.objects.create(**provenance_kwargs)
+
+        return prediction
+
 
 
 class PredictionDetailsSerializer(serializers.ModelSerializer):
