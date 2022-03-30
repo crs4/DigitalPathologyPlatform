@@ -277,17 +277,19 @@ class Command(BaseCommand):
         except IndexError:
             raise InvalidPolygonError()
 
-    def _group_nearest_cores(self, cores, height_tolerance=0.01):
+    def _group_nearest_cores(self, cores):
         cores_map, sorted_y_coords = self._get_sorted_cores_map(cores)
         cores_groups = list()
-        tolerance = sorted_y_coords[-1][1] * height_tolerance
         current_group = cores_map[sorted_y_coords[0]]
+        cg_max_y = sorted_y_coords[0][1]
         for i, yc in enumerate(sorted_y_coords[1:]):
-            if yc[0] <= sorted_y_coords[i][1] + tolerance:
+            if yc[0] <= cg_max_y:
                 current_group.extend(cores_map[yc])
+                cg_max_y = max([cg_max_y, yc[1]])
             else:
                 cores_groups.append(current_group)
                 current_group = cores_map[yc]
+                cg_max_y = yc[1]
         cores_groups.append(current_group)
         return cores_groups
 
