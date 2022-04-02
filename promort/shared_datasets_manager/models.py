@@ -57,7 +57,7 @@ class SharedDatasetItem(models.Model):
     class Meta:
         unique_together = (
             ('dataset', 'dataset_index'),
-            ('slides_set_a', 'slides_set_b'),
+            ('dataset', 'slides_set_a', 'slides_set_b'),
             ('dataset', 'slides_set_a_label'),
             ('dataset', 'slides_set_b_label')
         )
