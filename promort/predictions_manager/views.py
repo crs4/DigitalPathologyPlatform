@@ -20,6 +20,8 @@
 import json
 import logging
 
+from distutils.util import strtobool
+
 from predictions_manager.models import (Prediction, TissueFragment,
                                         TissueFragmentsCollection)
 from predictions_manager.serializers import (
@@ -44,6 +46,28 @@ class PredictionDetail(GenericDetailView):
     model = Prediction
     model_serializer = PredictionSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+
+class PredictionDetailBySlide(APIView):
+    model_serializer = PredictionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+    
+    def _find_predictions_by_slide_id(self, slide_id, type=None, fetch_latest=False):
+        if type is None:
+            predictions = Prediction.objects.filter(slide__id=slide_id)
+        else:
+            predictions = Prediction.objects.filter(slide__id=slide_id, type=type)
+        if fetch_latest:
+            return predictions.order_by('-creation_date').first()
+        return predictions.all()
+        
+    
+    def get(self, request, pk, format=None):
+        fetch_latest = strtobool(request.GET.get('latest', 'false'))
+        prediction_type = request.GET.get('type')
+        predictions = self._find_predictions_by_slide_id(pk, prediction_type, fetch_latest)
+        serializer = self.model_serializer(predictions, many = not fetch_latest)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PredictionRequireReview(APIView):
