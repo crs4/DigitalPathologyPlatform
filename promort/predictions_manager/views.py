@@ -66,8 +66,11 @@ class PredictionDetailBySlide(APIView):
         fetch_latest = strtobool(request.GET.get('latest', 'false'))
         prediction_type = request.GET.get('type')
         predictions = self._find_predictions_by_slide_id(pk, prediction_type, fetch_latest)
-        serializer = self.model_serializer(predictions, many = not fetch_latest)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if (fetch_latest and predictions is None) or (not fetch_latest and len(predictions) == 0):
+            raise NotFound(f'No predictions found for the required query')
+        else:
+            serializer = self.model_serializer(predictions, many = not fetch_latest)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PredictionRequireReview(APIView):
