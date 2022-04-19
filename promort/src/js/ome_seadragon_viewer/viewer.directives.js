@@ -244,6 +244,16 @@
                     );
                     ome_seadragon_viewer.buildViewer();
 
+                    ome_seadragon_viewer.viewer.world.addHandler('add-item', function(data) {
+                        scope.$broadcast('viewer.tiledimage.added');
+
+                        data.item.addHandler('fully-loaded-change', function(data) {
+                            if (data.fullyLoaded === true) {
+                                scope.$broadcast('viewer.tiledimage.loaded');
+                            }
+                        });
+                    });
+
                     var scalebar_config = {
                         'xOffset': 10,
                         'yOffset': 10,
@@ -258,6 +268,18 @@
 
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
                         ome_seadragon_viewer.setMinDZILevel(8);
+
+                        if(scope.avc.enableHeatmapLayer()) {
+                            ome_seadragon_viewer.initOverlaysLayer(
+                                {
+                                    'green': scope.avc.getDatasetDZIURL('Greens_9')
+                                }, 0.5
+                            );
+                            scope.avc.registerHeatmapComponents(ome_seadragon_viewer, scope.avc.dataset_dzi_url);
+                            scope.avc.setOverlayOpacity(0.5);
+
+                            ome_seadragon_viewer.activateOverlay('green');
+                        }
 
                         var annotations_canvas = new AnnotationsController('rois_canvas');
                         annotations_canvas.buildAnnotationsCanvas(ome_seadragon_viewer);

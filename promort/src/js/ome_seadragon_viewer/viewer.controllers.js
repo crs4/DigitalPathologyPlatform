@@ -247,27 +247,69 @@
 
     AnnotationsViewerController.$inject = ['$scope', '$rootScope', '$location', '$log', 'ngDialog',
         'ViewerService', 'AnnotationsViewerService', 'ROIsAnnotationStepManagerService',
-        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
+        'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService',
+        'HeatmapViewerService', 'CurrentPredictionDetailsService'];
 
     function AnnotationsViewerController($scope, $rootScope, $location, $log, ngDialog, ViewerService,
                                          AnnotationsViewerService, ROIsAnnotationStepManagerService,
-                                         CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
+                                         CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService,
+                                         HeatmapViewerService, CurrentPredictionDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
+        vm.prediction_id = undefined;
         vm.annotation_step_label = undefined;
         vm.slide_details = undefined;
+        vm.prediction_details = undefined;
         vm.dzi_url = undefined;
+        vm.dataset_dzi_url = undefined;
         vm.static_files_url = undefined;
+        vm.loading_tiled_images = undefined;
+        vm.current_opacity = undefined;
         vm.getDZIURL = getDZIURL;
+        vm.enableHeatmapLayer = enableHeatmapLayer;
+        vm.getDatasetDZIURL = getDatasetDZIURL;
         vm.getStaticFilesURL = getStaticFilesURL;
         vm.getSlideMicronsPerPixel = getSlideMicronsPerPixel;
         vm.registerComponents = registerComponents;
+        vm.registerHeatmapComponents = registerHeatmapComponents;
+        vm.setOverlayOpacity = setOverlayOpacity;
+        vm.updateOverlayOpacity = updateOverlayOpacity;
 
         activate();
 
         function activate() {
+            var dialog = undefined;
+
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
             vm.annotation_step_label = CurrentAnnotationStepsDetailsService.getROIsAnnotationStepLabel();
+
+            vm.loading_tiled_images = 0;
+
+            $scope.$on('viewer.tiledimage.added', function() {
+                if (vm.loading_tiled_images == 0) {
+                    dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/heatmap_loading.html',
+                        showClose: false,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                }
+                vm.loading_tiled_images += 1;
+            });
+
+            $scope.$on('viewer.tiledimage.loaded', function() {
+                if (vm.loading_tiled_images > 0) {
+                    vm.loading_tiled_images -= 1;
+                    if (vm.loading_tiled_images === 0) {
+                        dialog.close();
+                    }
+                } else {
+                    console.log('Nothing to do...');
+                }
+            });
+
             ViewerService.getOMEBaseURLs()
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
@@ -285,7 +327,25 @@
                     } else {
                         vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
                     }
-                    $rootScope.$broadcast('viewer.controller_initialized');
+                    
+                    if (typeof(vm.prediction_id) !== 'undefined') {
+                        HeatmapViewerService.getPredictionInfo(vm.prediction_id)
+                            .then(PredictionInfoSuccessFn, PredictionInfoErrorFn);
+
+                        function PredictionInfoSuccessFn(response) {
+                            vm.prediction_details = response.data;
+                            vm.dataset_dzi_url = base_url + 'arrays/deepzoom/get/' + vm.prediction_details.omero_id + '.dzi';
+
+                            $rootScope.$broadcast('viewer.controller_initialized');
+                        }
+
+                        function PredictionInfoErrorFn(response) {
+                            $log.error(response.error);
+                            $location.url('404');
+                        }
+                    } else {
+                        $rootScope.$broadcast('viewer.controller_initialized');
+                    }
                 }
 
                 function SlideInfoErrorFn(response) {
@@ -298,8 +358,9 @@
                 $log.error(response.error);
             }
 
-            $scope.$on('viewerctrl.components.registered',
+            $scope.$on('rois_viewerctrl.components.registered',
                 function(event, rois_read_only, clinical_annotation_step_label) {
+                    console.log(event);
                     var dialog = ngDialog.open({
                         template: '/static/templates/dialogs/rois_loading.html',
                         showClose: false,
@@ -312,6 +373,8 @@
                         .then(getROIsSuccessFn, getROIsErrorFn);
 
                     function getROIsSuccessFn(response) {
+                        $log.info('Loaded ROIS');
+
                         for (var sl in response.data.slices) {
                             var slice = response.data.slices[sl];
                             AnnotationsViewerService.drawShape($.parseJSON(slice.roi_json));
@@ -375,6 +438,14 @@
             return vm.dzi_url;
         }
 
+        function enableHeatmapLayer() {
+            return (typeof(vm.prediction_id) !== 'undefined');
+        }
+
+        function getDatasetDZIURL(color_palette) {
+            return vm.dataset_dzi_url + '?palette=' + color_palette;
+        }
+
         function getStaticFilesURL() {
             return vm.static_files_url;
         }
@@ -384,6 +455,7 @@
         }
 
         function registerComponents(viewer_manager, annotations_manager, tools_manager, rois_read_only) {
+            $log.info('Registering components');
             AnnotationsViewerService.registerComponents(viewer_manager,
                 annotations_manager, tools_manager);
             $log.debug('--- VERIFY ---');
@@ -393,8 +465,23 @@
                 clinical_annotation_step_label =
                     CurrentAnnotationStepsDetailsService.getClinicalAnnotationStepLabel();
             }
-            $rootScope.$broadcast('viewerctrl.components.registered', rois_read_only,
+            $rootScope.$broadcast('rois_viewerctrl.components.registered', rois_read_only,
                 clinical_annotation_step_label);
+        }
+
+        function registerHeatmapComponents(viewer_manager, dataset_base_url) {
+            HeatmapViewerService.registerComponents(viewer_manager, dataset_base_url);
+        }
+
+        function setOverlayOpacity(opacity, update) {
+            this.current_opacity = opacity;
+            if (typeof(update) !== 'undefined' && update === true) {
+                this.updateOverlayOpacity();
+            }
+        }
+
+        function updateOverlayOpacity() {
+            HeatmapViewerService.setOverlayOpacity(this.current_opacity);
         }
     }
 

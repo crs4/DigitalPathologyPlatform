@@ -38,11 +38,12 @@
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location', '$log',
         'ngDialog', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
-        'AnnotationsViewerService', 'CurrentSlideDetailsService'];
+        'AnnotationsViewerService', 'CurrentSlideDetailsService', 'CurrentPredictionDetailsService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, $log, ngDialog,
                                    ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
-                                   AnnotationsViewerService, CurrentSlideDetailsService) {
+                                   AnnotationsViewerService, CurrentSlideDetailsService,
+                                   CurrentPredictionDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_index = undefined;
@@ -116,6 +117,8 @@
         activate();
 
         function activate() {
+            console.log("Prediction ID: " + CurrentPredictionDetailsService.getPredictionId());
+
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
             vm.annotation_step_label = $routeParams.label;
