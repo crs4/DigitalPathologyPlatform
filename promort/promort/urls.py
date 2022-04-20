@@ -134,6 +134,9 @@ urlpatterns = [
          ROIsTreeList.as_view()),
     path('api/rois_annotation_steps/<rslabel:label>/slices/',
          SliceList.as_view()),
+    path('api/roi_annotations_steps/<rslabel:label>/update_session/',
+         rmv.update_roi_annotation_step_session),
+
     path('api/slices/<num:pk>/cores/', CoreList.as_view()),
     path('api/slices/<num:pk>/', SliceDetail.as_view()),
     path('api/cores/<num:pk>/focus_regions/', FocusRegionList.as_view()),
@@ -188,6 +191,8 @@ urlpatterns = [
          rmv.ClinicalAnnotationDetail.as_view()),
     path('api/clinical_annotations/steps/<rslabel:label>/',
          rmv.ClinicalAnnotationStepDetail.as_view()),
+    path('api/clinical_annotations/steps/<rslabel:label>/update_session/',
+         rmv.update_clinical_annotation_step_session),
     path(
         'api/clinical_annotations/<slug:case>/<slug:reviewer>/<num:rois_review>/',
         rmv.ClinicalAnnotationCreation.as_view()),

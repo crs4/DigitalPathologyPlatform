@@ -32,8 +32,10 @@ def rois_annotation(reviewer, case):
 
 
 @pytest.fixture
-def clinical_annotation(reviewer, case, rois_annotation):
-    return ClinicalAnnotation.objects.create(label="test",reviewer=reviewer, case=case, rois_review=rois_annotation)
+def clinical_annotation(reviewer, case, rois_annotation, label):
+    return ClinicalAnnotation.objects.create(
+        label=label, reviewer=reviewer, case=case, rois_review=rois_annotation
+    )
 
 
 @pytest.fixture
@@ -48,9 +50,9 @@ def case():
 
 
 @pytest.fixture
-def rois_annotation_step(rois_annotation, slide):
+def rois_annotation_step(rois_annotation, slide, label):
     return ROIsAnnotationStep.objects.create(
-        label="test", rois_annotation=rois_annotation, slide=slide
+        label=label, rois_annotation=rois_annotation, slide=slide
     )
 
 
@@ -61,12 +63,13 @@ def annotation_step(
     rois_annotation_step,
     clinical_annotation,
     slide,
+    label,
 ):
     if annotation_step_cls == ROIsAnnotationStep:
         return rois_annotation_step
     else:
         return ClinicalAnnotationStep.objects.create(
-            label="test",
+            label=label,
             clinical_annotation=clinical_annotation,
             slide=slide,
             rois_review_step=rois_annotation_step,
@@ -77,7 +80,8 @@ def annotation_step(
 @pytest.mark.parametrize(
     "annotation_step_cls", [ROIsAnnotationStep, ClinicalAnnotationStep]
 )
-def test_session_create(annotation_step, annotation_step_cls):
+@pytest.mark.parametrize("label", ["a0-a0"])
+def test_session_create(annotation_step, annotation_step_cls, label):
     now = datetime.now()
     session = update_annotation_session(annotation_step, now)
     assert session.start_time == session.last_update == now
@@ -101,3 +105,27 @@ def test_session_create(annotation_step, annotation_step_cls):
     now_4 = datetime.now()
     session_4 = update_annotation_session(annotation_step, now_4)
     assert session_4.id == session_3.id
+
+
+@pytest.fixture
+def update_time():
+    return datetime.now().isoformat()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "annotation_step_cls, path",
+    [
+        (ClinicalAnnotationStep, "clinical_annotations/steps"),
+        (ROIsAnnotationStep, "roi_annotations_steps"),
+    ],
+)
+@pytest.mark.parametrize("label", ["a0-a0"])
+def test_view_annotation_session(
+    client, annotation_step, annotation_step_cls, path, label, update_time
+):
+    url = f"/api/{path}/{label}/update_session/"
+
+    data = {"update_time": update_time}
+    response = client.post(url, data=data)
+    assert response.status_code < 300
