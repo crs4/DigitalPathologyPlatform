@@ -4,10 +4,21 @@ from typing import Union
 
 import pytest
 from django.contrib.auth.models import User
-from reviews_manager.models import (AnnotationSession, ClinicalAnnotationStep,
-                                    ROIsAnnotation, ROIsAnnotationStep,
-                                    update_annotation_session)
+from django.test import Client
+from reviews_manager.models import (
+    AnnotationSession,
+    ClinicalAnnotation,
+    ClinicalAnnotationStep,
+    ROIsAnnotation,
+    ROIsAnnotationStep,
+    update_annotation_session,
+)
 from slides_manager.models import Case, Slide
+
+
+@pytest.fixture
+def client():
+    return Client()
 
 
 @pytest.fixture
@@ -18,6 +29,11 @@ def slide(case):
 @pytest.fixture
 def rois_annotation(reviewer, case):
     return ROIsAnnotation.objects.create(reviewer=reviewer, case=case)
+
+
+@pytest.fixture
+def clinical_annotation(reviewer, case, rois_annotation):
+    return ClinicalAnnotation.objects.create(label="test",reviewer=reviewer, case=case, rois_review=rois_annotation)
 
 
 @pytest.fixture
@@ -32,15 +48,35 @@ def case():
 
 
 @pytest.fixture
-def annotation_step(annotation_step_cls: Union[ROIsAnnotationStep, ClinicalAnnotationStep], rois_annotation, slide):
+def rois_annotation_step(rois_annotation, slide):
+    return ROIsAnnotationStep.objects.create(
+        label="test", rois_annotation=rois_annotation, slide=slide
+    )
+
+
+@pytest.fixture
+def annotation_step(
+    annotation_step_cls: Union[ROIsAnnotationStep, ClinicalAnnotationStep],
+    rois_annotation,
+    rois_annotation_step,
+    clinical_annotation,
+    slide,
+):
     if annotation_step_cls == ROIsAnnotationStep:
-        return ROIsAnnotationStep.objects.create(label="test", rois_annotation=rois_annotation, slide=slide)
+        return rois_annotation_step
     else:
-        ...
+        return ClinicalAnnotationStep.objects.create(
+            label="test",
+            clinical_annotation=clinical_annotation,
+            slide=slide,
+            rois_review_step=rois_annotation_step,
+        )
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("annotation_step_cls", [ROIsAnnotationStep])
+@pytest.mark.parametrize(
+    "annotation_step_cls", [ROIsAnnotationStep, ClinicalAnnotationStep]
+)
 def test_session_create(annotation_step, annotation_step_cls):
     now = datetime.now()
     session = update_annotation_session(annotation_step, now)
