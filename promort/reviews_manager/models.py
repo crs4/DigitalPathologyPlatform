@@ -18,10 +18,10 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from datetime import datetime
+from typing import Union
 
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import (GenericForeignKey,
-                                                GenericRelation)
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
 from django.utils import timezone
@@ -326,4 +326,37 @@ class AnnotationSession(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
     start_time = models.DateTimeField(default=timezone.now)
-    last_update = models.DateTimeField()
+    last_update = models.DateTimeField(default=timezone.now)
+
+    EXPIRATION_TIME = 120  # in seconds, move to settings?
+
+    def update(self, update_time: datetime):
+        if self.is_expired():
+            raise ExpiredSession(f"session {self} is expired")
+
+        self.last_update = update_time
+        self.save()
+
+    @property
+    def duration(self):
+        return self.last_update - self.start_time
+
+    def is_expired(self) -> bool:
+        return self.duration.total_seconds() > AnnotationSession.EXPIRATION_TIME
+
+
+def update_annotation_session(
+    step: Union[ROIsAnnotationStep, ClinicalAnnotationStep], update_time: datetime
+) -> AnnotationSession:
+    try:
+        session = step.sessions.order_by("-last_update").first()
+        session.update(update_time)
+    except (AnnotationSession.DoesNotExist, AttributeError, ExpiredSession):
+        session = AnnotationSession.objects.create(
+            content_object=step, start_time=update_time, last_update=update_time
+        )
+    return session
+
+
+class ExpiredSession(Exception):
+    ...
