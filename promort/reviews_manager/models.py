@@ -19,11 +19,14 @@
 
 from datetime import datetime
 
-from django.db import models, IntegrityError
-from django.utils import timezone
 from django.contrib.auth.models import User
-from slides_manager.models import Case, Slide
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
+from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError, models
+from django.utils import timezone
 from predictions_manager.models import Prediction
+from slides_manager.models import Case, Slide
 
 
 class ROIsAnnotation(models.Model):
@@ -81,6 +84,7 @@ class ROIsAnnotationStep(models.Model):
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
                                            default=None)
+    sessions = GenericRelation("AnnotationSession")
 
     class Meta:
         unique_together = ('rois_annotation', 'slide')
@@ -208,6 +212,7 @@ class ClinicalAnnotationStep(models.Model):
         blank=True, null=True, default=None
     )
     notes = models.TextField(blank=True, null=True, default=None)
+    sessions = GenericRelation("AnnotationSession")
 
     class Meta:
         unique_together = ('rois_review_step', 'clinical_annotation')
@@ -314,3 +319,11 @@ class PredictionReview(models.Model):
     def reopen(self):
         self.completion_date = None
         self.save()
+
+
+class AnnotationSession(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
+    start_time = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField()
