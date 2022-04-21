@@ -135,3 +135,35 @@ def test_view_annotation_session(
     resp_json = response.json()
     assert resp_json["start_time"] == update_time
     assert resp_json["last_update"] == update_time
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "annotation_step_cls", [ROIsAnnotationStep, ClinicalAnnotationStep]
+)
+@pytest.mark.parametrize("label", ["a0-a0"])
+def test_total_sessions_time(annotation_step, annotation_step_cls, label):
+    now = datetime.now()
+    update_annotation_session(annotation_step, now)
+    assert annotation_step.total_sessions_time() == 0
+
+    time.sleep(1)
+    now_2 = datetime.now()
+    update_annotation_session(annotation_step, now_2)
+
+    assert round(annotation_step.total_sessions_time(), 3) == round((now_2 - now).total_seconds(), 3)
+
+    settings.ANNOTATION_SESSION_EXPIRED_TIME = 1
+    time.sleep(1.1)
+    now_3 = datetime.now()
+    update_annotation_session(annotation_step, now_3)
+
+    assert round(annotation_step.total_sessions_time(), 3) == round((now_2 - now).total_seconds(), 3)
+    time.sleep(1.1)
+    now_4 = datetime.now()
+    update_annotation_session(annotation_step, now_4)
+
+    assert (
+        round(annotation_step.total_sessions_time(), 3)
+        == round(((now_4 - now_3) + (now_2 - now)).total_seconds(), 3)
+    )

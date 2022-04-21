@@ -75,7 +75,21 @@ class ROIsAnnotation(models.Model):
         return True
 
 
-class ROIsAnnotationStep(models.Model):
+
+Seconds = int
+
+
+class StepMixin(models.Model):
+    sessions = GenericRelation("AnnotationSession")
+
+    class Meta:
+        abstract = True
+
+    def total_sessions_time(self) -> Seconds:
+        return sum([s.duration.total_seconds() for s in self.sessions.all()])
+
+
+class ROIsAnnotationStep(StepMixin):
     label = models.CharField(unique=True, blank=False, null=False,
                              max_length=40)
     rois_annotation = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
@@ -87,7 +101,6 @@ class ROIsAnnotationStep(models.Model):
                                       default=None)
     completion_date = models.DateTimeField(blank=True, null=True,
                                            default=None)
-    sessions = GenericRelation("AnnotationSession")
 
     class Meta:
         unique_together = ('rois_annotation', 'slide')
@@ -189,7 +202,7 @@ class ClinicalAnnotation(models.Model):
         return counter
 
 
-class ClinicalAnnotationStep(models.Model):
+class ClinicalAnnotationStep(StepMixin):
     REJECTION_REASONS_CHOICES = (
         ('BAD_QUALITY', 'Bad image quality'),
         ('BAD_ROIS', 'Wrong or inaccurate ROIs'),
@@ -215,7 +228,6 @@ class ClinicalAnnotationStep(models.Model):
         blank=True, null=True, default=None
     )
     notes = models.TextField(blank=True, null=True, default=None)
-    sessions = GenericRelation("AnnotationSession")
 
     class Meta:
         unique_together = ('rois_review_step', 'clinical_annotation')
@@ -357,6 +369,7 @@ def update_annotation_session(
             content_object=step, start_time=update_time, last_update=update_time
         )
     return session
+
 
 
 class ExpiredSession(Exception):
