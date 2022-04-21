@@ -128,4 +128,10 @@ def test_view_annotation_session(
 
     data = {"update_time": update_time}
     response = client.post(url, data=data)
+
     assert response.status_code < 300
+
+    resp_json = response.json()
+    assert resp_json["success"]
+    assert resp_json["data"]["start_time"] == update_time
+    assert resp_json["data"]["last_update"] == update_time

@@ -17,16 +17,16 @@
 #  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from django.contrib.auth.models import User
-
-from rest_framework import serializers
-
-from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep,\
-    ClinicalAnnotation, ClinicalAnnotationStep, PredictionReview
-from slides_manager.serializers import SlideSerializer, SlideEvaluationSerializer
-from rois_manager.serializers import SliceSerializer, SliceROIsTreeSerializer
 from clinical_annotations_manager.serializers import AnnotatedSliceSerializer
+from django.contrib.auth.models import User
 from predictions_manager.serializers import PredictionSerializer
+from rest_framework import serializers
+from reviews_manager.models import (AnnotationSession, ClinicalAnnotation,
+                                    ClinicalAnnotationStep, PredictionReview,
+                                    ROIsAnnotation, ROIsAnnotationStep)
+from rois_manager.serializers import SliceROIsTreeSerializer, SliceSerializer
+from slides_manager.serializers import (SlideEvaluationSerializer,
+                                        SlideSerializer)
 
 
 class ROIsAnnotationSerializer(serializers.ModelSerializer):
@@ -336,3 +336,8 @@ class PredictionReviewDetailsSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_annotation_type(obj):
         return 'PREDICTION_REVIEW'
+
+class AnnotationSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnnotationSession
+        fields = ('id', 'start_time', 'last_update')

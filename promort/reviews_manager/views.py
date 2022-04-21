@@ -27,6 +27,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from reviews_manager.models import (ClinicalAnnotationStep, ROIsAnnotationStep,
                                     update_annotation_session)
+from reviews_manager.serializers import AnnotationSessionSerializer
 
 
 @api_view()
@@ -706,8 +707,8 @@ def _get_update_time(request):
 def _update_annotation_step_session(request, step_id, cls):
     update_time = _get_update_time(request)
     step = _get_step(step_id, cls)
-    update_annotation_session(step, update_time)
-    return Response({"success": True})
+    session = update_annotation_session(step, update_time)
+    return Response({"success": True, "data": AnnotationSessionSerializer(session).data})
 
 
 def _get_step(label, cls):
