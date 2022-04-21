@@ -14,6 +14,7 @@ from reviews_manager.models import (
     update_annotation_session,
 )
 from slides_manager.models import Case, Slide
+import promort.settings as settings
 
 
 @pytest.fixture
@@ -94,14 +95,14 @@ def test_session_create(annotation_step, annotation_step_cls, label):
     assert session_2.id == session.id
     assert session.last_update < session_2.last_update
 
-    AnnotationSession.EXPIRATION_TIME = 1
+    settings.ANNOTATION_SESSION_EXPIRED_TIME = 1
     assert session_2.is_expired()
 
     now_3 = datetime.now()
     session_3 = update_annotation_session(annotation_step, now_3)
     assert session_3.id != session_2.id
 
-    AnnotationSession.EXPIRATION_TIME = 1000
+    settings.ANNOTATION_SESSION_EXPIRED_TIME = 1000
     now_4 = datetime.now()
     session_4 = update_annotation_session(annotation_step, now_4)
     assert session_4.id == session_3.id
@@ -132,6 +133,5 @@ def test_view_annotation_session(
     assert response.status_code < 300
 
     resp_json = response.json()
-    assert resp_json["success"]
-    assert resp_json["data"]["start_time"] == update_time
-    assert resp_json["data"]["last_update"] == update_time
+    assert resp_json["start_time"] == update_time
+    assert resp_json["last_update"] == update_time

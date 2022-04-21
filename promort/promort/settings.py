@@ -248,3 +248,5 @@ OME_SEADRAGON_STATIC_FILES_URL = cfg['ome_seadragon']['static_files_url']
 # app version
 with open(os.path.join(BASE_DIR, 'VERSION')) as f:
     VERSION = f.readline()
+
+ANNOTATION_SESSION_EXPIRED_TIME = cfg["annotation_session"]["expired_time"]

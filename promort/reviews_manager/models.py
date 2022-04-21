@@ -21,12 +21,15 @@ from datetime import datetime
 from typing import Union
 
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
 from django.utils import timezone
 from predictions_manager.models import Prediction
 from slides_manager.models import Case, Slide
+
+import promort.settings as settings
 
 
 class ROIsAnnotation(models.Model):
@@ -328,8 +331,6 @@ class AnnotationSession(models.Model):
     start_time = models.DateTimeField(default=timezone.now)
     last_update = models.DateTimeField(default=timezone.now)
 
-    EXPIRATION_TIME = 120  # in seconds, move to settings?
-
     def update(self, update_time: datetime):
         if self.is_expired():
             raise ExpiredSession(f"session {self} is expired")
@@ -342,7 +343,7 @@ class AnnotationSession(models.Model):
         return self.last_update - self.start_time
 
     def is_expired(self) -> bool:
-        return self.duration.total_seconds() > AnnotationSession.EXPIRATION_TIME
+        return self.duration.total_seconds() > settings.ANNOTATION_SESSION_EXPIRED_TIME
 
 
 def update_annotation_session(

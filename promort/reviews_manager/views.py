@@ -708,7 +708,7 @@ def _update_annotation_step_session(request, step_id, cls):
     update_time = _get_update_time(request)
     step = _get_step(step_id, cls)
     session = update_annotation_session(step, update_time)
-    return Response({"success": True, "data": AnnotationSessionSerializer(session).data})
+    return Response(AnnotationSessionSerializer(session).data)
 
 
 def _get_step(label, cls):
