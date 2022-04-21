@@ -21,7 +21,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import MethodNotAllowed, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -38,6 +38,7 @@ import logging
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from predictions_manager.serializers import PredictionDetailsSerializer
+from rest_framework.permissions import IsAuthenticated
 from reviews_manager.models import (ClinicalAnnotation, ClinicalAnnotationStep,
                                     PredictionReview, ROIsAnnotation,
                                     ROIsAnnotationStep)
@@ -690,11 +691,14 @@ class PredictionByReviewDetail(APIView):
         serializer = PredictionDetailsSerializer(prediction)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@permission_classes(IsAuthenticated)
 @api_view(http_method_names=["POST"])
 def update_roi_annotation_step_session(request, label):
     return _update_annotation_step_session(request, label, ROIsAnnotationStep)
 
 
+@permission_classes(IsAuthenticated)
 @api_view(http_method_names=["POST"])
 def update_clinical_annotation_step_session(request, label):
     return _update_annotation_step_session(request, label, ClinicalAnnotationStep)
