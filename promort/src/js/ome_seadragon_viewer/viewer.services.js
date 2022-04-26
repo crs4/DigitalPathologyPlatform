@@ -92,20 +92,36 @@
         var HeatmapViewerService = {
             registerComponents: registerComponents,
             getPredictionInfo: getPredictionInfo,
+            getDatasetBaseUrl: getDatasetBaseUrl,
+            getShapedFromDatasetBaseUrl: getShapedFromDatasetBaseUrl,
+            getShapesFromPrediction: getShapesFromPrediction,
             setOverlay: setOverlay,
             setOverlayOpacity: setOverlayOpacity
         };
 
         return HeatmapViewerService;
 
-        function registerComponents(viewer_manager, dataset_base_url) {
+        function registerComponents(viewer_manager, ome_base_url, prediction_details) {
             this.viewerManager = viewer_manager;
-            this.dataset_base_url = dataset_base_url;
-            $rootScope.$broadcast('viewerctrl.components.registered');
+            this.dataset_base_url = ome_base_url + 'arrays/deepzoom/get/' + prediction_details.omero_id + '.dzi';
+            this.dataset_shapes_base_url = ome_base_url + 'arrays/shapes/get/' + prediction_details.omero_id;
+            $rootScope.$broadcast('hm_viewerctrl.components.registered');
         }
 
         function getPredictionInfo(prediction_id) {
             return $http.get('api/predictions/' + prediction_id + '/');
+        }
+
+        function getDatasetBaseUrl() {
+            return this.dataset_base_url;
+        }
+
+        function getShapedFromDatasetBaseUrl() {
+            return this.dataset_shapes_base_url;
+        }
+
+        function getShapesFromPrediction(threshold) {
+            return $http.get(this.dataset_shapes_base_url, {'params' :{'threshold': threshold}});
         }
 
         function setOverlay(palette, threshold) {
@@ -199,6 +215,7 @@
         }
 
         function drawShape(shape_json) {
+            console.log(shape_json);
             this.roisManager.drawShapeFromJSON(shape_json);
         }
 

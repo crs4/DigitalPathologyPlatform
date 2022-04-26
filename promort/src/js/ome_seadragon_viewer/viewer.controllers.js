@@ -255,13 +255,13 @@
                                          CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService,
                                          HeatmapViewerService, CurrentPredictionDetailsService) {
         var vm = this;
+        vm.ome_base_url = undefined;
         vm.slide_id = undefined;
         vm.prediction_id = undefined;
         vm.annotation_step_label = undefined;
         vm.slide_details = undefined;
         vm.prediction_details = undefined;
         vm.dzi_url = undefined;
-        vm.dataset_dzi_url = undefined;
         vm.static_files_url = undefined;
         vm.loading_tiled_images = undefined;
         vm.current_opacity = undefined;
@@ -314,7 +314,7 @@
                 .then(OMEBaseURLSuccessFn, OMEBaseURLErrorFn);
 
             function OMEBaseURLSuccessFn(response) {
-                var base_url = response.data.base_url;
+                vm.ome_base_url = response.data.base_url;
                 vm.static_files_url = response.data.static_files_url + '/ome_seadragon/img/openseadragon/';
 
                 ViewerService.getSlideInfo(vm.slide_id)
@@ -323,9 +323,9 @@
                 function SlideInfoSuccessFn(response) {
                     vm.slide_details = response.data;
                     if (vm.slide_details.image_type === 'MIRAX') {
-                        vm.dzi_url = base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
+                        vm.dzi_url = vm.ome_base_url + 'mirax/deepzoom/get/' + vm.slide_details.id + '.dzi';
                     } else {
-                        vm.dzi_url = base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
+                        vm.dzi_url = vm.ome_base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
                     }
                     
                     if (typeof(vm.prediction_id) !== 'undefined') {
@@ -334,7 +334,6 @@
 
                         function PredictionInfoSuccessFn(response) {
                             vm.prediction_details = response.data;
-                            vm.dataset_dzi_url = base_url + 'arrays/deepzoom/get/' + vm.prediction_details.omero_id + '.dzi';
 
                             $rootScope.$broadcast('viewer.controller_initialized');
                         }
@@ -443,7 +442,7 @@
         }
 
         function getDatasetDZIURL(color_palette) {
-            return vm.dataset_dzi_url + '?palette=' + color_palette;
+            return HeatmapViewerService.getDatasetBaseUrl() + '?palette=' + color_palette;
         }
 
         function getStaticFilesURL() {
@@ -469,8 +468,8 @@
                 clinical_annotation_step_label);
         }
 
-        function registerHeatmapComponents(viewer_manager, dataset_base_url) {
-            HeatmapViewerService.registerComponents(viewer_manager, dataset_base_url);
+        function registerHeatmapComponents(viewer_manager) {
+            HeatmapViewerService.registerComponents(viewer_manager, vm.ome_base_url, vm.prediction_details);
         }
 
         function setOverlayOpacity(opacity, update) {

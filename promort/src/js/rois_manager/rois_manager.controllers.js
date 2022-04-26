@@ -38,12 +38,13 @@
 
     ROIsManagerController.$inject = ['$scope', '$routeParams', '$rootScope', '$compile', '$location', '$log',
         'ngDialog', 'ROIsAnnotationStepService', 'ROIsAnnotationStepManagerService',
-        'AnnotationsViewerService', 'CurrentSlideDetailsService', 'CurrentPredictionDetailsService'];
+        'AnnotationsViewerService', 'CurrentSlideDetailsService', 'CurrentPredictionDetailsService',
+        'HeatmapViewerService'];
 
     function ROIsManagerController($scope, $routeParams, $rootScope, $compile, $location, $log, ngDialog,
                                    ROIsAnnotationStepService, ROIsAnnotationStepManagerService,
                                    AnnotationsViewerService, CurrentSlideDetailsService,
-                                   CurrentPredictionDetailsService) {
+                                   CurrentPredictionDetailsService, HeatmapViewerService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_index = undefined;
@@ -51,9 +52,18 @@
         vm.annotation_label = undefined;
         vm.annotation_step_label = undefined;
 
+        vm.prediction_id = undefined;
+        vm.overlay_palette = undefined;
+        vm.overlay_opacity = undefined;
+        vm.overlay_threshold = undefined;
+
+        vm.oo_percentage = undefined;
+
         vm.slices_map = undefined;
         vm.cores_map = undefined;
         vm.focus_regions_map = undefined;
+
+        vm.navmap_items = undefined;
 
         vm.ui_active_modes = {
             'new_slice': false,
@@ -72,6 +82,9 @@
         vm._createNewSubtree = _createNewSubtree;
         vm._lockRoisTree = _lockRoisTree;
         vm._unlockRoisTree = _unlockRoisTree;
+        vm._buildNavmapItem = _buildNavmapItem;
+        vm._buildNavmap = _buildNavmap;
+        vm._updateNavmap = _updateNavmap;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
         vm.editROI = editROI;
@@ -99,6 +112,7 @@
         vm.editFocusRegionModeActive = editFocusRegionModeActive;
         vm.newItemCreationModeActive = newItemCreationModeActive;
         vm.editItemModeActive = editItemModeActive;
+        vm._registerNavmapItem = _registerNavmapItem;
         vm._registerSlice = _registerSlice;
         vm._unregisterSlice = _unregisterSlice;
         vm._registerCore = _registerCore;
@@ -114,6 +128,10 @@
         vm.getCoresCount = getCoresCount;
         vm.getFocusRegionsCount = getFocusRegionsCount;
 
+        vm.updateOverlayOpacity = updateOverlayOpacity;
+        vm.updateOverlayThreshold = updateOverlayThreshold;
+        vm.updateOverlayPalette = updateOverlayPalette;
+
         activate();
 
         function activate() {
@@ -125,9 +143,19 @@
             vm.annotation_label = vm.annotation_step_label.split('-')[0];
             vm.slide_index = vm.annotation_step_label.split('-')[1];
 
+            vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
+
+            vm.overlay_palette = 'Greens_9';
+            vm.overlay_opacity = 0.5;
+            vm.overlay_threshold = "0.0";
+
+            vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
+
             vm.slices_map = {};
             vm.cores_map = {};
             vm.focus_regions_map = {};
+
+            vm.navmap_items = {};
 
             $rootScope.slices = [];
             $rootScope.cores = [];
@@ -143,6 +171,27 @@
 
                 if (response.data.slide_evaluation !== null &&
                     response.data.slide_evaluation.adequate_slide) {
+
+                    $scope.$on('hm_viewerctrl.components.registered',
+                        function() {
+                            // load navigation map
+                            $log.info('Building navigation map');
+                            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold)
+                                .then(getShapesSuccessFn, getShapesErrorFn);
+
+                            function getShapesSuccessFn(response) {
+                                for (var sh in response.data.shapes) {
+                                    vm._registerNavmapItem(sh, response.data.shapes[sh]);
+                                }
+                                vm._buildNavmap();
+                            }
+
+                            function getShapesErrorFn(response) {
+                                $log.error('Error when loading shapes from prediction');
+                                $log.error(response);
+                            }
+                        }
+                    );
 
                     // shut down creation forms when specific events occur
                     $scope.$on('tool.destroyed',
@@ -284,6 +333,11 @@
             }
         }
 
+        function _registerNavmapItem(item_index, item_shape) {
+            var item_label = 'cluster_' + (item_index+1);
+            vm.navmap_items[item_label] = item_shape;
+        }
+
         function _registerSlice(slice_info) {
             $rootScope.slices.push(slice_info);
             vm.slices_map[slice_info.id] = slice_info.label;
@@ -381,6 +435,38 @@
         function _unlockRoisTree() {
             vm.roisTreeLocked = false;
             $(".prm-tree-el").removeClass("prm-tree-el-disabled");
+        }
+
+        function _buildNavmapItem(item_label, item_shape) {
+            var shape_json = {
+                'shape_id': item_label,
+                'fill_color': '#0000ff',
+                'fill_alpha': 0.3,
+                'stroke_color': '#0000ff',
+                'stroke_alpha': 1,
+                'stroke_width': 100,
+                'hidden': false,
+                'segments': item_shape,
+                'type': 'polygon'
+            };
+            AnnotationsViewerService.drawShape(shape_json);
+        }
+
+        function _buildNavmap() {
+            for (var ilabel in vm.navmap_items) {
+                vm._buildNavmapItem(ilabel, vm.navmap_items[ilabel]);
+            }
+        }
+
+        function _updateNavmap(new_shapes) {
+            for (var sh in vm.navmap_items) {
+                AnnotationsViewerService.deleteShape(sh);
+            }
+            vm.navmap_items = {};
+            for (var sh in new_shapes) {
+                vm._registerNavmapItem(sh, new_shapes[sh]);
+            }
+            vm._buildNavmap();
         }
 
         function allModesOff() {
@@ -661,6 +747,32 @@
 
         function getFocusRegionsCount() {
             return $rootScope.focus_regions.length;
+        }
+
+        function updateOverlayOpacity() {
+            HeatmapViewerService.setOverlayOpacity(vm.overlay_opacity);
+            vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
+        }
+
+        function updateOverlayThreshold() {
+            HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
+
+            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold)
+                                .then(getShapesSuccessFn, getShapesErrorFn);
+
+            function getShapesSuccessFn(response) {
+                vm._updateNavmap(response.data.shapes);
+            }
+
+            function getShapesErrorFn(response) {
+                $log.error('Error when loading shapes from prediction');
+                $log.error(response);
+            }
+        }
+
+        function updateOverlayPalette() {
+            console.log('Current overlay palette is: ' + vm.overlay_palette);
+            HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
         }
     }
 
@@ -1403,7 +1515,7 @@
             vm.tumorLengthScaleFactor = vm.lengthUOM[0];
             vm.coreAreaScaleFactor = vm.areaUOM[0];
 
-            $scope.$on('viewerctrl.components.registered',
+            $scope.$on('rois_viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
                     vm.initializeTumorRuler();
@@ -2127,7 +2239,7 @@
         activate();
 
         function activate() {
-            $scope.$on('viewerctrl.components.registered',
+            $scope.$on('rois_viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
                     vm.initializeTumorRuler();
@@ -2733,7 +2845,7 @@
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];
 
-            $scope.$on('viewerctrl.components.registered',
+            $scope.$on('rois_viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
                 }
@@ -3347,7 +3459,7 @@
         activate();
 
         function activate() {
-            $scope.$on('viewerctrl.components.registered',
+            $scope.$on('rois_viewerctrl.components.registered',
                 function() {
                     vm.initializeRuler();
                 }

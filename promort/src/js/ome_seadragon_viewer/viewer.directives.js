@@ -270,12 +270,12 @@
                         ome_seadragon_viewer.setMinDZILevel(8);
 
                         if(scope.avc.enableHeatmapLayer()) {
+                            scope.avc.registerHeatmapComponents(ome_seadragon_viewer);
                             ome_seadragon_viewer.initOverlaysLayer(
                                 {
                                     'green': scope.avc.getDatasetDZIURL('Greens_9')
                                 }, 0.5
                             );
-                            scope.avc.registerHeatmapComponents(ome_seadragon_viewer, scope.avc.dataset_dzi_url);
                             scope.avc.setOverlayOpacity(0.5);
 
                             ome_seadragon_viewer.activateOverlay('green');
