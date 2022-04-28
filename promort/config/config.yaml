@@ -44,3 +44,6 @@ promort_groups:
 ome_seadragon:
   base_url: http://localhost:8080/ome_seadragon/
   static_files_url: http://localhost:8080/static/
+
+annotation_session:
+  expired_time: 120

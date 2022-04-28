@@ -20,27 +20,40 @@
 from datetime import datetime
 from uuid import uuid4
 
-from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import MethodNotAllowed, NotFound
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from reviews_manager.models import (ClinicalAnnotationStep, ROIsAnnotationStep,
+                                    update_annotation_session)
+from reviews_manager.serializers import AnnotationSessionSerializer
+
+
+@api_view()
+def hello_world(request):
+    return Response({"message": "Hello, world!"})
+import logging
 
 from django.contrib.auth.models import User
-
 from django.db import IntegrityError
-
+from predictions_manager.serializers import PredictionDetailsSerializer
+from rest_framework.permissions import IsAuthenticated
+from reviews_manager.models import (ClinicalAnnotation, ClinicalAnnotationStep,
+                                    PredictionReview, ROIsAnnotation,
+                                    ROIsAnnotationStep)
+from reviews_manager.permissions import IsReviewManager
+from reviews_manager.serializers import (ClinicalAnnotationDetailsSerializer,
+                                         ClinicalAnnotationSerializer,
+                                         ClinicalAnnotationStepSerializer,
+                                         PredictionReviewDetailsSerializer,
+                                         PredictionReviewSerializer,
+                                         ROIsAnnotationDetailsSerializer,
+                                         ROIsAnnotationSerializer,
+                                         ROIsAnnotationStepDetailsSerializer,
+                                         ROIsAnnotationStepSerializer)
 from view_templates.views import GenericListView
 
-from reviews_manager.models import ROIsAnnotation, ROIsAnnotationStep, ClinicalAnnotation, \
-    ClinicalAnnotationStep, PredictionReview
-from reviews_manager.serializers import ROIsAnnotationSerializer, ROIsAnnotationStepSerializer, \
-    ROIsAnnotationDetailsSerializer, ROIsAnnotationStepDetailsSerializer, ClinicalAnnotationSerializer, \
-    ClinicalAnnotationStepSerializer, ClinicalAnnotationDetailsSerializer, PredictionReviewSerializer, \
-    PredictionReviewDetailsSerializer
-from predictions_manager.serializers import PredictionDetailsSerializer
-from reviews_manager.permissions import IsReviewManager
-
-import logging
 logger = logging.getLogger('promort')
 
 
@@ -677,3 +690,30 @@ class PredictionByReviewDetail(APIView):
         prediction = self._find_prediction_by_review(label)
         serializer = PredictionDetailsSerializer(prediction)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@permission_classes(IsAuthenticated)
+@api_view(http_method_names=["POST"])
+def update_roi_annotation_step_session(request, label):
+    return _update_annotation_step_session(request, label, ROIsAnnotationStep)
+
+
+@permission_classes(IsAuthenticated)
+@api_view(http_method_names=["POST"])
+def update_clinical_annotation_step_session(request, label):
+    return _update_annotation_step_session(request, label, ClinicalAnnotationStep)
+
+
+def _get_update_time(request):
+    return datetime.fromisoformat(request.POST["update_time"])
+
+
+def _update_annotation_step_session(request, step_id, cls):
+    update_time = _get_update_time(request)
+    step = _get_step(step_id, cls)
+    session = update_annotation_session(step, update_time)
+    return Response(AnnotationSessionSerializer(session).data)
+
+
+def _get_step(label, cls):
+    return cls.objects.get(label=label)

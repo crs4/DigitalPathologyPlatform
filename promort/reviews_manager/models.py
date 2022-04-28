@@ -18,12 +18,18 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from datetime import datetime
+from typing import Union
 
-from django.db import models, IntegrityError
-from django.utils import timezone
 from django.contrib.auth.models import User
-from slides_manager.models import Case, Slide
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
+from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError, models
+from django.utils import timezone
 from predictions_manager.models import Prediction
+from slides_manager.models import Case, Slide
+
+import promort.settings as settings
 
 
 class ROIsAnnotation(models.Model):
@@ -69,7 +75,21 @@ class ROIsAnnotation(models.Model):
         return True
 
 
-class ROIsAnnotationStep(models.Model):
+
+Seconds = int
+
+
+class StepMixin(models.Model):
+    sessions = GenericRelation("AnnotationSession")
+
+    class Meta:
+        abstract = True
+
+    def total_sessions_time(self) -> Seconds:
+        return sum([s.duration.total_seconds() for s in self.sessions.all()])
+
+
+class ROIsAnnotationStep(StepMixin):
     label = models.CharField(unique=True, blank=False, null=False,
                              max_length=40)
     rois_annotation = models.ForeignKey(ROIsAnnotation, on_delete=models.PROTECT,
@@ -182,7 +202,7 @@ class ClinicalAnnotation(models.Model):
         return counter
 
 
-class ClinicalAnnotationStep(models.Model):
+class ClinicalAnnotationStep(StepMixin):
     REJECTION_REASONS_CHOICES = (
         ('BAD_QUALITY', 'Bad image quality'),
         ('BAD_ROIS', 'Wrong or inaccurate ROIs'),
@@ -314,3 +334,43 @@ class PredictionReview(models.Model):
     def reopen(self):
         self.completion_date = None
         self.save()
+
+
+class AnnotationSession(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
+    start_time = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField(default=timezone.now)
+
+    def update(self, update_time: datetime):
+        if self.is_expired():
+            raise ExpiredSession(f"session {self} is expired")
+
+        self.last_update = update_time
+        self.save()
+
+    @property
+    def duration(self):
+        return self.last_update - self.start_time
+
+    def is_expired(self) -> bool:
+        return self.duration.total_seconds() > settings.ANNOTATION_SESSION_EXPIRED_TIME
+
+
+def update_annotation_session(
+    step: Union[ROIsAnnotationStep, ClinicalAnnotationStep], update_time: datetime
+) -> AnnotationSession:
+    try:
+        session = step.sessions.order_by("-last_update").first()
+        session.update(update_time)
+    except (AnnotationSession.DoesNotExist, AttributeError, ExpiredSession):
+        session = AnnotationSession.objects.create(
+            content_object=step, start_time=update_time, last_update=update_time
+        )
+    return session
+
+
+
+class ExpiredSession(Exception):
+    ...
