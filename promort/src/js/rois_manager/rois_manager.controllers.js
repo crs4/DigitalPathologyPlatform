@@ -64,6 +64,9 @@
         vm.focus_regions_map = undefined;
 
         vm.navmap_items = undefined;
+        vm.navmap_items_label = undefined;
+
+        vm.navmap_selected_item = undefined;
 
         vm.ui_active_modes = {
             'new_slice': false,
@@ -85,6 +88,17 @@
         vm._buildNavmapItem = _buildNavmapItem;
         vm._buildNavmap = _buildNavmap;
         vm._updateNavmap = _updateNavmap;
+        vm.jumpToNextNavmapItem = jumpToNextNavmapItem;
+        vm.jumpToPreviousNavmapItem = jumpToPreviousNavmapItem;
+        vm.jumpToNavmapItem = jumpToNavmapItem;
+        vm.jumpToSelectedNavmapItem = jumpToSelectedNavmapItem;
+        vm.noNavmapItemSelected = noNavmapItemSelected;
+        vm.showSelectedNavmapItem = showSelectedNavmapItem;
+        vm.hideSelectedNavmapItem = hideSelectedNavmapItem;
+        vm.selectNavmapItem = selectNavmapItem;
+        vm.deselectNavmapItem = deselectNavmapItem;
+        vm.isFirstItemSelected = isFirstItemSelected;
+        vm.isLastItemSelected = isLastItemSelected;
         vm.allModesOff = allModesOff;
         vm.showROI = showROI;
         vm.editROI = editROI;
@@ -156,10 +170,16 @@
             vm.focus_regions_map = {};
 
             vm.navmap_items = {};
+            vm.navmap_items_label = [];
 
             $rootScope.slices = [];
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
+
+            $("#navmap_item").mouseover(function(e){
+                console.log('Event on navmap_item');
+                console.log($(e.target));
+            });
 
             ROIsAnnotationStepService.getDetails(vm.annotation_step_label)
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
@@ -334,8 +354,9 @@
         }
 
         function _registerNavmapItem(item_index, item_shape) {
-            var item_label = 'cluster_' + (item_index+1);
+            var item_label = 'cluster_' + (parseInt(item_index)+1);
             vm.navmap_items[item_label] = item_shape;
+            vm.navmap_items_label.push(item_label);
         }
 
         function _registerSlice(slice_info) {
@@ -463,10 +484,67 @@
                 AnnotationsViewerService.deleteShape(sh);
             }
             vm.navmap_items = {};
+            vm.navmap_items_label = [];
+            vm.navmap_selected_item = undefined;
+            $("#selected_navmap_item").text("-- Select an item --");
             for (var sh in new_shapes) {
                 vm._registerNavmapItem(sh, new_shapes[sh]);
             }
             vm._buildNavmap();
+        }
+
+        function jumpToNextNavmapItem() {
+            vm.jumpToNavmapItem(
+                vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)+1]
+            );
+        }
+
+        function jumpToPreviousNavmapItem() {
+            vm.jumpToNavmapItem(
+                vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)-1]
+            );
+        }
+
+        function jumpToNavmapItem(label) {
+            vm.navmap_selected_item = label;
+            $("#selected_navmap_item").text(label);
+            vm.jumpToSelectedNavmapItem();
+        }
+
+        function jumpToSelectedNavmapItem() {
+            AnnotationsViewerService.focusOnShape(vm.navmap_selected_item);
+        }
+
+        function noNavmapItemSelected() {
+            return vm.navmap_selected_item == undefined;
+        }
+
+        function showSelectedNavmapItem() {
+            if(!vm.noNavmapItemSelected()) {
+                vm.selectNavmapItem(vm.navmap_selected_item);
+            }
+        }
+
+        function hideSelectedNavmapItem() {
+            if(!vm.noNavmapItemSelected()) {
+                vm.deselectNavmapItem(vm.navmap_selected_item);
+            }
+        }
+
+        function selectNavmapItem(label) {
+            AnnotationsViewerService.selectShape(label);
+        }
+
+        function deselectNavmapItem(label) {
+            AnnotationsViewerService.deselectShape(label);
+        }
+
+        function isFirstItemSelected() {
+            return (vm.navmap_items_label.indexOf(vm.navmap_selected_item) == 0);
+        }
+
+        function isLastItemSelected() {
+            return (vm.navmap_items_label.indexOf(vm.navmap_selected_item) == (vm.navmap_items_label.length - 1));
         }
 
         function allModesOff() {

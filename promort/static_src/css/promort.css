@@ -172,6 +172,12 @@ h3.prm-dialog-container {
     height: 30px;
 }
 
+.prm-full-col-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
 .prm-icon-btn-ruler {
     margin-left: 4px !important;
     border-radius: 4px !important;
