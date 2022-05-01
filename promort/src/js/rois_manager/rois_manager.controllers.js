@@ -63,6 +63,8 @@
         vm.cores_map = undefined;
         vm.focus_regions_map = undefined;
 
+        vm.displayNavmap = undefined;
+
         vm.navmap_items = undefined;
         vm.navmap_items_label = undefined;
 
@@ -85,9 +87,14 @@
         vm._createNewSubtree = _createNewSubtree;
         vm._lockRoisTree = _lockRoisTree;
         vm._unlockRoisTree = _unlockRoisTree;
-        vm._buildNavmapItem = _buildNavmapItem;
-        vm._buildNavmap = _buildNavmap;
+        vm._drawNavmapItem = _drawNavmapItem;
+        vm._drawNavmap = _drawNavmap;
+        vm._deleteNavmapItem = _deleteNavmapItem;
+        vm._hideNavmap = _hideNavmap;
+        vm._clearNavmap = _clearNavmap;
         vm._updateNavmap = _updateNavmap;
+        vm.navmapDisplayEnabled = navmapDisplayEnabled;
+        vm.switchNavmapDisplay = switchNavmapDisplay;
         vm.jumpToNextNavmapItem = jumpToNextNavmapItem;
         vm.jumpToPreviousNavmapItem = jumpToPreviousNavmapItem;
         vm.jumpToNavmapItem = jumpToNavmapItem;
@@ -169,17 +176,13 @@
             vm.cores_map = {};
             vm.focus_regions_map = {};
 
+            vm.displayNavmap = false;
             vm.navmap_items = {};
             vm.navmap_items_label = [];
 
             $rootScope.slices = [];
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
-
-            $("#navmap_item").mouseover(function(e){
-                console.log('Event on navmap_item');
-                console.log($(e.target));
-            });
 
             ROIsAnnotationStepService.getDetails(vm.annotation_step_label)
                 .then(getROIsAnnotationStepSuccessFn, getROIsAnnotationStepErrorFn);
@@ -203,7 +206,6 @@
                                 for (var sh in response.data.shapes) {
                                     vm._registerNavmapItem(sh, response.data.shapes[sh]);
                                 }
-                                vm._buildNavmap();
                             }
 
                             function getShapesErrorFn(response) {
@@ -458,14 +460,20 @@
             $(".prm-tree-el").removeClass("prm-tree-el-disabled");
         }
 
-        function _buildNavmapItem(item_label, item_shape) {
+        function _drawNavmapItem(item_label, hidden) {
+            if (hidden==true) {
+                var stroke_alpha = 0;
+            } else {
+                var stroke_alpha = 1;
+            }
+            var item_shape = vm.navmap_items[item_label];
             var shape_json = {
                 'shape_id': item_label,
-                'fill_color': '#0000ff',
-                'fill_alpha': 0.3,
+                'fill_color': '#fff',
+                'fill_alpha': 0.0,
                 'stroke_color': '#0000ff',
-                'stroke_alpha': 1,
-                'stroke_width': 100,
+                'stroke_alpha': stroke_alpha,
+                'stroke_width': 50,
                 'hidden': false,
                 'segments': item_shape,
                 'type': 'polygon'
@@ -473,36 +481,78 @@
             AnnotationsViewerService.drawShape(shape_json);
         }
 
-        function _buildNavmap() {
+        function _deleteNavmapItem(item_label) {
+            AnnotationsViewerService.deleteShape(item_label);
+        }
+
+        function _drawNavmap() {
             for (var ilabel in vm.navmap_items) {
-                vm._buildNavmapItem(ilabel, vm.navmap_items[ilabel]);
+                vm._drawNavmapItem(ilabel, false);
             }
         }
 
-        function _updateNavmap(new_shapes) {
+        function _hideNavmap() {
             for (var sh in vm.navmap_items) {
-                AnnotationsViewerService.deleteShape(sh);
+                vm._deleteNavmapItem(sh);
+            }
+        }
+
+        function _clearNavmap() {
+            for (var sh in vm.navmap_items) {
+                vm._deleteNavmapItem(sh);
             }
             vm.navmap_items = {};
             vm.navmap_items_label = [];
             vm.navmap_selected_item = undefined;
+        }
+
+        function _updateNavmap(new_shapes) {
+            vm._clearNavmap();
             $("#selected_navmap_item").text("-- Select an item --");
             for (var sh in new_shapes) {
                 vm._registerNavmapItem(sh, new_shapes[sh]);
             }
-            vm._buildNavmap();
+            if (vm.navmapDisplayEnabled()) {
+                vm._drawNavmap();
+            }
+        }
+
+        function navmapDisplayEnabled() {
+            return vm.displayNavmap;
+        }
+
+        function switchNavmapDisplay() {
+            console.log('Switching navmap display');
+            vm.displayNavmap = !vm.displayNavmap;
+            if (vm.navmapDisplayEnabled()) {
+                console.log('Draw navmap');
+                vm._drawNavmap();
+            } else {
+                console.log('Hide navmap');
+                vm._hideNavmap();
+            }
         }
 
         function jumpToNextNavmapItem() {
-            vm.jumpToNavmapItem(
-                vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)+1]
-            );
+            var next_item_label = vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)+1];
+            if(!vm.navmapDisplayEnabled()) {
+                vm._drawNavmapItem(next_item_label, true);
+            }
+            vm.jumpToNavmapItem(next_item_label);
+            if(!vm.navmapDisplayEnabled()) {
+                vm._deleteNavmapItem(next_item_label);
+            }
         }
 
         function jumpToPreviousNavmapItem() {
-            vm.jumpToNavmapItem(
-                vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)-1]
-            );
+            var prev_item_label = vm.navmap_items_label[vm.navmap_items_label.indexOf(vm.navmap_selected_item)-1];
+            if(!vm.navmapDisplayEnabled()) {
+                vm._drawNavmapItem(prev_item_label, true);
+            }
+            vm.jumpToNavmapItem(prev_item_label);
+            if(!vm.navmapDisplayEnabled()) {
+                vm._deleteNavmapItem(prev_item_label);
+            }
         }
 
         function jumpToNavmapItem(label) {
@@ -532,11 +582,17 @@
         }
 
         function selectNavmapItem(label) {
+            if(!vm.navmapDisplayEnabled()) {
+                vm._drawNavmapItem(label, true);
+            }
             AnnotationsViewerService.selectShape(label);
         }
 
         function deselectNavmapItem(label) {
             AnnotationsViewerService.deselectShape(label);
+            if(!vm.navmapDisplayEnabled()) {
+                vm._deleteNavmapItem(label);
+            }
         }
 
         function isFirstItemSelected() {
