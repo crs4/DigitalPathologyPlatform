@@ -56,6 +56,7 @@
         vm.overlay_palette = undefined;
         vm.overlay_opacity = undefined;
         vm.overlay_threshold = undefined;
+        vm.navmap_cluster_size = undefined;
 
         vm.oo_percentage = undefined;
 
@@ -151,6 +152,7 @@
 
         vm.updateOverlayOpacity = updateOverlayOpacity;
         vm.updateOverlayThreshold = updateOverlayThreshold;
+        vm.updateNavmapClusterSize = updateNavmapClusterSize;
         vm.updateOverlayPalette = updateOverlayPalette;
 
         activate();
@@ -168,7 +170,8 @@
 
             vm.overlay_palette = 'Greens_9';
             vm.overlay_opacity = 0.5;
-            vm.overlay_threshold = "0.0";
+            vm.overlay_threshold = "0.5";
+            vm.navmap_cluster_size = "2";
 
             vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
 
@@ -199,7 +202,7 @@
                         function() {
                             // load navigation map
                             $log.info('Building navigation map');
-                            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold)
+                            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold, vm.navmap_cluster_size)
                                 .then(getShapesSuccessFn, getShapesErrorFn);
 
                             function getShapesSuccessFn(response) {
@@ -891,7 +894,21 @@
         function updateOverlayThreshold() {
             HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
 
-            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold)
+            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold, vm.navmap_cluster_size)
+                                .then(getShapesSuccessFn, getShapesErrorFn);
+
+            function getShapesSuccessFn(response) {
+                vm._updateNavmap(response.data.shapes);
+            }
+
+            function getShapesErrorFn(response) {
+                $log.error('Error when loading shapes from prediction');
+                $log.error(response);
+            }
+        }
+
+        function updateNavmapClusterSize() {
+            HeatmapViewerService.getShapesFromPrediction(vm.overlay_threshold, vm.navmap_cluster_size)
                                 .then(getShapesSuccessFn, getShapesErrorFn);
 
             function getShapesSuccessFn(response) {

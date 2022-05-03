@@ -57,12 +57,26 @@
                 <div class="prm-form-header">
                     <h4 class="text-left">Navigation Map</h4>
                 </div>
-                <div class="form-group row col-sm-12">
+                <div class="form-group row col-sm-11">
                     <div id="show-map" class="material-switch pull-right">
                         <span class="label prm-label" style="color:inherit;">Show Map</span>
                         <input id="show_map" name="show_navmap" type="checkbox"
                                ng-click="rmc.switchNavmapDisplay()"/>
                         <label for="show_map" class="label-primary"></label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6 prm-label-elem">
+                        <h4 class="text-left" style="margin: 5px;">Cluster radius</h4>
+                    </div>
+                    <div class="col-sm-6 prm-form-elem">
+                        <select class="form-control prm-text-input" id="cluster_size_ctrl"
+                                ng-model="rmc.navmap_cluster_size"
+                                ng-change="rmc.updateNavmapClusterSize()">
+                            <option value="2" selected="selected">Small</option>
+                            <option value="3">Medium</option>
+                            <option value="4">Large</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -166,7 +180,7 @@
                         <select class="form-control prm-text-input" id="threshold_ctrl"
                                 ng-model="rmc.overlay_threshold"
                                 ng-change="rmc.updateOverlayThreshold()">
-                            <option value="0.0" selected="selected">0 %</option>
+                            <option value="0.0">0 %</option>
                             <option value="0.1">10 %</option>
                             <option value="0.2">20 %</option>
                             <option value="0.3">30 %</option>

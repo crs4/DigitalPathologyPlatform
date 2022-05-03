@@ -120,8 +120,9 @@
             return this.dataset_shapes_base_url;
         }
 
-        function getShapesFromPrediction(threshold) {
-            return $http.get(this.dataset_shapes_base_url, {'params' :{'threshold': threshold}});
+        function getShapesFromPrediction(threshold, cluster_size) {
+            return $http.get(this.dataset_shapes_base_url, 
+                {'params' :{'threshold': threshold, 'cluster_size_percent': cluster_size}});
         }
 
         function setOverlay(palette, threshold) {

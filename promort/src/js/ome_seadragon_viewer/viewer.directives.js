@@ -278,7 +278,7 @@
                             );
                             scope.avc.setOverlayOpacity(0.5);
 
-                            ome_seadragon_viewer.activateOverlay('green');
+                            ome_seadragon_viewer.activateOverlay('green', '0.5');
                         }
 
                         var annotations_canvas = new AnnotationsController('rois_canvas');
