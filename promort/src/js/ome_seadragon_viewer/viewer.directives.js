@@ -211,7 +211,7 @@
             link: function(scope, element, attrs) {
                 function setViewerHeight() {
                     var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
-                        + $("#index_navbar").height() + 100;
+                        + $("#index_navbar").height() + $("#heatmap_controls").height() + 115;
 
                     var available_v_space = $(window).height() - used_v_space;
 
