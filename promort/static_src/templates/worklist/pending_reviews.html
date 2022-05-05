@@ -35,6 +35,9 @@
                                 <strong>Review ID:</strong> {{ annotation.extended_label }}
                             </p>
                             <p><strong>Review Type:</strong> {{ annotation.annotation_type }}</p>
+                            <p ng-show="wlc.isPredictionReview(annotation)">
+                                <strong>Model:</strong> {{ annotation.model }}
+                            </p>
                             <p ng-show="!wlc.isQuestionnaireRequest(annotation) && !wlc.isPredictionReview(annotation)">
                                 <strong>Slides count:</strong> {{ annotation.steps_count | number:0 }}
                             </p>
