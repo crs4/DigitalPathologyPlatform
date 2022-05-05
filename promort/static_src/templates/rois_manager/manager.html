@@ -66,16 +66,16 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <div class="col-sm-6 prm-label-elem">
+                    <div class="col-sm-7 prm-label-elem">
                         <h4 class="text-left" style="margin: 5px;">Cluster radius</h4>
                     </div>
-                    <div class="col-sm-6 prm-form-elem">
+                    <div class="col-sm-5 prm-form-elem">
                         <select class="form-control prm-text-input" id="cluster_size_ctrl"
                                 ng-model="rmc.navmap_cluster_size"
                                 ng-change="rmc.updateNavmapClusterSize()">
                             <option value="2" selected="selected">Small</option>
                             <option value="4">Medium</option>
-                            <option value="8">Large</option>
+                            <option value="6">Large</option>
                         </select>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             </div>
         </div>
         <div class="col-sm-6 col-md-8">
-            <div class="well row" style="background-color:white;">
+            <div class="well row prm-hm-controls">
                 <div class="col-sm-4 text-center">
                     <div class="col-sm-4 prm-label-elem text-right">
                         <h4 for="hm-palette">PALETTE</h4>

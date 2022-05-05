@@ -125,7 +125,8 @@
                 {'params' :{
                     'threshold': threshold, 
                     'cluster_min_distance': cluster_size,
-                    'cluster_min_area': 2
+                    'cluster_min_area': 2,
+                    'shape_mode': 'patch'
                 }}
             );
         }
