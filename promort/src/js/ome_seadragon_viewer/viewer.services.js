@@ -122,7 +122,12 @@
 
         function getShapesFromPrediction(threshold, cluster_size) {
             return $http.get(this.dataset_shapes_base_url, 
-                {'params' :{'threshold': threshold, 'cluster_size_percent': cluster_size}});
+                {'params' :{
+                    'threshold': threshold, 
+                    'cluster_min_distance': cluster_size,
+                    'cluster_min_area': 2
+                }}
+            );
         }
 
         function setOverlay(palette, threshold) {
