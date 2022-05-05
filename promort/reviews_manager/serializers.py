@@ -18,6 +18,7 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.contrib.auth.models import User
+from predictions_manager.models import Provenance
 
 from rest_framework import serializers
 
@@ -280,6 +281,7 @@ class PredictionReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    model = serializers.SerializerMethodField()
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
     annotation_type = serializers.SerializerMethodField()
@@ -288,9 +290,16 @@ class PredictionReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model  = PredictionReview
 
-        fields = ('id', 'label', 'annotation_type', 'prediction', 'slide', 'reviewer',
+        fields = ('id', 'label', 'annotation_type', 'prediction', 'slide', 'reviewer', 'model',
                   'creation_date', 'start_date', 'completion_date', 'started', 'completed')
-        read_only_fields = ('id', 'creation_date', 'started', 'completed', 'annotation_type')
+        read_only_fields = ('id', 'creation_date', 'started', 'completed', 'annotation_type', 'model')
+
+    @staticmethod
+    def get_model(obj):
+        try:
+            return Provenance.objects.filter(prediction=obj.prediction).first().model
+        except AttributeError:
+            return None
 
     @staticmethod
     def get_started(obj):
