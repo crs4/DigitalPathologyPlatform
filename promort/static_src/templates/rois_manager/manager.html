@@ -88,7 +88,7 @@
                     <div class="col-sm-7 prm-form-elem">
                         <div class="btn-group nav-dropdown" style="width: 100%;">
                             <button class="btn btn-default dropdown-toggle prm-full-col-btn" data-toggle="dropdown"
-                                    ng-disabled="rmc.disableNavmapFilter()">
+                                    ng-disabled="rmc.getSlicesCount() == 0">
                                 <div class="row">
                                     <div class="col-sm-10 text-left">
                                         <span id="selected_slice_filter">

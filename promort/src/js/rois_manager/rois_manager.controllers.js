@@ -100,7 +100,6 @@
         vm._updateNavmap = _updateNavmap;
         vm.navmapDisplayEnabled = navmapDisplayEnabled;
         vm.switchNavmapDisplay = switchNavmapDisplay;
-        vm.disableNavmapFilter = disableNavmapFilter;
         vm.removeSliceNavmapFilter = removeSliceNavmapFilter;
         vm.filterNavmapBySlice = filterNavmapBySlice;
         vm.jumpToNextNavmapItem = jumpToNextNavmapItem;
@@ -570,10 +569,6 @@
                 console.log('Hide navmap');
                 vm._hideNavmap();
             }
-        }
-
-        function disableNavmapFilter() {
-            return Object.keys(vm.slices_map).length === 0;
         }
 
         function removeSliceNavmapFilter() {
