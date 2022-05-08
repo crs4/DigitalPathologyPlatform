@@ -27,19 +27,21 @@
             <a href="worklist/rois_annotations/{{ rmc.annotation_label }}" role="button" class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
-            <div class="btn-group dropdown">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                        ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
-                    <i class="icon-plus"></i> New item <i class="icon-play prm-rotate-90 prm-caret"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="#" ng-click="rmc.activateNewSliceMode()">New slice</a></li>
-                    <li><a href="#" ng-click="rmc.activateNewCoreMode()"
-                           ng-show="rmc.getSlicesCount() > 0">New core</a></li>
-                    <li><a href="#" ng-click="rmc.activateNewFocusRegionMode()"
-                           ng-show="rmc.getCoresCount() > 0">New focus region</a></li>
-                </ul>
-            </div>
+            <button class="btn btn-info" style="margin-left: 15px;"
+                    ng-click="rmc.activateNewSliceMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
+                    <i class="icon-plus"></i> New slice
+            </button>
+            <button class="btn btn-info"
+                    ng-click="rmc.activateNewCoreMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive() || rmc.getSlicesCount() == 0">
+                    <i class="icon-plus"></i> New core
+            </button>
+            <button class="btn btn-info" style="margin-right: 15px;"
+                    ng-click="rmc.activateNewFocusRegionMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive() || rmc.getCoresCount() == 0">
+                    <i class="icon-plus"></i> New focus region
+            </button>
             <button class="btn btn-success" ng-click="rmc.closeROIsAnnotationStep()"
                     ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
                 <i class="icon-check_circle"></i> Confirm ROIs
