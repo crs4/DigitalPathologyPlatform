@@ -36,6 +36,7 @@
 
         var CurrentPredictionDetailsService = {
             getPredictionByReviewStep: getPredictionByReviewStep,
+            getLatestPredictionBySlide: getLatestPredictionBySlide,
             registerCurrentPrediction: registerCurrentPrediction,
             getPredictionId: getPredictionId,
             getSlideId: getSlideId,
@@ -50,6 +51,15 @@
             caseID = undefined;
 
             return $http.get('api/prediction_review/' + review_step_label + '/prediction/');
+        }
+
+        function getLatestPredictionBySlide(slide_id, type) {
+            predictionID = undefined;
+            slideID = undefined;
+            caseID = undefined;
+
+            return $http.get('api/slides/' + slide_id + '/predictions/',
+                             {'params': {'latest': true, 'type': type}});
         }
 
         function registerCurrentPrediction(prediction_id, slide_id, case_id) {

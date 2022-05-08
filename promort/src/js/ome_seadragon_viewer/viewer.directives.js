@@ -211,7 +211,7 @@
             link: function(scope, element, attrs) {
                 function setViewerHeight() {
                     var used_v_space = $("#pg_header").height() + $("#pg_footer").height()
-                        + $("#index_navbar").height() + 100;
+                        + $("#index_navbar").height() + $("#heatmap_controls").height() + 115;
 
                     var available_v_space = $(window).height() - used_v_space;
 
@@ -244,6 +244,16 @@
                     );
                     ome_seadragon_viewer.buildViewer();
 
+                    ome_seadragon_viewer.viewer.world.addHandler('add-item', function(data) {
+                        scope.$broadcast('viewer.tiledimage.added');
+
+                        data.item.addHandler('fully-loaded-change', function(data) {
+                            if (data.fullyLoaded === true) {
+                                scope.$broadcast('viewer.tiledimage.loaded');
+                            }
+                        });
+                    });
+
                     var scalebar_config = {
                         'xOffset': 10,
                         'yOffset': 10,
@@ -258,6 +268,18 @@
 
                     ome_seadragon_viewer.viewer.addHandler('open', function() {
                         ome_seadragon_viewer.setMinDZILevel(8);
+
+                        if(scope.avc.enableHeatmapLayer()) {
+                            scope.avc.registerHeatmapComponents(ome_seadragon_viewer);
+                            ome_seadragon_viewer.initOverlaysLayer(
+                                {
+                                    'red': scope.avc.getDatasetDZIURL('Reds_9')
+                                }, 0.5
+                            );
+                            scope.avc.setOverlayOpacity(0.5);
+
+                            ome_seadragon_viewer.activateOverlay('red', '0.5');
+                        }
 
                         var annotations_canvas = new AnnotationsController('rois_canvas');
                         annotations_canvas.buildAnnotationsCanvas(ome_seadragon_viewer);

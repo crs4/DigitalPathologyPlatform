@@ -100,6 +100,7 @@ urlpatterns = [
     path('api/cases/<slug:pk>/', CaseDetail.as_view()),
     path('api/slides/', SlideList.as_view()),
     path('api/slides/<slug:pk>/', SlideDetail.as_view()),
+    path('api/slides/<slug:pk>/predictions/', pmv.PredictionDetailBySlide.as_view()),
     path('api/slides_set/', SlidesSetList.as_view()),
     path('api/slides_set/<slug:pk>/', SlidesSetDetail.as_view()),
 

@@ -27,10 +27,12 @@
         .controller('QualityControlController', QualityControlController);
 
     QualityControlController.$inject = ['$scope', '$routeParams', '$location', '$log', 'Authentication',
-        'SlideEvaluationService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService'];
+        'SlideEvaluationService', 'ROIsAnnotationStepService', 'SlideService', 'CurrentSlideDetailsService',
+        'CurrentPredictionDetailsService'];
 
     function QualityControlController($scope, $routeParams, $location, $log, Authentication, SlideEvaluationService,
-                                      ROIsAnnotationStepService, SlideService, CurrentSlideDetailsService) {
+                                      ROIsAnnotationStepService, SlideService, CurrentSlideDetailsService,
+                                      CurrentPredictionDetailsService) {
         var vm = this;
         vm.annotation_label = undefined;
         vm.annotation_step_label = undefined;
@@ -75,7 +77,26 @@
                     }
                 } else {
                     if (response.data.slide_evaluation.adequate_slide) {
-                        $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                        console.log('Getting prediction details');
+                        CurrentPredictionDetailsService.getLatestPredictionBySlide(CurrentSlideDetailsService.getSlideId(), 'TUMOR')
+                            .then(getPredictionSuccessFn, getPredictionErrorFn);
+
+                        function getPredictionSuccessFn(response) {
+                            CurrentPredictionDetailsService.registerCurrentPrediction(
+                                response.data.id, response.data.slide,
+                                CurrentSlideDetailsService.getCaseId()
+                            );
+                            $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                        }
+
+                        function getPredictionErrorFn(response) {
+                            if(response.status == 404) {
+                                $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                            } else {
+                                $log.error('Error when loading predictions');
+                                $log.error(response);
+                            }
+                        }
                     } else {
                         $location.url('worklist/' + vm.annotation_label);
                     }
@@ -126,7 +147,27 @@
 
                     //noinspection JSAnnotator
                     function startAnnotationSuccessFn(response) {
-                        $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                        console.log('Getting prediction details');
+                        CurrentPredictionDetailsService.getLatestPredictionBySlide(CurrentSlideDetailsService.getSlideId(), 'TUMOR')
+                            .then(getPredictionSuccessFn, getPredictionErrorFn);
+
+                        function getPredictionSuccessFn(response) {
+                            console.log('Prediction details: ' + response.data);
+                            CurrentPredictionDetailsService.registerCurrentPrediction(
+                                response.data.id, response.data.slide,
+                                CurrentSlideDetailsService.getCaseId()
+                            );
+                            $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                        }
+
+                        function getPredictionErrorFn(response) {
+                            if(response.status == 404) {
+                                $location.url('worklist/' + vm.annotation_step_label + '/rois_manager');
+                            } else {
+                                $log.error('Error when loading predictions');
+                                $log.error(response);
+                            }
+                        }
                     }
 
                     //noinspection JSAnnotator
