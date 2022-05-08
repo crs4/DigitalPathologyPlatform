@@ -27,6 +27,7 @@ div.prm-valign {
 
 div.prm-viewer_frame {
     background-color: white;
+    padding: 5px;
 }
 
 div.prm-ome_viewer_simple {

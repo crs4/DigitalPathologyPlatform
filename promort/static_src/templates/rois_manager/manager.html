@@ -65,7 +65,7 @@
                         <label for="show_map" class="label-primary"></label>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" id="cluster_size">
                     <div class="col-sm-7 prm-label-elem">
                         <h4 class="text-left" style="margin: 5px;">Cluster radius</h4>
                     </div>
@@ -79,7 +79,41 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" id="slices_filter">
+                    <div class="col-sm-5 prm-label-elem">
+                        <h4 class="text-left" style="margin: 5px;">Slice filter</h4>
+                    </div>
+                    <div class="col-sm-7 prm-form-elem">
+                        <div class="btn-group nav-dropdown" style="width: 100%;">
+                            <button class="btn btn-default dropdown-toggle prm-full-col-btn" data-toggle="dropdown"
+                                    ng-disabled="rmc.disableNavmapFilter()">
+                                <div class="row">
+                                    <div class="col-sm-10 text-left">
+                                        <span id="selected_slice_filter">
+                                            -- No filter --
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-1" style="padding: 0px;">
+                                        <i class="icon-play prm-rotate-90 prm-caret" />
+                                    </div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu" style="width: 100%;">
+                                <li>
+                                    <a href="#"
+                                       ng-click="rmc.removeSliceNavmapFilter()">-- No filter --</a>
+                                </li>
+                                <li ng-repeat="(slice_id, slice_label) in rmc.slices_map">
+                                    <a href="#"
+                                       ng-click="rmc.filterNavmapBySlice(slice_label)"
+                                       ng-mouseover="rmc.selectROI('slice', slice_id)"
+                                       ng-mouseleave="rmc.deselectROI('slice', slice_id)">{{ slice_label }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row" id="navmap_items">
                     <div class="col-sm-10" style="padding: 0px 0px 0px 2px;">
                         <div class="btn-group nav-dropdown" style="width: 100%;">
                             <button class="btn btn-default dropdown-toggle prm-full-col-btn" data-toggle="dropdown">
