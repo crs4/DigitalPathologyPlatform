@@ -273,12 +273,12 @@
                             scope.avc.registerHeatmapComponents(ome_seadragon_viewer);
                             ome_seadragon_viewer.initOverlaysLayer(
                                 {
-                                    'green': scope.avc.getDatasetDZIURL('Greens_9')
+                                    'red': scope.avc.getDatasetDZIURL('Reds_9')
                                 }, 0.5
                             );
                             scope.avc.setOverlayOpacity(0.5);
 
-                            ome_seadragon_viewer.activateOverlay('green', '0.5');
+                            ome_seadragon_viewer.activateOverlay('red', '0.5');
                         }
 
                         var annotations_canvas = new AnnotationsController('rois_canvas');

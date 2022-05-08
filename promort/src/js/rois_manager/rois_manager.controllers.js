@@ -174,9 +174,9 @@
 
             vm.prediction_id = CurrentPredictionDetailsService.getPredictionId();
 
-            vm.overlay_palette = 'Greens_9';
+            vm.overlay_palette = 'Reds_9';
             vm.overlay_opacity = 0.5;
-            vm.overlay_threshold = "0.5";
+            vm.overlay_threshold = "0.8";
             vm.navmap_cluster_size = "2";
 
             vm.oo_percentage = Math.floor(vm.overlay_opacity * 100);
@@ -3046,8 +3046,8 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
-            // by default, mark region as NORMAL
-            vm.tissueStatus = 'NORMAL';
+            // by default, mark region as TUMOR
+            vm.tissueStatus = 'TUMOR';
 
             vm.regionLengthScaleFactor = vm.lengthUOM[0];
             vm.regionAreaScaleFactor = vm.areaUOM[0];
