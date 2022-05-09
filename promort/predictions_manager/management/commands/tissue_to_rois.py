@@ -70,12 +70,16 @@ class Command(BaseCommand):
 
             for step in annotation_steps:
                 logger.info("Processing ROIs annotation step %s", step.label)
-                latest_prediction = Prediction.objects.filter(
-                    slide=step.slide, type='TISSUE'
-                ).order_by('-creation_date').first()
-                
-                fragments_collection = latest_prediction.fragments_collection.order_by('-creation_date').first()
-                
+                latest_prediction = (
+                    Prediction.objects.filter(slide=step.slide, type="TISSUE")
+                    .order_by("-creation_date")
+                    .first()
+                )
+
+                fragments_collection = latest_prediction.fragments_collection.order_by(
+                    "-creation_date"
+                ).first()
+
                 if fragments_collection and fragments_collection.fragments.count() > 0:
                     fragments = fragments_collection.fragments.all()
 
@@ -85,7 +89,9 @@ class Command(BaseCommand):
                         slide_bounds = {"bounds_x": 0, "bounds_y": 0}
 
                     slide_mpp = step.slide.image_microns_per_pixel
-                    all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
+                    all_shapes = [
+                        json.loads(fragment.shape_json) for fragment in fragments
+                    ]
                     grouped_shapes = self._group_nearest_cores(all_shapes)
                     for idx, shapes in enumerate(grouped_shapes):
                         slice_label = idx + 1
@@ -98,7 +104,7 @@ class Command(BaseCommand):
                             step,
                             user,
                             slide_bounds,
-                            fragments_collection
+                            fragments_collection,
                         )
                         logger.info("Slice saved with ID %d", slice_obj.id)
                         for core_index, core in enumerate(shapes):
@@ -116,13 +122,14 @@ class Command(BaseCommand):
                                 core_index + 1,
                                 user,
                                 slide_bounds,
-                                fragments_collection
+                                fragments_collection,
                             )
                             logger.info("Core saved with ID %d", core_obj.id)
                 else:
                     logger.info(
                         "Skipping prediction %s for step %s, no tissue fragment found",
-                        latest_prediction.label, step.label,
+                        latest_prediction.label,
+                        step.label,
                     )
                     continue
         else:
@@ -183,7 +190,7 @@ class Command(BaseCommand):
         annotation_step,
         user,
         slide_bounds,
-        collection
+        collection,
     ):
         slice_coordinates = self._adjust_roi_coordinates(
             slice_coordinates, slide_bounds
@@ -198,7 +205,7 @@ class Command(BaseCommand):
             author=user,
             roi_json=json.dumps(roi_json),
             total_cores=cores_count,
-            source_collection=collection
+            source_collection=collection,
         )
         slice_.save()
         return slice_
@@ -213,7 +220,7 @@ class Command(BaseCommand):
         core_id,
         user,
         slide_bounds,
-        collection
+        collection,
     ):
         core_coordinates = self._adjust_roi_coordinates(core_coordinates, slide_bounds)
         roi_json = self._create_roi_json(
@@ -226,7 +233,7 @@ class Command(BaseCommand):
             roi_json=json.dumps(roi_json),
             length=core_length,
             area=core_area,
-            source_collection=collection
+            source_collection=collection,
         )
         core.save()
         return core
