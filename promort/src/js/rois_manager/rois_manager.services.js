@@ -54,10 +54,15 @@
         }
 
         function getROIs(step_label, read_only, clinical_step_label) {
-            if (!read_only) {
-                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/');
+            $log.info('Called getROIs service with params: ' + step_label + ' ' + read_only + ' ' + clinical_step_label);
+            if(typeof(read_only) == 'undefined') {
+                $log.error('missing required parameter');
             } else {
-                return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/' + clinical_step_label + '/');
+                if (!read_only) {
+                    return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/');
+                } else {
+                    return $http.get('/api/rois_annotation_steps/' + step_label + '/rois_list/' + clinical_step_label + '/');
+                }
             }
         }
 

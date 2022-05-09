@@ -27,6 +27,7 @@ div.prm-valign {
 
 div.prm-viewer_frame {
     background-color: white;
+    padding: 5px;
 }
 
 div.prm-ome_viewer_simple {
@@ -172,6 +173,12 @@ h3.prm-dialog-container {
     height: 30px;
 }
 
+.prm-full-col-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
 .prm-icon-btn-ruler {
     margin-left: 4px !important;
     border-radius: 4px !important;
@@ -297,6 +304,19 @@ h3.prm-dialog-container {
     -ms-transform: scale(-1, 1);
     -o-transform: scale(-1, 1);
     transform: scale(-1, 1);
+}
+
+.prm-hm-controls {
+    background-color: white;
+    margin-top: 0;
+    margin-bottom: 5px;
+    padding-top: 10px;
+    padding-bottom: 0;
+}
+
+#navigation_map_controls {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 /* Hidden placeholder */

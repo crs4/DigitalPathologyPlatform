@@ -160,10 +160,12 @@
     }
     
     ROIsAnnotationController.$inject = ['$scope', '$routeParams', '$location', '$log', 'ngDialog',
-        'ROIsAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService'];
+        'ROIsAnnotationStepService', 'CurrentSlideDetailsService', 'CurrentAnnotationStepsDetailsService',
+        'CurrentPredictionDetailsService'];
 
     function ROIsAnnotationController($scope, $routeParams, $location, $log, ngDialog, ROIsAnnotationStepService,
-                                      CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService) {
+                                      CurrentSlideDetailsService, CurrentAnnotationStepsDetailsService,
+                                      CurrentPredictionDetailsService) {
         var vm = this;
         vm.annotationSteps = [];
         vm.label = undefined;
@@ -261,7 +263,26 @@
                 if (skip_qc === false) {
                     $location.url('worklist/' + annotationStep.label + '/quality_control');
                 } else {
-                    $location.url('worklist/' + annotationStep.label + '/rois_manager');
+                    console.log('Getting prediction details');
+                    CurrentPredictionDetailsService.getLatestPredictionBySlide(CurrentSlideDetailsService.getSlideId(), 'TUMOR')
+                        .then(getPredictionSuccessFn, getPredictionErrorFn);
+
+                    function getPredictionSuccessFn(response) {
+                        CurrentPredictionDetailsService.registerCurrentPrediction(
+                            response.data.id, response.data.slide,
+                            CurrentSlideDetailsService.getCaseId()
+                        );
+                        $location.url('worklist/' + annotationStep.label + '/rois_manager');
+                    }
+
+                    function getPredictionErrorFn(response) {
+                        if(response.status == 404) {
+                            $location.url('worklist/' + annotationStep.label + '/rois_manager');
+                        } else {
+                            $log.error('Error when loading predictions');
+                            $log.error(response);
+                        }
+                    }
                 }
             }
 

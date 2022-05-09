@@ -27,19 +27,21 @@
             <a href="worklist/rois_annotations/{{ rmc.annotation_label }}" role="button" class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
-            <div class="btn-group dropdown">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                        ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
-                    <i class="icon-plus"></i> New item <i class="icon-play prm-rotate-90 prm-caret"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="#" ng-click="rmc.activateNewSliceMode()">New slice</a></li>
-                    <li><a href="#" ng-click="rmc.activateNewCoreMode()"
-                           ng-show="rmc.getSlicesCount() > 0">New core</a></li>
-                    <li><a href="#" ng-click="rmc.activateNewFocusRegionMode()"
-                           ng-show="rmc.getCoresCount() > 0">New focus region</a></li>
-                </ul>
-            </div>
+            <button class="btn btn-info" style="margin-left: 15px;"
+                    ng-click="rmc.activateNewSliceMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
+                    <i class="icon-plus"></i> New slice
+            </button>
+            <button class="btn btn-info"
+                    ng-click="rmc.activateNewCoreMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive() || rmc.getSlicesCount() == 0">
+                    <i class="icon-plus"></i> New core
+            </button>
+            <button class="btn btn-info" style="margin-right: 15px;"
+                    ng-click="rmc.activateNewFocusRegionMode()"
+                    ng-disabled="rmc.newItemCreationModeActive() || rmc.editItemModeActive() || rmc.getCoresCount() == 0">
+                    <i class="icon-plus"></i> New focus region
+            </button>
             <button class="btn btn-success" ng-click="rmc.closeROIsAnnotationStep()"
                     ng-disabled="rmc.getSlicesCount() == 0 || rmc.newItemCreationModeActive() || rmc.editItemModeActive()">
                 <i class="icon-check_circle"></i> Confirm ROIs
@@ -53,6 +55,120 @@
     <div id="pg_body" class="col-sm-12">
         <div class="col-sm-3 col-md-2">
             <viewer-navigation-panel></viewer-navigation-panel>
+            <div id="navigation_map_controls" class="well panel-group">
+                <div class="prm-form-header">
+                    <h4 class="text-left">Navigation Map</h4>
+                </div>
+                <div class="form-group row col-sm-11">
+                    <div id="show-map" class="material-switch pull-right">
+                        <span class="label prm-label" style="color:inherit;">Show Map</span>
+                        <input id="show_map" name="show_navmap" type="checkbox"
+                               ng-click="rmc.switchNavmapDisplay()"/>
+                        <label for="show_map" class="label-primary"></label>
+                    </div>
+                </div>
+                <div class="form-group row" id="cluster_size">
+                    <div class="col-sm-7 prm-label-elem">
+                        <h4 class="text-left" style="margin: 5px;">Cluster radius</h4>
+                    </div>
+                    <div class="col-sm-5 prm-form-elem">
+                        <select class="form-control prm-text-input" id="cluster_size_ctrl"
+                                ng-model="rmc.navmap_cluster_size"
+                                ng-change="rmc.updateNavmapClusterSize()">
+                            <option value="2" selected="selected">Small</option>
+                            <option value="4">Medium</option>
+                            <option value="6">Large</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" id="slices_filter">
+                    <div class="col-sm-5 prm-label-elem">
+                        <h4 class="text-left" style="margin: 5px;">Slice filter</h4>
+                    </div>
+                    <div class="col-sm-7 prm-form-elem">
+                        <div class="btn-group nav-dropdown" style="width: 100%;">
+                            <button class="btn btn-default dropdown-toggle prm-full-col-btn" data-toggle="dropdown"
+                                    ng-disabled="rmc.getSlicesCount() == 0">
+                                <div class="row">
+                                    <div class="col-sm-10 text-left">
+                                        <span id="selected_slice_filter">
+                                            -- No filter --
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-1" style="padding: 0px;">
+                                        <i class="icon-play prm-rotate-90 prm-caret" />
+                                    </div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu" style="width: 100%;">
+                                <li>
+                                    <a href="#"
+                                       ng-click="rmc.removeSliceNavmapFilter()">-- No filter --</a>
+                                </li>
+                                <li ng-repeat="(slice_id, slice_label) in rmc.slices_map">
+                                    <a href="#"
+                                       ng-click="rmc.filterNavmapBySlice(slice_label)"
+                                       ng-mouseover="rmc.selectROI('slice', slice_id)"
+                                       ng-mouseleave="rmc.deselectROI('slice', slice_id)">{{ slice_label }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row" id="navmap_items">
+                    <div class="col-sm-10" style="padding: 0px 0px 0px 2px;">
+                        <div class="btn-group nav-dropdown" style="width: 100%;">
+                            <button class="btn btn-default dropdown-toggle prm-full-col-btn" data-toggle="dropdown">
+                                <div class="row">
+                                    <div class="col-sm-10 text-left">
+                                        <span id="selected_navmap_item">
+                                            -- Select an item --
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-1" style="padding:0px;">
+                                        <i class="icon-play prm-rotate-90 prm-caret" />
+                                    </div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu" style="width: 100%;">
+                                <li ng-repeat="label in rmc.navmap_items_label">
+                                    <a href="#"
+                                       ng-click="rmc.jumpToNavmapItem(label)"
+                                       ng-mouseover="rmc.selectNavmapItem(label)"
+                                       ng-mouseleave="rmc.deselectNavmapItem(label)">{{ label }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-1" style="padding-left:5px;" >
+                        <button class="btn btn-default prm-icon-btn"
+                                ng-click="rmc.jumpToSelectedNavmapItem()"
+                                ng-disabled="rmc.noNavmapItemSelected()"
+                                ng-mouseover="rmc.showSelectedNavmapItem()"
+                                ng-mouseleave="rmc.hideSelectedNavmapItem()"
+                                title="jump to selected cluster"
+                                style="height: 35px;width: 35px;font-size: 20px;">
+                            <i class="icon-placepin"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6 text-center" style="padding: 2px;">
+                        <button class="btn btn-default prm-full-col-btn"
+                                ng-disabled="rmc.noNavmapItemSelected() || rmc.isFirstItemSelected()"
+                                ng-click="rmc.jumpToPreviousNavmapItem()">
+                            <i class="icon-arrow_big_left"></i> Previuos
+                        </button>
+                    </div>
+                    <div class="col-sm-6 text-center" style="padding: 2px;">
+                        <button class="btn btn-default prm-full-col-btn"
+                                ng-disabled="rmc.isLastItemSelected()"
+                                ng-click="rmc.jumpToNextNavmapItem()">
+                            Next <i class="icon-arrow_big_right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <div id="navigation" class="well panel-group prm-tree-well">
                 <div class="prm-form-header">
                     <h4 class="text-left">ROIs list</h4>
@@ -62,8 +178,62 @@
                 </ul>
             </div>
         </div>
-        <div id="viewer_container" class="col-sm-6 col-md-8 prm-viewer_frame well">
-            <roi-annotations-viewer></roi-annotations-viewer>
+        <div class="col-sm-6 col-md-8">
+            <div id="heatmap_controls" class="well row prm-hm-controls">
+                <div class="col-sm-4 text-center">
+                    <div class="col-sm-4 prm-label-elem text-right">
+                        <h4 for="hm-palette">PALETTE</h4>
+                    </div>
+                    <div class="col-sm-8 prm-form-elem">
+                        <select class="form-control prm-text-input" id="palette_ctrl"
+                                ng-model="rmc.overlay_palette"
+                                ng-change="rmc.updateOverlayPalette()">
+                            <option value="Reds_9">Red (10 values)</option>
+                            <option value="Greens_9">Green (10 values)</option>
+                            <option value="Blues_9">Blue (10 values)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4 text-center">
+                    <div class="col-sm-3 prm-label-elem">
+                        <h4>OPACITY</h4>
+                    </div>
+                    <div class="col-sm-9 prm-form-elem">
+                        <div id="opacity_ctrl" class="input-group prm-row-elem prm-range-selector">
+                            <div class="input-group-addon prm-range-label">0</div>
+                            <input type="range" min="0.0" max="1.0" step="0.01"
+                                ng-model="rmc.overlay_opacity"
+                                ng-change="rmc.updateOverlayOpacity()" />
+                            <div class="input-group-addon prm-range-label">100</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 text-center">
+                    <div class="col-sm-6 prm-label-elem text-right">
+                        <h4>THRESHOLD</h4>
+                    </div>
+                    <div class="col-sm-4 prm-form-elem">
+                        <select class="form-control prm-text-input" id="threshold_ctrl"
+                                ng-model="rmc.overlay_threshold"
+                                ng-change="rmc.updateOverlayThreshold()">
+                            <option value="0.0">0 %</option>
+                            <option value="0.1">10 %</option>
+                            <option value="0.2">20 %</option>
+                            <option value="0.3">30 %</option>
+                            <option value="0.4">40 %</option>
+                            <option value="0.5">50 %</option>
+                            <option value="0.6">60 %</option>
+                            <option value="0.7">70 %</option>
+                            <option value="0.8">80 %</option>
+                            <option value="0.9">90 %</option>
+                            <option value="1.0">100 %</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="viewer_container" class="row prm-viewer_frame well">
+                <roi-annotations-viewer></roi-annotations-viewer>
+            </div>
         </div>
         <div id="promort_form" class="col-sm-3 col-md-2">
             <div class="well">
