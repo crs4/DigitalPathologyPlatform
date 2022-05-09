@@ -381,12 +381,16 @@
         }
 
         function _unregisterSlice(slice_id) {
+            var slice_label = vm.slices_map[slice_id];
             delete vm.slices_map[slice_id];
             $rootScope.slices = $.grep($rootScope.slices,
                 function(value) {
                     return value.id !== slice_id;
                 }
             );
+            if (vm.navmap_selected_filter === slice_label) {
+                vm.removeSliceNavmapFilter();
+            }
         }
 
         function _getSliceLabel(slice_id) {
@@ -776,6 +780,7 @@
                     $("#rois_tree").children().remove();
 
                     vm.allModesOff();
+                    vm.removeSliceNavmapFilter();
 
                     dialog.close();
                 }
