@@ -54,6 +54,12 @@ class Command(BaseCommand):
             default=None,
             help="apply only to ROIs annotation steps assigned to this reviewer",
         )
+        parser.add_argument(
+            "--limit-bounds",
+            dest="limit_bounds",
+            action="store_true",
+            help="apply limit bounds when converting to ROIs",
+        )
 
     def handle(self, *args, **opts):
         logger.info("== Starting import job ==")
@@ -73,7 +79,10 @@ class Command(BaseCommand):
                 if fragments_collection and fragments_collection.fragments.count() > 0:
                     fragments = fragments_collection.fragments.all()
 
-                    slide_bounds = self._get_slide_bounds(step.slide)
+                    if opts["limit_bounds"]:
+                        slide_bounds = self._get_slide_bounds(step.slide)
+                    else:
+                        slide_bounds = {"bounds_x": 0, "bounds_y": 0}
 
                     slide_mpp = step.slide.image_microns_per_pixel
                     all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
