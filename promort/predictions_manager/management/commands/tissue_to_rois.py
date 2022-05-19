@@ -54,6 +54,12 @@ class Command(BaseCommand):
             default=None,
             help="apply only to ROIs annotation steps assigned to this reviewer",
         )
+        parser.add_argument(
+            "--single-slice",
+            dest="single_slice",
+            action="store_true",
+            help="aggregate all cores into a single slice object",
+        )
 
     def handle(self, *args, **opts):
         logger.info("== Starting import job ==")
@@ -64,20 +70,28 @@ class Command(BaseCommand):
 
             for step in annotation_steps:
                 logger.info("Processing ROIs annotation step %s", step.label)
-                latest_prediction = Prediction.objects.filter(
-                    slide=step.slide, type='TISSUE'
-                ).order_by('-creation_date').first()
-                
-                fragments_collection = latest_prediction.fragments_collection.order_by('-creation_date').first()
-                
+                latest_prediction = (
+                    Prediction.objects.filter(slide=step.slide, type="TISSUE")
+                    .order_by("-creation_date")
+                    .first()
+                )
+
+                fragments_collection = latest_prediction.fragments_collection.order_by(
+                    "-creation_date"
+                ).first()
+
                 if fragments_collection and fragments_collection.fragments.count() > 0:
                     fragments = fragments_collection.fragments.all()
 
                     slide_bounds = self._get_slide_bounds(step.slide)
 
                     slide_mpp = step.slide.image_microns_per_pixel
-                    all_shapes = [json.loads(fragment.shape_json) for fragment in fragments]
-                    grouped_shapes = self._group_nearest_cores(all_shapes)
+                    all_shapes = [
+                        json.loads(fragment.shape_json) for fragment in fragments
+                    ]
+                    grouped_shapes = self._group_nearest_cores(
+                        all_shapes, opts["single_slice"]
+                    )
                     for idx, shapes in enumerate(grouped_shapes):
                         slice_label = idx + 1
                         shapes_coords = self._get_slice_coordinates(shapes)
@@ -89,7 +103,7 @@ class Command(BaseCommand):
                             step,
                             user,
                             slide_bounds,
-                            fragments_collection
+                            fragments_collection,
                         )
                         logger.info("Slice saved with ID %d", slice_obj.id)
                         for core_index, core in enumerate(shapes):
@@ -107,13 +121,14 @@ class Command(BaseCommand):
                                 core_index + 1,
                                 user,
                                 slide_bounds,
-                                fragments_collection
+                                fragments_collection,
                             )
                             logger.info("Core saved with ID %d", core_obj.id)
                 else:
                     logger.info(
                         "Skipping prediction %s for step %s, no tissue fragment found",
-                        latest_prediction.label, step.label,
+                        latest_prediction.label,
+                        step.label,
                     )
                     continue
         else:
@@ -137,8 +152,11 @@ class Command(BaseCommand):
         if reviewer:
             logger.info("Filter steps assigned to reviewer %s", reviewer)
             filter_["rois_annotation__reviewer__username"] = reviewer
-
-        annotations_steps = ROIsAnnotationStep.objects.filter(**filter_)
+        annotations_steps = [
+            a
+            for a in ROIsAnnotationStep.objects.filter(**filter_)
+            if a.slices.count() == 0
+        ]
         logger.info("Loaded %d ROIs annotation steps" % len(annotations_steps))
         return annotations_steps
 
@@ -174,7 +192,7 @@ class Command(BaseCommand):
         annotation_step,
         user,
         slide_bounds,
-        collection
+        collection,
     ):
         slice_coordinates = self._adjust_roi_coordinates(
             slice_coordinates, slide_bounds
@@ -189,7 +207,7 @@ class Command(BaseCommand):
             author=user,
             roi_json=json.dumps(roi_json),
             total_cores=cores_count,
-            source_collection=collection
+            source_collection=collection,
         )
         slice_.save()
         return slice_
@@ -204,7 +222,7 @@ class Command(BaseCommand):
         core_id,
         user,
         slide_bounds,
-        collection
+        collection,
     ):
         core_coordinates = self._adjust_roi_coordinates(core_coordinates, slide_bounds)
         roi_json = self._create_roi_json(
@@ -217,7 +235,7 @@ class Command(BaseCommand):
             roi_json=json.dumps(roi_json),
             length=core_length,
             area=core_area,
-            source_collection=collection
+            source_collection=collection,
         )
         core.save()
         return core
@@ -277,19 +295,22 @@ class Command(BaseCommand):
         except IndexError:
             raise InvalidPolygonError()
 
-    def _group_nearest_cores(self, cores):
+    def _group_nearest_cores(self, cores, single_slice=False):
         cores_map, sorted_y_coords = self._get_sorted_cores_map(cores)
         cores_groups = list()
         current_group = cores_map[sorted_y_coords[0]]
         cg_max_y = sorted_y_coords[0][1]
         for i, yc in enumerate(sorted_y_coords[1:]):
-            if yc[0] <= cg_max_y:
+            if single_slice:
                 current_group.extend(cores_map[yc])
-                cg_max_y = max([cg_max_y, yc[1]])
             else:
-                cores_groups.append(current_group)
-                current_group = cores_map[yc]
-                cg_max_y = yc[1]
+                if yc[0] <= cg_max_y:
+                    current_group.extend(cores_map[yc])
+                    cg_max_y = max([cg_max_y, yc[1]])
+                else:
+                    cores_groups.append(current_group)
+                    current_group = cores_map[yc]
+                    cg_max_y = yc[1]
         cores_groups.append(current_group)
         return cores_groups
 
