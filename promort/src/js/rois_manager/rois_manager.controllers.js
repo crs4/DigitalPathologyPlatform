@@ -98,6 +98,7 @@
         vm._clearNavmap = _clearNavmap;
         vm._filterNavmapByShape = _filterNavmapByShape;
         vm._updateNavmap = _updateNavmap;
+        vm.predictionEnabled = predictionEnabled;
         vm.navmapDisplayEnabled = navmapDisplayEnabled;
         vm.switchNavmapDisplay = switchNavmapDisplay;
         vm.removeSliceNavmapFilter = removeSliceNavmapFilter;
@@ -557,6 +558,10 @@
             if (vm.navmapDisplayEnabled()) {
                 vm._drawNavmap();
             }
+        }
+
+        function predictionEnabled() {
+            return CurrentPredictionDetailsService.predictionAvailable();
         }
 
         function navmapDisplayEnabled() {

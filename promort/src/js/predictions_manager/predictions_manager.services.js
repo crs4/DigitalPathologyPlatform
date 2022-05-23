@@ -38,6 +38,7 @@
             getPredictionByReviewStep: getPredictionByReviewStep,
             getLatestPredictionBySlide: getLatestPredictionBySlide,
             registerCurrentPrediction: registerCurrentPrediction,
+            predictionAvailable: predictionAvailable,
             getPredictionId: getPredictionId,
             getSlideId: getSlideId,
             getCaseId: getCaseId
@@ -66,6 +67,10 @@
             predictionID = prediction_id;
             slideID = slide_id;
             caseID = case_id;
+        }
+
+        function predictionAvailable() {
+            return typeof(predictionID)!=='undefined';
         }
 
         function getPredictionId() {
