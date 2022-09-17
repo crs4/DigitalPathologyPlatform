@@ -35,6 +35,7 @@ class Slice(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     roi_json = models.TextField(blank=False)
     total_cores = models.IntegerField(blank=False, default=0)
+    positive_cores = models.IntegerField(blank=False, null=True, default=None)
     source_collection = models.ForeignKey(TissueFragmentsCollection, on_delete=models.PROTECT, blank=False,
                                           null=True, default=None, related_name='slices')
 
@@ -46,13 +47,6 @@ class Slice(models.Model):
             if core.is_positive():
                 return True
         return False
-
-    def get_positive_cores_count(self):
-        positive_cores_counter = 0
-        for core in self.cores.all():
-            if core.is_positive():
-                positive_cores_counter += 1
-        return positive_cores_counter
 
     def get_focus_regions(self):
         focus_regions = list()

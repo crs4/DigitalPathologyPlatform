@@ -37,13 +37,12 @@ class SliceSerializer(serializers.ModelSerializer):
     )
     case = serializers.SerializerMethodField()
     cores_count = serializers.SerializerMethodField()
-    positive_cores_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Slice
         fields = ('id', 'label', 'case', 'slide', 'author', 'annotation_step', 'action_start_time', 'action_complete_time',
-                  'creation_date', 'roi_json', 'total_cores', 'positive_cores_count', 'cores_count')
-        read_only_fields = ('id', 'case', 'creation_date', 'positive_cores_count', 'cores_count')
+                  'creation_date', 'roi_json', 'total_cores', 'positive_cores', 'cores_count')
+        read_only_fields = ('id', 'case', 'creation_date', 'cores_count')
         write_only_fields = ('annotation_step',)
 
     def validate_roi_json(self, value):
@@ -60,10 +59,6 @@ class SliceSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_cores_count(obj):
         return obj.cores.count()
-
-    @staticmethod
-    def get_positive_cores_count(obj):
-        return obj.get_positive_cores_count()
 
 
 class CoreSerializer(serializers.ModelSerializer):
@@ -196,17 +191,8 @@ class SliceDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slice
         fields = ('id', 'label', 'slide', 'author', 'action_start_time', 'action_complete_time', 'creation_date',
-                  'roi_json', 'total_cores', 'positive_cores_count', 'cores')
-        read_only_fields = ('id', 'creation_date', 'positive_cores_count')
-
-    def get_positive_cores_count(self, obj):
-        positive_cores_counter = 0
-        cores = CoreSerializer(data=obj.cores.all(), many=True)
-        if cores.is_valid():
-            for core in cores.validated_data:
-                if core.positive:
-                    positive_cores_counter += 1
-        return positive_cores_counter
+                  'roi_json', 'total_cores', 'positive_cores', 'cores')
+        read_only_fields = ('id', 'creation_date')
 
 
 class SlideDetailsSerializer(serializers.ModelSerializer):

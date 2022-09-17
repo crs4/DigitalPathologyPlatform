@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 'reviewer': slice.author.username,
                 'positive_slice': slice.is_positive(),
                 'total_cores': slice.total_cores,
-                'positive_cores': slice.get_positive_cores_count()
+                'positive_cores': slice.positive_cores
             }
         )
 
