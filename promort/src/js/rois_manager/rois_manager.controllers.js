@@ -681,6 +681,7 @@
         vm.shape_label = undefined;
         vm.shape = undefined;
         vm.totalCores = 0;
+        vm.positiveCores = 0;
 
         vm.actionStartTime = undefined;
 
@@ -994,6 +995,7 @@
         function clear(destroy_shape) {
             vm.deleteShape(destroy_shape);
             vm.totalCores = 0;
+            vm.positiveCores = 0;
             vm.shape_label = undefined;
             vm.default_shape_label = undefined;
             vm.actionStartTime = undefined;
@@ -1049,7 +1051,7 @@
                 closeByDocument: false
             });
             ROIsAnnotationStepManagerService.createSlice(vm.annotation_step_label, vm.slide_id, vm.shape.shape_id,
-                vm.shape, vm.totalCores, vm.actionStartTime, new Date())
+                vm.shape, vm.totalCores, vm.positiveCores, vm.actionStartTime, new Date())
                 .then(createSliceSuccessFn, createSliceErrorFn);
 
             function createSliceSuccessFn(response) {
@@ -1080,6 +1082,7 @@
         vm.label = undefined;
         vm.shape_id = undefined;
         vm.totalCores = undefined;
+        vm.positiveCores = undefined;
 
         vm.isReadOnly = isReadOnly;
         vm.isEditMode = isEditMode;
@@ -1104,6 +1107,7 @@
                 vm.label = response.data.label;
                 vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
                 vm.totalCores = response.data.total_cores;
+                vm.positiveCores = response.data.positive_cores;
             }
 
             function getSliceErrorFn(response) {
@@ -1138,10 +1142,11 @@
             vm.label = undefined;
             vm.shape_id = undefined;
             vm.totalCores = undefined;
+            vm.positiveCores = undefined;
         }
 
         function updateROI() {
-            SlicesManagerService.update(vm.slice_id, vm.totalCores).
+            SlicesManagerService.update(vm.slice_id, vm.totalCores, vm.positiveCores).
                 then(updateSliceSuccessFn, updateSliceErrorFn);
 
             function updateSliceSuccessFn(response) {
@@ -1164,6 +1169,7 @@
         vm.label = undefined;
         vm.shape_id = undefined;
         vm.totalCores = undefined;
+        vm.positiveCores = undefined;
 
         vm.isReadOnly = isReadOnly;
         vm.isEditMode = isEditMode;
@@ -1188,6 +1194,7 @@
                 vm.label = response.data.label;
                 vm.shape_id = $.parseJSON(response.data.roi_json).shape_id;
                 vm.totalCores = response.data.total_cores;
+                vm.positiveCores = response.data.positive_cores;
             }
 
             function getSliceErrorFn(response) {
@@ -1246,6 +1253,7 @@
                 vm.label = undefined;
                 vm.shape_id = undefined;
                 vm.totalCores = undefined;
+                vm.positiveCores = undefined;
                 dialog.close();
             }
 

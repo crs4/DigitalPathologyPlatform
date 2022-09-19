@@ -40,13 +40,14 @@
 
         return ROIsAnnotationStepManagerService;
 
-        function createSlice(step_label, slide_id, slice_label, roi_json, total_cores,
+        function createSlice(step_label, slide_id, slice_label, roi_json, total_cores, positive_cores,
                              action_start_time, action_complete_time) {
             var params = {
                 label: slice_label,
                 slide: slide_id,
                 roi_json: JSON.stringify(roi_json),
                 total_cores: total_cores,
+                positive_cores: positive_cores,
                 action_start_time: action_start_time,
                 action_complete_time: action_complete_time
             };
@@ -82,9 +83,10 @@
             return $http.get('/api/slices/' + slice_id + '/');
         }
 
-        function update(slice_id, total_cores) {
+        function update(slice_id, total_cores, positive_cores) {
             var params = {
-                total_cores: total_cores
+                total_cores: total_cores,
+                positive_cores: positive_cores
             };
             return $http.put('/api/slices/' + slice_id + '/', params);
         }

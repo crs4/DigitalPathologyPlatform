@@ -190,4 +190,17 @@
         </div>
     </div>
     <!-- END OF CORES COUNT CONTROLS -->
+    <!-- POSITIVE CORES COUNT CONTROLS -->
+        <div class="form-group row" ng-show="rmCtrl.shapeExists()">
+            <div class="prm-label-elem">
+                <label>Postiive cores</label>
+            </div>
+            <div class="prm-row-elem" ng-hide="rmCtrl.isReadOnly()">
+                <input class="form-control" id="spinner" type="number" ng-model="rmCtrl.positiveCores">
+            </div>
+            <div class="prm-row-elem" ng-show="rmCtrl.isReadOnly()">
+                <input class="form-control prm-text-input" type="number" readonly ng-model="rmCtrl.positiveCores">
+            </div>
+        </div>
+        <!-- END OF POSITIVE CORES COUNT CONTROLS -->
 </div>

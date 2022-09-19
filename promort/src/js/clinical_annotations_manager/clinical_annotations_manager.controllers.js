@@ -730,7 +730,7 @@
             function getSliceSuccessFn(response) {
                 vm.slice_label = response.data.label;
                 vm.totalCores = response.data.total_cores;
-                vm.positiveCores = response.data.positive_cores_count;
+                vm.positiveCores = response.data.positive_cores;
                 vm.actionStartTime = new Date();
             }
 
@@ -850,7 +850,7 @@
             function getSliceAnnotationSuccessFn(response) {
                 vm.slice_label = response.data.slice.label;
                 vm.totalCores = response.data.slice.total_cores;
-                vm.positiveCores = response.data.slice.positive_cores_count;
+                vm.positiveCores = response.data.slice.positive_cores;
                 vm.highGradePin = response.data.high_grade_pin;
                 // vm.pah = response.data.pah;
                 vm.chronicInflammation = response.data.chronic_inflammation;
