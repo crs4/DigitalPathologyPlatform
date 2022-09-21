@@ -21,7 +21,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import Group
 from promort.settings import DEFAULT_GROUPS
 from slides_manager.models import SlideEvaluation
-from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation, ClinicalAnnotationStep, ReviewsComparison
+from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation, ClinicalAnnotationStep, ROIsAnnotationStep
 
 from uuid import uuid4
 import logging, random
@@ -44,6 +44,11 @@ class Command(BaseCommand):
     def _get_rois_annotations_list(self):
         linked_annotations = [ca.rois_review.label for ca in ClinicalAnnotation.objects.all()]
         return ROIsAnnotation.objects.exclude(label__in=linked_annotations)
+
+    def _get_unlinked_rois_annotations_steps(self):
+        return ROIsAnnotationStep.objects.exclude(
+            id__in=[c.rois_review_step.id for c in ClinicalAnnotationStep.objects.all()]
+        )
 
     def _select_clinical_reviewers(self, rois_annotation, clinical_managers, reviewers_count):
         if reviewers_count >= len(clinical_managers):
@@ -104,18 +109,10 @@ class Command(BaseCommand):
                 clinical_annotation_obj.save()
         annotation_step_obj.save()
         logger.info('Saved new Clinical Annotation Step with label %s', annotation_step_obj.label)
+        if clinical_annotation_obj.is_completed():
+            logger.info('Reopening Clinical Annotation %s', clinical_annotation_obj.label)
+            clinical_annotation_obj.reopen()
         return annotation_step_obj
-
-    # def _create_reviews_comparison(self, review_step_1_obj, review_step_2_obj):
-    #     reviews_comparison_obj = ReviewsComparison(review_1=review_step_1_obj, review_2=review_step_2_obj)
-    #     if review_step_1_obj.is_completed() and review_step_2_obj.is_completed():
-    #         logger.info('Bad quality control, closing and marking Reviews Comparison object')
-    #         reviews_comparison_obj.start_date = datetime.now()
-    #         reviews_comparison_obj.close(False, False)
-    #     reviews_comparison_obj.save()
-    #     logger.info('Create Reviews Comparison for Clinical Annotation Steps %s and %s',
-    #                 review_step_1_obj.label, review_step_2_obj.label)
-    #     return reviews_comparison_obj
 
     def handle(self, *args, **opts):
         logger.info('=== Starting clinical annotations worklist creation ===')
@@ -125,7 +122,7 @@ class Command(BaseCommand):
             raise CommandError('There must be at least 1 user with Clinical Annotations Manager role')
         rois_annotations = self._get_rois_annotations_list()
         if len(rois_annotations) == 0:
-            logger.info('There are no ROIs Annotations to process')
+            logger.info('There are no new ROIs Annotations to process')
         for r_ann in rois_annotations:
             logger.info('Processing ROIs Annotation %s', r_ann.label)
             reviewers = self._select_clinical_reviewers(r_ann, clinical_annotations_manager, reviewers_count)
@@ -133,4 +130,9 @@ class Command(BaseCommand):
                 c_ann = self._create_clinical_annotation(r_ann, r)
                 for r_step in r_ann.steps.all():
                     self._create_clinical_annotation_step(c_ann, r_step)
+        logger.info('Looking for new ROIsAnnotationSteps')
+        unlinked_steps = self._get_unlinked_rois_annotations_steps()
+        for x in unlinked_steps:
+            logger.info('Processing ROIsAnnotationStep %s', x.label)
+            self._create_clinical_annotation_step(x.rois_annotation.clinical_annotations.first(), x)
         logger.info('=== Clinical annotation worklist creation completed ===')

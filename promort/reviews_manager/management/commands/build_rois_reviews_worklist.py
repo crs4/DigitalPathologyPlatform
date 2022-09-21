@@ -106,6 +106,9 @@ class Command(BaseCommand):
             for annotation_obj in annotation_objs:
                 logger.info('Creating steps for ROIs Annotation %s', annotation_obj.label)
                 step_obj, created = self._create_rois_annotation_step(annotation_obj, slide)
+                if created and annotation_obj.is_completed():
+                    logger.info('Reopening ROI Annotation %s', annotation_obj.label)
+                    annotation_obj.reopen()
                 case_annotation_report.append({'slide_id': slide.id, 'reviewer': reviewer,
                                                'step_label': step_obj.label, 'created': created})
         return case_annotation_report
