@@ -195,25 +195,30 @@ class FocusRegionAnnotation(models.Model):
             return None
 
 
-class GleasonElement(models.Model):
+class GleasonPattern(models.Model):
     GLEASON_TYPES = (
-        ('G1', 'GLEASON 1'),
-        ('G2', 'GLEASON 2'),
         ('G3', 'GLEASON 3'),
         ('G4', 'GLEASON 4'),
-        ('G5', 'GLEASON 5')
+        ('G5', 'GLEASON 5'),
+        ('ST', 'STROMA'),
+        ('OT', 'OTHER')
     )
-    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
-                                                blank=False, on_delete=models.CASCADE)
+    label = models.CharField(max_length=25, blank=False)
+    focus_region = models.ForeignKey(FocusRegion, related_name="gleason_patterns", blank=False,
+                                     on_delete=models.PROTECT)
+    annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
+                                        blank=False, related_name="gleason_annotations")
+    author = models.ForeignKey(User, blank=False, on_delete=models.PROTECT)
     gleason_type = models.CharField(max_length=2, choices=GLEASON_TYPES, blank=False, null=False)
-    json_path = models.TextField(blank=False, null=False)
+    roi_json = models.TextField(blank=False, null=False)
+    details_json = models.TextField(blank=True, null=True)
     area = models.FloatField(blank=False, null=False)
-    cellular_density_helper_json = models.TextField(blank=True, null=True)
-    cellular_density = models.IntegerField(blank=True, null=True)
-    cells_count = models.IntegerField(blank=True, null=True)
     action_start_time = models.DateTimeField(null=True, default=None)
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = ('label', 'annotation_step')
 
     def get_gleason_type_label(self):
         for choice in self.GLEASON_TYPES:
@@ -225,3 +230,13 @@ class GleasonElement(models.Model):
             return (self.action_complete_time-self.action_start_time).total_seconds()
         else:
             return None
+
+
+class GleasonPatternSubregion(models.Model):
+    gleason_pattern = models.ForeignKey(GleasonPattern, related_name="subregions", blank=False,
+                                        on_delete=models.CASCADE)
+    label = models.CharField(max_length=25, blank=False)
+    roi_json = models.TextField(blank=False, null=False)
+    area = models.FloatField(blank=False, null=False)
+    details_json = models.TextField(blank=True, null=True, default=None)
+    creation_date = models.DateTimeField(auto_now_add=True)
