@@ -25,7 +25,7 @@ from rest_framework.response import Response
 
 import promort.settings as prs
 from slides_manager.models import SlideEvaluation
-from clinical_annotations_manager.models import ClinicalAnnotationStep, GleasonElement
+from clinical_annotations_manager.models import ClinicalAnnotationStep, GleasonPattern
 
 import logging
 logger = logging.getLogger('promort')
@@ -83,7 +83,7 @@ def get_gleason_element_types(request):
         {
             'value': ch[0],
             'text': ch[1]
-        } for ch in GleasonElement.GLEASON_TYPES
+        } for ch in GleasonPattern.GLEASON_TYPES
     ]
     return Response(gleason_types_map, status=status.HTTP_200_OK)
 
