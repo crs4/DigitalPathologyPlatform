@@ -23,18 +23,19 @@ except ImportError:
     import json
 
 from rest_framework.views import APIView
-from rest_framework import permissions, status
+from rest_framework import permissions, status, exceptions
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 
 from django.db import IntegrityError
 
+from view_templates.views import GenericDetailView
 from reviews_manager.models import ROIsAnnotationStep, ClinicalAnnotationStep
 from reviews_manager.serializers import ClinicalAnnotationStepROIsTreeSerializer
-from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, FocusRegionAnnotation
+from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, FocusRegionAnnotation, GleasonPattern
 from clinical_annotations_manager.serializers import SliceAnnotationSerializer, SliceAnnotationDetailsSerializer,\
     CoreAnnotationSerializer, CoreAnnotationDetailsSerializer, FocusRegionAnnotationSerializer, \
-    FocusRegionAnnotationDetailsSerializer
+    FocusRegionAnnotationDetailsSerializer, GleasonPatternSerializer
 
 import logging
 logger = logging.getLogger('promort')
@@ -240,23 +241,11 @@ class FocusRegionAnnotationDetail(ClinicalAnnotationStepObject):
         serializer = FocusRegionAnnotationDetailsSerializer(focus_region_annotation)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def _prepare_gleason_elements(self, gleason_elements):
-        for element in gleason_elements:
-            element['json_path'] = json.dumps(element['json_path'])
-            try:
-                element['cellular_density_helper_json'] = json.dumps(element['cellular_density_helper_json'])
-            except KeyError:
-                element['cellular_density_helper_json'] = None
-        return gleason_elements
-
     def post(self, request, focus_region_id, label, format=None):
         focus_region_annotation_data = request.data
         focus_region_annotation_data['focus_region'] = focus_region_id
         focus_region_annotation_data['annotation_step'] = self._get_clinical_annotation_step_id(label)
         focus_region_annotation_data['author'] = request.user.username
-        if focus_region_annotation_data.get('gleason_elements'):
-            focus_region_annotation_data['gleason_elements'] = \
-                self._prepare_gleason_elements(focus_region_annotation_data['gleason_elements'])
         if focus_region_annotation_data.get('cellular_density_helper_json'):
             focus_region_annotation_data['cellular_density_helper_json'] = \
                 json.dumps(focus_region_annotation_data['cellular_density_helper_json'])
@@ -283,3 +272,53 @@ class FocusRegionAnnotationDetail(ClinicalAnnotationStepObject):
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GleasonPatternList(ClinicalAnnotationStepObject):
+    permissions = (permissions.IsAuthenticated,)
+    
+    def _prepare_subregions(self, subregions_data):
+        for subregion in subregions_data:
+            subregion['roi_json'] = json.dumps(subregion['roi_json'])
+            try:
+                subregion['details_json'] = json.dumps(subregion['details_json'])
+            except KeyError:
+                subregion['details_json'] = None
+        return subregions_data
+
+    def get(self, request, focus_region_id, label, format=None):
+        gleason_patterns = GleasonPattern.objects.filter(
+            focus_region=focus_region_id, annotation_step__label=label
+        )
+        serializer = GleasonPatternSerializer(gleason_patterns, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, focus_region_id, label, format=None):
+        gleason_pattern_data = request.data
+        gleason_pattern_data['focus_region'] = focus_region_id
+        gleason_pattern_data['annotation_step'] = self._get_clinical_annotation_step_id(label)
+        gleason_pattern_data['author'] = request.user.username
+        if gleason_pattern_data.get('subregions'):
+            gleason_pattern_data['subregions'] = self._prepare_subregions(gleason_pattern_data['subregion'])
+        serializer = GleasonPatternSerializer(data=gleason_pattern_data)
+        if serializer.is_valid():
+            try:
+                serializer.save()
+            except IntegrityError:
+                return Response({
+                    'status': 'ERROR',
+                    'message': 'duplicated gleason pattern label {0} for annotation step {1}'.format(
+                        gleason_pattern_data['label'], label
+                    )
+                }, status=status.HTTP_409_CONFLICT)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GleasonPatternDetail(GenericDetailView):
+    model = GleasonPattern
+    model_serializer = GleasonPatternSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def put(self, request, pk, format=None):
+        raise exceptions.MethodNotAllowed(method='put')

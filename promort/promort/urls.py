@@ -35,7 +35,7 @@ from rois_manager.views import SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList, \
     SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
-    FocusRegionAnnotationList, FocusRegionAnnotationDetail
+    FocusRegionAnnotationList, FocusRegionAnnotationDetail, GleasonPatternList, GleasonPatternDetail
 import predictions_manager.views as pmv
 import shared_datasets_manager.views as shdv
 import odin.views as od
@@ -161,6 +161,10 @@ urlpatterns = [
     path(
         'api/focus_regions/<num:focus_region_id>/clinical_annotations/<rslabel:label>/',
         FocusRegionAnnotationDetail.as_view()),
+    path(
+         'api/focus_regions/<num:focus_region_id>/clinical_annotations/<rslabel:label>/gleason_patterns/',
+         GleasonPatternList.as_view()),
+    path('api/gleason_patterns/<num:pk>/', GleasonPatternDetail.as_view()),
 
     # ROIs annotations
     path('api/rois_annotations/', rmv.ROIsAnnotationsList.as_view()),
