@@ -200,13 +200,21 @@ class FocusRegionAnnotationInfosSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'annotation_step')
 
 
+class AnnotatedGleasonPatternSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GleasonPattern
+        fields = ('id', 'label', 'focus_region', 'roi_json', 'area',
+                  'annotation_step')
+
+
 class AnnotatedFocusRegionSerializer(serializers.ModelSerializer):
     clinical_annotations = FocusRegionAnnotationInfosSerializer(many=True)
+    gleason_patterns = AnnotatedGleasonPatternSerializer(many=True)
 
     class Meta:
         model = FocusRegion
         fields = ('id', 'label', 'core', 'roi_json', 'length', 'area',
-                  'tissue_status', 'clinical_annotations')
+                  'tissue_status', 'gleason_patterns', 'clinical_annotations')
         read_only_fields = fields
 
 

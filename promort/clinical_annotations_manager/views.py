@@ -51,14 +51,21 @@ class AnnotatedROIsTreeList(APIView):
         except ClinicalAnnotationStep.DoesNotExist:
             raise NotFound('There is no Clinical Annotation step with label \'%s\'' % clinical_annotation_step_label)
 
-    def _update_annotation(self, roi_data, clinical_annotation_step_label):
-        clinical_annotation_id = self._get_clinical_annotation_step_id(clinical_annotation_step_label)
+    def _update_annotation(self, roi_data, clinical_annotation_step_id):
         annotation_status = {'annotated': False}
         annotations = roi_data.pop('clinical_annotations')
         for annotation in annotations:
-            if annotation['annotation_step'] == int(clinical_annotation_id):
+            if annotation['annotation_step'] == int(clinical_annotation_step_id):
                 annotation_status['annotated'] = True
         roi_data.update(annotation_status)
+    
+    def _prepare_gleason_patterns(self, gleason_patterns, clinical_annotation_step_id):
+        filtered_gp = list()
+        for gp in gleason_patterns:
+            if gp['annotation_step'] == int(clinical_annotation_step_id):
+                gp['annotated'] = True
+                filtered_gp.append(gp)
+        return filtered_gp
 
     def get(self, request, rois_annotation_step, clinical_annotation_step, format=None):
         try:
@@ -66,13 +73,18 @@ class AnnotatedROIsTreeList(APIView):
         except ROIsAnnotationStep.DoesNotExist:
             raise NotFound('There is no ROIsAnnotationStep with ID %s' % rois_annotation_step)
         serializer = ClinicalAnnotationStepROIsTreeSerializer(obj)
+        clinical_annotation_step_id = self._get_clinical_annotation_step_id(clinical_annotation_step)
         rois_tree = serializer.data
         for slice in rois_tree['slices']:
-            self._update_annotation(slice, clinical_annotation_step)
+            self._update_annotation(slice, clinical_annotation_step_id)
             for core in slice['cores']:
-                self._update_annotation(core, clinical_annotation_step)
+                self._update_annotation(core, clinical_annotation_step_id)
                 for focus_region in core['focus_regions']:
-                    self._update_annotation(focus_region, clinical_annotation_step)
+                    self._update_annotation(focus_region, clinical_annotation_step_id)
+                    if len(focus_region['gleason_patterns']) > 0:
+                        focus_region['gleason_patterns'] = self._prepare_gleason_patterns(
+                            focus_region['gleason_patterns'], clinical_annotation_step_id
+                        )
         return Response(rois_tree, status=status.HTTP_200_OK)
 
 
