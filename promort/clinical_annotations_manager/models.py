@@ -201,8 +201,7 @@ class GleasonPattern(models.Model):
         ('G3', 'GLEASON 3'),
         ('G4', 'GLEASON 4'),
         ('G5', 'GLEASON 5'),
-        ('ST', 'STROMA'),
-        ('OT', 'OTHER')
+        ('LG', 'LEGACY')
     )
     label = models.CharField(max_length=25, blank=False)
     focus_region = models.ForeignKey(FocusRegion, related_name="gleason_patterns", blank=False,
