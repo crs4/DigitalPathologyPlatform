@@ -31,7 +31,7 @@ logger = logging.getLogger('promort_commands')
 
 class Command(BaseCommand):
     help = """
-    Extract focus regions as JSON objects
+    Extract cores as JSON objects
     """
 
     def add_arguments(self, parser):
