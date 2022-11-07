@@ -71,13 +71,22 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
     )
     gleason_score = serializers.SerializerMethodField()
     gleason_4_percentage = serializers.SerializerMethodField()
+    largest_confluent_sheet = serializers.SerializerMethodField()
+    total_cribriform_area = serializers.SerializerMethodField
 
     class Meta:
         model = CoreAnnotation
         fields = ('id', 'author', 'core', 'annotation_step', 'action_start_time', 'action_complete_time',
                   'creation_date', 'primary_gleason', 'secondary_gleason', 'gleason_score',
-                  'gleason_4_percentage', 'gleason_group')
-        read_only_fields = ('id', 'creation_date', 'gleason_score', 'gleason_4_percentage')
+                  'gleason_4_percentage', 'gleason_group', 'nuclear_grade_size',
+                  'intraluminal_acinar_differentiation_grade', 'intraluminal_secretions',
+                  'central_maturation', 'extra_cribriform_gleason_score',
+                  'largest_confluent_sheet', 'total_cribriform_area', 'predominant_rsg',
+                  'highest_rsg', 'rsg_within_highest_grade_area', 'rsg_in_area_of_cribriform_morphology',
+                  'perineural_invasion', 'perineural_growth_with_cribriform_patterns',
+                  'extraprostatic_extension')
+        read_only_fields = ('id', 'creation_date', 'gleason_score', 'gleason_4_percentage', 'largest_confluent_sheet',
+                            'total_cribriform_area')
         write_only_fields = ('annotation_step',)
 
     @staticmethod
@@ -87,6 +96,14 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_gleason_4_percentage(obj):
         return obj.get_gleason_4_percentage()
+    
+    @staticmethod
+    def get_largest_confluent_sheet(obj):
+        return obj.get_largest_confluent_sheet()
+    
+    @staticmethod
+    def get_total_cribriform_area(obj):
+        return obj.get_total_cribriform_area()
 
 
 class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):

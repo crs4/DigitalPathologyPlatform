@@ -100,6 +100,21 @@ class CoreAnnotation(models.Model):
     gleason_group = models.CharField(
         max_length=3, choices=GLEASON_GROUP_WHO_16, blank=False
     )
+    # acquire ONLY if at least one Cribriform Pattern (under GleasonPattern type 4) exists
+    nuclear_grade_size = models.CharField(max_length=1, null=True, default=None)
+    intraluminal_acinar_differentiation_grade = models.CharField(max_length=1, null=True, default=None)
+    intraluminal_secretions = models.BooleanField(null=True, default=None)
+    central_maturation = models.BooleanField(null=True, default=None)
+    extra_cribriform_gleason_score = models.CharField(max_length=11, null=True, default=None)
+    # stroma
+    predominant_rsg = models.CharField(max_length=1, null=True, default=None)
+    highest_rsg = models.CharField(max_length=1, null=True, default=None)
+    rsg_within_highest_grade_area = models.CharField(max_length=1, null=True, default=None)
+    rsg_in_area_of_cribriform_morphology = models.CharField(max_length=1, null=True, default=None)
+    # other
+    perineural_invasion = models.BooleanField(null=True, default=None)
+    perineural_growth_with_cribriform_patterns = models.BooleanField(null=True, default=None)
+    extraprostatic_extension = models.BooleanField(null=True, default=None)
 
     class Meta:
         unique_together = ('core', 'annotation_step')
@@ -138,6 +153,14 @@ class CoreAnnotation(models.Model):
             return (self.action_complete_time-self.action_start_time).total_seconds()
         else:
             return None
+    
+    def get_largest_confluent_sheet(self):
+        # TODO: get largest cribriform object among all Gleason 4 elements of a core
+        pass
+
+    def get_total_cribriform_area(self):
+        # TODO: sum of all cribriform objects defined on a core
+        pass
 
 
 class FocusRegionAnnotation(models.Model):
