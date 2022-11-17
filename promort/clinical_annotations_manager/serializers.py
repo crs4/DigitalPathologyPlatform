@@ -72,7 +72,7 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
     gleason_score = serializers.SerializerMethodField()
     gleason_4_percentage = serializers.SerializerMethodField()
     largest_confluent_sheet = serializers.SerializerMethodField()
-    total_cribriform_area = serializers.SerializerMethodField
+    total_cribriform_area = serializers.SerializerMethodField()
 
     class Meta:
         model = CoreAnnotation
