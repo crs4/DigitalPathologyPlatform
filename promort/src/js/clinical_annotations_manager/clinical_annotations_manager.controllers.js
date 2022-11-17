@@ -935,7 +935,20 @@
         vm.primaryGleason = undefined;
         vm.secondaryGleason = undefined;
         vm.gradeGroupWho = undefined;
-        vm.gradeGroupWhoLabel = '';
+        vm.gradeGroupWhoLabel = ''
+        vm.predominant_rsg = undefined;
+        vm.highest_rsg = undefined;
+        vm.rsg_within_highest_grade_area = undefined;
+        vm.rsg_in_area_of_cribriform_morphology = undefined;
+        vm.perineural_invasion = undefined;
+        vm.perineural_growth_with_cribriform_patterns = undefined;
+        vm.extraprostatic_extension = undefined;
+        // only if at least one cribriform pattern exists
+        vm.nuclear_grade_size = undefined;
+        vm.intraluminal_acinar_differentiation_grade = undefined;
+        vm.intraluminal_secretions = undefined;
+        vm.central_maturation = undefined;
+        vm.extra_cribriform_gleason_score = undefined;
 
         vm.actionStartTime = undefined;
 
@@ -964,6 +977,7 @@
         vm.formValid = formValid;
         vm.destroy = destroy;
         vm.upgradeGradeGroupWho = updateGradeGroupWho;
+        vm.containsCribriformPattern = containsCribriformPattern;
         vm.save = save;
         vm.updateTumorLength = updateTumorLength;
         vm.updateCoreLength = updateCoreLength;
@@ -1012,6 +1026,18 @@
             vm.secondaryGleason = undefined;
             vm.gradeGroupWho = undefined;
             vm.gradeGroupWhoLabel = '';
+            vm.predominant_rsg = undefined;
+            vm.highest_rsg = undefined;
+            vm.rsg_within_highest_grade_area = undefined;
+            vm.rsg_in_area_of_cribriform_morphology = undefined;
+            vm.perineural_invasion = undefined;
+            vm.perineural_growth_with_cribriform_patterns = undefined;
+            vm.extraprostatic_extension = undefined;
+            vm.nuclear_grade_size = undefined;
+            vm.intraluminal_acinar_differentiation_grade = undefined;
+            vm.intraluminal_secretions = undefined;
+            vm.central_maturation = undefined;
+            vm.extra_cribriform_gleason_score = undefined;
 
             vm.actionStartTime = undefined;
         }
@@ -1061,6 +1087,11 @@
             }
         }
 
+        function containsCribriformPattern() {
+            // TODO: implement this function to check if at least one cribriform pattern exists (using a service?)
+            return false;
+        }
+
         function save() {
             var dialog = undefined;
             dialog = ngDialog.open({
@@ -1075,8 +1106,23 @@
                 secondary_gleason: Number(vm.secondaryGleason),
                 gleason_group: vm.gradeGroupWho,
                 action_start_time: vm.actionStartTime,
-                action_complete_time: new Date()
+                action_complete_time: new Date(),
+                predominant_rsg: vm.predominant_rsg,
+                highest_rsg: vm.highest_rsg,
+                rsg_within_highest_grade_area: vm.rsg_within_highest_grade_area,
+                rsg_in_area_of_cribriform_morphology: vm.rsg_in_area_of_cribriform_morphology,
+                perineural_invasion: typeof(vm.perineural_invasion)=="undefined" ? false: vm.perineural_invasion,
+                perineural_growth_with_cribriform_patterns: typeof(vm.perineural_growth_with_cribriform_patterns)=="undefined" ? false : vm.perineural_growth_with_cribriform_patterns,
+                extraprostatic_extension: typeof(vm.extraprostatic_extension)=="undefined" ? false : vm.extraprostatic_extension
             }
+            if (vm.containsCribriformPattern()) {
+                obj_config.nuclear_grade_size = vm.nuclear_grade_size;
+                obj_config.intraluminal_acinar_differentiation_grade = vm.intraluminal_acinar_differentiation_grade;
+                obj_config.intraluminal_secretions = typeof(vm.intraluminal_secretions)=="undefined" ? false : vm.intraluminal_secretions;
+                obj_config.central_maturation = typeof(vm.central_maturation)=="undefined" ? false : vm.central_maturation;
+                obj_config.extra_cribriform_gleason_score = vm.extra_cribriform_gleason_score;
+            }
+            console.log(obj_config);
             CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
@@ -1127,6 +1173,19 @@
         vm.gleasonScore = undefined;
         vm.gradeGroupWhoLabel = undefined;
         vm.gleason4Percentage = undefined;
+        vm.predominant_rsg = undefined;
+        vm.highest_rsg = undefined;
+        vm.rsg_within_highest_grade_area = undefined;
+        vm.rsg_in_area_of_cribriform_morphology = undefined;
+        vm.perineural_invasion = undefined;
+        vm.perineural_growth_with_cribriform_patterns = undefined;
+        vm.extraprostatic_extension = undefined;
+        // only if at least one cribriform pattern exists
+        vm.nuclear_grade_size = undefined;
+        vm.intraluminal_acinar_differentiation_grade = undefined;
+        vm.intraluminal_secretions = undefined;
+        vm.central_maturation = undefined;
+        vm.extra_cribriform_gleason_score = undefined;
 
         vm.clinical_annotation_step_label = undefined;
 
@@ -1202,6 +1261,19 @@
                         vm.gradeGroupWhoLabel = 'Group 5';
                         break
                 }
+                vm.predominant_rsg = response.data.predominant_rsg;
+                vm.highest_rsg = response.data.highest_rsg;
+                vm.rsg_within_highest_grade_area = response.data.rsg_within_highest_grade_area;
+                vm.rsg_in_area_of_cribriform_morphology = response.data.rsg_in_area_of_cribriform_morphology;
+                vm.perineural_invasion = response.data.perineural_invasion;
+                vm.perineural_growth_with_cribriform_patterns = response.data.perineural_growth_with_cribriform_patterns;
+                vm.extraprostatic_extension = response.data.extraprostatic_extension;
+                // only if at least one cribriform pattern exists
+                vm.nuclear_grade_size = response.data.nuclear_grade_size;
+                vm.intraluminal_acinar_differentiation_grade = response.data.intraluminal_acinar_differentiation_grade;
+                vm.intraluminal_secretions = response.data.intraluminal_secretions;
+                vm.central_maturation = response.data.central_maturation;
+                vm.extra_cribriform_gleason_score = response.data.extra_cribriform_gleason_score;
             }
 
             function getCoreAnnotationErrorFn(response) {
@@ -1280,6 +1352,18 @@
                 vm.gleasonScore = undefined;
                 vm.gradeGroupWhoLabel = undefined;
                 vm.gleason4Percentage = undefined;
+                vm.predominant_rsg = undefined;
+                vm.highest_rsg = undefined;
+                vm.rsg_within_highest_grade_area = undefined;
+                vm.rsg_in_area_of_cribriform_morphology = undefined;
+                vm.perineural_invasion = undefined;
+                vm.perineural_growth_with_cribriform_patterns = undefined;
+                vm.extraprostatic_extension = undefined;
+                vm.nuclear_grade_size = undefined;
+                vm.intraluminal_acinar_differentiation_grade = undefined;
+                vm.intraluminal_secretions = undefined;
+                vm.central_maturation = undefined;
+                vm.extra_cribriform_gleason_score = undefined;
                 dialog.close();
             }
 

@@ -74,12 +74,12 @@
         </div>
     </div>
     <fieldset ng-hide="cmCtrl.isLocked()">
-        <legend class="prm-legend text-">grading</legend>
+        <legend class="prm-legend text-left">gleason grading</legend>
         <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
-            <div class="col-sm-8 prm-valign prm-label-elem">
+            <div class="col-sm-9 prm-valign prm-label-elem">
                 <label>Primary Gleason grade</label>
             </div><!--
-         --><div class="col-sm-4 prm-valign prm-form-elem">
+         --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input" ng-model="cmCtrl.primaryGleason"
                         ng-change="cmCtrl.upgradeGradeGroupWho()">
                     <option value="" selected disabled></option>
@@ -92,10 +92,10 @@
             </div>
         </div>
         <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
-            <div class="col-sm-8 prm-valign prm-label-elem">
+            <div class="col-sm-9 prm-valign prm-label-elem">
                 <label>Secondary Gleason grade</label>
             </div><!--
-         --><div class="col-sm-4 prm-valign prm-form-elem">
+         --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input" ng-model="cmCtrl.secondaryGleason"
                         ng-change="cmCtrl.upgradeGradeGroupWho()">
                     <option value="" selected disabled></option>
@@ -136,6 +136,149 @@
                 <input class="form-control prm-text-input" ng-model="cmCtrl.gradeGroupWhoLabel"
                        readonly placeholder="">
             </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend class="prm-legend text-left">cribriform pattern</legend>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>Nucler grade (size)</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input"
+                        ng-model="cmCtrl.nuclear_grade_size"
+                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                    <option value="" selected disabled></option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>Intraluminal acinar differentiation grade</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input"
+                        ng-model="cmCtrl.intraluminal_acinar_differentiation_grade"
+                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                    <option value="" selected disabled></option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                </select>
+            </div>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cmCtrl.intraluminal_secretions"
+                       ng-disabled="cmCtrl.isReadOnly() || cmCtrl.containsCribriformPattern() == false"> Intraluminal secretions
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cmCtrl.central_maturation"
+                       ng-disabled="cmCtrl.isReadOnly() || cmCtrl.containsCribriformPattern() == false"> Central maturation
+            </label>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>Extra-cribriform Gleason score</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input"
+                        ng-model="cmCtrl.extra_cribriform_gleason_score"
+                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                    <option value="" selected disabled></option>
+                    <option>6</option>
+                    <option>3+4/4+3</option>
+                    <option>3+5/4+4/5+3</option>
+                    <option>4+5/5+4</option>
+                    <option>10</option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend class="prm-legend text-left">stroma</legend>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>Predominant RSG</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.predominant_rsg">
+                    <option value="" selected disabled></option>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>Highest RSG</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.highest_rsg">
+                    <option value="" selected disabled></option>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>RSG within highest grade area</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_within_highest_grade_area">
+                    <option value="" selected disabled></option>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-9 prm-valign prm-label-elem">
+                <label>RSG in area of cribriform morphology</label>
+            </div><!--
+         --><div class="col-sm-3 prm-valign prm-form-elem">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_in_area_of_cribriform_morphology">
+                    <option value="" selected disabled></option>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend class="prm-legend text-left">other</legend>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cmCtrl.perineural_invasion"
+                       ng-disabled="cmCtrl.isReadOnly()"> Perineural Invasion
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cmCtrl.perineural_growth_with_cribriform_patterns"
+                       ng-disabled="cmCtrl.isReadOnly()"> Perineural growth with cribriform patterns
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="cmCtrl.extraprostatic_extension"
+                       ng-disabled="cmCtrl.isReadOnly()"> Extrapostatic extension
+            </label>
         </div>
     </fieldset>
 </div>
