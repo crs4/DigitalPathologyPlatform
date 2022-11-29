@@ -365,30 +365,19 @@
                         ome_seadragon_viewer.addAnnotationsController(annotations_canvas, true);
 
                         var tools_manager = new AnnotationsEventsController(annotations_canvas);
-                        //initialize area measuring tools
+                        //initialize tools
                         var shape_config = {
                             fill_alpha: 0.2,
                             fill_color: '#ff0000',
                             stroke_width: 5,
                             stroke_color: '#ff0000'
                         };
-                        tools_manager.initializeAreaMeasuringTool(shape_config);
-                        // initialize cellular count helper tool
-                        var helper_box_config = {
-                            fill_alpha: 0.01,
-                            stroke_width: 5,
-                            stroke_color: '#0000ff'
-                        };
-                        // box size in microns
-                        var box_size = 50;
-                        tools_manager.initializeCellularCountHelperTool(box_size, helper_box_config);
-                        tools_manager.bindControllers('cell_counter_activate',
-                            'cell_counter_save');
-                        tools_manager.bindControllers('g4_cell_counter_activate',
-                            'g4_cell_counter_save');
+                        // tools_manager.initializeAreaMeasuringTool(shape_config);
+                        tools_manager.initializePolygonDrawingTool(shape_config);
+                        tools_manager.initializeFreehandDrawingTool(shape_config);
 
                         scope.avc.registerComponents(ome_seadragon_viewer,
-                            annotations_canvas, tools_manager, true);
+                            annotations_canvas, tools_manager, false);
                     });
                 });
             }

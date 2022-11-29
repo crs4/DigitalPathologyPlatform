@@ -165,8 +165,6 @@
         activate();
 
         function activate() {
-            console.log("Prediction ID: " + CurrentPredictionDetailsService.getPredictionId());
-
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
             vm.annotation_step_label = $routeParams.label;
@@ -1631,7 +1629,7 @@
         vm.tumor_ruler_off_id = 'new_core_tumor_ruler_off';
         vm.tumor_ruler_output_id = 'new_core_tumor_ruler_output';
 
-        vm.tmp_ruler_exists  =false;
+        vm.tmp_ruler_exists = false;
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;

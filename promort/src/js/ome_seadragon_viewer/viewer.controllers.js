@@ -418,6 +418,7 @@
                                         'stressed': focus_region.tissue_status === 'STRESSED'
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
+                                    // TODO: add gleason patterns
                                 }
                             }
                         }

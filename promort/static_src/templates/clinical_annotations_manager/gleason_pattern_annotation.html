@@ -1,0 +1,148 @@
+<div>
+    <!--
+      ~ Copyright (c) 2022, CRS4
+      ~
+      ~ Permission is hereby granted, free of charge, to any person obtaining a copy of
+      ~ this software and associated documentation files (the "Software"), to deal in
+      ~ the Software without restriction, including without limitation the rights to
+      ~ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+      ~ the Software, and to permit persons to whom the Software is furnished to do so,
+      ~ subject to the following conditions:
+      ~
+      ~ The above copyright notice and this permission notice shall be included in all
+      ~ copies or substantial portions of the Software.
+      ~
+      ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      ~ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+      ~ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      ~ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      -->
+    <!-- LABEL -->
+    <div class="prm-form-header" ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+        <h4 class="text-right">NEW GLEASON PATTERN</h4>
+    </div>
+    <div class="prm-form-header" ng-show="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+      <h4 class="text-right">{{ cmCtrl.shape_label }}</h4>
+    </div>
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+        <div class="prm-label-elem">
+            <label>Label</label>
+        </div>
+        <div class="prm-row-elem">
+            <input class="form-control prm-text-input" type="text"  ng-model="cmCtrl.shape_label"
+                    ng-readonly="!cmCtrl.isEditLabelModeActive()">
+        </div>
+    </div>
+    <!-- END OF LABEL -->
+    <!-- NEW SHAPE CONTROLS -->
+    <div class="form-group row"
+        ng-hide="cmCtrl.isReadOnly() || cmCtrl.isPolygonToolActive() || cmCtrl.isEditMode() ||
+                cmCtrl.isFreehandToolActive() || cmCtrl.shapeExists()">
+    <div class="col-sm-6 prm-valign prm-label-elem">
+        <label>Draw Gleason pattern</label>
+    </div><!--
+    --><div class="col-sm-6 prm-valign prm-form-elem text-right">
+        <button class="btn btn-default prm-icon-btn"
+                ng-click="cmCtrl.newPolygon()"
+                ng-disabled="cmCtrl.isEditLabelModeActive()"
+                title="Draw the shape using the polygon drawing tool">
+            <i class="icon-vector"></i>
+        </button>
+        <button class="btn btn-default prm-icon-btn"
+                ng-click="cmCtrl.newFreehand()"
+                ng-disabled="cmCtrl.isEditLabelModeActive()"
+                title="Draw the shape using the freehand drawing tool">
+            <i class="icon-vector_pen"></i>
+        </button>
+    </div>
+</div>
+    <!-- END OF NEW SHAPE CONTROLS -->
+    <!-- NEW POLYGON TOOL CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.isPolygonToolActive()">
+        <div class="prm-label-elem">
+            <label>Polygon tool</label>
+        </div>
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-hide="cmCtrl.isPolygonToolPaused()"
+                    ng-click="cmCtrl.pausePolygonTool()" title="Put the tool on pause">
+                <i class="icon-pause"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-show="cmCtrl.isPolygonToolPaused()"
+                    ng-click="cmCtrl.unpausePolygonTool()" title="Resume the tool">
+                <i class="icon-play"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="cmCtrl.rollbackPolygon()"
+                    ng-disabled="!cmCtrl.polygonRollbackPossible()" title="Remove last point">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="cmCtrl.restorePolygon()" title="Restore last removed point"
+                    ng-disabled="!cmCtrl.polygonRestorePossible()">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmPolygon()"
+                    ng-disabled="!cmCtrl.temporaryPolygonValid()" title="Accept the shape">
+                <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortTool()"
+                    title="Discharge shape and abort tool">
+                <i class="icon-cross_mark"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW POLYGON TOOL CONTROLS -->
+    <!-- EXISTING SHAPE CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.shapeExists()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Gleason pattern</label>
+        </div><!--
+        --><div class="col-sm-6 prm-valign prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.deleteShape(true)"
+                    ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()"
+                    title="Delete the shape">
+                <i class="icon-trash_can"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.focusOnShape()"
+                    title="Adapt the viewer to show the shape at the maximum size">
+                <i class="icon-eye"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF EXISTING SHAPE CONTROLS -->
+    <!-- SELECT GLEASON PATTERN TYPE -->
+    <div class="form-group row" ng-show="cmCtrl.shapeExists()">
+        <div class="prm-label-elem col-sm-9 prm-valign">
+            <label>Gleason Type</label>
+        </div><!--
+     --><div class="input-group prm-row-elem prm-valign col-sm-3">
+            <div class="prm-valign">
+                <select class="form-control prm-text-input"
+                        ng-model="cmCtrl.pattern_type"
+                        ng-disabled="cmCtrl.patternTypeConfirmed()">
+                    <option value="" selected disabled></option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div><!--
+         --><div class="input-group-btn prm-valign">
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.confirmPatternType()"
+                        ng-hide="cmCtrl.patternTypeConfirmed()"
+                        ng-show="!cmCtrl.patternTypeConfirmed()"
+                        ng-disabled="!cmCtrl.patternTypeSelected()">
+                    <i class="icon-check"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.resetPatternType()"
+                        ng-show="cmCtrl.patternTypeConfirmed()"
+                        ng-hide="!cmCtrl.patternTypeConfirmed()">
+                    <i class="icon-cross_mark"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END OF SELECT GLEASON PATTERN TYPE -->
+</div>

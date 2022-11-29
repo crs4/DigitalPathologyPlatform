@@ -31,7 +31,9 @@
         .controller('NewCoreAnnotationController', NewCoreAnnotationController)
         .controller('ShowCoreAnnotationController', ShowCoreAnnotationController)
         .controller('NewFocusRegionAnnotationController', NewFocusRegionAnnotationController)
-        .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController);
+        .controller('ShowFocusRegionAnnotationController', ShowFocusRegionAnnotationController)
+        .controller('NewGleasonPatternAnnotationController', NewGleasonPatternAnnotationController)
+        .controller('ShowGleasonPatternAnnotationController', ShowGleasonPatternAnnotationController);
 
     ClinicalAnnotationsManagerController.$inject = ['$scope', '$rootScope', '$routeParams', '$compile', '$location',
         '$log', 'ngDialog', 'AnnotationsViewerService', 'ClinicalAnnotationStepService',
@@ -51,23 +53,29 @@
         vm.cores_map = undefined;
         vm.focus_regions_map = undefined;
 
+        vm.positive_fr_count = undefined;
+
 
         vm.ui_active_modes = {
             'annotate_slice': false,
             'annotate_core': false,
             'annotate_focus_region': false,
+            'annotate_gleason_pattern': false,
             'show_slice': false,
             'show_core': false,
-            'show_focus_region': false
+            'show_focus_region': false,
+            'show_gleason_pattern': false
         };
         vm.roisTreeLocked = false;
 
         vm._registerSlice = _registerSlice;
         vm._registerCore = _registerCore;
         vm._registerFocusRegion = _registerFocusRegion;
+        vm._registerGleasonPattern = _registerGleasonPattern;
         vm._getSliceLabel = _getSliceLabel;
         vm._getCoreLabel = _getCoreLabel;
         vm._getFocusRegionLabel = _getFocusRegionLabel;
+        vm._getGleasonPatternLabel = _getGleasonPatternLabel;
         vm._createListItem = _createListItem;
         vm._createNewSubtree = _createNewSubtree;
         vm._focusOnShape = _focusOnShape;
@@ -87,7 +95,7 @@
         vm.newSliceAnnotationModeActive = newSliceAnnotationModeActive;
         vm.activateShowSliceAnnotationMode = activateShowSliceAnnotationMode;
         vm.showSliceAnnotationModeActive = showSliceAnnotationModeActive;
-        vm.activateNewCoreAnnoationMode = activateNewCoreAnnotationMode;
+        vm.activateNewCoreAnnotationMode = activateNewCoreAnnotationMode;
         vm.newCoreAnnotationModeActive = newCoreAnnotationModeActive;
         vm.activateShowCoreAnnotationMode = activateShowCoreAnnotationMode;
         vm.showCoreAnnotationModeActive = showCoreAnnotationModeActive;
@@ -95,6 +103,12 @@
         vm.newFocusRegionAnnotationModeActive = newFocusRegionAnnotationModeActive;
         vm.activateShowFocusRegionAnnotationMode = activateShowFocusRegionAnnotationMode;
         vm.showFocusRegionAnnotationModeActive = showFocusRegionAnnotationModeActive;
+        vm.getPositiveFocusRegionsCount = getPositiveFocusRegionsCount;
+        vm.activateNewGleasonPatternAnnotationMode = activateNewGleasonPatternAnnotationMode;
+        vm.newGleasonPatternAnnotationModeActive = newGleasonPatternAnnotationModeActive;
+        vm.activateShowGleasonPatternAnnotationMode = activateShowGleasonPatternAnnotationMode;
+        vm.showGleasonPatternAnnotationModeActive = showGleasonPatternAnnotationModeActive;
+        vm.annotationModeActive = annotationModeActive;
 
         activate();
 
@@ -103,12 +117,14 @@
             vm.case_id = CurrentSlideDetailsService.getCaseId();
             vm.clinical_annotation_step_label = $routeParams.label;
             vm.clinical_annotation_label = vm.clinical_annotation_step_label.split('-')[0];
-            $log.debug('clinical annotation label is ' + vm.clinical_annotation_label);
             vm.slide_index = vm.clinical_annotation_step_label.split('-')[1];
 
-            vm.slices_map = [];
-            vm.cores_map = [];
-            vm.focus_regions_map = [];
+            vm.slices_map = {};
+            vm.cores_map = {};
+            vm.focus_regions_map = {};
+            vm.gleason_patterns_map = {};
+
+            vm.positive_fr_count = 0;
 
             vm.slices_edit_mode = [];
             vm.cores_edit_mode = [];
@@ -117,6 +133,7 @@
             $rootScope.slices = [];
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
+            $rootScope.gleason_patterns = [];
 
             ClinicalAnnotationStepService.getDetails(vm.clinical_annotation_step_label)
                 .then(getClinicalAnnotationStepSuccessFn, getClinicalAnnotationStepErrorFn);
@@ -127,6 +144,12 @@
                 }
 
                 $scope.$on('annotation_panel.closed',
+                    function() {
+                        vm.allModesOff();
+                    }
+                );
+
+                $scope.$on('tool.destroyed',
                     function() {
                         vm.allModesOff();
                     }
@@ -170,6 +193,9 @@
 
                 $scope.$on('focus_region.new',
                     function(event, focus_region_info) {
+                        if(focus_region_info.tumor == true) {
+                            vm.positive_fr_count += 1;
+                        }
                         vm._registerFocusRegion(focus_region_info);
                         vm.allModesOff();
                         var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
@@ -181,6 +207,22 @@
                             .attr('ng-mouseleave', 'cmc.deselectROI("focus_region", ' + focus_region_info.id + ')');
                         $compile($anchor)($scope);
                         $tree.append($new_focus_region_item);
+                    }
+                );
+
+                $scope.$on('gleason_pattern.new',
+                    function(event, gleason_pattern_info) {
+                        vm._registerGleasonPattern(gleason_pattern_info);
+                        vm.allModesOff();
+                        var $tree = $("#" + vm._getFocusRegionLabel(gleason_pattern_info.focus_region) + "_tree");
+                        var $new_gleason_pattern_item = $(vm._createListItem(gleason_pattern_info.label,
+                            false, true));
+                        var $anchor = $new_gleason_pattern_item.find('a');
+                        $anchor.attr('ng-click', '')
+                            .attr('ng-mouseenter', 'cmc.selectROI("gleason_pattern", ' + gleason_pattern_info.id + ')')
+                            .attr('ng-mouseleave', 'cmc.deselectROI("gleason_pattern", ' + gleason_pattern_info.id + ')');
+                        $compile($anchor)($scope);
+                        $tree.append($new_gleason_pattern_item);
                     }
                 );
 
@@ -289,6 +331,15 @@
 
         function _getFocusRegionLabel(focus_region_id) {
             return vm.focus_regions_map[focus_region_id];
+        }
+
+        function _registerGleasonPattern(gleason_pattern_info) {
+            $rootScope.gleason_patterns.push(gleason_pattern_info);
+            vm.gleason_patterns_map[gleason_pattern_info.id] = gleason_pattern_info.label;
+        }
+
+        function _getGleasonPatternLabel(gleason_pattern_id) {
+            return vm.gleason_patterns_map[gleason_pattern_id];
         }
 
         function _createListItem(label, edit_mode, set_neg_margin_cls) {
@@ -513,7 +564,7 @@
                                 vm.activateNewSliceAnnotationMode(roi_id);
                                 break;
                             case 'core':
-                                vm.activateNewCoreAnnoationMode(roi_id);
+                                vm.activateNewCoreAnnotationMode(roi_id);
                                 break;
                             case 'focus_region':
                                 vm.activateNewFocusRegionAnnotationMode(roi_id);
@@ -546,6 +597,9 @@
                     case 'focus_region':
                         AnnotationsViewerService.selectShape(vm._getFocusRegionLabel(roi_id));
                         break;
+                    case 'gleason_pattern':
+                        AnnotationsViewerService.selectShape(vm._getGleasonPatternLabel(roi_id));
+                        break;
                 }
             }
         }
@@ -561,6 +615,9 @@
                         break;
                     case 'focus_region':
                         AnnotationsViewerService.deselectShape(vm._getFocusRegionLabel(roi_id));
+                        break;
+                    case 'gleason_pattern':
+                        AnnotationsViewerService.deselectShape(vm._getGleasonPatternLabel(roi_id));
                         break;
                 }
             }
@@ -652,6 +709,39 @@
 
         function showFocusRegionAnnotationModeActive() {
             return vm.ui_active_modes['show_focus_region'];
+        }
+
+        function activateNewGleasonPatternAnnotationMode() {
+            vm.allModesOff();
+            vm._lockRoisTree();
+            vm.ui_active_modes['annotate_gleason_pattern'] = true;
+            $rootScope.$broadcast('gleason_pattern.creation_mode');
+        }
+        
+        function newGleasonPatternAnnotationModeActive() {
+            return vm.ui_active_modes['annotate_gleason_pattern'];
+        }
+
+        function activateShowGleasonPatternAnnotationMode() {
+            vm.allModesOff();
+            vm.ui_active_modes['show_gleason_pattern'] = true;
+        }
+
+        function showGleasonPatternAnnotationModeActive() {
+            return vm.ui_active_modes['show_gleason_pattern'];
+        }
+
+        function getPositiveFocusRegionsCount() {
+            return vm.positive_fr_count;
+        }
+
+        function annotationModeActive() {
+            return (
+                vm.ui_active_modes.annotate_slice
+                || vm.ui_active_modes.annotate_core
+                || vm.ui_active_modes.annotate_focus_region
+                || vm.ui_active_modes.annotate_gleason_pattern
+            );
         }
     }
 
@@ -2262,5 +2352,359 @@
                 (vm.focusRegionLength * vm.regionLengthScaleFactor.id), 3
             );
         }
+    }
+
+    NewGleasonPatternAnnotationController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 
+        'AnnotationsViewerService', 'CurrentSlideDetailsService'];
+
+    function NewGleasonPatternAnnotationController($scope, $rootScope, $log, ngDialog, AnnotationsViewerService,
+                                                   CurrentSlideDetailsService) {
+        var vm = this;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.parentFocusRegion = undefined;
+        vm.default_shape_label = undefined;
+        vm.shape_label = undefined;
+        vm.shape = undefined;
+        vm.gleasonPatternArea = undefined;
+        vm.pattern_type = undefined;
+        vm.pattern_type_confirmed = undefined;
+
+        vm.actionStartTime = undefined;
+
+        vm.active_tool = undefined;
+        vm.polygon_tool_paused = false;
+        vm.freehand_tool_paused = false;
+
+        vm.POLYGON_TOOL = 'polygon_drawing_tool';
+        vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+
+        vm.shape_config = {
+            'stroke_color': '#FFB533',
+            'stroke_width': 20
+        };
+
+        vm.isReadOnly = isReadOnly;
+        vm.isEditMode = isEditMode;
+        vm.isEditLabelModeActive = isEditLabelModeActive;
+        vm.newPolygon = newPolygon;
+        vm.newFreehand = newFreehand;
+        vm._updateGleasonPatternData = _updateGleasonPatternData;
+        vm.isPolygonToolActive = isPolygonToolActive;
+        vm.isPolygonToolPaused = isPolygonToolPaused;
+        vm.isFreehandToolActive = isFreehandToolActive;
+        vm.isFreehandToolPaused = isFreehandToolPaused;
+        vm.temporaryPolygonExists = temporaryPolygonExists;
+        vm.temporaryPolygonValid = temporaryPolygonValid;
+        vm.temporaryShapeExists = temporaryShapeExists;
+        vm.temporaryShapeValid = temporaryShapeValid;
+        vm.drawInProgress = drawInProgress;
+        vm.shapeExists = shapeExists;
+        vm.pausePolygonTool = pausePolygonTool;
+        vm.unpausePolygonTool = unpausePolygonTool;
+        vm.pauseFreehandTool = pauseFreehandTool;
+        vm.unpauseFreehandTool = unpauseFreehandTool;
+        vm.confirmPolygon = confirmPolygon;
+        vm.polygonRollbackPossible = polygonRollbackPossible;
+        vm.polygonRestorePossible = polygonRestorePossible;
+        vm.rollbackPolygon = rollbackPolygon;
+        vm.restorePolygon = restorePolygon;
+        vm.clear = clear;
+        vm.abortTool = abortTool;
+        vm.deleteShape = deleteShape;
+        vm.focusOnShape = focusOnShape;
+        vm.updateGleasonPatternArea = updateGleasonPatternArea;
+        vm.patternTypeSelected = patternTypeSelected;
+        vm.confirmPatternType = confirmPatternType;
+        vm.resetPatternType = resetPatternType;
+        vm.patternTypeConfirmed = patternTypeConfirmed;
+        vm.formValid = formValid;
+        vm.isLocked = isLocked;
+        vm.destroy = destroy;
+        vm.save = save;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
+
+            vm.pattern_type_confirmed = false;
+
+            $scope.$on('gleason_pattern.creation_mode',
+                function() {
+                    vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('gleason_pattern');
+                    console.log(vm.default_shape_label);
+                    vm.shape_label = vm.default_shape_label;
+                    vm.actionStartTime = new Date();
+                }
+            );
+        }
+
+        function isReadOnly() {
+            return false;
+        }
+
+        function isEditMode() {
+            return false;
+        }
+
+        function isEditLabelModeActive() {
+            return false;
+        }
+
+        function newPolygon() {
+            AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
+            console.log(AnnotationsViewerService);
+            AnnotationsViewerService.startPolygonsTool();
+            vm.active_tool = vm.POLYGON_TOOL;
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('polygon_created',
+                function() {
+                    $canvas.unbind('polygon_created');
+                    $scope.$apply();
+                }
+            )
+            .on('polygon_add_point',
+                function() {
+                    $scope.$apply();
+                }
+            );
+        }
+
+        function newFreehand() {
+            AnnotationsViewerService.setFreehandToolLabelPrefix('gleason_pattern');
+            AnnotationsViewerService.extendPathConfig(vm.shape_config);
+            AnnotationsViewerService.startFreehandDrawingTool();
+            var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            var $canvas = $("#" + canvas_label);
+            $canvas.on('freehand_polygon_paused',
+                function(event, polygon_label) {
+                    AnnotationsViewerService.disableActiveTool();
+                    vm.freehand_tool_paused = true;
+                    $scope.$apply();
+                }
+            );
+            vm.active_tool = vm.FREEHAND_TOOL;
+        }
+
+        function _updateGleasonPatternData(polygon_label, parent_focus_region) {
+            vm.parentFocusRegion = parent_focus_region;
+            vm.gleasonPatternArea = AnnotationsViewerService.getShapeArea(polygon_label);
+            vm.updateGleasonPatternArea();
+        }
+
+        function isPolygonToolActive() {
+            return vm.active_tool == vm.POLYGON_TOOL;
+        }
+
+        function isPolygonToolPaused() {
+            return vm.polygon_tool_paused;
+        }
+
+        function isFreehandToolActive() {
+            return vm.active_tool == vm.FREEHAND_TOOL;
+        }
+
+        function isFreehandToolPaused() {
+            return vm.freehand_tool_paused;
+        }
+
+        function temporaryPolygonExists() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
+        function temporaryPolygonValid() {
+            return AnnotationsViewerService.temporaryPolygonValid();
+        }
+
+        function temporaryShapeExists() {
+            return AnnotationsViewerService.tmpFreehandPathExists();
+        }
+
+        function temporaryShapeValid() {
+            return AnnotationsViewerService.tmpFreehandPathValid();
+        }
+
+        function drawInProgress() {
+            return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive() ||
+                vm.isFreehandToolPaused();
+        }
+
+        function shapeExists() {
+            return vm.shape !== undefined;
+        }
+
+        function pausePolygonTool() {
+            AnnotationsViewerService.disableActiveTool();
+            vm.polygon_tool_paused = true;
+        }
+
+        function unpausePolygonTool() {
+            AnnotationsViewerService.startPolygonsTool();
+            vm.polygon_tool_paused = false;
+        }
+
+        function pauseFreehandTool() {
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.deactivatePreviewMode();
+            }
+            vm.freehand_tool_paused = true;
+        }
+
+        function unpauseFreehandTool() {
+            AnnotationsViewerService.startFreehandDrawingTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.activatePreviewMode();
+            }
+            vm.freehand_tool_paused = false;
+        }
+
+        function confirmPolygon() {
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkGleasonPattern',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('polygon_saved',
+                        function (event, polygon_label) {
+                            var focus_regions = $rootScope.focus_regions;
+                            for (var fr in focus_regions) {
+                                if (AnnotationsViewerService.checkContainment(focus_regions[fr].label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, focus_regions[fr].label)) {
+                                    AnnotationsViewerService.adaptToContainer(focus_regions[fr].label, polygon_label);
+                                    if (vm.shape_label !== polygon_label) {
+                                        AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                    } else {
+                                        vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                    }
+                                    vm._updateGleasonPatternData(vm.shape.shape_id, focus_regions[fr]);
+                                    break;
+                                }
+                            }
+                            ngDialog.close('checkGleasonPattern');
+                            if (typeof vm.shape === 'undefined') {
+                                AnnotationsViewerService.deleteShape(polygon_label);
+                                ngDialog.open({
+                                    'template': '/static/templates/dialogs/invalid_gleason_pattern.html'
+                                });
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
+                        }
+                    );
+                    setTimeout(function () {
+                        AnnotationsViewerService.saveTemporaryPolygon('gleason_pattern');
+                    }, 1);
+                }
+            });
+        }
+
+        function polygonRollbackPossible() {
+            return AnnotationsViewerService.temporaryPolygonExists();
+        }
+
+        function polygonRestorePossible() {
+            return AnnotationsViewerService.polygonRestoreHistoryExists();
+        }
+
+        function rollbackPolygon() {
+            AnnotationsViewerService.rollbackPolygon();
+        }
+
+        function restorePolygon() {
+            AnnotationsViewerService.restorePolygon();
+        }
+
+        function clear(destroy_shape) {
+            vm.deleteShape(destroy_shape);
+            vm.shape_label = undefined;
+            vm.actionStartTime = undefined;
+        }
+
+        function abortTool() {
+            if (vm.active_tool === vm.POLYGON_TOOL) {
+                AnnotationsViewerService.clearTemporaryPolygon();
+                $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
+            }
+            if (vm.active_tool === vm.FREEHAND_TOOL) {
+                AnnotationsViewerService.clearTemporaryFreehandShape();
+                $("#" + AnnotationsViewerService.getCanvasLabel())
+                    .unbind('freehand_polygon_saved')
+                    .unbind('freehand_polygon_paused');
+            }
+            AnnotationsViewerService.disableActiveTool();
+            vm.active_tool = undefined;
+            vm.polygon_tool_paused = false;
+            vm.freehand_tool_paused = false;
+        }
+
+        function deleteShape(destroy_shape) {
+            if (typeof vm.shape !== 'undefined') {
+                if (destroy_shape === true) {
+                    AnnotationsViewerService.deleteShape(vm.shape.shape_id);
+                }
+                vm.shape = undefined;
+                vm.gleasonPatternArea = undefined;
+                vm.parentFocusRegion = undefined;
+            }
+        }
+
+        function focusOnShape() {
+            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+        }
+
+        function updateGleasonPatternArea() {
+
+        }
+
+        function patternTypeSelected() {
+            return typeof(vm.pattern_type) != 'undefined';
+        }
+
+        function confirmPatternType() {
+            vm.pattern_type_confirmed = true;
+        }
+
+        function resetPatternType() {
+            vm.pattern_type = undefined;
+            vm.pattern_type_confirmed = false;
+        }
+
+        function patternTypeConfirmed() {
+            return vm.pattern_type_confirmed;
+        }
+
+        function formValid() {
+            return vm.patternTypeConfirmed();
+        }
+
+        function isLocked() {
+
+        }
+
+        function destroy() {
+            vm.clear(true);
+            vm.abortTool();
+            $rootScope.$broadcast('tool.destroyed');
+        }
+
+        function save() {
+
+        }
+    }
+
+    ShowGleasonPatternAnnotationController.$inject = [];
+
+    function ShowGleasonPatternAnnotationController() {
+                                                        
     }
 })();
