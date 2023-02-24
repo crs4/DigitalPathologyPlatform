@@ -113,34 +113,38 @@
     <!-- END OF EXISTING SHAPE CONTROLS -->
     <!-- SELECT GLEASON PATTERN TYPE -->
     <div class="form-group row" ng-show="cmCtrl.shapeExists()">
-        <div class="prm-label-elem col-sm-9 prm-valign">
-            <label>Gleason Type</label>
-        </div><!--
-     --><div class="input-group prm-row-elem prm-valign col-sm-3">
-            <div class="prm-valign">
-                <select class="form-control prm-text-input"
-                        ng-model="cmCtrl.pattern_type"
-                        ng-disabled="cmCtrl.patternTypeConfirmed()">
-                    <option value="" selected disabled></option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                </select>
-            </div><!--
-         --><div class="input-group-btn prm-valign">
-                <button class="btn btn-default prm-icon-btn"
+        <div ng-hide="cmCtrl.patternTypeConfirmed()">
+            <div class="prm-label-elem">
+                <label>Gleason Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="3" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <label>Pattern 3</label>
+                </div>
+                <div>
+                    <input type="radio" value="4" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <label>Pattern 4</label>
+                </div>
+                <div>
+                    <input type="radio" value="5" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <label>Pattern 5</label>
+                </div>
+            </div>
+            <div class="input-group-btn text-right">
+                <button class="btn btn-default prm-control-btn"
                         ng-click="cmCtrl.confirmPatternType()"
-                        ng-hide="cmCtrl.patternTypeConfirmed()"
-                        ng-show="!cmCtrl.patternTypeConfirmed()"
                         ng-disabled="!cmCtrl.patternTypeSelected()">
-                    <i class="icon-check"></i>
+                    <i class="icon-check"></i> Accept
                 </button>
-                <button class="btn btn-default prm-icon-btn"
-                        ng-click="cmCtrl.resetPatternType()"
-                        ng-show="cmCtrl.patternTypeConfirmed()"
-                        ng-hide="!cmCtrl.patternTypeConfirmed()">
-                    <i class="icon-cross_mark"></i>
-                </button>
+            </div>
+        </div>
+        <div ng-show="cmCtrl.patternTypeConfirmed()">
+            <div class="prm-label-elem col-sm-6">
+                <label>Gleason Type</label>
+            </div>
+            <div class="col-sm-6 text-right">
+                <p>Pattern {{cmCtrl.pattern_type}}</p>
             </div>
         </div>
     </div>
