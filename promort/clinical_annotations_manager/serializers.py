@@ -138,8 +138,7 @@ class GleasonPatternSubregionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GleasonPatternSubregion
         fields = ('id', 'gleason_pattern', 'label', 'roi_json', 'area', 'details_json', 'creation_date')
-        read_only_fields = ('id', 'creation_date')
-        write_only_fields = ('gleason_pattern',)
+        read_only_fields = ('id', 'creation_date', 'gleason_pattern')
     
     @staticmethod
     def validate_roi_json(value):

@@ -288,15 +288,6 @@ class FocusRegionAnnotationDetail(ClinicalAnnotationStepObject):
 
 class GleasonPatternList(ClinicalAnnotationStepObject):
     permissions = (permissions.IsAuthenticated,)
-    
-    def _prepare_subregions(self, subregions_data):
-        for subregion in subregions_data:
-            subregion['roi_json'] = json.dumps(subregion['roi_json'])
-            try:
-                subregion['details_json'] = json.dumps(subregion['details_json'])
-            except KeyError:
-                subregion['details_json'] = None
-        return subregions_data
 
     def get(self, request, focus_region_id, label, format=None):
         gleason_patterns = GleasonPattern.objects.filter(
@@ -310,8 +301,6 @@ class GleasonPatternList(ClinicalAnnotationStepObject):
         gleason_pattern_data['focus_region'] = focus_region_id
         gleason_pattern_data['annotation_step'] = self._get_clinical_annotation_step_id(label)
         gleason_pattern_data['author'] = request.user.username
-        if gleason_pattern_data.get('subregions'):
-            gleason_pattern_data['subregions'] = self._prepare_subregions(gleason_pattern_data['subregion'])
         serializer = GleasonPatternSerializer(data=gleason_pattern_data)
         if serializer.is_valid():
             try:
