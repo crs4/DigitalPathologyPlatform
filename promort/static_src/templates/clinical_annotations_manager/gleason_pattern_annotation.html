@@ -119,15 +119,15 @@
             </div>
             <div class="col-sm-12">
                 <div>
-                    <input type="radio" value="3" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <input type="radio" value="G3" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
                     <label>Pattern 3</label>
                 </div>
                 <div>
-                    <input type="radio" value="4" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <input type="radio" value="G4" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
                     <label>Pattern 4</label>
                 </div>
                 <div>
-                    <input type="radio" value="5" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
+                    <input type="radio" value="G5" class="prm-checkbox" ng-model="cmCtrl.pattern_type">
                     <label>Pattern 5</label>
                 </div>
             </div>
@@ -149,4 +149,97 @@
         </div>
     </div>
     <!-- END OF SELECT GLEASON PATTERN TYPE -->
+
+    <!-- NEW SUBLEMENTS CREATION-->
+    <div class="form-group-row">
+        <div ng-show="cmCtrl.patternTypeConfirmed()">
+            <div ng-hide="cmCtrl.isSubregionDrawingToolActive() || cmCtrl.temporarySubregionExists()">
+                <div class="col-sm-12 text-center prm-form-elem">
+                    <button id="new_subelement"
+                            class="btn btn-default"
+                            ng-click="cmCtrl.newSubregion('test')">
+                        Add New Sub-Element
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="cmCtrl.isSubregionDrawingToolActive()">
+            <div class="col-sm-12 prm-form-elem text-right">
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.pauseSubregionDrawingTool()"
+                        ng-hide="cmCtrl.isSubregionDrawingToolPaused()" 
+                        title="Pause tool">
+                    <i class="icon-pause"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.unpauseSubregionDrawingTool()"
+                        ng-show="cmCtrl.isSubregionDrawingToolPaused()"
+                        title="Resume tool">
+                    <i class="icon-play"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn prm-left_margin_mini"
+                        ng-click="cmCtrl.rollbackFreehandShape()"
+                        ng-disabled="!cmCtrl.shapeRollbackPossible()"
+                        title="Restore previous step">
+                    <i class="icon-reply"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                        ng-click="cmCtrl.restoreFreehandShape()"
+                        ng-disabled="!cmCtrl.shapeRestorePossible()"
+                        title="Restore last undone step">
+                    <i class="icon-reply"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.confirmTemporarySubregionShape()"
+                        ng-disabled="!cmCtrl.temporaryShapeExists()"
+                        title="Accept temporary shape">
+                    <i class="icon-check"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.abortTool()"
+                        title="Abort tool">
+                    <i class="icon-cross_mark"></i>
+                </button>
+            </div>
+        </div>
+
+        <div ng-show="cmCtrl.temporarySubregionExists() && cmCtrl.checkPatternType('G4')">
+            <div class="prm-label-elem">
+                <label>Subregion Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="poorly_formed_glands" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Poorly Formed Glands</label>
+                </div>
+                <div>
+                    <input type="radio" value="fused_glands_simple" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Fused glands, simple</label>
+                </div>
+                <div>
+                    <input type="radio" value="fused_glands_complex" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Fused glands, complex</label>
+                </div>
+                <div>
+                    <input type="radio" value="glomeruloid_structures" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Glomeruloid structures</label>
+                </div>
+                <div>
+                    <input type="radio" value="cribriform_pattern" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Cribriform pattern</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group-btn text-right">
+            <button class="btn btn-default prm-control-btn"
+                    ng-show="cmCtrl.temporarySubregionExists()"
+                    ng-click="cmCtrl.acceptTemporarySubregion()"
+                    ng-disabled="!cmCtrl.subregionTypeSelected()">
+                <i class="icon-check"></i> Accept
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW SUBELEMENTS CREATION -->
 </div>

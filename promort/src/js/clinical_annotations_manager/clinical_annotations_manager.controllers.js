@@ -2354,12 +2354,13 @@
         }
     }
 
-    NewGleasonPatternAnnotationController.$inject = ['$scope', '$rootScope', '$log', 'ngDialog', 
-        'AnnotationsViewerService', 'CurrentSlideDetailsService'];
+    NewGleasonPatternAnnotationController.$inject = ['$scope', '$rootScope', '$routeParams', '$log', 'ngDialog', 
+        'AnnotationsViewerService', 'CurrentSlideDetailsService', 'GleasonPatternAnnotationsManagerService'];
 
-    function NewGleasonPatternAnnotationController($scope, $rootScope, $log, ngDialog, AnnotationsViewerService,
-                                                   CurrentSlideDetailsService) {
+    function NewGleasonPatternAnnotationController($scope, $rootScope, $routeParams, $log, ngDialog, AnnotationsViewerService,
+                                                   CurrentSlideDetailsService, GleasonPatternAnnotationsManagerService) {
         var vm = this;
+        vm.clinical_annotation_step_label = undefined;
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.parentFocusRegion = undefined;
@@ -2370,14 +2371,21 @@
         vm.pattern_type = undefined;
         vm.pattern_type_confirmed = undefined;
 
+        vm.subregions_list = undefined;
+        vm.tmp_subregion_label = undefined;
+        vm.tmp_subregion = undefined;
+        vm.tmp_subregion_type = undefined;
+
         vm.actionStartTime = undefined;
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
         vm.freehand_tool_paused = false;
+        vm.subregion_tool_paused = false;
 
         vm.POLYGON_TOOL = 'polygon_drawing_tool';
         vm.FREEHAND_TOOL = 'freehand_drawing_tool';
+        vm.SUBREGION_TOOL = 'subregion_drawing_tool';
 
         vm.shape_config = {
             'stroke_color': '#FFB533',
@@ -2388,39 +2396,56 @@
         vm.isEditMode = isEditMode;
         vm.isEditLabelModeActive = isEditLabelModeActive;
         vm.newPolygon = newPolygon;
+        vm._startFreehandDrawingTool = _startFreehandDrawingTool;
         vm.newFreehand = newFreehand;
+        vm.newSubregion = newSubregion;
         vm._updateGleasonPatternData = _updateGleasonPatternData;
         vm.isPolygonToolActive = isPolygonToolActive;
         vm.isPolygonToolPaused = isPolygonToolPaused;
         vm.isFreehandToolActive = isFreehandToolActive;
         vm.isFreehandToolPaused = isFreehandToolPaused;
+        vm.isSubregionDrawingToolActive = isSubregionDrawingToolActive;
+        vm.isSubregionDrawingToolPaused = isSubregionDrawingToolPaused;
         vm.temporaryPolygonExists = temporaryPolygonExists;
         vm.temporaryPolygonValid = temporaryPolygonValid;
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.temporaryShapeValid = temporaryShapeValid;
         vm.drawInProgress = drawInProgress;
         vm.shapeExists = shapeExists;
+        vm.temporarySubregionExists = temporarySubregionExists;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
         vm.pauseFreehandTool = pauseFreehandTool;
         vm.unpauseFreehandTool = unpauseFreehandTool;
+        vm.pauseSubregionDrawingTool = pauseSubregionDrawingTool;
+        vm.unpauseSubregionDrawingTool = unpauseSubregionDrawingTool;
         vm.confirmPolygon = confirmPolygon;
+        vm.confirmTemporarySubregionShape = confirmTemporarySubregionShape;
         vm.polygonRollbackPossible = polygonRollbackPossible;
         vm.polygonRestorePossible = polygonRestorePossible;
         vm.rollbackPolygon = rollbackPolygon;
         vm.restorePolygon = restorePolygon;
+        vm.shapeRollbackPossible = shapeRollbackPossible;
+        vm.shapeRestorePossible = shapeRestorePossible;
+        vm.rollbackFreehandShape = rollbackFreehandShape;
+        vm.restoreFreehandShape = restoreFreehandShape;
         vm.clear = clear;
         vm.abortTool = abortTool;
         vm.deleteShape = deleteShape;
         vm.focusOnShape = focusOnShape;
         vm.updateGleasonPatternArea = updateGleasonPatternArea;
         vm.patternTypeSelected = patternTypeSelected;
+        vm.subregionTypeSelected = subregionTypeSelected;
         vm.confirmPatternType = confirmPatternType;
+        vm.acceptTemporarySubregion = acceptTemporarySubregion;
         vm.resetPatternType = resetPatternType;
+        vm.resetTemporarySubregion = resetTemporarySubregion;
         vm.patternTypeConfirmed = patternTypeConfirmed;
+        vm.checkPatternType = checkPatternType;
         vm.formValid = formValid;
         vm.isLocked = isLocked;
         vm.destroy = destroy;
+        vm._prepareSubregionsData = _prepareSubregionsData;
         vm.save = save;
 
         activate();
@@ -2429,7 +2454,10 @@
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
+            vm.clinical_annotation_step_label = $routeParams.label;
+
             vm.pattern_type_confirmed = false;
+            vm.subregions_list = [];
 
             $scope.$on('gleason_pattern.creation_mode',
                 function() {
@@ -2455,7 +2483,6 @@
 
         function newPolygon() {
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
-            console.log(AnnotationsViewerService);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
@@ -2474,7 +2501,28 @@
         }
 
         function newFreehand() {
-            AnnotationsViewerService.setFreehandToolLabelPrefix('gleason_pattern');
+            // AnnotationsViewerService.setFreehandToolLabelPrefix('gleason_pattern');
+            // AnnotationsViewerService.extendPathConfig(vm.shape_config);
+            // AnnotationsViewerService.startFreehandDrawingTool();
+            // var canvas_label = AnnotationsViewerService.getCanvasLabel();
+            // var $canvas = $("#" + canvas_label);
+            // $canvas.on('freehand_polygon_paused',
+            //     function(event, polygon_label) {
+            //         AnnotationsViewerService.disableActiveTool();
+            //         vm.freehand_tool_paused = true;
+            //         $scope.$apply();
+            //     }
+            // );
+            // vm.active_tool = vm.FREEHAND_TOOL;
+            vm._startFreehandDrawingTool('gleason_pattern', 'freehand_gleason_tool');
+        }
+
+        function newSubregion() {
+            vm._startFreehandDrawingTool('gp_sub', 'subregion_tool');
+        }
+
+        function _startFreehandDrawingTool(label, tool_type) {
+            AnnotationsViewerService.setFreehandToolLabelPrefix(label);
             AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
@@ -2482,11 +2530,26 @@
             $canvas.on('freehand_polygon_paused',
                 function(event, polygon_label) {
                     AnnotationsViewerService.disableActiveTool();
-                    vm.freehand_tool_paused = true;
+                    switch(vm.active_tool) {
+                        case vm.FREEHAND_TOOL:
+                            vm.freehand_tool_paused = true;
+                            break;
+                        case vm.SUBREGION_TOOL:
+                            console.log('Pausing subregion drawing tool');
+                            vm.subregion_tool_paused = true;
+                            break;
+                    }
                     $scope.$apply();
                 }
             );
-            vm.active_tool = vm.FREEHAND_TOOL;
+            switch(tool_type) {
+                case 'freehand_gleason_tool':
+                    vm.active_tool = vm.FREEHAND_TOOL;
+                    break;
+                case 'subregion_tool':
+                    vm.active_tool = vm.SUBREGION_TOOL;
+                    break;
+            }
         }
 
         function _updateGleasonPatternData(polygon_label, parent_focus_region) {
@@ -2509,6 +2572,14 @@
 
         function isFreehandToolPaused() {
             return vm.freehand_tool_paused;
+        }
+
+        function isSubregionDrawingToolActive() {
+            return vm.active_tool == vm.SUBREGION_TOOL;
+        }
+
+        function isSubregionDrawingToolPaused() {
+            return vm.subregion_tool_paused;
         }
 
         function temporaryPolygonExists() {
@@ -2536,6 +2607,10 @@
             return vm.shape !== undefined;
         }
 
+        function temporarySubregionExists() {
+            return vm.tmp_subregion !== undefined;
+        }
+
         function pausePolygonTool() {
             AnnotationsViewerService.disableActiveTool();
             vm.polygon_tool_paused = true;
@@ -2560,6 +2635,22 @@
                 AnnotationsViewerService.activatePreviewMode();
             }
             vm.freehand_tool_paused = false;
+        }
+
+        function pauseSubregionDrawingTool() {
+            AnnotationsViewerService.disableActiveTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.deactivatePreviewMode();
+            }
+            vm.subregion_tool_paused = true;
+        }
+
+        function unpauseSubregionDrawingTool() {
+            AnnotationsViewerService.startFreehandDrawingTool();
+            if (vm.temporaryShapeExists()) {
+                AnnotationsViewerService.activatePreviewMode();
+            }
+            vm.subregion_tool_paused = false;
         }
 
         function confirmPolygon() {
@@ -2608,6 +2699,40 @@
             });
         }
 
+        function confirmTemporarySubregionShape() {
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkTemporarySubregion',
+                onOpenCallback: function () {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on("freehand_polygon_saved",
+                        function (event, polygon_label) {
+                            if(vm.active_tool == vm.SUBREGION_TOOL){
+                                console.log('freehand shape saved');
+                                if (AnnotationsViewerService.checkContainment(vm.shape_label, polygon_label) ||
+                                    AnnotationsViewerService.checkContainment(polygon_label, vm.shape_label)) {
+                                    AnnotationsViewerService.adaptToContainer(vm.shape_label, polygon_label);
+                                    vm.tmp_subregion_label = polygon_label;
+                                    vm.tmp_subregion = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                }
+                                ngDialog.close('checkTemporarySubregion');
+                            }
+                            vm.abortTool();
+                            $scope.$apply();
+                        }
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 10);
+                }
+            });
+        }
+
         function polygonRollbackPossible() {
             return AnnotationsViewerService.temporaryPolygonExists();
         }
@@ -2624,6 +2749,23 @@
             AnnotationsViewerService.restorePolygon();
         }
 
+        function shapeRollbackPossible() {
+            return (AnnotationsViewerService.tmpFreehandPathExists() ||
+                AnnotationsViewerService.shapeUndoHistoryExists());
+        }
+
+        function shapeRestorePossible() {
+            return AnnotationsViewerService.shapeRestoreHistoryExists();
+        }
+
+        function rollbackFreehandShape() {
+            AnnotationsViewerService.rollbackTemporaryFreehandShape();
+        }
+
+        function restoreFreehandShape() {
+            AnnotationsViewerService.restoreTemporaryFreehandShape();
+        }
+
         function clear(destroy_shape) {
             vm.deleteShape(destroy_shape);
             vm.shape_label = undefined;
@@ -2635,7 +2777,7 @@
                 AnnotationsViewerService.clearTemporaryPolygon();
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
             }
-            if (vm.active_tool === vm.FREEHAND_TOOL) {
+            if (vm.active_tool === vm.FREEHAND_TOOL || vm.active_tool === vm.SUBREGION_TOOL) {
                 AnnotationsViewerService.clearTemporaryFreehandShape();
                 $("#" + AnnotationsViewerService.getCanvasLabel())
                     .unbind('freehand_polygon_saved')
@@ -2645,6 +2787,7 @@
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
             vm.freehand_tool_paused = false;
+            vm.subregion_tool_paused = false;
         }
 
         function deleteShape(destroy_shape) {
@@ -2670,13 +2813,39 @@
             return typeof(vm.pattern_type) != 'undefined';
         }
 
+        function subregionTypeSelected() {
+            return typeof(vm.tmp_subregion_type) != 'undefined';
+        }
+
         function confirmPatternType() {
             vm.pattern_type_confirmed = true;
+        }
+
+        function acceptTemporarySubregion() {
+            vm.subregions_list.push({
+                "label": vm.tmp_subregion_label,
+                "roi_json": AnnotationsViewerService.getShapeJSON(vm.tmp_subregion_label),
+                "area": AnnotationsViewerService.getShapeArea(vm.tmp_subregion_label),
+                "details_json": {"type": vm.tmp_subregion_type}
+            });
+            console.log(vm.subregions_list);
+            vm.abortTool();
+            vm.resetTemporarySubregion();
+        }
+
+        function checkPatternType(pattern_type) {
+            return vm.pattern_type === pattern_type;
         }
 
         function resetPatternType() {
             vm.pattern_type = undefined;
             vm.pattern_type_confirmed = false;
+        }
+
+        function resetTemporarySubregion() {
+            vm.tmp_subregion_label = undefined;
+            vm.tmp_subregion_type = undefined;
+            vm.tmp_subregion = undefined;
         }
 
         function patternTypeConfirmed() {
@@ -2697,14 +2866,40 @@
             $rootScope.$broadcast('tool.destroyed');
         }
 
-        function save() {
+        function _prepareSubregionsData() {
+            var subregions_data = []
+            for (var x in vm.subregions_list) {
+                subregions_data.push({
+                    "label": vm.subregions_list[x]["label"],
+                    "roi_json": JSON.stringify(vm.subregions_list[x]["roi_json"]),
+                    "area": vm.subregions_list[x]["area"],
+                    "details_json": JSON.stringify(vm.subregions_list[x]["details_json"])
+                });
+            }
+            return subregions_data;
+        }
 
+        function save() {
+            var gleason_pattern_config = {
+                "label": vm.shape_label,
+                "gleason_type": vm.pattern_type,
+                "roi_json": JSON.stringify(vm.shape),
+                "area": vm.gleasonPatternArea,
+                "subregions": vm._prepareSubregionsData(),
+                "action_start_time": vm.actionStartTime,
+                "action_complete_time": new Date()
+            }
+            GleasonPatternAnnotationsManagerService.createAnnotation(
+                vm.parentFocusRegion.id,
+                vm.clinical_annotation_step_label,
+                gleason_pattern_config
+            )
         }
     }
 
     ShowGleasonPatternAnnotationController.$inject = [];
 
     function ShowGleasonPatternAnnotationController() {
-                                                        
+
     }
 })();
