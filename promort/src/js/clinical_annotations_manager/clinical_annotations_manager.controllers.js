@@ -200,12 +200,14 @@
                         vm.allModesOff();
                         var $tree = $("#" + vm._getCoreLabel(focus_region_info.core) + "_tree");
                         var $new_focus_region_item = $(vm._createListItem(focus_region_info.label,
-                            vm.focus_regions_edit_mode[focus_region_info.id], false));
+                            vm.focus_regions_edit_mode[focus_region_info.id], true));
                         var $anchor = $new_focus_region_item.find('a');
                         $anchor.attr('ng-click', 'cmc.showROIPanel("focus_region", ' + focus_region_info.id + ')')
                             .attr('ng-mouseenter', 'cmc.selectROI("focus_region", ' + focus_region_info.id + ')')
                             .attr('ng-mouseleave', 'cmc.deselectROI("focus_region", ' + focus_region_info.id + ')');
                         $compile($anchor)($scope);
+                        var new_focus_region_subtree = vm._createNewSubtree(focus_region_info.label);
+                        $new_focus_region_item.append(new_focus_region_subtree);
                         $tree.append($new_focus_region_item);
                     }
                 );
@@ -216,7 +218,7 @@
                         vm.allModesOff();
                         var $tree = $("#" + vm._getFocusRegionLabel(gleason_pattern_info.focus_region) + "_tree");
                         var $new_gleason_pattern_item = $(vm._createListItem(gleason_pattern_info.label,
-                            false, true));
+                            false, false));
                         var $anchor = $new_gleason_pattern_item.find('a');
                         $anchor.attr('ng-click', '')
                             .attr('ng-mouseenter', 'cmc.selectROI("gleason_pattern", ' + gleason_pattern_info.id + ')')
@@ -377,6 +379,9 @@
                     break;
                 case 'focus_region':
                     shape_id = vm.focus_regions_map[roi_id];
+                    break;
+                case 'gleason_pattern':
+                    shape_id = vm.gleason_patterns_map[roi_id];
                     break;
             }
             AnnotationsViewerService.focusOnShape(shape_id);

@@ -406,7 +406,7 @@
                                     var focus_region = core.focus_regions[fr];
                                     AnnotationsViewerService.drawShape($.parseJSON(focus_region.roi_json));
                                     annotated = false;
-                                    if (core.hasOwnProperty('annotated')) {
+                                    if (focus_region.hasOwnProperty('annotated')) {
                                         annotated = focus_region.annotated;
                                     }
                                     var focus_region_info = {
@@ -418,7 +418,20 @@
                                         'stressed': focus_region.tissue_status === 'STRESSED'
                                     };
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
-                                    // TODO: add gleason patterns
+                                    if (focus_region.hasOwnProperty('gleason_patterns')) {
+                                        for (var gp in focus_region.gleason_patterns) {
+                                            console.log('processing gleason pattern ' + focus_region.gleason_patterns[gp].label);
+                                            var gleason_pattern = focus_region.gleason_patterns[gp];
+                                            AnnotationsViewerService.drawShape($.parseJSON(gleason_pattern.roi_json));
+                                            var gleason_pattern_info = {
+                                                'id': gleason_pattern.id,
+                                                'label': gleason_pattern.label,
+                                                'focus_region': gleason_pattern.focus_region,
+                                                'annotated': true
+                                            }
+                                            $rootScope.$broadcast('gleason_pattern.new', gleason_pattern_info);
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -377,7 +377,7 @@
                         tools_manager.initializeFreehandDrawingTool(shape_config);
 
                         scope.avc.registerComponents(ome_seadragon_viewer,
-                            annotations_canvas, tools_manager, false);
+                            annotations_canvas, tools_manager, true);
                     });
                 });
             }
