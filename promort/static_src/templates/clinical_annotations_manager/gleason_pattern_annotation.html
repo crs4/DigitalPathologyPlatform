@@ -232,6 +232,30 @@
             </div>
         </div>
 
+        <div ng-show="cmCtrl.temporarySubregionExists() && cmCtrl.checkPatternType('G5')">
+            <div class="prm-label-elem">
+                <label>Subregion Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="sheets" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Sheets</label>
+                </div>
+                <div>
+                    <input type="radio" value="nests_and_or_cords" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Nests and/or cords</label>
+                </div>
+                <div>
+                    <input type="radio" value="individual_cells" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Individual cells</label>
+                </div>
+                <div>
+                    <input type="radio" value="necrosis" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Necrosis</label>
+                </div>
+            </div>
+        </div>
+
         <div class="input-group-btn text-right">
             <button class="btn btn-default prm-control-btn"
                     ng-show="cmCtrl.temporarySubregionExists()"
