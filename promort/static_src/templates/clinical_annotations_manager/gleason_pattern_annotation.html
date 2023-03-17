@@ -153,7 +153,7 @@
     <!-- NEW SUBLEMENTS CREATION-->
     <div class="form-group-row">
         <div ng-show="cmCtrl.patternTypeConfirmed()">
-            <div ng-hide="cmCtrl.isSubregionDrawingToolActive() || cmCtrl.temporarySubregionExists()">
+            <div ng-hide="cmCtrl.isSubregionDrawingToolActive() || cmCtrl.temporarySubregionExists() || cmCtrl.checkPatternType('G3')">
                 <div class="col-sm-12 text-center prm-form-elem">
                     <button id="new_subelement"
                             class="btn btn-default"
