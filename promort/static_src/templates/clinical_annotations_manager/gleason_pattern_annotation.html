@@ -93,6 +93,45 @@
         </div>
     </div>
     <!-- END OF NEW POLYGON TOOL CONTROLS -->
+    <!-- NEW FREEHAND DRAWING CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.isFreehandToolActive()">
+        <div class="prm-label-elem">
+            <label>Freehand tool</label>
+        </div>
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.pauseFreehandTool()"
+                    ng-hide="cmCtrl.isFreehandToolPaused()"
+                    title="Pause freehand drawing tool">
+                <i class="icon-pause"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.unpauseFreehandTool()"
+                    ng-show="cmCtrl.isFreehandToolPaused()"
+                    title="Resume freehand drawing tool">
+                <i class="icon-play"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="cmCtrl.rollbackFreehandShape()"
+                    ng-disabled="!cmCtrl.shapeRollbackPossible() || !cmCtrl.isFreehandToolPaused()"
+                    title="Restore previous step">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="cmCtrl.restoreFreehandShape()"
+                    ng-disabled="!cmCtrl.shapeRestorePossible() || !cmCtrl.isFreehandToolPaused()"
+                    title="Revert last undone step">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmFreehandShape()"
+                    ng-disabled="!cmCtrl.isFreehandToolPaused() || !cmCtrl.temporaryShapeValid()"
+                    title="Accept the shape">
+                <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortTool()"
+                    title="Abort tool">
+                <i class="icon-cross_mark"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW FREEHAND DRAWING CONTROLS -->
     <!-- EXISTING SHAPE CONTROLS -->
     <div class="form-group row" ng-show="cmCtrl.shapeExists()">
         <div class="col-sm-6 prm-valign prm-label-elem">

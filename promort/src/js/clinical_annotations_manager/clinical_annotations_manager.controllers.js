@@ -2425,6 +2425,7 @@
         vm.pauseSubregionDrawingTool = pauseSubregionDrawingTool;
         vm.unpauseSubregionDrawingTool = unpauseSubregionDrawingTool;
         vm.confirmPolygon = confirmPolygon;
+        vm.confirmFreehandShape = confirmFreehandShape;
         vm.confirmTemporarySubregionShape = confirmTemporarySubregionShape;
         vm.polygonRollbackPossible = polygonRollbackPossible;
         vm.polygonRestorePossible = polygonRestorePossible;
@@ -2506,19 +2507,6 @@
         }
 
         function newFreehand() {
-            // AnnotationsViewerService.setFreehandToolLabelPrefix('gleason_pattern');
-            // AnnotationsViewerService.extendPathConfig(vm.shape_config);
-            // AnnotationsViewerService.startFreehandDrawingTool();
-            // var canvas_label = AnnotationsViewerService.getCanvasLabel();
-            // var $canvas = $("#" + canvas_label);
-            // $canvas.on('freehand_polygon_paused',
-            //     function(event, polygon_label) {
-            //         AnnotationsViewerService.disableActiveTool();
-            //         vm.freehand_tool_paused = true;
-            //         $scope.$apply();
-            //     }
-            // );
-            // vm.active_tool = vm.FREEHAND_TOOL;
             vm._startFreehandDrawingTool('gleason_pattern', 'freehand_gleason_tool');
         }
 
@@ -2699,7 +2687,55 @@
                     );
                     setTimeout(function () {
                         AnnotationsViewerService.saveTemporaryPolygon('gleason_pattern');
-                    }, 1);
+                    }, 10);
+                }
+            });
+        }
+
+        function confirmFreehandShape() {
+            ngDialog.open({
+                template: '/static/templates/dialogs/rois_check.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false,
+                name: 'checkGleasonPattern',
+                onOpenCallback: function() {
+                    var canvas_label = AnnotationsViewerService.getCanvasLabel();
+                    var $canvas = $("#" + canvas_label);
+                    $canvas.on('freehand_polygon_saved',
+                        function(event, polygon_label) {
+                            if(vm.active_tool = vm.FREEHAND_TOOL){
+                                var focus_regions = $rootScope.focus_regions;
+                                for (var fr in focus_regions) {
+                                    if (AnnotationsViewerService.checkContainment(focus_regions[fr].label, polygon_label) ||
+                                        AnnotationsViewerService.checkContainment(polygon_label, focus_regions[fr].label)) {
+                                        AnnotationsViewerService.adaptToContainer(focus_regions[fr].label, polygon_label);
+                                        if (vm.shape_label !== polygon_label) {
+                                            AnnotationsViewerService.changeShapeId(polygon_label, vm.shape_label);
+                                            vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
+                                        } else {
+                                            vm.shape = AnnotationsViewerService.getShapeJSON(polygon_label);
+                                        }
+                                        vm._updateGleasonPatternData(vm.shape.shape_id, focus_regions[fr]);
+                                        break;
+                                    }
+                                }
+                                ngDialog.close('checkGleasonPattern');
+                                if (typeof vm.shape === 'undefined') {
+                                    AnnotationsViewerService.delete_shape(polygon_label);
+                                    ngDialog.open({
+                                        'template': '/static/templates/dialogs/invalid_gleason_pattern.html'
+                                    });
+                                }
+                                vm.abortTool();
+                                $scope.$apply();
+                            }
+                        }
+                    );
+                    setTimeout(function() {
+                        AnnotationsViewerService.saveTemporaryFreehandShape();
+                    }, 10)
                 }
             });
         }
@@ -2726,9 +2762,9 @@
                                     vm.tmp_subregion = AnnotationsViewerService.getShapeJSON(polygon_label);
                                 }
                                 ngDialog.close('checkTemporarySubregion');
+                                vm.abortTool();
+                                $scope.$apply();
                             }
-                            vm.abortTool();
-                            $scope.$apply();
                         }
                     );
                     setTimeout(function() {
@@ -2885,6 +2921,14 @@
         }
 
         function save() {
+            var dialog = ngDialog.open({
+                template: '/static/templates/dialogs/saving_data.html',
+                showClose: false,
+                closeByEscape: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            });
+
             var gleason_pattern_config = {
                 "label": vm.shape_label,
                 "gleason_type": vm.pattern_type,
@@ -2898,7 +2942,24 @@
                 vm.parentFocusRegion.id,
                 vm.clinical_annotation_step_label,
                 gleason_pattern_config
-            )
+            ).then(createGleasonPatternSuccessFn, createGleasonPatternErrorFn);
+
+            function createGleasonPatternSuccessFn(response) {
+                var gleason_pattern_info = {
+                    'id': response.data.id,
+                    'label': response.data.label,
+                    'focus_region': response.data.focus_region,
+                    'annotated': true
+                };
+                $rootScope.$broadcast('gleason_pattern.new', gleason_pattern_info);
+                dialog.close();
+            }
+
+            function createGleasonPatternErrorFn(response) {
+                $log.error('Unable to save gleason pattern');
+                $log.error(response.data);
+                dialog.close();
+            }
         }
     }
 
