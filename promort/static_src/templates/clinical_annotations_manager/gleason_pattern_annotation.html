@@ -138,8 +138,9 @@
             <label>Gleason pattern</label>
         </div><!--
         --><div class="col-sm-6 prm-valign prm-form-elem text-right">
-            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.deleteShape(true)"
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.deleteTemporaryGleasonPattern(true)"
                     ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()"
+                    ng-disabled="cmCtrl.subregionCreationInProgress()"
                     title="Delete the shape">
                 <i class="icon-trash_can"></i>
             </button>
@@ -196,7 +197,7 @@
                 <div class="col-sm-12 text-center prm-form-elem">
                     <button id="new_subelement"
                             class="btn btn-default"
-                            ng-click="cmCtrl.newSubregion('test')">
+                            ng-click="cmCtrl.newSubregion()">
                         Add New Sub-Element
                     </button>
                 </div>

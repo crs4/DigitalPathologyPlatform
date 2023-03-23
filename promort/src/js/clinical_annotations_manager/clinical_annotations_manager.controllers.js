@@ -2376,6 +2376,7 @@
         vm.pattern_type = undefined;
         vm.pattern_type_confirmed = undefined;
 
+        vm.subregionCreationModeActive = undefined;
         vm.subregions_list = undefined;
         vm.tmp_subregion_label = undefined;
         vm.tmp_subregion = undefined;
@@ -2416,6 +2417,9 @@
         vm.temporaryShapeExists = temporaryShapeExists;
         vm.temporaryShapeValid = temporaryShapeValid;
         vm.drawInProgress = drawInProgress;
+        vm.subregionCreationInProgress = subregionCreationInProgress;
+        vm.activateSubregionCreationMode = activateSubregionCreationMode;
+        vm.deactivateSubregionCreationMode = deactivateSubregionCreationMode;
         vm.shapeExists = shapeExists;
         vm.temporarySubregionExists = temporarySubregionExists;
         vm.pausePolygonTool = pausePolygonTool;
@@ -2437,7 +2441,11 @@
         vm.restoreFreehandShape = restoreFreehandShape;
         vm.clear = clear;
         vm.abortTool = abortTool;
+        vm.deleteTemporaryGleasonPattern = deleteTemporaryGleasonPattern;
         vm.deleteShape = deleteShape;
+        vm.deleteTemporarySubregion = deleteTemporarySubregion;
+        vm.deleteSubregion = deleteSubregion;
+        vm.deleteSubregions = deleteSubregions;
         vm.focusOnShape = focusOnShape;
         vm.updateGleasonPatternArea = updateGleasonPatternArea;
         vm.patternTypeSelected = patternTypeSelected;
@@ -2462,8 +2470,9 @@
 
             vm.clinical_annotation_step_label = $routeParams.label;
 
+            vm.subregionCreationModeActive = false;
             vm.pattern_type_confirmed = false;
-            vm.subregions_list = [];
+            vm.subregions_list = {};
 
             $scope.$on('gleason_pattern.creation_mode',
                 function() {
@@ -2511,6 +2520,7 @@
         }
 
         function newSubregion() {
+            vm.activateSubregionCreationMode();
             vm._startFreehandDrawingTool('gp_sub', 'subregion_tool');
         }
 
@@ -2594,6 +2604,18 @@
         function drawInProgress() {
             return vm.isPolygonToolActive() || vm.isPolygonToolPaused() || vm.isFreehandToolActive() ||
                 vm.isFreehandToolPaused();
+        }
+
+        function subregionCreationInProgress() {
+            return vm.subregionCreationModeActive;
+        }
+
+        function activateSubregionCreationMode() {
+            vm.subregionCreationModeActive = true;
+        }
+
+        function deactivateSubregionCreationMode() {
+            vm.subregionCreationModeActive = false;
         }
 
         function shapeExists() {
@@ -2762,7 +2784,7 @@
                                     vm.tmp_subregion = AnnotationsViewerService.getShapeJSON(polygon_label);
                                 }
                                 ngDialog.close('checkTemporarySubregion');
-                                vm.abortTool();
+                                vm.abortTool(true);
                                 $scope.$apply();
                             }
                         }
@@ -2809,11 +2831,16 @@
 
         function clear(destroy_shape) {
             vm.deleteShape(destroy_shape);
+            if (vm.subregionCreationInProgress()) {
+                vm.deleteTemporarySubregion();
+            }
+            vm.deleteSubregions();
             vm.shape_label = undefined;
+            vm.default_shape_label = undefined;
             vm.actionStartTime = undefined;
         }
 
-        function abortTool() {
+        function abortTool(keep_subregion_tool_active=false) {
             if (vm.active_tool === vm.POLYGON_TOOL) {
                 AnnotationsViewerService.clearTemporaryPolygon();
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
@@ -2823,12 +2850,22 @@
                 $("#" + AnnotationsViewerService.getCanvasLabel())
                     .unbind('freehand_polygon_saved')
                     .unbind('freehand_polygon_paused');
+                if (vm.active_tool === vm.SUBREGION_TOOL && !keep_subregion_tool_active) {
+                    vm.deactivateSubregionCreationMode();
+                }
             }
             AnnotationsViewerService.disableActiveTool();
             vm.active_tool = undefined;
             vm.polygon_tool_paused = false;
             vm.freehand_tool_paused = false;
             vm.subregion_tool_paused = false;
+        }
+
+        function deleteTemporaryGleasonPattern(destroy_shape) {
+            if (Object.keys(vm.subregions_list).length > 0) {
+                vm.deleteSubregions();
+            }
+            vm.deleteShape(destroy_shape);
         }
 
         function deleteShape(destroy_shape) {
@@ -2839,10 +2876,33 @@
                 vm.shape = undefined;
                 vm.gleasonPatternArea = undefined;
                 vm.parentFocusRegion = undefined;
+                vm.pattern_type = undefined;
+                vm.pattern_type_confirmed = false;
+            }
+        }
+
+        function deleteTemporarySubregion() {
+            AnnotationsViewerService.deleteShape(vm.tmp_subregion_label);
+            vm.resetTemporarySubregion();
+        }
+
+        function deleteSubregion(shape_label) {
+            if(vm.subregions_list.hasOwnProperty(shape_label)) {
+                AnnotationsViewerService.deleteShape(shape_label);
+                delete(vm.subregions_list[shape_label]);
+            } else {
+                $log.error(shape_label + ' is not a valid subregion label');
+            }
+        }
+
+        function deleteSubregions() {
+            for(var label in vm.subregions_list) {
+                vm.deleteSubregion(label);
             }
         }
 
         function focusOnShape() {
+            console.log(vm.shape);
             AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
         }
 
@@ -2863,13 +2923,12 @@
         }
 
         function acceptTemporarySubregion() {
-            vm.subregions_list.push({
+            vm.subregions_list[vm.tmp_subregion_label] = {
                 "label": vm.tmp_subregion_label,
                 "roi_json": AnnotationsViewerService.getShapeJSON(vm.tmp_subregion_label),
                 "area": AnnotationsViewerService.getShapeArea(vm.tmp_subregion_label),
                 "details_json": {"type": vm.tmp_subregion_type}
-            });
-            console.log(vm.subregions_list);
+            };
             vm.abortTool();
             vm.resetTemporarySubregion();
         }
@@ -2887,6 +2946,7 @@
             vm.tmp_subregion_label = undefined;
             vm.tmp_subregion_type = undefined;
             vm.tmp_subregion = undefined;
+            vm.deactivateSubregionCreationMode();
         }
 
         function patternTypeConfirmed() {
@@ -2894,7 +2954,7 @@
         }
 
         function formValid() {
-            return vm.patternTypeConfirmed();
+            return vm.patternTypeConfirmed() && !vm.subregionCreationInProgress();
         }
 
         function isLocked() {
@@ -2951,6 +3011,7 @@
                     'focus_region': response.data.focus_region,
                     'annotated': true
                 };
+                vm.clear(false);
                 $rootScope.$broadcast('gleason_pattern.new', gleason_pattern_info);
                 dialog.close();
             }
