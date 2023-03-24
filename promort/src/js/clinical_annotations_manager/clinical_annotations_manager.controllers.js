@@ -2422,6 +2422,7 @@
         vm.deactivateSubregionCreationMode = deactivateSubregionCreationMode;
         vm.shapeExists = shapeExists;
         vm.temporarySubregionExists = temporarySubregionExists;
+        vm.subregionsExist = subregionsExist;
         vm.pausePolygonTool = pausePolygonTool;
         vm.unpausePolygonTool = unpausePolygonTool;
         vm.pauseFreehandTool = pauseFreehandTool;
@@ -2446,6 +2447,8 @@
         vm.deleteTemporarySubregion = deleteTemporarySubregion;
         vm.deleteSubregion = deleteSubregion;
         vm.deleteSubregions = deleteSubregions;
+        vm.selectShape = selectShape;
+        vm.deselectShape = deselectShape;
         vm.focusOnShape = focusOnShape;
         vm.updateGleasonPatternArea = updateGleasonPatternArea;
         vm.patternTypeSelected = patternTypeSelected;
@@ -2624,6 +2627,10 @@
 
         function temporarySubregionExists() {
             return vm.tmp_subregion !== undefined;
+        }
+
+        function subregionsExist() {
+            return (Object.keys(vm.subregions_list).length > 0);
         }
 
         function pausePolygonTool() {
@@ -2901,9 +2908,16 @@
             }
         }
 
-        function focusOnShape() {
-            console.log(vm.shape);
-            AnnotationsViewerService.focusOnShape(vm.shape.shape_id);
+        function selectShape(shape_id) {
+            AnnotationsViewerService.selectShape(shape_id);
+        }
+
+        function deselectShape(shape_id) {
+            AnnotationsViewerService.deselectShape(shape_id);
+        }
+
+        function focusOnShape(shape_id) {
+            AnnotationsViewerService.focusOnShape(shape_id);
         }
 
         function updateGleasonPatternArea() {

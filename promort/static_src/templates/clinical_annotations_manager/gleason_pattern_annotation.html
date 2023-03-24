@@ -144,7 +144,7 @@
                     title="Delete the shape">
                 <i class="icon-trash_can"></i>
             </button>
-            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.focusOnShape()"
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.focusOnShape(cmCtrl.shape.shape_id)"
                     title="Adapt the viewer to show the shape at the maximum size">
                 <i class="icon-eye"></i>
             </button>
@@ -191,7 +191,7 @@
     <!-- END OF SELECT GLEASON PATTERN TYPE -->
 
     <!-- NEW SUBLEMENTS CREATION-->
-    <div class="form-group-row">
+    <div class="form-group row">
         <div ng-show="cmCtrl.patternTypeConfirmed()">
             <div ng-hide="cmCtrl.isSubregionDrawingToolActive() || cmCtrl.temporarySubregionExists() || cmCtrl.checkPatternType('G3')">
                 <div class="col-sm-12 text-center prm-form-elem">
@@ -296,14 +296,49 @@
             </div>
         </div>
 
-        <div class="input-group-btn text-right">
-            <button class="btn btn-default prm-control-btn"
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn"
+                    ng-show="cmCtrl.temporarySubregionExists()"
+                    ng-click="cmCtrl.deleteTemporarySubregion()"
+                    ng-disabled="">
+                <i class="icon-cross_mark"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn"
                     ng-show="cmCtrl.temporarySubregionExists()"
                     ng-click="cmCtrl.acceptTemporarySubregion()"
                     ng-disabled="!cmCtrl.subregionTypeSelected()">
-                <i class="icon-check"></i> Accept
+                <i class="icon-check"></i>
             </button>
         </div>
     </div>
     <!-- END OF NEW SUBELEMENTS CREATION -->
+    <!-- SUBREGIONS LIST -->
+    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist()">
+        <legend class="prm-legend">Subregions</legend>
+
+        <div class="form-group row">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="sub_el in cmCtrl.subregions_list">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label> {{ sub_el.details_json.type }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right col-sm-5">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(sub_el.label)"
+                            ng-mouseleave="cmCtrl.deselectShape(sub_el.label)"
+                            ng-click="cmCtrl.deleteSubregion(sub_el.label)"
+                            ng-disabled="cmCtrl.subregionCreationInProgress()">
+                        <i id="{{ sub_el.label }}" class="icon-trash_can"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(sub_el.label)"
+                            ng-mouseleave="cmCtrl.deselectShape(sub_el.label)"
+                            ng-click="cmCtrl.focusOnShape(sub_el.label)"
+                            ng-disabled="cmCtrl.subregionCreationInProgress()">
+                        <i id="{{ sub_el.label }}" class="icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END OF SUBREGIONS LIST -->
 </div>
