@@ -31,7 +31,7 @@ logger = logging.getLogger('promort_commands')
 
 class Command(BaseCommand):
     help = """
-    Extract focus regions as JSON objects
+    Extract cores as JSON objects
     """
 
     def add_arguments(self, parser):
@@ -89,7 +89,7 @@ class Command(BaseCommand):
         bbox = self._extract_bounding_box(points)
         with open(file_path, 'w') as ofile:
             json.dump(points, ofile)
-        return {
+        core_data = {
             'slide_id': slide_id,
             'slice_id': core.slice.id,
             'core_id': core.id,
@@ -97,13 +97,24 @@ class Command(BaseCommand):
             'core_label': core.label,
             'file_name': 'c_%d.json' % core.id,
             'bbox': bbox,
-            'focus_regions_count': core.focus_regions.count()
+            'focus_regions_count': core.focus_regions.count(),
+            'positive': core.is_positive()
         }
+        if core.is_positive():
+            if core.clinical_annotations.count() == 1:
+                core_data.update({
+                    'primary_gleason': core.clinical_annotations.first().primary_gleason,
+                    'secondary_gleason': core.clinical_annotations.first().secondary_gleason
+                })
+            else:
+                logger.warning("Multiple clinical annotations for core {0}, Gleason extraction failed".format(core.id))
+        return core_data
 
     def _dump_details(self, details, out_folder):
         with open(os.path.join(out_folder, 'cores.csv'), 'w') as ofile:
             writer = DictWriter(ofile, ['slide_id', 'slice_id', 'core_id', 'author', 'core_label',
-                                        'focus_regions_count', 'bbox', 'file_name'])
+                                        'focus_regions_count', 'bbox', 'positive',
+                                        'primary_gleason', 'secondary_gleason', 'file_name'])
             writer.writeheader()
             writer.writerows(details)
 
