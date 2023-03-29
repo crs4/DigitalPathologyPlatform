@@ -23,6 +23,7 @@ from promort.settings import DEFAULT_GROUPS
 from slides_manager.models import SlideEvaluation
 from reviews_manager.models import ROIsAnnotation, ClinicalAnnotation, ClinicalAnnotationStep, ReviewsComparison
 
+from csv import DictReader, DictWriter
 from uuid import uuid4
 import logging, random
 from datetime import datetime
@@ -34,6 +35,8 @@ class Command(BaseCommand):
     help = 'build second reviewers worklist based on existing ROIs annotations'
 
     def add_arguments(self, parser):
+        parser.add_argument('--worklist-file', dest='worklist', type=str, default=None,
+                            help='a CSV file containing the list of the ROIs annotations that will be processed')
         parser.add_argument('--reviewers-count', dest='reviewers_count', type=int, default=1,
                             help='the number of clinical reviews created for each ROIs annotation')
 
@@ -41,9 +44,12 @@ class Command(BaseCommand):
         clinical_managers_group = Group.objects.get(name=DEFAULT_GROUPS['clinical_manager']['name'])
         return clinical_managers_group.user_set.all()
 
-    def _get_rois_annotations_list(self):
+    def _get_rois_annotations_list(self, rois_annotations_list=None):
         linked_annotations = [ca.rois_review.label for ca in ClinicalAnnotation.objects.all()]
-        return ROIsAnnotation.objects.exclude(label__in=linked_annotations)
+        if rois_annotations_list is None:
+            return ROIsAnnotation.objects.exclude(label__in=linked_annotations)
+        else:
+            return ROIsAnnotation.objects.filter(label__in=rois_annotations_list).exclude(label__in=linked_annotations)
 
     def _select_clinical_reviewers(self, rois_annotation, clinical_managers, reviewers_count):
         if reviewers_count >= len(clinical_managers):
@@ -116,14 +122,25 @@ class Command(BaseCommand):
     #     logger.info('Create Reviews Comparison for Clinical Annotation Steps %s and %s',
     #                 review_step_1_obj.label, review_step_2_obj.label)
     #     return reviews_comparison_obj
+    
+    def load_roi_annotations_list(self, worklist_file):
+        with open(worklist_file) as f:
+            reader = DictReader(f)
+            return [row['annotation_label'] for row in reader]
+            
 
     def handle(self, *args, **opts):
         logger.info('=== Starting clinical annotations worklist creation ===')
         reviewers_count = opts['reviewers_count']
+        worklist_file = opts['worklist']
         clinical_annotations_manager = self._get_clinical_manager_users()
         if len(clinical_annotations_manager) == 0:
             raise CommandError('There must be at least 1 user with Clinical Annotations Manager role')
-        rois_annotations = self._get_rois_annotations_list()
+        if worklist_file:
+            rois_annotations_list = self.load_roi_annotations_list(worklist_file)
+        else:
+            rois_annotations_list = None
+        rois_annotations = self._get_rois_annotations_list(rois_annotations_list)
         if len(rois_annotations) == 0:
             logger.info('There are no ROIs Annotations to process')
         for r_ann in rois_annotations:

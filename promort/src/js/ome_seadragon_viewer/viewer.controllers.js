@@ -328,7 +328,7 @@
                         vm.dzi_url = vm.ome_base_url + 'deepzoom/get/' + vm.slide_details.omero_id + '.dzi';
                     }
                     
-                    if (typeof(vm.prediction_id) !== 'undefined') {
+                    if (CurrentPredictionDetailsService.predictionAvailable()) {
                         HeatmapViewerService.getPredictionInfo(vm.prediction_id)
                             .then(PredictionInfoSuccessFn, PredictionInfoErrorFn);
 
