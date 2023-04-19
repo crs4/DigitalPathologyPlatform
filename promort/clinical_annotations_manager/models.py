@@ -153,7 +153,7 @@ class CoreAnnotation(models.Model):
             return (self.action_complete_time-self.action_start_time).total_seconds()
         else:
             return None
-    
+
     def get_largest_confluent_sheet(self):
         # TODO: get largest cribriform object among all Gleason 4 elements of a core
         pass
@@ -195,9 +195,14 @@ class FocusRegionAnnotation(models.Model):
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
 
+    def get_gleason_elements(self):
+        gleason_elements_map = dict()
+        for gp in self.annotation_step.gleason_annotations.filter(focus_region=self.focus_region).all():
+            gleason_elements_map[gp.gleason_type] = gp
+        return gleason_elements_map
 
     def get_gleason_4_elements(self):
-        return self.annotation_step.gleason_annotations.filter(focus_region=self.focus_region).all()
+        return self.get_gleason_elements()["G4"]
 
     def get_total_gleason_4_area(self):
         g4_area = 0

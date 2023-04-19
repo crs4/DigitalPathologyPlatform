@@ -34,7 +34,7 @@ from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation, \
 from rois_manager.views import SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList, \
-    SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
+    SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, CoreGleasonDetail,\
     FocusRegionAnnotationList, FocusRegionAnnotationDetail, GleasonPatternList, GleasonPatternDetail
 import predictions_manager.views as pmv
 import shared_datasets_manager.views as shdv
@@ -154,6 +154,8 @@ urlpatterns = [
          SliceAnnotationDetail.as_view()),
     path('api/cores/<num:core_id>/clinical_annotations/',
          CoreAnnotationList.as_view()),
+    path('api/cores/<num:core_id>/clinical_annotations/<rslabel:label>/gleason_details/',
+         CoreGleasonDetail.as_view()),
     path('api/cores/<num:core_id>/clinical_annotations/<rslabel:label>/',
          CoreAnnotationDetail.as_view()),
     path('api/focus_regions/<num:focus_region_id>/clinical_annotations/',

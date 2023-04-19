@@ -21,6 +21,7 @@ try:
     import simplejson as json
 except ImportError:
     import json
+from collections import Counter
 
 from rest_framework.views import APIView
 from rest_framework import permissions, status, exceptions
@@ -30,6 +31,8 @@ from rest_framework.exceptions import NotFound
 from django.db import IntegrityError
 
 from view_templates.views import GenericDetailView
+from rois_manager.models import Core
+from rois_manager.serializers import CoreSerializer
 from reviews_manager.models import ROIsAnnotationStep, ClinicalAnnotationStep
 from reviews_manager.serializers import ClinicalAnnotationStepROIsTreeSerializer
 from clinical_annotations_manager.models import SliceAnnotation, CoreAnnotation, FocusRegionAnnotation, GleasonPattern
@@ -225,6 +228,72 @@ class CoreAnnotationDetail(ClinicalAnnotationStepObject):
                 'message': 'unable to complete delete operation, there are still references to this object'
             }, status=status.HTTP_409_CONFLICT)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CoreGleasonDetail(APIView):
+    permissions = (permissions.IsAuthenticated,)
+
+    def _get_gleason_elements(self, core_obj, annotation_step_label):
+        gleason_elements = list()
+        for fr in core_obj.focus_regions.all():
+            gleason_elements.extend(
+                GleasonPattern.objects.filter(
+                    focus_region=fr,
+                    annotation_step__label=annotation_step_label
+                ).all()
+            )
+        return gleason_elements
+
+    def _get_gleason_coverage(self, gleason_patterns_area):
+        total_area = sum(gleason_patterns_area.values())
+        gleason_coverage = dict()
+        for gp, gpa in gleason_patterns_area.items():
+            gleason_coverage[gp] = (100 * gpa/total_area)
+        return gleason_coverage
+    
+    def _get_primary_and_secondary_gleason(self, gleason_coverage):
+        if len(gleason_coverage) == 0:
+            return None, None
+        primary_gleason = max(gleason_coverage, key=gleason_coverage.get)
+        gleason_coverage.pop(primary_gleason)
+        if len(gleason_coverage) == 0:
+            secondary_gleason = primary_gleason
+        else:
+            secondary_gleason = max(gleason_coverage)
+        return primary_gleason, secondary_gleason 
+            
+    def _get_gleason_details(self, core_obj, annotation_step_label):
+        gleason_elements = self._get_gleason_elements(core_obj, annotation_step_label)
+        gleason_total_area = Counter()
+        gleason_shapes = dict()
+        for ge in gleason_elements:
+            gleason_total_area[ge.gleason_type] += ge.area
+            gleason_shapes.setdefault(ge.gleason_type, []).append(ge.label)
+        gleason_coverage = self._get_gleason_coverage(gleason_total_area)
+        gleason_details = {"details": {}}
+        for gtype in gleason_shapes.keys():
+            gleason_details["details"][gtype] = {
+                "shapes": gleason_shapes[gtype],
+                "total_area": gleason_total_area[gtype],
+                "total_coverage": gleason_coverage[gtype] 
+            }
+        primary_gleason, secondary_gleason = self._get_primary_and_secondary_gleason(gleason_coverage)
+        gleason_details.update({
+            "primary_gleason": primary_gleason,
+            "secondary_gleason": secondary_gleason
+        })
+        return gleason_details
+
+    def get(self, request, core_id, label, format=None):
+        try:
+            core = Core.objects.get(pk__iexact=core_id)
+        except Core.DoesNotExist:
+            raise NotFound('There is no Core with ID {0}'.format(core_id))
+        gleason_details = self._get_gleason_details(core, label)
+        core_data = CoreSerializer(core).data
+        core_data.update(gleason_details)
+        core_data.pop("roi_json")
+        return Response(core_data, status=status.HTTP_200_OK)
 
 
 class FocusRegionAnnotationList(APIView):

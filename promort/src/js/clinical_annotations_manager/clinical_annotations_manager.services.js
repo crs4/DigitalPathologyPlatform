@@ -26,6 +26,7 @@
         .module('promort.clinical_annotations_manager.services')
         .factory('ClinicalAnnotationStepManagerService', ClinicalAnnotationStepManagerService)
         .factory('SliceAnnotationsManagerService', SliceAnnotationsManagerService)
+        .factory('CoreGleasonDetailsManagerService', CoreGleasonDetailsManagerService)
         .factory('CoreAnnotationsManagerService', CoreAnnotationsManagerService)
         .factory('FocusRegionAnnotationsManagerService', FocusRegionAnnotationsManagerService)
         .factory('GleasonPatternAnnotationsManagerService', GleasonPatternAnnotationsManagerService);
@@ -77,6 +78,20 @@
 
         function deleteAnnotation(slice_id, annotation_step_label) {
             return $http.delete('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_label + '/');
+        }
+    }
+
+    CoreGleasonDetailsManagerService.$inject = ['$http', '$log'];
+
+    function CoreGleasonDetailsManagerService($http, $log) {
+        var CoreGleasonDetailsManagerService = {
+            get: get
+        };
+
+        return CoreGleasonDetailsManagerService;
+
+        function get(core_id, annotation_step_label) {
+            return $http.get('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_label + '/gleason_details/');
         }
     }
 

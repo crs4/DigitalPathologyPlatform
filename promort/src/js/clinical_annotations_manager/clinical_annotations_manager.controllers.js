@@ -1017,10 +1017,10 @@
     }
 
     NewCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
-        'CoresManagerService', 'CoreAnnotationsManagerService'];
+        'CoreGleasonDetailsManagerService', 'CoreAnnotationsManagerService'];
 
     function NewCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                         CoresManagerService, CoreAnnotationsManagerService) {
+        CoreGleasonDetailsManagerService, CoreAnnotationsManagerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.core_label = undefined;
@@ -1089,7 +1089,7 @@
             $scope.$on('core_annotation.new',
                 function(event, core_id) {
                     vm.core_id = core_id;
-                    CoresManagerService.get(vm.core_id)
+                    CoreGleasonDetailsManagerService.get(vm.core_id, vm.clinical_annotation_step_label)
                         .then(getCoreSuccessFn, getCoreErrorFn);
                 }
             );
