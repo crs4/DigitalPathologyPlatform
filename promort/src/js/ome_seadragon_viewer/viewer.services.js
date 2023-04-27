@@ -149,6 +149,8 @@
             drawShape: drawShape,
             selectShape: selectShape,
             deselectShape: deselectShape,
+            selectShapes: selectShapes,
+            deselectShapes: deselectShapes,
             extendPolygonConfig: extendPolygonConfig,
             extendPathConfig: extendPathConfig,
             extendRulerConfig: extendRulerConfig,
@@ -204,7 +206,8 @@
             restoreAreaRuler: restoreAreaRuler,
             saveAreaRuler: saveAreaRuler,
             getAreaCoverage: getAreaCoverage,
-            setShapeStrokeColor: setShapeStrokeColor
+            setShapeStrokeColor: setShapeStrokeColor,
+            setShapeFillColor: setShapeFillColor
         };
 
         return AnnotationsViewerService;
@@ -232,6 +235,14 @@
 
         function deselectShape(shape_id) {
             this.roisManager.deselectShape(shape_id, true);
+        }
+
+        function selectShapes(shapes_ids) {
+            this.roisManager.selectShapes(shapes_ids, true, true);
+        }
+
+        function deselectShapes(shapes_ids) {
+            this.roisManager.deselectShapes(shapes_ids, true);
         }
 
         function extendPolygonConfig(polygon_config) {
@@ -485,6 +496,11 @@
         function setShapeStrokeColor(shape_id, color, alpha) {
             var shape = this.roisManager.getShape(shape_id);
             shape.setStrokeColor(color, alpha);
+        }
+
+        function setShapeFillColor(shape_id, color, alpha) {
+            var shape = this.roisManager.getShape(shape_id);
+            shape.setFillColor(color, alpha);
         }
     }
 

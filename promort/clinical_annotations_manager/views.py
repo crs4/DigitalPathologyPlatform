@@ -275,7 +275,7 @@ class CoreGleasonDetail(APIView):
             gleason_details["details"][gtype] = {
                 "shapes": gleason_shapes[gtype],
                 "total_area": gleason_total_area[gtype],
-                "total_coverage": gleason_coverage[gtype] 
+                "total_coverage": round(gleason_coverage[gtype], 2)
             }
         primary_gleason, secondary_gleason = self._get_primary_and_secondary_gleason(gleason_coverage)
         gleason_details.update({

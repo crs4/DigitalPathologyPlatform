@@ -267,6 +267,18 @@ h3.prm-dialog-container {
     color: #bbbbbb;
 }
 
+.prm-g3-active-icon {
+    color: #ffcc99;
+}
+
+.prm-g4-active-icon {
+    color: #ff9966;
+}
+
+.prm-g5-active-icon {
+    color: #cc5200;
+}
+
 .prm-imq-header {
     border-top: 1px solid #eee;
     padding-top: 10px;

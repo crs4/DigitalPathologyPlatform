@@ -75,57 +75,12 @@
     </div>
     <fieldset ng-hide="cmCtrl.isLocked()">
         <legend class="prm-legend text-left">gleason grading</legend>
-        <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
-            <div class="col-sm-9 prm-valign prm-label-elem">
-                <label>Primary Gleason grade</label>
-            </div><!--
-         --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.primaryGleason"
-                        ng-change="cmCtrl.upgradeGradeGroupWho()">
-                    <option value="" selected disabled></option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group row" ng-hide="cmCtrl.isReadOnly()">
-            <div class="col-sm-9 prm-valign prm-label-elem">
-                <label>Secondary Gleason grade</label>
-            </div><!--
-         --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.secondaryGleason"
-                        ng-change="cmCtrl.upgradeGradeGroupWho()">
-                    <option value="" selected disabled></option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+        <div class="form-group row">
             <div class="col-sm-6 prm-valign prm-label-elem">
                 <label>Gleason score</label>
             </div><!--
          --><div class="col-sm-6 prm-valign prm-form-elem">
-                <!-- Insert the value in the form I°+II°=SUM-->
                 <input class="form-control prm-text-input" ng-model="cmCtrl.gleasonScore" readonly>
-            </div>
-        </div>
-        <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
-            <div class="col-sm-6 prm-valign prm-label-elem">
-                <label>Gleason pattern 4</label>
-            </div><!--
-         --><div class="col-sm-6 prm-valign prm-form-elem">
-                <div class="input-group">
-                    <input class="form-control prm-text-input" type="number"
-                           ng-model="cmCtrl.gleason4Percentage" readonly>
-                    <div class="input-group-addon prm-addon">%</div>
-                </div>
             </div>
         </div>
         <div class="form-group row">
@@ -135,6 +90,71 @@
          --><div class="col-sm-6 prm-valign prm-form-elem">
                 <input class="form-control prm-text-input" ng-model="cmCtrl.gradeGroupWhoLabel"
                        readonly placeholder="">
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend class="prm-legend text-left">gleason pattern details</legend>
+        <div class="form-group row">
+            <div class="prm-label-elem">
+                <label>Gleason Pattern 3</label>
+            </div>
+            <div>
+                <div class="col-sm-6 prm-valign">
+                    <p>Coverage</p>
+                </div><!--
+             --><div class="col-sm-4 prm-valign text-right prm-form-elem">
+                    <input class="form-control prm-text-input" ng-value="cmCtrl.getCoverage('G3')" readonly>
+                </div><!--
+             --><div class="col-sm-2 prm-valign prm-form-elem">
+                    <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                            ng-mouseenter="cmCtrl.selectGleasonPatterns('G3', true)"
+                            ng-mouseleave="cmCtrl.selectGleasonPatterns('G3', false)"
+                            ng-click="cmCtrl.gleasonHighlightSwitch('G3')"
+                            ng-disabled="!cmCtrl.gleasonDetailsAvailable('G3')">
+                        <i class="icon-eye" ng-class="cmCtrl.isHighlighted('G3') ? 'prm-g3-active-icon' : 'prm-pale-icon'"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="prm-label-elem">
+                <label>Gleason Pattern 4</label>
+            </div>
+            <div>
+                <div class="col-sm-6 prm-valign">
+                    <p>Coverage</p>
+                </div><!--
+             --><div class="col-sm-4 prm-valign text-right prm-form-elem">
+                    <input class="form-control prm-text-input" ng-value="cmCtrl.getCoverage('G4')" readonly>
+                </div><!--
+             --><div class="col-sm-2 prm-valign prm-form-elem">
+                    <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                            ng-mouseenter="cmCtrl.selectGleasonPatterns('G4', true)"
+                            ng-mouseleave="cmCtrl.selectGleasonPatterns('G4', false)"
+                            ng-click="cmCtrl.gleasonHighlightSwitch('G4')"
+                            ng-disabled="!cmCtrl.gleasonDetailsAvailable('G4')">
+                        <i class="icon-eye" ng-class="cmCtrl.isHighlighted('G4') ? 'prm-g4-active-icon' : 'prm-pale-icon'"></i>
+                    </button>
+                </div>
+                </div>
+            <div class="prm-label-elem">
+                <label>Gleason Pattern 5</label>
+            </div>
+            <div>
+                <div class="col-sm-6 prm-valign">
+                    <p>Coverage</p>
+                </div><!--
+             --><div class="col-sm-4 prm-valign text-right prm-form-elem">
+                    <input class="form-control prm-text-input" ng-value="cmCtrl.getCoverage('G5')" readonly>
+                </div><!--
+             --><div class="col-sm-2 prm-valign prm-form-elem">
+                    <button class="btn btn-default prm-icon-btn prm-icon-btn-ruler"
+                            ng-mouseenter="cmCtrl.selectGleasonPatterns('G5', true)"
+                            ng-mouseleave="cmCtrl.selectGleasonPatterns('G5', false)"
+                            ng-click="cmCtrl.gleasonHighlightSwitch('G5')"
+                            ng-disabled="!cmCtrl.gleasonDetailsAvailable('G5')">
+                        <i class="icon-eye" ng-class="cmCtrl.isHighlighted('G5') ? 'prm-g5-active-icon' : 'prm-pale-icon'"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </fieldset>

@@ -40,8 +40,8 @@
         'ClinicalAnnotationStepManagerService', 'CurrentSlideDetailsService'];
 
     function ClinicalAnnotationsManagerController($scope, $rootScope, $routeParams, $compile, $location, $log, ngDialog,
-                                                  AnnotationsViewerService, ClinicalAnnotationStepService,
-                                                  ClinicalAnnotationStepManagerService, CurrentSlideDetailsService) {
+        AnnotationsViewerService, ClinicalAnnotationStepService,
+        ClinicalAnnotationStepManagerService, CurrentSlideDetailsService) {
         var vm = this;
         vm.slide_id = undefined;
         vm.slide_index = undefined;
@@ -144,19 +144,19 @@
                 }
 
                 $scope.$on('annotation_panel.closed',
-                    function() {
+                    function () {
                         vm.allModesOff();
                     }
                 );
 
                 $scope.$on('tool.destroyed',
-                    function() {
+                    function () {
                         vm.allModesOff();
                     }
                 );
 
                 $scope.$on('slice.new',
-                    function(event, slice_info) {
+                    function (event, slice_info) {
                         vm._registerSlice(slice_info);
                         vm.allModesOff();
                         var $tree = $("#rois_tree");
@@ -174,7 +174,7 @@
                 );
 
                 $scope.$on('core.new',
-                    function(event, core_info) {
+                    function (event, core_info) {
                         vm._registerCore(core_info);
                         vm.allModesOff();
                         var $tree = $("#" + vm._getSliceLabel(core_info.slice) + "_tree");
@@ -192,8 +192,8 @@
                 );
 
                 $scope.$on('focus_region.new',
-                    function(event, focus_region_info) {
-                        if(focus_region_info.tumor == true) {
+                    function (event, focus_region_info) {
+                        if (focus_region_info.tumor == true) {
                             vm.positive_fr_count += 1;
                         }
                         vm._registerFocusRegion(focus_region_info);
@@ -213,7 +213,7 @@
                 );
 
                 $scope.$on('gleason_pattern.new',
-                    function(event, gleason_pattern_info) {
+                    function (event, gleason_pattern_info) {
                         vm._registerGleasonPattern(gleason_pattern_info);
                         vm.allModesOff();
                         var $tree = $("#" + vm._getFocusRegionLabel(gleason_pattern_info.focus_region) + "_tree");
@@ -229,7 +229,7 @@
                 );
 
                 $scope.$on('slice_annotation.saved',
-                    function(event, slice_label, slice_id) {
+                    function (event, slice_label, slice_id) {
                         var $icon = $("#" + slice_label).find('i');
                         $icon.removeClass("icon-black_question");
                         $icon.addClass("icon-check_circle");
@@ -239,7 +239,7 @@
                 );
 
                 $scope.$on('slice_annotation.deleted',
-                    function(event, slice_label, slice_id) {
+                    function (event, slice_label, slice_id) {
                         if (slice_id in vm.slices_edit_mode) {
                             var $icon = $("#" + slice_label).find('i');
                             $icon.removeClass("icon-check_circle");
@@ -251,7 +251,7 @@
                 );
 
                 $scope.$on('core_annotation.saved',
-                    function(event, core_label, core_id) {
+                    function (event, core_label, core_id) {
                         var $icon = $("#" + core_label).find('i');
                         $icon.removeClass("icon-black_question");
                         $icon.addClass("icon-check_circle");
@@ -261,7 +261,7 @@
                 );
 
                 $scope.$on('core_annotation.deleted',
-                    function(event, core_label, core_id) {
+                    function (event, core_label, core_id) {
                         if (core_id in vm.cores_edit_mode) {
                             var $icon = $("#" + core_label).find('i');
                             $icon.removeClass("icon-check_circle");
@@ -273,7 +273,7 @@
                 );
 
                 $scope.$on('focus_region_annotation.saved',
-                    function(event, focus_region_label, focus_region_id) {
+                    function (event, focus_region_label, focus_region_id) {
                         var $icon = $("#" + focus_region_label).find('i');
                         $icon.removeClass("icon-black_question");
                         $icon.addClass("icon-check_circle");
@@ -283,7 +283,7 @@
                 );
 
                 $scope.$on('focus_region_annotation.deleted',
-                    function(event, focus_region_label, focus_region_id) {
+                    function (event, focus_region_label, focus_region_id) {
                         if (focus_region_id in vm.focus_regions_edit_mode) {
                             var $icon = $("#" + focus_region_label).find('i');
                             $icon.removeClass('icon-check_circle');
@@ -364,7 +364,7 @@
         }
 
         function _createNewSubtree(roi_label) {
-            var html = '<ul id="' + roi_label +'_tree" class="list-group"></ul>';
+            var html = '<ul id="' + roi_label + '_tree" class="list-group"></ul>';
             return html;
         }
 
@@ -451,7 +451,7 @@
                 if (confirm_obj.value === true) {
                     ClinicalAnnotationStepService.closeAnnotationStep(vm.clinical_annotation_step_label,
                         confirm_obj.notes).then(closeClinicalAnnotationStepSuccessFn,
-                                                closeClinicalAnnotationStepErrorFn);
+                            closeClinicalAnnotationStepErrorFn);
                 }
 
                 function closeClinicalAnnotationStepSuccessFn(response) {
@@ -722,7 +722,7 @@
             vm.ui_active_modes['annotate_gleason_pattern'] = true;
             $rootScope.$broadcast('gleason_pattern.creation_mode');
         }
-        
+
         function newGleasonPatternAnnotationModeActive() {
             return vm.ui_active_modes['annotate_gleason_pattern'];
         }
@@ -779,7 +779,7 @@
         'SlicesManagerService', 'SliceAnnotationsManagerService'];
 
     function NewSliceAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                          SlicesManagerService, SliceAnnotationsManagerService) {
+        SlicesManagerService, SliceAnnotationsManagerService) {
         var vm = this;
         vm.slice_id = undefined;
         vm.slice_label = undefined;
@@ -809,7 +809,7 @@
         function activate() {
             vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('slice_annotation.new',
-                function(event, slice_id) {
+                function (event, slice_id) {
                     vm.slice_id = slice_id;
                     SlicesManagerService.get(vm.slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
@@ -902,7 +902,7 @@
         'SliceAnnotationsManagerService'];
 
     function ShowSliceAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                           SliceAnnotationsManagerService) {
+        SliceAnnotationsManagerService) {
         var vm = this;
         vm.slice_id = undefined;
         vm.slice_label = undefined;
@@ -929,7 +929,7 @@
         function activate() {
             vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('slice_annotation.show',
-                function(event, slice_id) {
+                function (event, slice_id) {
                     vm.slice_id = slice_id;
                     SliceAnnotationsManagerService.getAnnotation(vm.slice_id, vm.clinical_annotation_step_label)
                         .then(getSliceAnnotationSuccessFn, getSliceAnnotationErrorFn);
@@ -1017,20 +1017,23 @@
     }
 
     NewCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
-        'CoreGleasonDetailsManagerService', 'CoreAnnotationsManagerService'];
+        'CoreGleasonDetailsManagerService', 'CoreAnnotationsManagerService', 'AnnotationsViewerService'];
 
     function NewCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-        CoreGleasonDetailsManagerService, CoreAnnotationsManagerService) {
+        CoreGleasonDetailsManagerService, CoreAnnotationsManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.core_label = undefined;
         vm.coreArea = undefined;
         vm.coreLength = undefined;
         vm.tumorLength = undefined;
-        vm.primaryGleason = undefined;
-        vm.secondaryGleason = undefined;
+        // vm.primaryGleason = undefined;
+        // vm.secondaryGleason = undefined;
+        vm.gleasonScore = undefined;
         vm.gradeGroupWho = undefined;
         vm.gradeGroupWhoLabel = ''
+        vm.gleasonDetails = undefined;
+        vm.gleasonHighlighted = undefined;
         vm.predominant_rsg = undefined;
         vm.highest_rsg = undefined;
         vm.rsg_within_highest_grade_area = undefined;
@@ -1062,16 +1065,29 @@
         ];
 
         vm.areaUOM = [
-            { id: 1, unit_of_measure: 'μm²'},
-            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+            { id: 1, unit_of_measure: 'μm²' },
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²' }
         ];
 
+        vm.gleasonPatternsColors = {
+            "G3": "#ffcc99",
+            "G4": "#ff9966",
+            "G5": "#cc5200"
+        }
+
         vm._clean = _clean;
+        vm._parseGleasonScore = _parseGleasonScore;
+        vm.getCoverage = getCoverage;
+        vm.gleasonDetailsAvailable = gleasonDetailsAvailable;
+        vm._getGleasonShapesLabels = _getGleasonShapesLabels;
+        vm.gleasonHighlightSwitch = gleasonHighlightSwitch;
+        vm.isHighlighted = isHighlighted;
+        vm.selectGleasonPatterns = selectGleasonPatterns;
         vm.isReadOnly = isReadOnly;
         vm.isLocked = isLocked;
         vm.formValid = formValid;
         vm.destroy = destroy;
-        vm.upgradeGradeGroupWho = updateGradeGroupWho;
+        vm.updateGradeGroupWho = updateGradeGroupWho;
         vm.containsCribriformPattern = containsCribriformPattern;
         vm.save = save;
         vm.updateTumorLength = updateTumorLength;
@@ -1087,7 +1103,7 @@
 
             vm.clinical_annotation_step_label = $routeParams.label;
             $scope.$on('core_annotation.new',
-                function(event, core_id) {
+                function (event, core_id) {
                     vm.core_id = core_id;
                     CoreGleasonDetailsManagerService.get(vm.core_id, vm.clinical_annotation_step_label)
                         .then(getCoreSuccessFn, getCoreErrorFn);
@@ -1102,6 +1118,20 @@
                 vm.updateCoreLength();
                 vm.tumorLength = response.data.tumor_length;
                 vm.updateTumorLength();
+                vm.gleasonScore = vm._parseGleasonScore(
+                    response.data.primary_gleason,
+                    response.data.secondary_gleason
+                )
+                vm.updateGradeGroupWho(
+                    response.data.primary_gleason,
+                    response.data.secondary_gleason
+                );
+                vm.gleasonDetails = response.data.details;
+                vm.gleasonHighlighted = {
+                    "G3": false,
+                    "G4": false,
+                    "G5": false
+                }
                 vm.actionStartTime = new Date();
             }
 
@@ -1117,10 +1147,15 @@
             vm.coreArea = undefined;
             vm.coreLength = undefined;
             vm.tumorLength = undefined;
-            vm.primaryGleason = undefined;
-            vm.secondaryGleason = undefined;
+            vm.gleasonScore = undefined;
             vm.gradeGroupWho = undefined;
             vm.gradeGroupWhoLabel = '';
+            vm.gleasonDetails = undefined;
+            vm.gleasonHighlighted = {
+                "G3": false,
+                "G4": false,
+                "G5": false
+            }
             vm.predominant_rsg = undefined;
             vm.highest_rsg = undefined;
             vm.rsg_within_highest_grade_area = undefined;
@@ -1137,6 +1172,84 @@
             vm.actionStartTime = undefined;
         }
 
+        function _parseGleasonScore(primary_gleason, secondary_gleason) {
+            if((primary_gleason !== null) && (secondary_gleason !== null)){
+                return parseInt(primary_gleason.replace(/\D/g, '')) + "+" + parseInt(secondary_gleason.replace(/\D/g, ''));
+            } else {
+                return undefined;
+            }
+        }
+
+        function getCoverage(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                var pattern_data = vm.gleasonDetails[gleason_pattern];
+                if (pattern_data !== undefined) {
+                    return pattern_data.total_coverage + " %";
+                } else {
+                    return "0 %";
+                }
+            }
+        }
+
+        function gleasonDetailsAvailable(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                return vm.gleasonDetails.hasOwnProperty(gleason_pattern);
+            } else {
+                return false;
+            }
+        }
+
+        function _getGleasonShapesLabels(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    return vm.gleasonDetails[gleason_pattern].shapes;
+                }
+            }
+            return undefined;
+        }
+
+        function gleasonHighlightSwitch(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    var gleason_shapes = vm._getGleasonShapesLabels(gleason_pattern);
+                    var pattern_highlighted = vm.gleasonHighlighted[gleason_pattern];
+                    if (pattern_highlighted) {
+                        var shape_color = "#ffffff";
+                        var shape_alpha = "0";
+                    } else {
+                        var shape_color = vm.gleasonPatternsColors[gleason_pattern];
+                        var shape_alpha = "0.35";
+                    }
+                    for (const shape of gleason_shapes) {
+                        AnnotationsViewerService.setShapeFillColor(shape, shape_color, shape_alpha);
+                    }
+                    vm.gleasonHighlighted[gleason_pattern] = !vm.gleasonHighlighted[gleason_pattern];
+                }
+            }
+        }
+
+        function isHighlighted(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined && vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                return vm.gleasonHighlighted[gleason_pattern];
+            } else {
+                return false;
+            }
+
+        }
+
+        function selectGleasonPatterns(gleason_pattern, activate) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    var gleason_shapes = vm._getGleasonShapesLabels(gleason_pattern);
+                    if (activate) {
+                        AnnotationsViewerService.selectShapes(gleason_shapes);
+                    } else {
+                        AnnotationsViewerService.deselectShapes(gleason_shapes);
+                    }
+                }
+            }
+        }
+
         function isReadOnly() {
             return false;
         }
@@ -1147,7 +1260,7 @@
 
         function formValid() {
             return ((typeof vm.primaryGleason !== 'undefined') &&
-            (typeof vm.secondaryGleason !== 'undefined'));
+                (typeof vm.secondaryGleason !== 'undefined'));
         }
 
         function destroy() {
@@ -1155,13 +1268,13 @@
             $rootScope.$broadcast('annotation_panel.closed');
         }
 
-        function updateGradeGroupWho() {
-            if ((typeof vm.primaryGleason !== 'undefined') && (typeof vm.secondaryGleason !== 'undefined')) {
-                var gleason_score = Number(vm.primaryGleason) + Number(vm.secondaryGleason);
+        function updateGradeGroupWho(primary_gleason, secondary_gleason) {
+            if((primary_gleason !== null) && (secondary_gleason !== null)) {
+                var gleason_score = parseInt(primary_gleason.replace(/\D/g, '')) + parseInt(secondary_gleason.replace(/\D/g, ''));
                 if (gleason_score <= 6) {
                     vm.gradeGroupWho = 'GG1';
                     vm.gradeGroupWhoLabel = 'Group 1'
-                } else  if (gleason_score == 7) {
+                } else if (gleason_score == 7) {
                     if (vm.primaryGleason == 3) {
                         vm.gradeGroupWho = 'GG2';
                         vm.gradeGroupWhoLabel = 'Group 2';
@@ -1206,15 +1319,15 @@
                 highest_rsg: vm.highest_rsg,
                 rsg_within_highest_grade_area: vm.rsg_within_highest_grade_area,
                 rsg_in_area_of_cribriform_morphology: vm.rsg_in_area_of_cribriform_morphology,
-                perineural_invasion: typeof(vm.perineural_invasion)=="undefined" ? false: vm.perineural_invasion,
-                perineural_growth_with_cribriform_patterns: typeof(vm.perineural_growth_with_cribriform_patterns)=="undefined" ? false : vm.perineural_growth_with_cribriform_patterns,
-                extraprostatic_extension: typeof(vm.extraprostatic_extension)=="undefined" ? false : vm.extraprostatic_extension
+                perineural_invasion: typeof (vm.perineural_invasion) == "undefined" ? false : vm.perineural_invasion,
+                perineural_growth_with_cribriform_patterns: typeof (vm.perineural_growth_with_cribriform_patterns) == "undefined" ? false : vm.perineural_growth_with_cribriform_patterns,
+                extraprostatic_extension: typeof (vm.extraprostatic_extension) == "undefined" ? false : vm.extraprostatic_extension
             }
             if (vm.containsCribriformPattern()) {
                 obj_config.nuclear_grade_size = vm.nuclear_grade_size;
                 obj_config.intraluminal_acinar_differentiation_grade = vm.intraluminal_acinar_differentiation_grade;
-                obj_config.intraluminal_secretions = typeof(vm.intraluminal_secretions)=="undefined" ? false : vm.intraluminal_secretions;
-                obj_config.central_maturation = typeof(vm.central_maturation)=="undefined" ? false : vm.central_maturation;
+                obj_config.intraluminal_secretions = typeof (vm.intraluminal_secretions) == "undefined" ? false : vm.intraluminal_secretions;
+                obj_config.central_maturation = typeof (vm.central_maturation) == "undefined" ? false : vm.central_maturation;
                 obj_config.extra_cribriform_gleason_score = vm.extra_cribriform_gleason_score;
             }
             console.log(obj_config);
@@ -1257,7 +1370,7 @@
         'CoreAnnotationsManagerService', 'CoresManagerService'];
 
     function ShowCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                          CoreAnnotationsManagerService, CoresManagerService) {
+        CoreAnnotationsManagerService, CoresManagerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.core_label = undefined;
@@ -1297,8 +1410,8 @@
         ];
 
         vm.areaUOM = [
-            { id: 1, unit_of_measure: 'μm²'},
-            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+            { id: 1, unit_of_measure: 'μm²' },
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²' }
         ];
 
         vm.locked = undefined;
@@ -1493,8 +1606,8 @@
         'ClinicalAnnotationStepManagerService'];
 
     function NewFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                                FocusRegionsManagerService, FocusRegionAnnotationsManagerService,
-                                                AnnotationsViewerService, ClinicalAnnotationStepManagerService) {
+        FocusRegionsManagerService, FocusRegionAnnotationsManagerService,
+        AnnotationsViewerService, ClinicalAnnotationStepManagerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -1532,8 +1645,8 @@
         ];
 
         vm.areaUOM = [
-            { id: 1, unit_of_measure: 'μm²'},
-            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+            { id: 1, unit_of_measure: 'μm²' },
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²' }
         ];
 
         vm.gleason_element_types = undefined;
@@ -1619,7 +1732,7 @@
             vm.displayedGleasonElementsLabels = [];
 
             $scope.$on('focus_region_annotation.new',
-                function(event, focus_region_id) {
+                function (event, focus_region_id) {
                     vm.focus_region_id = focus_region_id;
                     FocusRegionsManagerService.get(vm.focus_region_id)
                         .then(getFocusRegionSuccessFn, getFocusRegionErrorFn);
@@ -1642,7 +1755,7 @@
                 function fetchGleasonElementTypesSuccessFn(response) {
                     vm.gleason_element_types = response.data;
                     vm.gleason_types_map = {};
-                    for (var i=0; i<vm.gleason_element_types.length; i++) {
+                    for (var i = 0; i < vm.gleason_element_types.length; i++) {
                         vm.gleason_types_map[vm.gleason_element_types[i].value] = vm.gleason_element_types[i].text;
                     }
                 }
@@ -1654,7 +1767,7 @@
             }
 
             $scope.$on('viewerctrl.components.registered',
-                function() {
+                function () {
                     vm.initializeRuler();
                 }
             );
@@ -1722,7 +1835,7 @@
         }
 
         function gleasonDataValid() {
-            return (typeof(vm.tmpGleasonShape) !== 'undefined' && typeof(vm.tmpGleasonType) !== 'undefined');
+            return (typeof (vm.tmpGleasonShape) !== 'undefined' && typeof (vm.tmpGleasonType) !== 'undefined');
         }
 
         function initializeRuler() {
@@ -1764,20 +1877,20 @@
             AnnotationsViewerService.bindAreaRulerToShape(vm.focus_region_label);
             $ruler_out
                 .on('area_ruler_paused',
-                    function() {
+                    function () {
                         AnnotationsViewerService.disableActiveTool();
                         vm.area_ruler_tool_paused = true;
                         $scope.$apply();
                     }
                 )
                 .on('area_ruler_updated',
-                    function() {
+                    function () {
                         vm.tmpGleasonShapeArea = $ruler_out.data('measure');
                         vm.tmpGleasonShape = $ruler_out.data('ruler_json');
                     }
                 )
                 .on('area_ruler_empty_intersection',
-                    function() {
+                    function () {
                         vm.ruler_tool_active = false;
                         $ruler_out.unbind('area_ruler_cleared')
                             .unbind('area_ruler_updated')
@@ -1794,7 +1907,7 @@
                     }
                 )
                 .on('area_ruler_cleared',
-                    function(event, ruler_saved) {
+                    function (event, ruler_saved) {
                         $ruler_out.unbind('area_ruler_cleared')
                             .unbind('area_ruler_updated')
                             .unbind('area_ruler_empty_intersection')
@@ -1960,7 +2073,7 @@
             });
             // build the list with Gleason 4 elements
             var gleason_elements = Object.keys(vm.gleasonElements).map(
-                function(key) {
+                function (key) {
                     return vm.gleasonElements[key];
                 }
             );
@@ -2025,13 +2138,13 @@
         }
 
         function _showExistingGleasonElements() {
-            for (var i=0; i<vm.gleasonElementsLabels.length; i++) {
+            for (var i = 0; i < vm.gleasonElementsLabels.length; i++) {
                 vm._showGleasonElement(vm.gleasonElementsLabels[i], false);
             }
         }
 
         function _restoreGleasonElementsVisibility() {
-            for (var i=0; i<vm.gleasonElementsLabels.length; i++) {
+            for (var i = 0; i < vm.gleasonElementsLabels.length; i++) {
                 if (vm.displayedGleasonElementsLabels.indexOf(vm.gleasonElementsLabels[i]) === -1) {
                     vm._hideGleasonElement(vm.gleasonElementsLabels[i], false);
                 }
@@ -2054,7 +2167,7 @@
                 vm._hideGleasonElement(element_id);
             }
             removeItemFromArray(element_id, vm.gleasonElementsLabels);
-            delete(vm.gleasonElements[element_id]);
+            delete (vm.gleasonElements[element_id]);
         }
 
         function updateRegionArea() {
@@ -2074,8 +2187,8 @@
         'FocusRegionAnnotationsManagerService', 'FocusRegionsManagerService', 'AnnotationsViewerService'];
 
     function ShowFocusRegionAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-                                                 FocusRegionAnnotationsManagerService, FocusRegionsManagerService,
-                                                 AnnotationsViewerService) {
+        FocusRegionAnnotationsManagerService, FocusRegionsManagerService,
+        AnnotationsViewerService) {
         var vm = this;
         vm.focus_region_id = undefined;
         vm.focus_region_label = undefined;
@@ -2110,8 +2223,8 @@
         ];
 
         vm.areaUOM = [
-            { id: 1, unit_of_measure: 'μm²'},
-            { id: Math.pow(10, -6), unit_of_measure: 'mm²'}
+            { id: 1, unit_of_measure: 'μm²' },
+            { id: Math.pow(10, -6), unit_of_measure: 'mm²' }
         ];
 
         vm.gleasonElements = undefined;
@@ -2156,7 +2269,7 @@
 
             function getFocusRegionAnnotationSuccessFn(response) {
                 vm.focus_region_label = response.data.focus_region.label;
-                vm.focusRegionArea  = response.data.focus_region.area;
+                vm.focusRegionArea = response.data.focus_region.area;
                 vm.updateRegionArea();
                 vm.coreCoveragePercentage = Number(parseFloat(response.data.focus_region.core_coverage_percentage)
                     .toFixed(3));
@@ -2359,11 +2472,11 @@
         }
     }
 
-    NewGleasonPatternAnnotationController.$inject = ['$scope', '$rootScope', '$routeParams', '$log', 'ngDialog', 
+    NewGleasonPatternAnnotationController.$inject = ['$scope', '$rootScope', '$routeParams', '$log', 'ngDialog',
         'AnnotationsViewerService', 'CurrentSlideDetailsService', 'GleasonPatternAnnotationsManagerService'];
 
     function NewGleasonPatternAnnotationController($scope, $rootScope, $routeParams, $log, ngDialog, AnnotationsViewerService,
-                                                   CurrentSlideDetailsService, GleasonPatternAnnotationsManagerService) {
+        CurrentSlideDetailsService, GleasonPatternAnnotationsManagerService) {
         var vm = this;
         vm.clinical_annotation_step_label = undefined;
         vm.slide_id = undefined;
@@ -2478,7 +2591,7 @@
             vm.subregions_list = {};
 
             $scope.$on('gleason_pattern.creation_mode',
-                function() {
+                function () {
                     vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('gleason_pattern');
                     console.log(vm.default_shape_label);
                     vm.shape_label = vm.default_shape_label;
@@ -2506,16 +2619,16 @@
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
             $canvas.on('polygon_created',
-                function() {
+                function () {
                     $canvas.unbind('polygon_created');
                     $scope.$apply();
                 }
             )
-            .on('polygon_add_point',
-                function() {
-                    $scope.$apply();
-                }
-            );
+                .on('polygon_add_point',
+                    function () {
+                        $scope.$apply();
+                    }
+                );
         }
 
         function newFreehand() {
@@ -2534,9 +2647,9 @@
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
             $canvas.on('freehand_polygon_paused',
-                function(event, polygon_label) {
+                function (event, polygon_label) {
                     AnnotationsViewerService.disableActiveTool();
-                    switch(vm.active_tool) {
+                    switch (vm.active_tool) {
                         case vm.FREEHAND_TOOL:
                             vm.freehand_tool_paused = true;
                             break;
@@ -2548,7 +2661,7 @@
                     $scope.$apply();
                 }
             );
-            switch(tool_type) {
+            switch (tool_type) {
                 case 'freehand_gleason_tool':
                     vm.active_tool = vm.FREEHAND_TOOL;
                     break;
@@ -2729,12 +2842,12 @@
                 closeByNavigation: false,
                 closeByDocument: false,
                 name: 'checkGleasonPattern',
-                onOpenCallback: function() {
+                onOpenCallback: function () {
                     var canvas_label = AnnotationsViewerService.getCanvasLabel();
                     var $canvas = $("#" + canvas_label);
                     $canvas.on('freehand_polygon_saved',
-                        function(event, polygon_label) {
-                            if(vm.active_tool = vm.FREEHAND_TOOL){
+                        function (event, polygon_label) {
+                            if (vm.active_tool = vm.FREEHAND_TOOL) {
                                 var focus_regions = $rootScope.focus_regions;
                                 for (var fr in focus_regions) {
                                     if (AnnotationsViewerService.checkContainment(focus_regions[fr].label, polygon_label) ||
@@ -2762,7 +2875,7 @@
                             }
                         }
                     );
-                    setTimeout(function() {
+                    setTimeout(function () {
                         AnnotationsViewerService.saveTemporaryFreehandShape();
                     }, 10)
                 }
@@ -2782,7 +2895,7 @@
                     var $canvas = $("#" + canvas_label);
                     $canvas.on("freehand_polygon_saved",
                         function (event, polygon_label) {
-                            if(vm.active_tool == vm.SUBREGION_TOOL){
+                            if (vm.active_tool == vm.SUBREGION_TOOL) {
                                 console.log('freehand shape saved');
                                 if (AnnotationsViewerService.checkContainment(vm.shape_label, polygon_label) ||
                                     AnnotationsViewerService.checkContainment(polygon_label, vm.shape_label)) {
@@ -2796,7 +2909,7 @@
                             }
                         }
                     );
-                    setTimeout(function() {
+                    setTimeout(function () {
                         AnnotationsViewerService.saveTemporaryFreehandShape();
                     }, 10);
                 }
@@ -2847,7 +2960,7 @@
             vm.actionStartTime = undefined;
         }
 
-        function abortTool(keep_subregion_tool_active=false) {
+        function abortTool(keep_subregion_tool_active = false) {
             if (vm.active_tool === vm.POLYGON_TOOL) {
                 AnnotationsViewerService.clearTemporaryPolygon();
                 $("#" + AnnotationsViewerService.getCanvasLabel()).unbind('polygon_saved');
@@ -2894,16 +3007,16 @@
         }
 
         function deleteSubregion(shape_label) {
-            if(vm.subregions_list.hasOwnProperty(shape_label)) {
+            if (vm.subregions_list.hasOwnProperty(shape_label)) {
                 AnnotationsViewerService.deleteShape(shape_label);
-                delete(vm.subregions_list[shape_label]);
+                delete (vm.subregions_list[shape_label]);
             } else {
                 $log.error(shape_label + ' is not a valid subregion label');
             }
         }
 
         function deleteSubregions() {
-            for(var label in vm.subregions_list) {
+            for (var label in vm.subregions_list) {
                 vm.deleteSubregion(label);
             }
         }
@@ -2925,11 +3038,11 @@
         }
 
         function patternTypeSelected() {
-            return typeof(vm.pattern_type) != 'undefined';
+            return typeof (vm.pattern_type) != 'undefined';
         }
 
         function subregionTypeSelected() {
-            return typeof(vm.tmp_subregion_type) != 'undefined';
+            return typeof (vm.tmp_subregion_type) != 'undefined';
         }
 
         function confirmPatternType() {
@@ -2941,7 +3054,7 @@
                 "label": vm.tmp_subregion_label,
                 "roi_json": AnnotationsViewerService.getShapeJSON(vm.tmp_subregion_label),
                 "area": AnnotationsViewerService.getShapeArea(vm.tmp_subregion_label),
-                "details_json": {"type": vm.tmp_subregion_type}
+                "details_json": { "type": vm.tmp_subregion_type }
             };
             vm.abortTool();
             vm.resetTemporarySubregion();
