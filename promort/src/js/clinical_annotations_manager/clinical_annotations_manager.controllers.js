@@ -2507,8 +2507,15 @@
         vm.SUBREGION_TOOL = 'subregion_drawing_tool';
 
         vm.shape_config = {
-            'stroke_color': '#FFB533',
-            'stroke_width': 20
+            'stroke_color': '#dddddd',
+            'stroke_width': 20,
+            'fill_alpha': 0
+        };
+
+        vm.pattern_colors = {
+            "G3": "#ffcc99",
+            "G4": "#ff9966",
+            "G5": "#cc5200"
         };
 
         vm.isReadOnly = isReadOnly;
@@ -2564,6 +2571,7 @@
         vm.deselectShape = deselectShape;
         vm.focusOnShape = focusOnShape;
         vm.updateGleasonPatternArea = updateGleasonPatternArea;
+        vm.updateGleasonShapeColor = updateGleasonShapeColor;
         vm.patternTypeSelected = patternTypeSelected;
         vm.subregionTypeSelected = subregionTypeSelected;
         vm.confirmPatternType = confirmPatternType;
@@ -2642,7 +2650,21 @@
 
         function _startFreehandDrawingTool(label, tool_type) {
             AnnotationsViewerService.setFreehandToolLabelPrefix(label);
-            AnnotationsViewerService.extendPathConfig(vm.shape_config);
+            switch (tool_type) {
+                case 'freehand_gleason_tool':
+                    AnnotationsViewerService.extendPathConfig(vm.shape_config);
+                    break;
+                case 'subregion_tool':
+                    var shape_config = {
+                        'stroke_color': vm.pattern_colors[vm.pattern_type],
+                        'stroke_width': 20,
+                        'stroke_alpha': 1,
+                        'fill_color': vm.pattern_colors[vm.pattern_type],
+                        'fill_alpha': 0.25
+                    };
+                    AnnotationsViewerService.extendPathConfig(shape_config);
+                    break;
+            }
             AnnotationsViewerService.startFreehandDrawingTool();
             var canvas_label = AnnotationsViewerService.getCanvasLabel();
             var $canvas = $("#" + canvas_label);
@@ -3035,6 +3057,12 @@
 
         function updateGleasonPatternArea() {
 
+        }
+
+        function updateGleasonShapeColor(pattern_type) {
+            AnnotationsViewerService.setShapeStrokeColor(vm.shape_label, 
+                vm.pattern_colors[pattern_type], 1.0);
+            vm.shape.stroke_color = vm.pattern_colors[pattern_type];
         }
 
         function patternTypeSelected() {

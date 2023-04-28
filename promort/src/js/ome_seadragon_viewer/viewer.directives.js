@@ -367,10 +367,8 @@
                         var tools_manager = new AnnotationsEventsController(annotations_canvas);
                         //initialize tools
                         var shape_config = {
-                            fill_alpha: 0.2,
-                            fill_color: '#ff0000',
-                            stroke_width: 5,
-                            stroke_color: '#ff0000'
+                            'stroke_color': '#dddddd',
+                            'stroke_width': 20
                         };
                         // tools_manager.initializeAreaMeasuringTool(shape_config);
                         tools_manager.initializePolygonDrawingTool(shape_config);
