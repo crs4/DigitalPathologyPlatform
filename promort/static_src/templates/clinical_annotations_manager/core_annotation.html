@@ -158,7 +158,7 @@
             </div>
         </div>
     </fieldset>
-    <fieldset>
+    <fieldset ng-show="cmCtrl.containsCribriformPattern()">
         <legend class="prm-legend text-left">cribriform pattern</legend>
         <div class="form-group row">
             <div class="col-sm-9 prm-valign prm-label-elem">
@@ -166,8 +166,7 @@
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.nuclear_grade_size"
-                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                        ng-model="cmCtrl.nuclear_grade_size">
                     <option value="" selected disabled></option>
                     <option>1</option>
                     <option>2</option>
@@ -181,8 +180,7 @@
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.intraluminal_acinar_differentiation_grade"
-                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                        ng-model="cmCtrl.intraluminal_acinar_differentiation_grade">
                     <option value="" selected disabled></option>
                     <option>1</option>
                     <option>2</option>
@@ -194,23 +192,22 @@
         <div class="checkbox">
             <label>
                 <input type="checkbox" ng-model="cmCtrl.intraluminal_secretions"
-                       ng-disabled="cmCtrl.isReadOnly() || cmCtrl.containsCribriformPattern() == false"> Intraluminal secretions
+                       ng-disabled="cmCtrl.isReadOnly()"> Intraluminal secretions
             </label>
         </div>
         <div class="checkbox">
             <label>
                 <input type="checkbox" ng-model="cmCtrl.central_maturation"
-                       ng-disabled="cmCtrl.isReadOnly() || cmCtrl.containsCribriformPattern() == false"> Central maturation
+                       ng-disabled="cmCtrl.isReadOnly()"> Central maturation
             </label>
         </div>
         <div class="form-group row">
-            <div class="col-sm-9 prm-valign prm-label-elem">
+            <div class="col-sm-12 prm-label-elem">
                 <label>Extra-cribriform Gleason score</label>
-            </div><!--
-         --><div class="col-sm-3 prm-valign prm-form-elem">
+            </div>
+            <div class="col-sm-12 prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.extra_cribriform_gleason_score"
-                        ng-disabled="cmCtrl.containsCribriformPattern() == false">
+                        ng-model="cmCtrl.extra_cribriform_gleason_score">
                     <option value="" selected disabled></option>
                     <option>6</option>
                     <option>3+4/4+3</option>

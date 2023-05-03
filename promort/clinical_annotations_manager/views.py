@@ -266,16 +266,21 @@ class CoreGleasonDetail(APIView):
         gleason_elements = self._get_gleason_elements(core_obj, annotation_step_label)
         gleason_total_area = Counter()
         gleason_shapes = dict()
+        gleason_subregions = dict()
         for ge in gleason_elements:
             gleason_total_area[ge.gleason_type] += ge.area
             gleason_shapes.setdefault(ge.gleason_type, []).append(ge.label)
+            gleason_subregions.setdefault(ge.gleason_type, set())
+            for subr in ge.subregions.all():
+                gleason_subregions[ge.gleason_type].add(json.loads(subr.details_json)["type"])
         gleason_coverage = self._get_gleason_coverage(gleason_total_area)
         gleason_details = {"details": {}}
         for gtype in gleason_shapes.keys():
             gleason_details["details"][gtype] = {
                 "shapes": gleason_shapes[gtype],
                 "total_area": gleason_total_area[gtype],
-                "total_coverage": round(gleason_coverage[gtype], 2)
+                "total_coverage": round(gleason_coverage[gtype], 2),
+                "subregions": gleason_subregions[gtype]
             }
         primary_gleason, secondary_gleason = self._get_primary_and_secondary_gleason(gleason_coverage)
         gleason_details.update({

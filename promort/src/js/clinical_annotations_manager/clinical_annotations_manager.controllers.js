@@ -1296,8 +1296,11 @@
         }
 
         function containsCribriformPattern() {
-            // TODO: implement this function to check if at least one cribriform pattern exists (using a service?)
-            return false;
+            if (typeof(vm.gleasonDetails) === "undefined") {
+                return false;
+            } else {
+                return vm.gleasonDetails.hasOwnProperty("G4") && (vm.gleasonDetails["G4"].subregions.indexOf("cribriform_pattern") > -1);
+            }
         }
 
         function save() {
