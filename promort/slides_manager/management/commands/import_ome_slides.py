@@ -34,14 +34,17 @@ class Command(BaseCommand):
     Import slides from a running OMERO server (with ome_seadragon plugin) to ProMort and create
     related Case and Slide objects
     """
+    
+    def _get_slide_name_re(self):
+        return r'^(?P<case_id>[\w]+)[_-](?P<slide_index>[\w]+)(?:[ \(\)\w]+){0,1}.(?P<ext>[a-w]+) +\[0\]$'
 
     def _is_valid_slide_label(self, slide_label):
-        regex = re.compile(r'^(?P<case_id>[\w]+)[_-](?P<slide_index>[\w]{1,2})(?:[ \(\)\w]+){0,1}.(?P<ext>[a-w]+) +\[0\]$')
+        regex = re.compile(self._get_slide_name_re())
         res = regex.match(slide_label)
         return res is not None
 
     def _split_slide_name(self, slide_name):
-        regex = re.compile(r'^(?P<case_id>[\w]+)[_-](?P<slide_index>[\w]{1,2})(?:[ \(\)\w]+){0,1}.(?P<ext>[a-w]+) +\[0\]$')
+        regex = re.compile(self._get_slide_name_re())
         res = regex.match(slide_name)
         if res:
             return res.group("case_id", "slide_index")
