@@ -18,10 +18,14 @@
 #  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.core.management.base import BaseCommand, CommandError
+from slides_manager.models import Slide
 from rois_manager.models import Slice, Core, FocusRegion
 from rois_manager.serializers import SliceSerializer, CoreSerializer, FocusRegionSerializer
+from promort.settings import OME_SEADRAGON_BASE_URL
 
-import csv, os, copy
+
+import csv, os, copy, requests
+from urllib.parse import urljoin
 try:
     import simplejson as json
 except ImportError:
@@ -39,6 +43,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--rois-list', dest='rois_list', type=str, required=True,
                             help='A file containing the list of ROIs that will be extracted')
+        parser.add_argument('--remove-limit-bounds', dest='remove_limit_bounds', action='store_true',
+                            help='remove X and Y offsets applied by the limit-bounds option of the DZI slide_obj')
         parser.add_argument('--out-folder', dest='out_folder', type=str, required=True,
                             help='The output folder for the extracted data')
 
@@ -50,6 +56,22 @@ class Command(BaseCommand):
             for row in reader:
                 rois_map.setdefault(row['slide_id'], dict()).setdefault(row['roi_type'], set()).add(int(row['roi_id']))
         return rois_map
+
+    def _get_slide_obj_bounds(self, slide_obj_id):
+        slide_obj = Slide.objects.get(pk=slide_obj_id)
+        if slide_obj.image_type == 'OMERO_IMG':
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'deepzoom/slide_bounds/%d.dzi' % slide_obj.omero_id)
+        elif slide_obj.image_type == 'MIRAX':
+            url = urljoin(OME_SEADRAGON_BASE_URL, 'mirax/deepzoom/slide_bounds/%s.dzi' % slide_obj.id)
+        else:
+            logger.error('Unknown image type %s for slide_obj %s', slide_obj.image_type, slide_obj.id)
+            return None
+        response = requests.get(url)
+        if response.status_code == requests.codes.OK:
+            return response.json()
+        else:
+            logger.error('Error while loading slide_obj bounds %s', slide_obj.id)
+            return None
 
     def _get_related(self, rois):
         related_rois = copy.copy(rois)
@@ -82,9 +104,31 @@ class Command(BaseCommand):
                     len(related_rois['slice']), len(related_rois['core']),
                     len(related_rois['focus_region']))
         return related_rois
+    
+    def _adjust_shape_points(self, roi_json, slide_bounds):
+        if not slide_bounds is None:
+            new_segments = list()
+            shape = json.loads(roi_json)
+            old_segments = shape.get('segments')
+            for p in old_segments:
+                new_p = {
+                    'x': p['point']['x'] + int(slide_bounds['bounds_x']),
+                    'y': p['point']['y'] + int(slide_bounds['bounds_y'])
+                }
+                np = copy.copy(p)
+                np['point'] = new_p
+                new_segments.append(np)
+            shape['segments'] = new_segments
+            return json.dumps(shape)
+        else:
+            return roi_json
 
-    def _dump_slide_rois(self, slide_id, rois, output_folder):
-        logger.info('Dumping ROIs for slide %s', slide_id)
+    def _dump_slide_obj_rois(self, slide_obj_id, rois, remove_limit_bounds, output_folder):
+        logger.info('Dumping ROIs for slide_obj %s', slide_obj_id)
+        if remove_limit_bounds:
+            slide_obj_bounds = self._get_slide_obj_bounds(slide_obj_id)
+        else:
+            slide_obj_bounds = None
         rois = self._get_related(rois)
         labels_map = {
             'slice': dict(),
@@ -100,7 +144,7 @@ class Command(BaseCommand):
             labels_map['slice'][ser_obj.get('id')] = ser_obj['label']
             slice_obj = {
                 'label': ser_obj['label'],
-                'roi_json': ser_obj['roi_json'],
+                'roi_json': self._adjust_shape_points(ser_obj['roi_json'], slide_obj_bounds),
                 'total_cores': ser_obj['total_cores']
             }
             to_be_saved['slice'].append(slice_obj)
@@ -110,7 +154,7 @@ class Command(BaseCommand):
             core_obj = {
                 'label': ser_obj['label'],
                 'slice': labels_map['slice'].get(ser_obj['slice']),
-                'roi_json': ser_obj['roi_json'],
+                'roi_json': self._adjust_shape_points(ser_obj['roi_json'], slide_obj_bounds),
                 'length': ser_obj['length'],
                 'area': ser_obj['area'],
                 'tumor_length': ser_obj['tumor_length']
@@ -121,24 +165,24 @@ class Command(BaseCommand):
             focus_region_obj = {
                 'label': ser_obj['label'],
                 'core': labels_map['core'].get(ser_obj['core']),
-                'roi_json': ser_obj['roi_json'],
+                'roi_json': self._adjust_shape_points(ser_obj['roi_json'], slide_obj_bounds),
                 'length': ser_obj['length'],
                 'area': ser_obj['area'],
                 'tissue_status': ser_obj['tissue_status']
             }
             to_be_saved['focus_region'].append(focus_region_obj)
-        with open(os.path.join(output_folder, '%s.json' % slide_id), 'w') as out_file:
+        with open(os.path.join(output_folder, '%s.json' % slide_obj_id), 'w') as out_file:
             json.dump(to_be_saved, out_file)
 
-    def _dump_rois(self, rois_map, output_folder):
+    def _dump_rois(self, rois_map, remove_limit_bounds, output_folder):
         logger.debug('Checking if folder %s exists' % output_folder)
         if not os.path.isdir(output_folder):
             raise CommandError('Output folder %s does not exist, exit' % output_folder)
-        for slide, rois in rois_map.items():
-            self._dump_slide_rois(slide, rois, output_folder)
+        for slide_obj, rois in rois_map.items():
+            self._dump_slide_obj_rois(slide_obj, rois, remove_limit_bounds, output_folder)
 
     def handle(self, *args, **opts):
         logger.info('== Starting job ==')
         rois = self._load_rois_map(opts['rois_list'])
-        self._dump_rois(rois, opts['out_folder'])
+        self._dump_rois(rois, opts['remove_limit_bounds'], opts['out_folder'])
         logger.info('== Job completed ==')
