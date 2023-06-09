@@ -23,6 +23,8 @@ from django.contrib.auth.models import User
 from reviews_manager.models import ClinicalAnnotationStep
 from rois_manager.models import Slice, Core, FocusRegion
 
+from collections import Counter
+
 
 class SliceAnnotation(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
@@ -95,10 +97,10 @@ class CoreAnnotation(models.Model):
     action_start_time = models.DateTimeField(null=True, default=None)
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
-    primary_gleason = models.IntegerField(blank=False)
-    secondary_gleason = models.IntegerField(blank=False)
+    primary_gleason = models.IntegerField(null=True, default=None)
+    secondary_gleason = models.IntegerField(null=True, default=None)
     gleason_group = models.CharField(
-        max_length=3, choices=GLEASON_GROUP_WHO_16, blank=False
+        max_length=3, choices=GLEASON_GROUP_WHO_16, null=True, default=None
     )
     # acquire ONLY if at least one Cribriform Pattern (under GleasonPattern type 4) exists
     nuclear_grade_size = models.CharField(max_length=1, null=True, default=None)
@@ -118,6 +120,52 @@ class CoreAnnotation(models.Model):
 
     class Meta:
         unique_together = ('core', 'annotation_step')
+
+    def _get_gleason_elements(self):
+        gleason_elements = list()
+        for fr in self.core.focus_regions.all():
+            gleason_elements.extend(
+                GleasonPattern.objects.filter(
+                    focus_region = fr,
+                    annotation_step = self.annotation_step
+                ).all()
+            )
+        return gleason_elements
+    
+    def _get_gleason_coverage(self):
+        g_elems = self._get_gleason_elements()
+        total_gleason_area = 0
+        gleason_patterns_area = Counter()
+        for g_el in g_elems:
+            total_gleason_area += g_el.area
+            gleason_patterns_area[g_el.gleason_type] += g_el.area
+        gleason_coverage = dict()
+        for gp, gpa in gleason_patterns_area.items():
+            gleason_coverage[gp] = (100 * gpa/total_gleason_area)
+        return gleason_coverage
+    
+    def _get_primary_and_secondary_gleason(self):
+        gleason_coverage = self._get_gleason_coverage()
+        if len(gleason_coverage) == 0:
+            return None, None
+        primary_gleason = max(gleason_coverage, key=gleason_coverage.get)
+        gleason_coverage.pop(primary_gleason)
+        if len(gleason_coverage) == 0:
+            secondary_gleason = primary_gleason
+        else:
+            secondary_gleason = max(gleason_coverage)
+        return primary_gleason, secondary_gleason
+    
+    def get_primary_gleason(self):
+        primary_gleason, _ = self._get_primary_and_secondary_gleason()
+        return primary_gleason
+    
+    def get_secondary_gleason(self):
+        _, secondary_gleason = self._get_primary_and_secondary_gleason()
+        return secondary_gleason
+    
+    def get_gleason_group(self):
+        pass
 
     def get_gleason_4_total_area(self):
         gleason_4_total_area = 0.0
@@ -198,7 +246,7 @@ class FocusRegionAnnotation(models.Model):
     def get_gleason_elements(self):
         gleason_elements_map = dict()
         for gp in self.annotation_step.gleason_annotations.filter(focus_region=self.focus_region).all():
-            gleason_elements_map[gp.gleason_type] = gp
+            gleason_elements_map.setdefault(gp.gleason_type, []).append(gp)
         return gleason_elements_map
 
     def get_gleason_4_elements(self):

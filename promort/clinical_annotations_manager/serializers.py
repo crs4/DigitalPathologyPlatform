@@ -77,8 +77,7 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoreAnnotation
         fields = ('id', 'author', 'core', 'annotation_step', 'action_start_time', 'action_complete_time',
-                  'creation_date', 'primary_gleason', 'secondary_gleason', 'gleason_score',
-                  'gleason_4_percentage', 'gleason_group', 'nuclear_grade_size',
+                  'creation_date', 'gleason_score', 'gleason_4_percentage', 'nuclear_grade_size',
                   'intraluminal_acinar_differentiation_grade', 'intraluminal_secretions',
                   'central_maturation', 'extra_cribriform_gleason_score',
                   'largest_confluent_sheet', 'total_cribriform_area', 'predominant_rsg',
@@ -91,7 +90,7 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_gleason_score(obj):
-        return '%d + %d' % (obj.primary_gleason, obj.secondary_gleason)
+        return '{0} + {1}'.format(obj.get_primary_gleason(), obj.get_secondary_gleason())
 
     @staticmethod
     def get_gleason_4_percentage(obj):

@@ -573,6 +573,7 @@
                                 break;
                             case 'focus_region':
                                 vm.activateNewFocusRegionAnnotationMode(roi_id);
+                                break;
                         }
                     }
                 } else {
@@ -585,6 +586,7 @@
                             break;
                         case 'focus_region':
                             vm.activateShowFocusRegionAnnotationMode(roi_id);
+                            break;
                     }
                 }
             }
@@ -1259,8 +1261,7 @@
         }
 
         function formValid() {
-            return ((typeof vm.primaryGleason !== 'undefined') &&
-                (typeof vm.secondaryGleason !== 'undefined'));
+            return true;
         }
 
         function destroy() {
@@ -1313,9 +1314,6 @@
                 closeByDocument: false
             });
             var obj_config = {
-                primary_gleason: Number(vm.primaryGleason),
-                secondary_gleason: Number(vm.secondaryGleason),
-                gleason_group: vm.gradeGroupWho,
                 action_start_time: vm.actionStartTime,
                 action_complete_time: new Date(),
                 predominant_rsg: vm.predominant_rsg,
