@@ -90,7 +90,7 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_gleason_score(obj):
-        return '{0} + {1}'.format(obj.get_primary_gleason(), obj.get_secondary_gleason())
+        return '{0} + {1}'.format(*obj._get_primary_and_secondary_gleason())
 
     @staticmethod
     def get_gleason_4_percentage(obj):
@@ -107,6 +107,35 @@ class CoreAnnotationSerializer(serializers.ModelSerializer):
 
 class CoreAnnotationDetailsSerializer(CoreAnnotationSerializer):
     core = CoreSerializer(read_only=True)
+    
+    primary_gleason = serializers.SerializerMethodField()
+    secondary_gleason = serializers.SerializerMethodField()
+    gleason_group = serializers.SerializerMethodField()
+    details = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = CoreAnnotation
+        fields = CoreAnnotationSerializer.Meta.fields + ('primary_gleason', 'secondary_gleason',
+                                                         'gleason_group', 'details')
+        
+        read_only_fields = CoreAnnotationSerializer.Meta.read_only_fields + ('primary_gleason', 'secondary_gleason',
+                                                                             'gleason_group', 'details')
+    
+    @staticmethod
+    def get_primary_gleason(obj):
+        return obj.get_primary_gleason()
+    
+    @staticmethod
+    def get_secondary_gleason(obj):
+        return obj.get_secondary_gleason()
+    
+    @staticmethod
+    def get_gleason_group(obj):
+        return obj.get_gleason_group()
+    
+    @staticmethod
+    def get_details(obj):
+        return obj.get_gleason_patterns_details()
 
 
 class CoreAnnotationInfosSerializer(serializers.ModelSerializer):

@@ -155,17 +155,38 @@ class CoreAnnotation(models.Model):
         else:
             secondary_gleason = max(gleason_coverage)
         return primary_gleason, secondary_gleason
-    
+
     def get_primary_gleason(self):
-        primary_gleason, _ = self._get_primary_and_secondary_gleason()
-        return primary_gleason
+        if self.primary_gleason is None:
+            primary_gleason, _ = self._get_primary_and_secondary_gleason()
+            return primary_gleason
+        else:
+            return self.primary_gleason
     
     def get_secondary_gleason(self):
-        _, secondary_gleason = self._get_primary_and_secondary_gleason()
-        return secondary_gleason
+        if self.secondary_gleason is None:
+            _, secondary_gleason = self._get_primary_and_secondary_gleason()
+            return secondary_gleason
+        else:
+            return self.secondary_gleason
     
     def get_gleason_group(self):
-        pass
+        if self.gleason_group is None:
+            primary_gleason, secondary_gleason = self._get_primary_and_secondary_gleason()
+            gleason_score = int(primary_gleason.replace('G', '')) + int(secondary_gleason.replace('G', ''))
+            if gleason_score <= 6:
+                return 'GG1'
+            elif gleason_score == 7:
+                if primary_gleason == 'G3':
+                    return 'GG2'
+                else:
+                    return 'GG3'
+            elif gleason_score == 8:
+                return 'GG4'
+            else:
+                return 'GG5'
+        else:
+            return self.gleason_group
 
     def get_gleason_4_total_area(self):
         gleason_4_total_area = 0.0
@@ -192,9 +213,27 @@ class CoreAnnotation(models.Model):
             return -1
 
     def get_grade_group_text(self):
+        gleason_group = self.get_gleason_group()
         for choice in self.GLEASON_GROUP_WHO_16:
-            if choice[0] == self.gleason_group:
+            if choice[0] == gleason_group:
                 return choice[1]
+    
+    def get_gleason_patterns_details(self):
+        gleason_elements = self._get_gleason_elements()
+        gleason_total_areas = Counter()
+        gleason_shapes = dict()
+        for ge in gleason_elements:
+            gleason_total_areas[ge.gleason_type] += ge.area
+            gleason_shapes.setdefault(ge.gleason_type, []).append(ge.label)
+        gleason_coverage = self._get_gleason_coverage()
+        gleason_details = {}
+        for gtype in gleason_shapes.keys():
+            gleason_details[gtype] = {
+                "shapes": gleason_shapes[gtype],
+                "total_area": gleason_total_areas[gtype],
+                "total_coverage": round(gleason_coverage[gtype], 2)
+            }
+        return gleason_details
 
     def get_action_duration(self):
         if self.action_start_time and self.action_complete_time:
