@@ -48,12 +48,24 @@ class SlideROIsList(APIView):
 
     def _serialize_rois_data(self, rois, roi_type, annotation_step):
         rois_data = []
+        roi_parent_type = {
+            'slice': None,
+            'core': 'slice',
+            'focus_region': 'core'
+        }
         for r in rois:
-            rois_data.append({
+            roi_details = {
                 'roi_id': r.id,
                 'roi_type': roi_type,
-                'annotation_step': annotation_step
-            })
+                'annotation_step': annotation_step,
+                'parent_type': roi_parent_type[roi_type],
+                'parent_id': None
+            }
+            if roi_type == 'core':
+                roi_details['parent_id'] = r.slice.id
+            elif roi_type == 'focus_region':
+                roi_details['parent_id'] = r.core.id
+            rois_data.append(roi_details)
         return rois_data
 
     def get(self, request, pk, format=None):
