@@ -31,7 +31,7 @@ import questionnaires_manager.views as qmv
 import reviews_manager.views as rmv
 from worklist_manager.views import UserWorkList, UserWorklistROIsAnnotation, \
     UserWorklistClinicalAnnotation, WorkListAdmin
-from rois_manager.views import SliceList, SliceDetail, CoreList, \
+from rois_manager.views import SlideROIsList, SliceList, SliceDetail, CoreList, \
     CoreDetail, FocusRegionList, FocusRegionDetail, ROIsTreeList
 from clinical_annotations_manager.views import AnnotatedROIsTreeList, ClinicalAnnotationStepAnnotationsList, \
     SliceAnnotationList, SliceAnnotationDetail, CoreAnnotationList, CoreAnnotationDetail, \
@@ -131,6 +131,7 @@ urlpatterns = [
          rmv.ClinicalAnnotationStepsList.as_view()),
 
     # ROIs
+    path('api/slides/<slug:pk>/rois/', SlideROIsList.as_view()),
     path('api/rois_annotation_steps/<rslabel:label>/rois_list/',
          ROIsTreeList.as_view()),
     path('api/rois_annotation_steps/<rslabel:label>/slices/',
