@@ -31,6 +31,7 @@ from django.db import IntegrityError
 
 from view_templates.views import GenericReadOnlyDetailView, GenericDetailView
 
+from slides_manager.models import Slide
 from reviews_manager.models import ROIsAnnotationStep
 from reviews_manager.serializers import ROIsAnnotationStepFullSerializer, \
     ROIsAnnotationStepROIsTreeSerializer
@@ -40,6 +41,63 @@ from rois_manager.serializers import SliceSerializer, SliceDetailsSerializer, \
 
 import logging
 logger = logging.getLogger('promort')
+
+
+class SlideROIsList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def _serialize_rois_data(self, rois, roi_type, annotation_step):
+        rois_data = []
+        roi_parent_type = {
+            'slice': None,
+            'core': 'slice',
+            'focus_region': 'core'
+        }
+        for r in rois:
+            roi_details = {
+                'roi_id': r.id,
+                'roi_type': roi_type,
+                'annotation_step': annotation_step,
+                'parent_type': roi_parent_type[roi_type],
+                'parent_id': None
+            }
+            if roi_type == 'core':
+                roi_details['parent_id'] = r.slice.id
+            elif roi_type == 'focus_region':
+                roi_details['parent_id'] = r.core.id
+            rois_data.append(roi_details)
+        return rois_data
+
+    def get(self, request, pk, format=None):
+        try:
+            slide_obj = Slide.objects.get(id=pk)
+        except Slide.DoesNotExist:
+            raise NotFound('There is no Slide with label {0}'.format(pk))
+        roi_type = request.query_params.get('roi_type')
+        rois_annotation_steps = ROIsAnnotationStep.objects.filter(slide=slide_obj, completion_date__isnull=False)
+        rois = []
+        if roi_type is None:
+            for step in rois_annotation_steps:
+                rois.extend(self._serialize_rois_data(step.slices.all(), 'slice', step.label))
+                rois.extend(self._serialize_rois_data(step.cores, 'core', step.label))
+                rois.extend(self._serialize_rois_data(step.focus_regions, 'focus_region', step.label))
+        else:
+            if roi_type == 'slice':
+                for step in rois_annotation_steps:
+                    print(step.label)
+                    rois.extend(self._serialize_rois_data(step.slices.all(), 'slice', step.label))
+            elif roi_type == 'core':
+                for step in rois_annotation_steps:
+                    rois.extend(self._serialize_rois_data(step.cores, 'core', step.label))
+            elif roi_type == 'focus_region':
+                for step in rois_annotation_steps:
+                    rois.extend(self._serialize_rois_data(step.focus_regions, 'focus_region', step.label))
+            else:
+                return Response(
+                    '{0} is not a valid ROI type'.format(roi_type), 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(rois, status=status.HTTP_200_OK)
 
 
 class ROIsTreeList(APIView):
