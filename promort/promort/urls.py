@@ -63,7 +63,7 @@ class RandomCaseLabel:
    
 
 class RandomSlideLabel:
-    regex = r'[A-Fa-f0-9]+\-[A-Za-z0-9]{1,2}'
+    regex = r'[A-Fa-f0-9]+\-[A-Za-z0-9]{1,2}(bis)?'
 
     def to_python(self, value):
         return value
