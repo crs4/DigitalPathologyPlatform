@@ -25,7 +25,7 @@ from csv import DictWriter
 
 import logging
 
-logger = logging.getLogger('promort_commands')
+logger = logging.getLogger("promort_commands")
 
 
 class Command(BaseCommand):
@@ -34,69 +34,100 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('--output_file', dest='output', type=str, required=True,
-                            help='path of the output CSV file')
-        parser.add_argument('--page_size', dest='page_size', type=int, default=0,
-                            help='the number of records retrieved for each page (this will enable pagination)')
+        parser.add_argument(
+            "--output_file",
+            dest="output",
+            type=str,
+            required=True,
+            help="path of the output CSV file",
+        )
+        parser.add_argument(
+            "--page_size",
+            dest="page_size",
+            type=int,
+            default=0,
+            help="the number of records retrieved for each page (this will enable pagination)",
+        )
 
     def _dump_data(self, page_size, csv_writer):
         if page_size > 0:
-            logger.info('Pagination enabled (%d records for page)', page_size)
-            sa_qs = SliceAnnotation.objects.get_queryset().order_by('creation_date')
+            logger.info("Pagination enabled (%d records for page)", page_size)
+            sa_qs = SliceAnnotation.objects.get_queryset().order_by("creation_date")
             paginator = Paginator(sa_qs, page_size)
             for x in paginator.page_range:
-                logger.info('-- page %d --', x)
+                logger.info("-- page %d --", x)
                 page = paginator.page(x)
                 for sa in page.object_list:
                     self._dump_row(sa, csv_writer)
         else:
-            logger.info('Loading full batch')
+            logger.info("Loading full batch")
             slice_annotations = SliceAnnotation.objects.all()
             for sa in slice_annotations:
                 self._dump_row(sa, csv_writer)
 
     def _dump_row(self, slice_annotation, csv_writer):
         try:
-            action_start_time = slice_annotation.action_start_time.strftime('%Y-%m-%d %H:%M:%S')
+            action_start_time = slice_annotation.action_start_time.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
         except AttributeError:
             action_start_time = None
         try:
-            action_complete_time = slice_annotation.action_complete_time.strftime('%Y-%m-%d %H:%M:%S')
+            action_complete_time = slice_annotation.action_complete_time.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
         except AttributeError:
             action_complete_time = None
         csv_writer.writerow(
             {
-                'case_id': slice_annotation.slice.slide.case.id,
-                'slide_id': slice_annotation.slice.slide.id,
-                'rois_review_step_id': slice_annotation.annotation_step.rois_review_step.label,
-                'clinical_review_step_id': slice_annotation.annotation_step.label,
-                'reviewer': slice_annotation.author.username,
-                'slice_id': slice_annotation.slice.id,
-                'slice_label': slice_annotation.slice.label,
-                'action_start_time': action_start_time,
-                'action_complete_time': action_complete_time,
-                'creation_date': slice_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'high_grade_pin': slice_annotation.high_grade_pin,
-                'pah': slice_annotation.pah,
-                'chronic_inflammation': slice_annotation.chronic_inflammation,
-                'acute_inflammation': slice_annotation.acute_inflammation,
-                'periglandular_inflammation': slice_annotation.periglandular_inflammation,
-                'intraglandular_inflammation': slice_annotation.intraglandular_inflammation,
-                'stromal_inflammation': slice_annotation.stromal_inflammation
+                "case_id": slice_annotation.slice.slide.case.id,
+                "slide_id": slice_annotation.slice.slide.id,
+                "rois_review_step_id": slice_annotation.annotation_step.rois_review_step.label,
+                "clinical_review_step_id": slice_annotation.annotation_step.label,
+                "reviewer": slice_annotation.author.username,
+                "slice_id": slice_annotation.slice.id,
+                "slice_label": slice_annotation.slice.label,
+                "action_start_time": action_start_time,
+                "action_complete_time": action_complete_time,
+                "creation_date": slice_annotation.creation_date.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
+                "high_grade_pin": slice_annotation.high_grade_pin,
+                "pah": slice_annotation.pah,
+                "chronic_inflammation": slice_annotation.chronic_inflammation,
+                "acute_inflammation": slice_annotation.acute_inflammation,
+                "periglandular_inflammation": slice_annotation.periglandular_inflammation,
+                "intraglandular_inflammation": slice_annotation.intraglandular_inflammation,
+                "stromal_inflammation": slice_annotation.stromal_inflammation,
             }
         )
 
     def _export_data(self, out_file, page_size):
-        header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
-                  'slice_id', 'slice_label', 'action_start_time', 'action_complete_time', 'creation_date',
-                  'high_grade_pin', 'pah', 'chronic_inflammation', 'acute_inflammation', 'periglandular_inflammation',
-                  'intraglandular_inflammation', 'stromal_inflammation']
-        with open(out_file, 'w') as ofile:
-            writer = DictWriter(ofile, delimiter=',', fieldnames=header)
+        header = [
+            "case_id",
+            "slide_id",
+            "rois_review_step_id",
+            "clinical_review_step_id",
+            "reviewer",
+            "slice_id",
+            "slice_label",
+            "action_start_time",
+            "action_complete_time",
+            "creation_date",
+            "high_grade_pin",
+            "pah",
+            "chronic_inflammation",
+            "acute_inflammation",
+            "periglandular_inflammation",
+            "intraglandular_inflammation",
+            "stromal_inflammation",
+        ]
+        with open(out_file, "w") as ofile:
+            writer = DictWriter(ofile, delimiter=",", fieldnames=header)
             writer.writeheader()
             self._dump_data(page_size, writer)
 
     def handle(self, *args, **opts):
-        logger.info('=== Starting export job ===')
-        self._export_data(opts['output'], opts['page_size'])
-        logger.info('=== Data saved to %s ===', opts['output'])
+        logger.info("=== Starting export job ===")
+        self._export_data(opts["output"], opts["page_size"])
+        logger.info("=== Data saved to %s ===", opts["output"])
