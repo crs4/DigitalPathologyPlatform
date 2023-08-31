@@ -86,8 +86,12 @@ class Command(BaseCommand):
                 'hypernephroid_pattern': focus_region_annotation.hypernephroid_pattern,
                 'mucinous': focus_region_annotation.mucinous,
                 'comedo_necrosis': focus_region_annotation.comedo_necrosis,
-                'total_gleason_4_area': focus_region_annotation.get_total_gleason_4_area(),
-                'gleason_4_percentage': focus_region_annotation.get_gleason_4_percentage()
+                'total_gleason_3_area': focus_region_annotation.get_total_gleason_area("G3"),
+                'total_gleason_4_area': focus_region_annotation.get_total_gleason_area("G4"),
+                'total_gleason_5_area': focus_region_annotation.get_total_gleason_area("G5"),
+                'gleason_3_percentage': focus_region_annotation.get_gleason_percentage("G3"),
+                'gleason_4_percentage': focus_region_annotation.get_gleason_percentage("G4"),
+                'gleason_5_percentage': focus_region_annotation.get_gleason_percentage("G5")
             }
         )
 
@@ -96,7 +100,8 @@ class Command(BaseCommand):
                   'focus_region_id', 'focus_region_label', 'core_id', 'core_label', 'action_start_time',
                   'action_complete_time', 'creation_date', 'perineural_involvement', 'intraductal_carcinoma',
                   'ductal_carcinoma', 'poorly_formed_glands', 'cribriform_pattern', 'small_cell_signet_ring',
-                  'hypernephroid_pattern', 'mucinous', 'comedo_necrosis', 'total_gleason_4_area', 'gleason_4_percentage']
+                  'hypernephroid_pattern', 'mucinous', 'comedo_necrosis', 'total_gleason_3_area',  'gleason_3_percentage',
+                  'total_gleason_4_area', 'gleason_4_percentage', 'total_gleason_5_area', 'gleason_5_percentage']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

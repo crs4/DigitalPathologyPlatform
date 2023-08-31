@@ -289,13 +289,26 @@ class FocusRegionAnnotation(models.Model):
         return gleason_elements_map
 
     def get_gleason_4_elements(self):
-        return self.get_gleason_elements()["G4"]
+        return self.get_gleason_elements().get("G4", [])
+
+    def get_total_gleason_area(self, gleason_pattern):
+        gleason_area = 0
+        for g in self.get_gleason_elements().get(gleason_pattern, []):
+            gleason_area += g.area
+        return gleason_area
 
     def get_total_gleason_4_area(self):
         g4_area = 0
         for g4 in self.get_gleason_4_elements():
             g4_area += g4.area
         return g4_area
+
+    def get_gleason_percentage(self, gleason_pattern):
+        gleason_area = self.get_total_gleason_area(gleason_pattern)
+        try:
+            return (gleason_area / self.focus_region.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
     def get_gleason_4_percentage(self):
         g4_area = self.get_total_gleason_4_area()
