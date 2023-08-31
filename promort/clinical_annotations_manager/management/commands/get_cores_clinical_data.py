@@ -76,16 +76,32 @@ class Command(BaseCommand):
                 'action_start_time': action_start_time,
                 'action_complete_time': action_complete_time,
                 'creation_date': core_annotation.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'primary_gleason': core_annotation.primary_gleason,
-                'secondary_gleason': core_annotation.secondary_gleason,
-                'gleason_group_who_16': core_annotation.get_grade_group_text()
+                'primary_gleason': core_annotation.get_primary_gleason(),
+                'secondary_gleason': core_annotation.get_secondary_gleason(),
+                'gleason_group_who_16': core_annotation.get_grade_group_text(),
+                'nuclear_grade_size': core_annotation.nuclear_grade_size,
+                'intraluminal_acinar_differentiation_grade': core_annotation.intraluminal_acinar_differentiation_grade,
+                'intraluminal_secretions': core_annotation.intraluminal_secretions,
+                'central_maturation': core_annotation.central_maturation,
+                'extra_cribriform_gleason_score': core_annotation.extra_cribriform_gleason_score,
+                'predominant_rsg': core_annotation.predominant_rsg,
+                'highest_rsg': core_annotation.highest_rsg,
+                'rsg_within_highest_grade_area': core_annotation.rsg_within_highest_grade_area,
+                'perineural_invasion': core_annotation.perineural_invasion,
+                'perineural_growth_with_cribriform_patterns': core_annotation.perineural_growth_with_cribriform_patterns,
+                'extrapostatic_extension': core_annotation.extraprostatic_extension,
+                'largest_confluent_sheet': core_annotation.get_largest_confluent_sheet(),
+                'total_cribriform_area': core_annotation.get_total_cribriform_area()
             }
         )
 
     def _export_data(self, out_file, page_size):
         header = ['case_id', 'slide_id', 'rois_review_step_id', 'clinical_review_step_id', 'reviewer',
                   'core_id', 'core_label', 'action_start_time', 'action_complete_time', 'creation_date',
-                  'primary_gleason', 'secondary_gleason', 'gleason_group_who_16']
+                  'primary_gleason', 'secondary_gleason', 'gleason_group_who_16', 'nuclear_grade_size', 'intraluminal_acinar_differentiation_grade',
+                  'intraluminal_secretions', 'central_maturation', 'extra_cribriform_gleason_score', 'predominant_rsg', 'highest_rsg',
+                  'rsg_within_highest_grade_area', 'perineural_invasion', 'perineural_growth_with_cribriform_patterns',
+                  'extrapostatic_extension', 'largest_confluent_sheet', 'total_cribriform_area']
         with open(out_file, 'w') as ofile:
             writer = DictWriter(ofile, delimiter=',', fieldnames=header)
             writer.writeheader()

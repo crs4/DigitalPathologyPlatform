@@ -243,11 +243,11 @@ class CoreAnnotation(models.Model):
 
     def get_largest_confluent_sheet(self):
         # TODO: get largest cribriform object among all Gleason 4 elements of a core
-        pass
+        return None
 
     def get_total_cribriform_area(self):
         # TODO: sum of all cribriform objects defined on a core
-        pass
+        return None
 
 
 class FocusRegionAnnotation(models.Model):
