@@ -77,8 +77,8 @@ class Command(BaseCommand):
                 'action_complete_time': action_complete_time,
                 'creation_date': focus_region.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': focus_region.author.username,
-                'length': focus_region.length,
-                'area': focus_region.area,
+                'length': focus_region.get_length(),
+                'area': focus_region.get_area(),
                 'tissue_status': self._get_region_tissue_status(focus_region),
                 'core_coverage_percentage': focus_region.get_core_coverage_percentage()
             }

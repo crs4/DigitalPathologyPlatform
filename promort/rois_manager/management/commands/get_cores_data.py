@@ -76,9 +76,9 @@ class Command(BaseCommand):
                 'action_complete_time': action_complete_time,
                 'creation_date': core.creation_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'reviewer': core.author.username,
-                'length': core.length,
-                'area': core.area,
-                'tumor_length': core.tumor_length,
+                'length': core.get_length(),
+                'area': core.get_area(),
+                'tumor_length': core.get_tumor_length(),
                 'positive_core': core.is_positive(),
                 'normal_tissue_percentage': core.get_normal_tissue_percentage(),
                 'total_tumor_area': core.get_total_tumor_area()

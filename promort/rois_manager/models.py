@@ -84,12 +84,24 @@ class Core(models.Model):
         total_cancerous_area = 0.0
         for focus_region in self.focus_regions.all():
             if focus_region.is_cancerous_region():
-                total_cancerous_area += focus_region.area
+                total_cancerous_area += focus_region.get_area()
         return total_cancerous_area
+
+    def get_length(self):
+        return round(self.length, 2)
+
+    def get_area(self):
+        return round(self.area, 2)
+
+    def get_tumor_length(self):
+        if not self.tumor_length is None:
+            return round(self.tumor_length, 2)
+        else:
+            return None
 
     def get_normal_tissue_percentage(self):
         total_cancerous_area = self.get_total_tumor_area()
-        return ((self.area - total_cancerous_area) / self.area) * 100.0
+        return ((self.get_area() - total_cancerous_area) / self.get_area()) * 100.0
 
     def is_positive(self):
         for fr in self.focus_regions.all():
@@ -129,8 +141,14 @@ class FocusRegion(models.Model):
     class Meta:
         unique_together = ('label', 'core')
 
+    def get_length(self):
+        return round(self.length, 2)
+
+    def get_area(self):
+        return round(self.area, 2)
+
     def get_core_coverage_percentage(self):
-        return (self.area / self.core.area) * 100.0
+        return (self.get_area() / self.core.get_area()) * 100.0
 
     def is_cancerous_region(self):
         return self.tissue_status == 'TUMOR'
