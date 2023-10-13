@@ -220,7 +220,7 @@
                         var $new_gleason_pattern_item = $(vm._createListItem(gleason_pattern_info.label,
                             false, false));
                         var $anchor = $new_gleason_pattern_item.find('a');
-                        $anchor.attr('ng-click', '')
+                        $anchor.attr('ng-click', 'cmc.showROIPanel("gleason_pattern", ' + gleason_pattern_info.id + ')')
                             .attr('ng-mouseenter', 'cmc.selectROI("gleason_pattern", ' + gleason_pattern_info.id + ')')
                             .attr('ng-mouseleave', 'cmc.deselectROI("gleason_pattern", ' + gleason_pattern_info.id + ')');
                         $compile($anchor)($scope);
@@ -559,6 +559,9 @@
                         edit_mode = roi_id in vm.focus_regions_edit_mode ?
                             vm.focus_regions_edit_mode[roi_id] : false;
                         break;
+                    case 'gleason_pattern':
+                        edit_mode = false;
+                        break;
                 }
                 vm.deselectROI(roi_type, roi_id);
                 vm._focusOnShape(roi_type, roi_id);
@@ -586,6 +589,9 @@
                             break;
                         case 'focus_region':
                             vm.activateShowFocusRegionAnnotationMode(roi_id);
+                            break;
+                        case 'gleason_pattern': 
+                            vm.activateShowGleasonPatternAnnotationMode(roi_id);
                             break;
                     }
                 }
@@ -729,8 +735,9 @@
             return vm.ui_active_modes['annotate_gleason_pattern'];
         }
 
-        function activateShowGleasonPatternAnnotationMode() {
+        function activateShowGleasonPatternAnnotationMode(gleason_pattern_id) {
             vm.allModesOff();
+            $rootScope.$broadcast('gleason_pattern.show', gleason_pattern_id);
             vm.ui_active_modes['show_gleason_pattern'] = true;
         }
 
@@ -1368,10 +1375,10 @@
     }
 
     ShowCoreAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
-        'CoreAnnotationsManagerService', 'CoresManagerService'];
+        'CoreAnnotationsManagerService', 'CoresManagerService', 'AnnotationsViewerService'];
 
     function ShowCoreAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
-        CoreAnnotationsManagerService, CoresManagerService) {
+        CoreAnnotationsManagerService, CoresManagerService, AnnotationsViewerService) {
         var vm = this;
         vm.core_id = undefined;
         vm.core_label = undefined;
@@ -1381,7 +1388,8 @@
         vm.normalTissuePercentage = undefined;
         vm.gleasonScore = undefined;
         vm.gradeGroupWhoLabel = undefined;
-        vm.gleason4Percentage = undefined;
+        vm.gleasonDetails = undefined;
+        vm.gleasonHighlighted = undefined;
         vm.predominant_rsg = undefined;
         vm.highest_rsg = undefined;
         vm.rsg_within_highest_grade_area = undefined;
@@ -1415,6 +1423,12 @@
             { id: Math.pow(10, -6), unit_of_measure: 'mm²' }
         ];
 
+        vm.gleasonPatternsColors = {
+            "G3": "#ffcc99",
+            "G4": "#ff9966",
+            "G5": "#cc5200"
+        }
+
         vm.locked = undefined;
 
         vm.isReadOnly = isReadOnly;
@@ -1424,6 +1438,12 @@
         vm.updateTumorLength = updateTumorLength;
         vm.updateCoreLength = updateCoreLength;
         vm.updateCoreArea = updateCoreArea;
+        vm.getCoverage = getCoverage;
+        vm.gleasonDetailsAvailable = gleasonDetailsAvailable;
+        vm._getGleasonShapesLabels = _getGleasonShapesLabels;
+        vm.gleasonHighlightSwitch = gleasonHighlightSwitch;
+        vm.isHighlighted = isHighlighted;
+        vm.selectGleasonPatterns = selectGleasonPatterns;
 
         activate();
 
@@ -1452,7 +1472,12 @@
                 vm.updateTumorLength();
                 vm.normalTissuePercentage = Number(parseFloat(response.data.core.normal_tissue_percentage).toFixed(3));
                 vm.gleasonScore = response.data.gleason_score;
-                vm.gleason4Percentage = Number(parseFloat(response.data.gleason_4_percentage).toFixed(3));
+                vm.gleasonDetails = response.data.details;
+                vm.gleasonHighlighted = {
+                    "G3": false,
+                    "G4": false,
+                    "G5": false
+                }
                 switch (response.data.gleason_group) {
                     case 'GG1':
                         vm.gradeGroupWhoLabel = 'Group 1';
@@ -1560,7 +1585,8 @@
                 vm.normalTissuePercentage = undefined;
                 vm.gleasonScore = undefined;
                 vm.gradeGroupWhoLabel = undefined;
-                vm.gleason4Percentage = undefined;
+                vm.gleasonDetails = undefined;;
+                vm.gleasonHighlighted = undefined;
                 vm.predominant_rsg = undefined;
                 vm.highest_rsg = undefined;
                 vm.rsg_within_highest_grade_area = undefined;
@@ -1600,6 +1626,77 @@
                 (vm.coreArea * vm.coreAreaScaleFactor.id), 3
             );
         }
+
+        function getCoverage(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                var pattern_data = vm.gleasonDetails[gleason_pattern];
+                if (pattern_data !== undefined) {
+                    return pattern_data.total_coverage + " %";
+                } else {
+                    return "0 %";
+                }
+            }
+        }
+
+        function gleasonDetailsAvailable(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                return vm.gleasonDetails.hasOwnProperty(gleason_pattern);
+            } else {
+                return false;
+            }
+        }
+
+        function _getGleasonShapesLabels(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    return vm.gleasonDetails[gleason_pattern].shapes;
+                }
+            }
+            return undefined;
+        }
+
+        function gleasonHighlightSwitch(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    var gleason_shapes = vm._getGleasonShapesLabels(gleason_pattern);
+                    var pattern_highlighted = vm.gleasonHighlighted[gleason_pattern];
+                    if (pattern_highlighted) {
+                        var shape_color = "#ffffff";
+                        var shape_alpha = "0";
+                    } else {
+                        var shape_color = vm.gleasonPatternsColors[gleason_pattern];
+                        var shape_alpha = "0.35";
+                    }
+                    for (const shape of gleason_shapes) {
+                        AnnotationsViewerService.setShapeFillColor(shape, shape_color, shape_alpha);
+                    }
+                    vm.gleasonHighlighted[gleason_pattern] = !vm.gleasonHighlighted[gleason_pattern];
+                }
+            }
+        }
+
+        function isHighlighted(gleason_pattern) {
+            if (vm.gleasonDetails !== undefined && vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                return vm.gleasonHighlighted[gleason_pattern];
+            } else {
+                return false;
+            }
+
+        }
+
+        function selectGleasonPatterns(gleason_pattern, activate) {
+            if (vm.gleasonDetails !== undefined) {
+                if (vm.gleasonDetails.hasOwnProperty(gleason_pattern)) {
+                    var gleason_shapes = vm._getGleasonShapesLabels(gleason_pattern);
+                    if (activate) {
+                        AnnotationsViewerService.selectShapes(gleason_shapes);
+                    } else {
+                        AnnotationsViewerService.deselectShapes(gleason_shapes);
+                    }
+                }
+            }
+        }
+
     }
 
     NewFocusRegionAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
@@ -3180,9 +3277,51 @@
         }
     }
 
-    ShowGleasonPatternAnnotationController.$inject = [];
+    ShowGleasonPatternAnnotationController.$inject = ['$scope', '$routeParams', '$rootScope', '$log', 'ngDialog',
+        'AnnotationsViewerService', 'CurrentSlideDetailsService', 'GleasonPatternAnnotationsManagerService'];
 
-    function ShowGleasonPatternAnnotationController() {
+    function ShowGleasonPatternAnnotationController($scope, $routeParams, $rootScope, $log, ngDialog,
+        AnnotationsViewerService, CurrentSlideDetailsService, GleasonPatternAnnotationsManagerService) {
+
+        var vm = this;
+        vm.clinical_annotation_step_label = undefined;
+        vm.slide_id = undefined;
+        vm.case_id = undefined;
+        vm.gleason_pattern_id = undefined;
+        
+        vm.locked = undefined;
+
+        vm.isReadOnly = isReadOnly;
+
+        activate();
+
+        function activate() {
+            vm.slide_id = CurrentSlideDetailsService.getSlideId();
+            vm.case_id = CurrentSlideDetailsService.getCaseId();
+
+            vm.clinical_annotation_step_label = $routeParams.label;
+            $scope.$on('gleason_pattern.show',
+                function(event, gleason_pattern_id) {
+                    vm.locked = false;
+                    vm.gleason_pattern_id = gleason_pattern_id;
+                    GleasonPatternAnnotationsManagerService.getAnnotation(vm.gleason_pattern_id)
+                        then(getGleasonPatternSuccessFn, getGleasonPatternErrorFn);
+                }
+            );
+
+            function getGleasonPatternSuccessFn(response) {
+                console.log(response);
+            }
+
+            function getGleasonPatternErrorFn(response) {
+                $log.error('Unable to load Gleason Pattern annotation');
+                $log.error(response);
+            }
+        }
+
+        function isReadOnly() {
+            return true;
+        }
 
     }
 })();

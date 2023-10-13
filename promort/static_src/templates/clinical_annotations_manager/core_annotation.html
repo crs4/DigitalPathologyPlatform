@@ -166,7 +166,8 @@
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.nuclear_grade_size">
+                        ng-model="cmCtrl.nuclear_grade_size"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>1</option>
                     <option>2</option>
@@ -180,7 +181,8 @@
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.intraluminal_acinar_differentiation_grade">
+                        ng-model="cmCtrl.intraluminal_acinar_differentiation_grade"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>1</option>
                     <option>2</option>
@@ -207,7 +209,8 @@
             </div>
             <div class="col-sm-12 prm-form-elem">
                 <select class="form-control  prm-text-input"
-                        ng-model="cmCtrl.extra_cribriform_gleason_score">
+                        ng-model="cmCtrl.extra_cribriform_gleason_score"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>6</option>
                     <option>3+4/4+3</option>
@@ -225,7 +228,8 @@
                 <label>Predominant RSG</label>
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.predominant_rsg">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.predominant_rsg"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>0</option>
                     <option>1</option>
@@ -239,7 +243,8 @@
                 <label>Highest RSG</label>
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.highest_rsg">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.highest_rsg"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>0</option>
                     <option>1</option>
@@ -253,7 +258,8 @@
                 <label>RSG within highest grade area</label>
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_within_highest_grade_area">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_within_highest_grade_area"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>0</option>
                     <option>1</option>
@@ -267,7 +273,8 @@
                 <label>RSG in area of cribriform morphology</label>
             </div><!--
          --><div class="col-sm-3 prm-valign prm-form-elem">
-                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_in_area_of_cribriform_morphology">
+                <select class="form-control  prm-text-input" ng-model="cmCtrl.rsg_in_area_of_cribriform_morphology"
+                        ng-disabled="cmCtrl.isReadOnly()">
                     <option value="" selected disabled></option>
                     <option>0</option>
                     <option>1</option>

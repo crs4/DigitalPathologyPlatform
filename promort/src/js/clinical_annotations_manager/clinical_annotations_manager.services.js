@@ -159,8 +159,8 @@
 
         return GleasonPatternAnnotationsManagerService;
 
-        function getAnnotation() {
-
+        function getAnnotation(gleason_pattern_id) {
+            return $http.get('/api/gleason_patterns/' + gleason_pattern_id + '/');
         }
 
         function createAnnotation(focus_region_id, annotation_step_label, gleason_pattern_config) {
