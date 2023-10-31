@@ -79,6 +79,7 @@
         vm._createListItem = _createListItem;
         vm._createNewSubtree = _createNewSubtree;
         vm._focusOnShape = _focusOnShape;
+        vm._clearGleasonSubregions = _clearGleasonSubregions;
         vm.showROIPanel = showROIPanel;
         vm.selectROI = selectROI;
         vm.deselectROI = deselectROI;
@@ -134,6 +135,7 @@
             $rootScope.cores = [];
             $rootScope.focus_regions = [];
             $rootScope.gleason_patterns = [];
+            $rootScope.gleason_patterns_subregions = [];
 
             ClinicalAnnotationStepService.getDetails(vm.clinical_annotation_step_label)
                 .then(getClinicalAnnotationStepSuccessFn, getClinicalAnnotationStepErrorFn);
@@ -145,6 +147,7 @@
 
                 $scope.$on('annotation_panel.closed',
                     function () {
+                        vm._clearGleasonSubregions();
                         vm.allModesOff();
                     }
                 );
@@ -387,6 +390,12 @@
             AnnotationsViewerService.focusOnShape(shape_id);
         }
 
+        function _clearGleasonSubregions() {
+            while($rootScope.gleason_patterns_subregions.length > 0) {
+                AnnotationsViewerService.deleteShape($rootScope.gleason_patterns_subregions.pop());
+            }
+        }
+
         function canCloseAnnotation() {
             // only cores annotation is mandatory
             for (var x in vm.cores_edit_mode) {
@@ -546,6 +555,7 @@
         }
 
         function showROIPanel(roi_type, roi_id) {
+            vm._clearGleasonSubregions();
             if (!vm.roisTreeLocked) {
                 var edit_mode = undefined;
                 switch (roi_type) {
@@ -3288,10 +3298,22 @@
         vm.slide_id = undefined;
         vm.case_id = undefined;
         vm.gleason_pattern_id = undefined;
+        vm.shape_label = undefined;
+        vm.pattern_type = undefined;
+        vm.pattern_label = undefined;
+        vm.subregions = undefined;
+        vm.subregions_active = undefined;
         
         vm.locked = undefined;
 
         vm.isReadOnly = isReadOnly;
+        vm.destroy = destroy;
+        vm.subregionsExist = subregionsExist;
+        vm.isShapeActive = isShapeActive;
+        vm.selectShape = selectShape;
+        vm.deselectShape = deselectShape;
+        vm.focusOnShape = focusOnShape;
+        vm.switchShapeActiveState = switchShapeActiveState;
 
         activate();
 
@@ -3300,17 +3322,36 @@
             vm.case_id = CurrentSlideDetailsService.getCaseId();
 
             vm.clinical_annotation_step_label = $routeParams.label;
+
             $scope.$on('gleason_pattern.show',
                 function(event, gleason_pattern_id) {
+                    vm.subregions = {};
+                    vm.subregions_active = {};
                     vm.locked = false;
                     vm.gleason_pattern_id = gleason_pattern_id;
                     GleasonPatternAnnotationsManagerService.getAnnotation(vm.gleason_pattern_id)
-                        then(getGleasonPatternSuccessFn, getGleasonPatternErrorFn);
+                        .then(getGleasonPatternSuccessFn, getGleasonPatternErrorFn);
                 }
             );
 
             function getGleasonPatternSuccessFn(response) {
                 console.log(response);
+                vm.shape_label = response.data.label;
+                vm.pattern_type = response.data.gleason_type;
+                vm.pattern_label = response.data.gleason_label;
+                for (var s_index in response.data.subregions) {
+                    var subr = response.data.subregions[s_index];
+                    vm.subregions[subr.label] = {
+                        "label": subr.label,
+                        "area": subr.area,
+                        "id": subr.id,
+                        "type": $.parseJSON(subr.details_json)["type"],
+                        "json_path": $.parseJSON(subr.roi_json)
+                    };
+                    vm.subregions_active[subr.label] = true;
+                    AnnotationsViewerService.drawShape($.parseJSON(subr.roi_json));
+                    $rootScope.gleason_patterns_subregions.push(subr.label);
+                }
             }
 
             function getGleasonPatternErrorFn(response) {
@@ -3321,6 +3362,53 @@
 
         function isReadOnly() {
             return true;
+        }
+
+        function destroy() {
+            $rootScope.$broadcast('annotation_panel.closed');
+        }
+
+        function subregionsExist() {
+            if (typeof(vm.subregions) == "undefined") {
+                return false;
+            } else {
+                return (Object.keys(vm.subregions).length > 0);
+            }
+        }
+
+        function isShapeActive(shape_id) {
+            return vm.subregions_active[shape_id];
+        }
+
+        function selectShape(shape_id) {
+            if (vm.isShapeActive(shape_id)) {
+                AnnotationsViewerService.selectShape(shape_id);
+            }
+        }
+
+        function deselectShape(shape_id) {
+            if (vm.isShapeActive(shape_id)) {
+                AnnotationsViewerService.deselectShape(shape_id);
+            }
+        }
+
+        function focusOnShape(shape_id) {
+            if (vm.isShapeActive(shape_id)) {
+                AnnotationsViewerService.focusOnShape(shape_id);
+            }
+        }
+
+        function switchShapeActiveState(shape_id) {
+            vm.subregions_active[shape_id] = !vm.subregions_active[shape_id];
+            if(vm.subregions_active[shape_id]) {
+                AnnotationsViewerService.drawShape(vm.subregions[shape_id].json_path);
+                vm.selectShape(shape_id);
+                $("#" + shape_id + "_showhide").removeClass('prm-pale-icon');
+            } else {
+                AnnotationsViewerService.deleteShape(shape_id);
+                vm.deselectShape(shape_id);
+                $("#" + shape_id + "_showhide").addClass('prm-pale-icon');
+            }
         }
 
     }

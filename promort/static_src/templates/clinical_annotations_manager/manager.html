@@ -91,6 +91,9 @@
                     <new-gleason-pattern-annotation-form></new-gleason-pattern-annotation-form>
                     <new-gleason-pattern-annotation-buttons></new-gleason-pattern-annotation-buttons>
                 </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.showGleasonPatternAnnotationModeActive()">
+                    <show-gleason-pattern-annotation-form></show-gleason-pattern-annotation-form>
+                </div>
             </div>
         </div>
     </div>

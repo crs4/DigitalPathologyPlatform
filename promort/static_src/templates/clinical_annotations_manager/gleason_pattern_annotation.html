@@ -195,6 +195,16 @@
         </div>
     </div>
     <!-- END OF SELECT GLEASON PATTERN TYPE -->
+    <!-- SHOW GLEASON PATTERN TYPE -->
+    <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+        <div class="prm-label-elem col-sm-6">
+            <label>Pattern Type</label>
+        </div>
+        <div class="col-sm-6 text-right">
+            <p>{{cmCtrl.pattern_label}}</p>
+        </div>
+    </div>
+    <!-- END SHOW GLEASON PATTERN TYPE -->
 
     <!-- NEW SUBLEMENTS CREATION-->
     <div class="form-group row">
@@ -318,8 +328,8 @@
         </div>
     </div>
     <!-- END OF NEW SUBELEMENTS CREATION -->
-    <!-- SUBREGIONS LIST -->
-    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist()">
+    <!-- SUBREGIONS LIST - CREATION MODE-->
+    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist() && !cmCtrl.isReadOnly()">
         <legend class="prm-legend">Subregions</legend>
 
         <div class="form-group row">
@@ -346,5 +356,33 @@
             </div>
         </div>
     </fieldset>
-    <!-- END OF SUBREGIONS LIST -->
+    <!-- END OF SUBREGIONS LIST - CREATION MODE-->
+    <!-- SUBREGIONS LIST - READ ONLY MODE -->
+    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist() && cmCtrl.isReadOnly()">
+        <legend class="prm-legend">Subregions</legend>
+
+        <div class="form-group row">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="(label, sub_reg) in cmCtrl.subregions">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label> {{ sub_reg.type }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right col-sm-5">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(label)"
+                            ng-mouseleave="cmCtrl.deselectShape(label)"
+                            ng-click="cmCtrl.focusOnShape(label)"
+                            ng-disabled="!cmCtrl.isShapeActive(label)">
+                        <i id="{{ label }}_find" class="icon-magnifying"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(label)"
+                            ng-mouseleave="cmCtrl.deselectShape(label)"
+                            ng-click="cmCtrl.switchShapeActiveState(label)">
+                        <i id="{{ label }}_showhide" class="icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END OF SUBREGIONS LIST - READ ONLY MODE -->
 </div>
