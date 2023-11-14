@@ -26,8 +26,10 @@
         .module('promort.clinical_annotations_manager.services')
         .factory('ClinicalAnnotationStepManagerService', ClinicalAnnotationStepManagerService)
         .factory('SliceAnnotationsManagerService', SliceAnnotationsManagerService)
+        .factory('CoreGleasonDetailsManagerService', CoreGleasonDetailsManagerService)
         .factory('CoreAnnotationsManagerService', CoreAnnotationsManagerService)
-        .factory('FocusRegionAnnotationsManagerService', FocusRegionAnnotationsManagerService);
+        .factory('FocusRegionAnnotationsManagerService', FocusRegionAnnotationsManagerService)
+        .factory('GleasonPatternAnnotationsManagerService', GleasonPatternAnnotationsManagerService);
 
     ClinicalAnnotationStepManagerService.$inject = ['$http', '$log'];
 
@@ -76,6 +78,20 @@
 
         function deleteAnnotation(slice_id, annotation_step_label) {
             return $http.delete('/api/slices/' + slice_id + '/clinical_annotations/' + annotation_step_label + '/');
+        }
+    }
+
+    CoreGleasonDetailsManagerService.$inject = ['$http', '$log'];
+
+    function CoreGleasonDetailsManagerService($http, $log) {
+        var CoreGleasonDetailsManagerService = {
+            get: get
+        };
+
+        return CoreGleasonDetailsManagerService;
+
+        function get(core_id, annotation_step_label) {
+            return $http.get('/api/cores/' + core_id + '/clinical_annotations/' + annotation_step_label + '/gleason_details/');
         }
     }
 
@@ -129,6 +145,32 @@
         function deleteAnnotation(focus_region_id, annotation_step_label) {
             return $http.delete('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
                 annotation_step_label + '/');
+        }
+    }
+
+    GleasonPatternAnnotationsManagerService.$inject = ['$http', '$log'];
+
+    function GleasonPatternAnnotationsManagerService($http, $log) {
+        var GleasonPatternAnnotationsManagerService = {
+            getAnnotation: getAnnotation,
+            createAnnotation: createAnnotation,
+            deleteAnnotation: deleteAnnotation
+        };
+
+        return GleasonPatternAnnotationsManagerService;
+
+        function getAnnotation(gleason_pattern_id) {
+            return $http.get('/api/gleason_patterns/' + gleason_pattern_id + '/');
+        }
+
+        function createAnnotation(focus_region_id, annotation_step_label, gleason_pattern_config) {
+            return $http.post('/api/focus_regions/' + focus_region_id + '/clinical_annotations/' +
+                annotation_step_label + '/gleason_patterns/',
+                gleason_pattern_config);
+        }
+
+        function deleteAnnotation(gleason_pattern_id) {
+            return $http.delete('api/gleason_patterns/' + gleason_pattern_id + '/');
         }
     }
 })();

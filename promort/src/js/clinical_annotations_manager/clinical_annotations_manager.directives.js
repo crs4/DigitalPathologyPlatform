@@ -35,7 +35,13 @@
         .directive('newFocusRegionAnnotationForm', newFocusRegionAnnotationForm)
         .directive('newFocusRegionAnnotationButtons', newFocusRegionAnnotationButtons)
         .directive('showFocusRegionAnnotationController', showFocusRegionAnnotationForm)
-        .directive('showFocusRegionAnnotationButtons', showFocusRegionAnnotationButtons);
+        .directive('showFocusRegionAnnotationButtons', showFocusRegionAnnotationButtons)
+        .directive('newGleasonPatternAnnotationForm', newGleasonPatternAnnotationForm)
+        .directive('newGleasonPatternAnnotationButtons', newGleasonPatternAnnotationButtons)
+        .directive('newGleasonFourAnnotationForm', newGleasonFourAnnotationForm)
+        .directive('newGleasonFiveAnnotationForm', newGleasonFiveAnnotationForm)
+        .directive('showGleasonPatternAnnotationForm', showGleasonPatternAnnotationForm)
+        .directive('showGleasonPatternAnnotationButtons', showGleasonPatternAnnotationButtons);
 
     function newSliceAnnotationForm() {
         var directive = {
@@ -196,6 +202,72 @@
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
             controller: 'ShowFocusRegionAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newGleasonPatternAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/gleason_pattern_annotation.html',
+            controller: 'NewGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newGleasonPatternAnnotationButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
+            controller: 'NewGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newGleasonFourAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/gleason_four_annotation.html',
+            controller: 'NewGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function newGleasonFiveAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/gleason_five_annotation.html',
+            controller: 'NewGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function showGleasonPatternAnnotationForm() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/gleason_pattern_annotation.html',
+            controller: 'ShowGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function showGleasonPatternAnnotationButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
+            controller: 'ShowGleasonPatternAnnotationController',
             controllerAs: 'cmCtrl'
         };
         return directive;

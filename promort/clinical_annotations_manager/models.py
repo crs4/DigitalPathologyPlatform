@@ -23,6 +23,8 @@ from django.contrib.auth.models import User
 from reviews_manager.models import ClinicalAnnotationStep
 from rois_manager.models import Slice, Core, FocusRegion
 
+from collections import Counter
+
 
 class SliceAnnotation(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, blank=False)
@@ -95,14 +97,96 @@ class CoreAnnotation(models.Model):
     action_start_time = models.DateTimeField(null=True, default=None)
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
-    primary_gleason = models.IntegerField(blank=False)
-    secondary_gleason = models.IntegerField(blank=False)
+    primary_gleason = models.IntegerField(null=True, default=None)
+    secondary_gleason = models.IntegerField(null=True, default=None)
     gleason_group = models.CharField(
-        max_length=3, choices=GLEASON_GROUP_WHO_16, blank=False
+        max_length=3, choices=GLEASON_GROUP_WHO_16, null=True, default=None
     )
+    # acquire ONLY if at least one Cribriform Pattern (under GleasonPattern type 4) exists
+    nuclear_grade_size = models.CharField(max_length=1, null=True, default=None)
+    intraluminal_acinar_differentiation_grade = models.CharField(max_length=1, null=True, default=None)
+    intraluminal_secretions = models.BooleanField(null=True, default=None)
+    central_maturation = models.BooleanField(null=True, default=None)
+    extra_cribriform_gleason_score = models.CharField(max_length=11, null=True, default=None)
+    # stroma
+    predominant_rsg = models.CharField(max_length=1, null=True, default=None)
+    highest_rsg = models.CharField(max_length=1, null=True, default=None)
+    rsg_within_highest_grade_area = models.CharField(max_length=1, null=True, default=None)
+    rsg_in_area_of_cribriform_morphology = models.CharField(max_length=1, null=True, default=None)
+    # other
+    perineural_invasion = models.BooleanField(null=True, default=None)
+    perineural_growth_with_cribriform_patterns = models.BooleanField(null=True, default=None)
+    extraprostatic_extension = models.BooleanField(null=True, default=None)
 
     class Meta:
         unique_together = ('core', 'annotation_step')
+
+    def _get_gleason_elements(self):
+        gleason_elements = list()
+        for fr in self.core.focus_regions.all():
+            gleason_elements.extend(
+                GleasonPattern.objects.filter(
+                    focus_region = fr,
+                    annotation_step = self.annotation_step
+                ).all()
+            )
+        return gleason_elements
+    
+    def _get_gleason_coverage(self):
+        g_elems = self._get_gleason_elements()
+        total_gleason_area = 0
+        gleason_patterns_area = Counter()
+        for g_el in g_elems:
+            total_gleason_area += g_el.area
+            gleason_patterns_area[g_el.gleason_type] += g_el.area
+        gleason_coverage = dict()
+        for gp, gpa in gleason_patterns_area.items():
+            gleason_coverage[gp] = (100 * gpa/total_gleason_area)
+        return gleason_coverage
+    
+    def _get_primary_and_secondary_gleason(self):
+        gleason_coverage = self._get_gleason_coverage()
+        if len(gleason_coverage) == 0:
+            return None, None
+        primary_gleason = max(gleason_coverage, key=gleason_coverage.get)
+        gleason_coverage.pop(primary_gleason)
+        if len(gleason_coverage) == 0:
+            secondary_gleason = primary_gleason
+        else:
+            secondary_gleason = max(gleason_coverage)
+        return primary_gleason, secondary_gleason
+
+    def get_primary_gleason(self):
+        if self.primary_gleason is None:
+            primary_gleason, _ = self._get_primary_and_secondary_gleason()
+            return primary_gleason
+        else:
+            return self.primary_gleason
+    
+    def get_secondary_gleason(self):
+        if self.secondary_gleason is None:
+            _, secondary_gleason = self._get_primary_and_secondary_gleason()
+            return secondary_gleason
+        else:
+            return self.secondary_gleason
+    
+    def get_gleason_group(self):
+        if self.gleason_group is None:
+            primary_gleason, secondary_gleason = self._get_primary_and_secondary_gleason()
+            gleason_score = int(primary_gleason.replace('G', '')) + int(secondary_gleason.replace('G', ''))
+            if gleason_score <= 6:
+                return 'GG1'
+            elif gleason_score == 7:
+                if primary_gleason == 'G3':
+                    return 'GG2'
+                else:
+                    return 'GG3'
+            elif gleason_score == 8:
+                return 'GG4'
+            else:
+                return 'GG5'
+        else:
+            return self.gleason_group
 
     def get_gleason_4_total_area(self):
         gleason_4_total_area = 0.0
@@ -129,15 +213,41 @@ class CoreAnnotation(models.Model):
             return -1
 
     def get_grade_group_text(self):
+        gleason_group = self.get_gleason_group()
         for choice in self.GLEASON_GROUP_WHO_16:
-            if choice[0] == self.gleason_group:
+            if choice[0] == gleason_group:
                 return choice[1]
+    
+    def get_gleason_patterns_details(self):
+        gleason_elements = self._get_gleason_elements()
+        gleason_total_areas = Counter()
+        gleason_shapes = dict()
+        for ge in gleason_elements:
+            gleason_total_areas[ge.gleason_type] += ge.area
+            gleason_shapes.setdefault(ge.gleason_type, []).append(ge.label)
+        gleason_coverage = self._get_gleason_coverage()
+        gleason_details = {}
+        for gtype in gleason_shapes.keys():
+            gleason_details[gtype] = {
+                "shapes": gleason_shapes[gtype],
+                "total_area": gleason_total_areas[gtype],
+                "total_coverage": round(gleason_coverage[gtype], 2)
+            }
+        return gleason_details
 
     def get_action_duration(self):
         if self.action_start_time and self.action_complete_time:
             return (self.action_complete_time-self.action_start_time).total_seconds()
         else:
             return None
+
+    def get_largest_confluent_sheet(self):
+        # TODO: get largest cribriform object among all Gleason 4 elements of a core
+        return None
+
+    def get_total_cribriform_area(self):
+        # TODO: sum of all cribriform objects defined on a core
+        return None
 
 
 class FocusRegionAnnotation(models.Model):
@@ -172,14 +282,33 @@ class FocusRegionAnnotation(models.Model):
     class Meta:
         unique_together = ('focus_region', 'annotation_step')
 
+    def get_gleason_elements(self):
+        gleason_elements_map = dict()
+        for gp in self.annotation_step.gleason_annotations.filter(focus_region=self.focus_region).all():
+            gleason_elements_map.setdefault(gp.gleason_type, []).append(gp)
+        return gleason_elements_map
+
+    def get_gleason_4_elements(self):
+        return self.get_gleason_elements().get("G4", [])
+
+    def get_total_gleason_area(self, gleason_pattern):
+        gleason_area = 0
+        for g in self.get_gleason_elements().get(gleason_pattern, []):
+            gleason_area += g.area
+        return gleason_area
+
     def get_total_gleason_4_area(self):
         g4_area = 0
         for g4 in self.get_gleason_4_elements():
             g4_area += g4.area
         return g4_area
 
-    def get_gleason_4_elements(self):
-        return self.gleason_elements.filter(gleason_type='G4')
+    def get_gleason_percentage(self, gleason_pattern):
+        gleason_area = self.get_total_gleason_area(gleason_pattern)
+        try:
+            return (gleason_area / self.focus_region.area) * 100.0
+        except ZeroDivisionError:
+            return -1
 
     def get_gleason_4_percentage(self):
         g4_area = self.get_total_gleason_4_area()
@@ -195,25 +324,29 @@ class FocusRegionAnnotation(models.Model):
             return None
 
 
-class GleasonElement(models.Model):
+class GleasonPattern(models.Model):
     GLEASON_TYPES = (
-        ('G1', 'GLEASON 1'),
-        ('G2', 'GLEASON 2'),
         ('G3', 'GLEASON 3'),
         ('G4', 'GLEASON 4'),
-        ('G5', 'GLEASON 5')
+        ('G5', 'GLEASON 5'),
+        ('LG', 'LEGACY')
     )
-    focus_region_annotation = models.ForeignKey(FocusRegionAnnotation, related_name='gleason_elements',
-                                                blank=False, on_delete=models.CASCADE)
+    label = models.CharField(max_length=25, blank=False)
+    focus_region = models.ForeignKey(FocusRegion, related_name="gleason_patterns", blank=False,
+                                     on_delete=models.PROTECT)
+    annotation_step = models.ForeignKey(ClinicalAnnotationStep, on_delete=models.PROTECT,
+                                        blank=False, related_name="gleason_annotations")
+    author = models.ForeignKey(User, blank=False, on_delete=models.PROTECT)
     gleason_type = models.CharField(max_length=2, choices=GLEASON_TYPES, blank=False, null=False)
-    json_path = models.TextField(blank=False, null=False)
+    roi_json = models.TextField(blank=False, null=False)
+    details_json = models.TextField(blank=True, null=True)
     area = models.FloatField(blank=False, null=False)
-    cellular_density_helper_json = models.TextField(blank=True, null=True)
-    cellular_density = models.IntegerField(blank=True, null=True)
-    cells_count = models.IntegerField(blank=True, null=True)
     action_start_time = models.DateTimeField(null=True, default=None)
     action_complete_time = models.DateTimeField(null=True, default=None)
     creation_date = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = ('label', 'annotation_step')
 
     def get_gleason_type_label(self):
         for choice in self.GLEASON_TYPES:
@@ -225,3 +358,13 @@ class GleasonElement(models.Model):
             return (self.action_complete_time-self.action_start_time).total_seconds()
         else:
             return None
+
+
+class GleasonPatternSubregion(models.Model):
+    gleason_pattern = models.ForeignKey(GleasonPattern, related_name="subregions", blank=False,
+                                        on_delete=models.CASCADE)
+    label = models.CharField(max_length=25, blank=False)
+    roi_json = models.TextField(blank=False, null=False)
+    area = models.FloatField(blank=False, null=False)
+    details_json = models.TextField(blank=True, null=True, default=None)
+    creation_date = models.DateTimeField(auto_now_add=True)

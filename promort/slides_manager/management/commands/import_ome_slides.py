@@ -34,6 +34,10 @@ class Command(BaseCommand):
     Import slides from a running OMERO server (with ome_seadragon plugin) to ProMort and create
     related Case and Slide objects
     """
+    
+    def add_arguments(self, parser):
+        parser.add_argument('--filter_by_set', action="store_true",
+                            help='Filter bigger slide in set')
 
     def _split_slide_name(self, slide_name):
         regex = re.compile(r'[a-zA-Z0-9]+-[0-9]+(_[a-zA-Z][0-9]?)?(\.[a-zA-Z0-9]{2,4})?$')
@@ -64,11 +68,14 @@ class Command(BaseCommand):
             filtered_slides.append(self._get_bigger_in_fileset(fs_slides))
         return filtered_slides
 
-    def _load_ome_images(self):
+    def _load_ome_images(self, filter_by_set):
         url = urljoin(OME_SEADRAGON_BASE_URL, 'get/images/index')
         response = requests.get(url, params={'full_series': True})
         if response.status_code == requests.codes.OK:
-            slides = self._filter_slides(response.json())
+            if filter_by_set:
+                slides = self._filter_slides(response.json())
+            else:
+                slides = response.json()
             slides_map = dict()
             for s in slides:
                 case_id, _ = self._split_slide_name(s['name'])
@@ -120,7 +127,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         logger.info('=== Starting import job ===')
-        slides_map = self._load_ome_images()
+        slides_map = self._load_ome_images(opts['filter_by_set'])
         for case_id, slides in slides_map.items():
             case = self._get_or_create_case(case_id)
             for slide_json in slides:

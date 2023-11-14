@@ -155,6 +155,8 @@ class Command(BaseCommand):
             filter_["rois_annotation__reviewer__username"] = reviewer
 
         annotations_steps = ROIsAnnotationStep.objects.filter(**filter_)
+        logger.info("Filtering annotation steps previously processed but not started yet")
+        annotations_steps = [ann for ann in annotations_steps if ann.slices.count() == 0]
         logger.info("Loaded %d ROIs annotation steps" % len(annotations_steps))
         return annotations_steps
 

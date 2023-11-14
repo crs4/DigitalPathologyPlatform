@@ -1,0 +1,388 @@
+<div>
+    <!--
+      ~ Copyright (c) 2022, CRS4
+      ~
+      ~ Permission is hereby granted, free of charge, to any person obtaining a copy of
+      ~ this software and associated documentation files (the "Software"), to deal in
+      ~ the Software without restriction, including without limitation the rights to
+      ~ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+      ~ the Software, and to permit persons to whom the Software is furnished to do so,
+      ~ subject to the following conditions:
+      ~
+      ~ The above copyright notice and this permission notice shall be included in all
+      ~ copies or substantial portions of the Software.
+      ~
+      ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      ~ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+      ~ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      ~ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      -->
+    <!-- LABEL -->
+    <div class="prm-form-header" ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+        <h4 class="text-right">NEW GLEASON PATTERN</h4>
+    </div>
+    <div class="prm-form-header" ng-show="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+      <h4 class="text-right">{{ cmCtrl.shape_label }}</h4>
+    </div>
+    <div class="form-group row" ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()">
+        <div class="prm-label-elem">
+            <label>Label</label>
+        </div>
+        <div class="prm-row-elem">
+            <input class="form-control prm-text-input" type="text"  ng-model="cmCtrl.shape_label"
+                    ng-readonly="!cmCtrl.isEditLabelModeActive()">
+        </div>
+    </div>
+    <!-- END OF LABEL -->
+    <!-- NEW SHAPE CONTROLS -->
+    <div class="form-group row"
+        ng-hide="cmCtrl.isReadOnly() || cmCtrl.isPolygonToolActive() || cmCtrl.isEditMode() ||
+                cmCtrl.isFreehandToolActive() || cmCtrl.shapeExists()">
+    <div class="col-sm-6 prm-valign prm-label-elem">
+        <label>Draw Gleason pattern</label>
+    </div><!--
+    --><div class="col-sm-6 prm-valign prm-form-elem text-right">
+        <button class="btn btn-default prm-icon-btn"
+                ng-click="cmCtrl.newPolygon()"
+                ng-disabled="cmCtrl.isEditLabelModeActive()"
+                title="Draw the shape using the polygon drawing tool">
+            <i class="icon-vector"></i>
+        </button>
+        <button class="btn btn-default prm-icon-btn"
+                ng-click="cmCtrl.newFreehand()"
+                ng-disabled="cmCtrl.isEditLabelModeActive()"
+                title="Draw the shape using the freehand drawing tool">
+            <i class="icon-vector_pen"></i>
+        </button>
+    </div>
+</div>
+    <!-- END OF NEW SHAPE CONTROLS -->
+    <!-- NEW POLYGON TOOL CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.isPolygonToolActive()">
+        <div class="prm-label-elem">
+            <label>Polygon tool</label>
+        </div>
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-hide="cmCtrl.isPolygonToolPaused()"
+                    ng-click="cmCtrl.pausePolygonTool()" title="Put the tool on pause">
+                <i class="icon-pause"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-show="cmCtrl.isPolygonToolPaused()"
+                    ng-click="cmCtrl.unpausePolygonTool()" title="Resume the tool">
+                <i class="icon-play"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="cmCtrl.rollbackPolygon()"
+                    ng-disabled="!cmCtrl.polygonRollbackPossible()" title="Remove last point">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="cmCtrl.restorePolygon()" title="Restore last removed point"
+                    ng-disabled="!cmCtrl.polygonRestorePossible()">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmPolygon()"
+                    ng-disabled="!cmCtrl.temporaryPolygonValid()" title="Accept the shape">
+                <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortTool()"
+                    title="Discharge shape and abort tool">
+                <i class="icon-cross_mark"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW POLYGON TOOL CONTROLS -->
+    <!-- NEW FREEHAND DRAWING CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.isFreehandToolActive()">
+        <div class="prm-label-elem">
+            <label>Freehand tool</label>
+        </div>
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.pauseFreehandTool()"
+                    ng-hide="cmCtrl.isFreehandToolPaused()"
+                    title="Pause freehand drawing tool">
+                <i class="icon-pause"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.unpauseFreehandTool()"
+                    ng-show="cmCtrl.isFreehandToolPaused()"
+                    title="Resume freehand drawing tool">
+                <i class="icon-play"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-left_margin_mini" ng-click="cmCtrl.rollbackFreehandShape()"
+                    ng-disabled="!cmCtrl.shapeRollbackPossible() || !cmCtrl.isFreehandToolPaused()"
+                    title="Restore previous step">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                    ng-click="cmCtrl.restoreFreehandShape()"
+                    ng-disabled="!cmCtrl.shapeRestorePossible() || !cmCtrl.isFreehandToolPaused()"
+                    title="Revert last undone step">
+                <i class="icon-reply"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.confirmFreehandShape()"
+                    ng-disabled="!cmCtrl.isFreehandToolPaused() || !cmCtrl.temporaryShapeValid()"
+                    title="Accept the shape">
+                <i class="icon-check"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.abortTool()"
+                    title="Abort tool">
+                <i class="icon-cross_mark"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW FREEHAND DRAWING CONTROLS -->
+    <!-- EXISTING SHAPE CONTROLS -->
+    <div class="form-group row" ng-show="cmCtrl.shapeExists()">
+        <div class="col-sm-6 prm-valign prm-label-elem">
+            <label>Gleason pattern</label>
+        </div><!--
+        --><div class="col-sm-6 prm-valign prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.deleteTemporaryGleasonPattern(true)"
+                    ng-hide="cmCtrl.isReadOnly() || cmCtrl.isEditMode()"
+                    ng-disabled="cmCtrl.subregionCreationInProgress()"
+                    title="Delete the shape">
+                <i class="icon-trash_can"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn" ng-click="cmCtrl.focusOnShape(cmCtrl.shape.shape_id)"
+                    title="Adapt the viewer to show the shape at the maximum size">
+                <i class="icon-eye"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF EXISTING SHAPE CONTROLS -->
+    <!-- SELECT GLEASON PATTERN TYPE -->
+    <div class="form-group row" ng-show="cmCtrl.shapeExists()">
+        <div ng-hide="cmCtrl.patternTypeConfirmed()">
+            <div class="prm-label-elem">
+                <label>Gleason Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="G3" class="prm-checkbox"
+                           ng-model="cmCtrl.pattern_type"
+                           ng-click="cmCtrl.updateGleasonShapeColor('G3')">
+                    <label>Pattern 3</label>
+                </div>
+                <div>
+                    <input type="radio" value="G4" class="prm-checkbox"
+                           ng-model="cmCtrl.pattern_type"
+                           ng-click="cmCtrl.updateGleasonShapeColor('G4')">
+                    <label>Pattern 4</label>
+                </div>
+                <div>
+                    <input type="radio" value="G5" class="prm-checkbox"
+                           ng-model="cmCtrl.pattern_type"
+                           ng-click="cmCtrl.updateGleasonShapeColor('G5')">
+                    <label>Pattern 5</label>
+                </div>
+            </div>
+            <div class="input-group-btn text-right">
+                <button class="btn btn-default prm-control-btn"
+                        ng-click="cmCtrl.confirmPatternType()"
+                        ng-disabled="!cmCtrl.patternTypeSelected()">
+                    <i class="icon-check"></i> Accept
+                </button>
+            </div>
+        </div>
+        <div ng-show="cmCtrl.patternTypeConfirmed()">
+            <div class="prm-label-elem col-sm-6">
+                <label>Gleason Type</label>
+            </div>
+            <div class="col-sm-6 text-right">
+                <p>Pattern {{cmCtrl.pattern_type}}</p>
+            </div>
+        </div>
+    </div>
+    <!-- END OF SELECT GLEASON PATTERN TYPE -->
+    <!-- SHOW GLEASON PATTERN TYPE -->
+    <div class="form-group row" ng-show="cmCtrl.isReadOnly()">
+        <div class="prm-label-elem col-sm-6">
+            <label>Pattern Type</label>
+        </div>
+        <div class="col-sm-6 text-right">
+            <p>{{cmCtrl.pattern_label}}</p>
+        </div>
+    </div>
+    <!-- END SHOW GLEASON PATTERN TYPE -->
+
+    <!-- NEW SUBLEMENTS CREATION-->
+    <div class="form-group row">
+        <div ng-show="cmCtrl.patternTypeConfirmed()">
+            <div ng-hide="cmCtrl.isSubregionDrawingToolActive() || cmCtrl.temporarySubregionExists() || cmCtrl.checkPatternType('G3')">
+                <div class="col-sm-12 text-center prm-form-elem">
+                    <button id="new_subelement"
+                            class="btn btn-default"
+                            ng-click="cmCtrl.newSubregion()">
+                        Add New Sub-Element
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="cmCtrl.isSubregionDrawingToolActive()">
+            <div class="col-sm-12 prm-form-elem text-right">
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.pauseSubregionDrawingTool()"
+                        ng-hide="cmCtrl.isSubregionDrawingToolPaused()" 
+                        title="Pause tool">
+                    <i class="icon-pause"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.unpauseSubregionDrawingTool()"
+                        ng-show="cmCtrl.isSubregionDrawingToolPaused()"
+                        title="Resume tool">
+                    <i class="icon-play"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn prm-left_margin_mini"
+                        ng-click="cmCtrl.rollbackFreehandShape()"
+                        ng-disabled="!cmCtrl.shapeRollbackPossible()"
+                        title="Restore previous step">
+                    <i class="icon-reply"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn prm-y-mirror prm-right_margin_mini"
+                        ng-click="cmCtrl.restoreFreehandShape()"
+                        ng-disabled="!cmCtrl.shapeRestorePossible()"
+                        title="Restore last undone step">
+                    <i class="icon-reply"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.confirmTemporarySubregionShape()"
+                        ng-disabled="!cmCtrl.temporaryShapeExists()"
+                        title="Accept temporary shape">
+                    <i class="icon-check"></i>
+                </button>
+                <button class="btn btn-default prm-icon-btn"
+                        ng-click="cmCtrl.abortTool()"
+                        title="Abort tool">
+                    <i class="icon-cross_mark"></i>
+                </button>
+            </div>
+        </div>
+
+        <div ng-show="cmCtrl.temporarySubregionExists() && cmCtrl.checkPatternType('G4')">
+            <div class="prm-label-elem">
+                <label>Subregion Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="poorly_formed_glands" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Poorly Formed Glands</label>
+                </div>
+                <div>
+                    <input type="radio" value="fused_glands_simple" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Fused glands, simple</label>
+                </div>
+                <div>
+                    <input type="radio" value="fused_glands_complex" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Fused glands, complex</label>
+                </div>
+                <div>
+                    <input type="radio" value="glomeruloid_structures" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Glomeruloid structures</label>
+                </div>
+                <div>
+                    <input type="radio" value="cribriform_pattern" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Cribriform pattern</label>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="cmCtrl.temporarySubregionExists() && cmCtrl.checkPatternType('G5')">
+            <div class="prm-label-elem">
+                <label>Subregion Type</label>
+            </div>
+            <div class="col-sm-12">
+                <div>
+                    <input type="radio" value="sheets" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Sheets</label>
+                </div>
+                <div>
+                    <input type="radio" value="nests_and_or_cords" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Nests and/or cords</label>
+                </div>
+                <div>
+                    <input type="radio" value="individual_cells" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Individual cells</label>
+                </div>
+                <div>
+                    <input type="radio" value="necrosis" class="prm-checkbox" ng-model="cmCtrl.tmp_subregion_type">
+                    <label>Necrosis</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="prm-form-elem text-right">
+            <button class="btn btn-default prm-icon-btn"
+                    ng-show="cmCtrl.temporarySubregionExists()"
+                    ng-click="cmCtrl.deleteTemporarySubregion()"
+                    ng-disabled="">
+                <i class="icon-cross_mark"></i>
+            </button>
+            <button class="btn btn-default prm-icon-btn"
+                    ng-show="cmCtrl.temporarySubregionExists()"
+                    ng-click="cmCtrl.acceptTemporarySubregion()"
+                    ng-disabled="!cmCtrl.subregionTypeSelected()">
+                <i class="icon-check"></i>
+            </button>
+        </div>
+    </div>
+    <!-- END OF NEW SUBELEMENTS CREATION -->
+    <!-- SUBREGIONS LIST - CREATION MODE-->
+    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist() && !cmCtrl.isReadOnly()">
+        <legend class="prm-legend">Subregions</legend>
+
+        <div class="form-group row">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="sub_el in cmCtrl.subregions_list">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label> {{ sub_el.details_json.type }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right col-sm-5">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(sub_el.label)"
+                            ng-mouseleave="cmCtrl.deselectShape(sub_el.label)"
+                            ng-click="cmCtrl.deleteSubregion(sub_el.label)"
+                            ng-disabled="cmCtrl.subregionCreationInProgress()">
+                        <i id="{{ sub_el.label }}" class="icon-trash_can"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(sub_el.label)"
+                            ng-mouseleave="cmCtrl.deselectShape(sub_el.label)"
+                            ng-click="cmCtrl.focusOnShape(sub_el.label)"
+                            ng-disabled="cmCtrl.subregionCreationInProgress()">
+                        <i id="{{ sub_el.label }}" class="icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END OF SUBREGIONS LIST - CREATION MODE-->
+    <!-- SUBREGIONS LIST - READ ONLY MODE -->
+    <fieldset class="promort_fieldset" ng-show="cmCtrl.subregionsExist() && cmCtrl.isReadOnly()">
+        <legend class="prm-legend">Subregions</legend>
+
+        <div class="form-group row">
+            <div class="col-sm-12 prm-row-elem" ng-repeat="(label, sub_reg) in cmCtrl.subregions">
+                <div class="prm-label-elem prm-valign col-sm-7">
+                    <label> {{ sub_reg.type }}</label>
+                </div><!--
+             --><div class="prm-valign prm-form-elem text-right col-sm-5">
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(label)"
+                            ng-mouseleave="cmCtrl.deselectShape(label)"
+                            ng-click="cmCtrl.focusOnShape(label)"
+                            ng-disabled="!cmCtrl.isShapeActive(label)">
+                        <i id="{{ label }}_find" class="icon-magnifying"></i>
+                    </button>
+                    <button class="btn btn-default prm-icon-btn"
+                            ng-mouseenter="cmCtrl.selectShape(label)"
+                            ng-mouseleave="cmCtrl.deselectShape(label)"
+                            ng-click="cmCtrl.switchShapeActiveState(label)">
+                        <i id="{{ label }}_showhide" class="icon-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END OF SUBREGIONS LIST - READ ONLY MODE -->
+</div>

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019, CRS4
+#  Copyright (c) 2023, CRS4
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy of
 #  this software and associated documentation files (the "Software"), to deal in
@@ -19,7 +19,7 @@
 
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
-from clinical_annotations_manager.models import SliceAnnotation
+from clinical_annotations_manager.models import GleasonPattern
 
 from csv import DictWriter
 
@@ -30,7 +30,7 @@ logger = logging.getLogger("promort_commands")
 
 class Command(BaseCommand):
     help = """
-    Export existing Slice clinical data to CSV
+    Export existing Gleason Pattern data to a CSV
     """
 
     def add_arguments(self, parser):
@@ -49,78 +49,72 @@ class Command(BaseCommand):
             help="the number of records retrieved for each page (this will enable pagination)",
         )
 
-    def _dump_data(self, page_size, csv_writer):
-        if page_size > 0:
-            logger.info("Pagination enabled (%d records for page)", page_size)
-            sa_qs = SliceAnnotation.objects.get_queryset().order_by("creation_date")
-            paginator = Paginator(sa_qs, page_size)
-            for x in paginator.page_range:
-                logger.info("-- page %d --", x)
-                page = paginator.page(x)
-                for sa in page.object_list:
-                    self._dump_row(sa, csv_writer)
-        else:
-            logger.info("Loading full batch")
-            slice_annotations = SliceAnnotation.objects.all()
-            for sa in slice_annotations:
-                self._dump_row(sa, csv_writer)
-
-    def _dump_row(self, slice_annotation, csv_writer):
+    def _dump_row(self, gleason_pattern, csv_writer):
         try:
-            action_start_time = slice_annotation.action_start_time.strftime(
+            action_start_time = gleason_pattern.action_start_time.strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
         except AttributeError:
             action_start_time = None
         try:
-            action_complete_time = slice_annotation.action_complete_time.strftime(
+            action_complete_time = gleason_pattern.action_complete_time.strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
         except AttributeError:
             action_complete_time = None
         csv_writer.writerow(
             {
-                "case_id": slice_annotation.slice.slide.case.id,
-                "slide_id": slice_annotation.slice.slide.id,
-                "rois_review_step_id": slice_annotation.annotation_step.rois_review_step.label,
-                "clinical_review_step_id": slice_annotation.annotation_step.label,
-                "reviewer": slice_annotation.author.username,
-                "slice_id": slice_annotation.slice.id,
-                "slice_label": slice_annotation.slice.label,
+                "case_id": gleason_pattern.annotation_step.slide.case.id,
+                "slide_id": gleason_pattern.annotation_step.slide.id,
+                "clinical_review_step_id": gleason_pattern.annotation_step.label,
+                "reviewer": gleason_pattern.author.username,
+                "focus_region_id": gleason_pattern.focus_region.id,
+                "focus_region_label": gleason_pattern.focus_region.label,
                 "action_start_time": action_start_time,
-                "action_complete_time": action_complete_time,
-                "creation_date": slice_annotation.creation_date.strftime(
+                "action_completion_time": action_complete_time,
+                "creation_date": gleason_pattern.creation_date.strftime(
                     "%Y-%m-%d %H:%M:%S"
                 ),
-                "high_grade_pin": slice_annotation.high_grade_pin,
-                "pah": slice_annotation.pah,
-                "chronic_inflammation": slice_annotation.chronic_inflammation,
-                "acute_inflammation": slice_annotation.acute_inflammation,
-                "periglandular_inflammation": slice_annotation.periglandular_inflammation,
-                "intraglandular_inflammation": slice_annotation.intraglandular_inflammation,
-                "stromal_inflammation": slice_annotation.stromal_inflammation,
+                "gleason_pattern_id": gleason_pattern.id,
+                "gleason_pattern_label": gleason_pattern.label,
+                "gleason_type": gleason_pattern.gleason_type,
+                "area": gleason_pattern.area,
+                "subregions_count": gleason_pattern.subregions.count(),
             }
         )
+
+    def _dump_data(self, page_size, csv_writer):
+        if page_size > 0:
+            logger.info(f"Pagination enabled ({page_size} records for page)")
+            g_el_qs = GleasonPattern.objects.get_queryset().order_by("creation_date")
+            paginator = Paginator(g_el_qs, page_size)
+            for x in paginator.page_range:
+                logger.info(f"-- page {x} --")
+                page = paginator.page(x)
+                for g_el in page.object_list:
+                    self._dump_row(g_el, csv_writer)
+        else:
+            logger.info("Loading full batch")
+            gleason_patterns = GleasonPattern.objects.all()
+            for g_el in gleason_patterns:
+                self._dump_row(g_el, csv_writer)
 
     def _export_data(self, out_file, page_size):
         header = [
             "case_id",
             "slide_id",
-            "rois_review_step_id",
             "clinical_review_step_id",
             "reviewer",
-            "slice_id",
-            "slice_label",
+            "focus_region_id",
+            "focus_region_label",
+            "gleason_pattern_id",
+            "gleason_pattern_label",
             "action_start_time",
-            "action_complete_time",
+            "action_completion_time",
             "creation_date",
-            "high_grade_pin",
-            "pah",
-            "chronic_inflammation",
-            "acute_inflammation",
-            "periglandular_inflammation",
-            "intraglandular_inflammation",
-            "stromal_inflammation",
+            "gleason_type",
+            "area",
+            "subregions_count",
         ]
         with open(out_file, "w") as ofile:
             writer = DictWriter(ofile, delimiter=",", fieldnames=header)

@@ -165,8 +165,6 @@
         activate();
 
         function activate() {
-            console.log("Prediction ID: " + CurrentPredictionDetailsService.getPredictionId());
-
             vm.slide_id = CurrentSlideDetailsService.getSlideId();
             vm.case_id = CurrentSlideDetailsService.getCaseId();
             vm.annotation_step_label = $routeParams.label;
@@ -265,7 +263,6 @@
 
                     $scope.$on('slice.deleted',
                         function (event, slice_id) {
-                            $log.debug('SLICE ' + slice_id + ' DELETED');
                             var cores = _getSliceCores(slice_id);
                             cores.forEach(
                                 function (item, index) {
@@ -306,11 +303,9 @@
 
                     $scope.$on('core.deleted',
                         function (event, core_id) {
-                            $log.debug('CORE ' + core_id + ' DELETED');
                             var focus_regions = _getCoreFocusRegions(core_id);
                             focus_regions.forEach(
                                 function (item, index) {
-                                    $log.debug('Broadcasting delete evento for focus region ' + item.id);
                                     $rootScope.$broadcast('focus_region.deleted', item.id);
                                 }
                             );
@@ -347,7 +342,6 @@
 
                     $scope.$on('focus_region.deleted',
                         function (event, focus_region_id) {
-                            $log.debug('FOCUS REGION ' + focus_region_id + ' DELETED');
                             AnnotationsViewerService.deleteShape(vm._getFocusRegionLabel(focus_region_id));
                             $("#" + vm._getFocusRegionLabel(focus_region_id) + "_list").remove();
                             vm._unregisterFocusRegion(focus_region_id);
@@ -456,7 +450,6 @@
         }
 
         function _getCoreFocusRegions(core_id) {
-            $log.debug($rootScope.focus_regions);
             return $.grep($rootScope.focus_regions,
                 function(value) {
                     return value.core === core_id;
@@ -569,13 +562,10 @@
         }
 
         function switchNavmapDisplay() {
-            console.log('Switching navmap display');
             vm.displayNavmap = !vm.displayNavmap;
             if (vm.navmapDisplayEnabled()) {
-                console.log('Draw navmap');
                 vm._drawNavmap();
             } else {
-                console.log('Hide navmap');
                 vm._hideNavmap();
             }
         }
@@ -988,7 +978,6 @@
         }
 
         function updateOverlayPalette() {
-            console.log('Current overlay palette is: ' + vm.overlay_palette);
             HeatmapViewerService.setOverlay(vm.overlay_palette, vm.overlay_threshold);
         }
     }
@@ -1090,7 +1079,6 @@
         }
 
         function newPolygon() {
-            $log.debug('Start polygon drawing tool');
             AnnotationsViewerService.extendPolygonConfig(vm.shape_config);
             AnnotationsViewerService.startPolygonsTool();
             vm.active_tool = vm.POLYGON_TOOL;
@@ -1111,7 +1099,6 @@
         }
 
         function newFreehand() {
-            $log.debug('Start freehand drawing tool');
             AnnotationsViewerService.setFreehandToolLabelPrefix('slice');
             AnnotationsViewerService.extendPathConfig(vm.shape_config);
             AnnotationsViewerService.startFreehandDrawingTool();
@@ -1139,14 +1126,11 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
-                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -1160,10 +1144,8 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -1509,7 +1491,6 @@
         function activate() {
             $scope.$on('slice.load',
                 function(event, slice_id) {
-                    $log.debug('Show slice ' + slice_id);
                     vm.slice_id = slice_id;
                     SlicesManagerService.get(slice_id)
                         .then(getSliceSuccessFn, getSliceErrorFn);
@@ -1631,7 +1612,7 @@
         vm.tumor_ruler_off_id = 'new_core_tumor_ruler_off';
         vm.tumor_ruler_output_id = 'new_core_tumor_ruler_output';
 
-        vm.tmp_ruler_exists  =false;
+        vm.tmp_ruler_exists = false;
 
         vm.active_tool = undefined;
         vm.polygon_tool_paused = false;
@@ -1923,14 +1904,11 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id){
-                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -1944,10 +1922,8 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -2828,7 +2804,6 @@
 
             $scope.$on('core.load',
                 function(event, core_id) {
-                    $log.debug('Show core ' + core_id);
                     vm.core_id = core_id;
                     CoresManagerService.get(core_id)
                         .then(getCoreSuccessFn, getCoreErrorFn);
@@ -3215,14 +3190,11 @@
 
         function setNewLabel() {
             if (typeof vm.shape !== 'undefined' && vm.shape_label === vm.shape.shape_id) {
-                $log.debug('Shape label not changed');
                 vm.deactivateEditLabelMode();
             } else {
                 if (AnnotationsViewerService.shapeIdAvailable(vm.shape_label)) {
-                    $log.debug('Label available, assigning to new shape');
                     vm.deactivateEditLabelMode();
                 } else {
-                    $log.debug('Label in use, restoring previous label');
                     vm.abortEditLabelMode();
                     ngDialog.open({
                         'template': '/static/templates/dialogs/invalid_label.html'
@@ -3236,10 +3208,8 @@
             vm.edit_shape_label = false;
             // if a shape already exists, change its name
             if (typeof vm.shape !== 'undefined' && vm.shape.shape_id !== vm.shape_label) {
-                $log.debug('updating shape id');
                 AnnotationsViewerService.changeShapeId(vm.shape.shape_id, vm.shape_label);
                 vm.shape = AnnotationsViewerService.getShapeJSON(vm.shape_label);
-                $log.debug('new shape id is: ' + vm.shape.shape_id);
             }
         }
 
@@ -3978,7 +3948,6 @@
 
             $scope.$on('focus_region.load',
                 function (event, focus_region_id, parent_shape_id) {
-                    $log.debug('Show focus region ' + focus_region_id);
                     vm.focus_region_id = focus_region_id;
                     vm.parent_shape_id = parent_shape_id;
                     FocusRegionsManagerService.get(focus_region_id)

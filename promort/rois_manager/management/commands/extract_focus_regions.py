@@ -44,18 +44,22 @@ class Command(BaseCommand):
                             help='path of the output folder for the extracted JSON objects')
         parser.add_argument('--limit-bounds', dest='limit_bounds', action='store_true',
                             help='extract ROIs considering only the non-empty slide region')
+        parser.add_argument('--exclude_rejected', dest='exclude_rejected', action='store_true',
+                            help='exclude cores from review steps rejected by the user')
         parser.add_argument('--reviewer', dest='reviewer', type=str,
                             help='filter review steps by reviewer username')
         parser.add_argument('--tissue-type', dest='tissue_type', type=str,
                             choices=['TUMOR', 'NORMAL'], help='filter focus regions by tissue type')
 
-    def _load_rois_annotation_steps(self, reviewer=None):
+    def _load_rois_annotation_steps(self, exclude_rejected, reviewer=None):
         if reviewer is not None:
             logger.info(f'Filtering by reviewer: {reviewer}')
             steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False,
                                                       rois_annotation__reviewer__username=reviewer)
         else:
             steps = ROIsAnnotationStep.objects.filter(completion_date__isnull=False)
+        if exclude_rejected:
+            steps = [s for s in steps if s.slide_evaluation.adequate_slide]
         return steps
 
     def _get_slide_bounds(self, slide):
@@ -90,7 +94,11 @@ class Command(BaseCommand):
             return None
 
     def _extract_bounding_box(self, roi_points):
-        polygon = Polygon(roi_points)
+        try:
+            polygon = Polygon(roi_points)
+        except ValueError as e:
+            logger.error('{0}, skipping focus region'.format(e))
+            return None
         bounds = polygon.bounds
         return [(bounds[0], bounds[1]), (bounds[2], bounds[3])]
 
@@ -99,6 +107,8 @@ class Command(BaseCommand):
         points = self._extract_points(focus_region.roi_json, slide_bounds)
         if points:
             bbox = self._extract_bounding_box(points)
+            if bbox is None:
+                return None
             with open(file_path, 'w') as ofile:
                 json.dump(points, ofile)
             return {
@@ -147,13 +157,13 @@ class Command(BaseCommand):
                         focus_regions_details.append(frd)
                 self._dump_details(focus_regions_details, out_path)
 
-    def _export_data(self, out_folder, limit_bounds=False, reviewer=None, tissue_type=None):
-        steps = self._load_rois_annotation_steps(reviewer)
+    def _export_data(self, out_folder, limit_bounds=False, exclude_rejected=False, reviewer=None, tissue_type=None):
+        steps = self._load_rois_annotation_steps(exclude_rejected, reviewer)
         logger.info('Loaded %d ROIs Annotation Steps', len(steps))
         for s in steps:
             self._dump_focus_regions(s, out_folder, limit_bounds, tissue_type)
 
     def handle(self, *args, **opts):
         logger.info('=== Starting export job ===')
-        self._export_data(opts['out_folder'], opts['limit_bounds'], opts['reviewer'], opts['tissue_type'])
+        self._export_data(opts['out_folder'], opts['limit_bounds'], opts['exclude_rejected'], opts['reviewer'], opts['tissue_type'])
         logger.info('=== Export completed ===')
