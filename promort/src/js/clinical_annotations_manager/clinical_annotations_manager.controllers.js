@@ -1368,7 +1368,6 @@
                 obj_config.central_maturation = typeof (vm.central_maturation) == "undefined" ? false : vm.central_maturation;
                 obj_config.extra_cribriform_gleason_score = vm.extra_cribriform_gleason_score;
             }
-            console.log(obj_config);
             CoreAnnotationsManagerService.createAnnotation(vm.core_id, vm.clinical_annotation_step_label, obj_config)
                 .then(createAnnotationSuccessFn, createAnnotationErrorFn);
 
@@ -2057,7 +2056,6 @@
         }
 
         function temporaryRulerValid() {
-            $log.debug('TEMPORARY GLEASON SHAPE VALID: ' + AnnotationsViewerService.tmpAreaRulerValid());
             return AnnotationsViewerService.tmpAreaRulerValid();
         }
 
@@ -2066,7 +2064,6 @@
         }
 
         function pauseRuler() {
-            $log.debug('Gleason ruler paused');
             AnnotationsViewerService.disableActiveTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.deactivateAreaRulerPreviewMode();
@@ -2075,7 +2072,6 @@
         }
 
         function unpauseRuler() {
-            $log.debug('Gleason ruler unpaused');
             AnnotationsViewerService.startAreaRulerTool();
             if (vm.temporaryRulerExists()) {
                 AnnotationsViewerService.activateAreaRulerPreviewMode();
@@ -2729,7 +2725,6 @@
             $scope.$on('gleason_pattern.creation_mode',
                 function () {
                     vm.default_shape_label = AnnotationsViewerService.getFirstAvailableLabel('gleason_pattern');
-                    console.log(vm.default_shape_label);
                     vm.shape_label = vm.default_shape_label;
                     vm.actionStartTime = new Date();
                 }
@@ -2804,7 +2799,6 @@
                             vm.freehand_tool_paused = true;
                             break;
                         case vm.SUBREGION_TOOL:
-                            console.log('Pausing subregion drawing tool');
                             vm.subregion_tool_paused = true;
                             break;
                     }
@@ -3046,7 +3040,6 @@
                     $canvas.on("freehand_polygon_saved",
                         function (event, polygon_label) {
                             if (vm.active_tool == vm.SUBREGION_TOOL) {
-                                console.log('freehand shape saved');
                                 if (AnnotationsViewerService.checkContainment(vm.shape_label, polygon_label) ||
                                     AnnotationsViewerService.checkContainment(polygon_label, vm.shape_label)) {
                                     AnnotationsViewerService.adaptToContainer(vm.shape_label, polygon_label);
@@ -3356,7 +3349,6 @@
             );
 
             function getGleasonPatternSuccessFn(response) {
-                console.log(response);
                 vm.shape_label = response.data.label;
                 vm.pattern_type = response.data.gleason_type;
                 vm.pattern_label = response.data.gleason_label;

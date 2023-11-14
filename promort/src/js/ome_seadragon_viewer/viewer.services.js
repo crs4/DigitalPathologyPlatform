@@ -225,7 +225,6 @@
         }
 
         function drawShape(shape_json) {
-            console.log(shape_json);
             this.roisManager.drawShapeFromJSON(shape_json);
         }
 

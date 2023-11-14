@@ -163,8 +163,6 @@
                     if (vm.loading_tiled_images === 0) {
                         dialog.close();
                     }
-                } else {
-                    console.log('Nothing to do...');
                 }
             });
 
@@ -305,8 +303,6 @@
                     if (vm.loading_tiled_images === 0) {
                         dialog.close();
                     }
-                } else {
-                    console.log('Nothing to do...');
                 }
             });
 
@@ -359,7 +355,6 @@
 
             $scope.$on('rois_viewerctrl.components.registered',
                 function(event, rois_read_only, clinical_annotation_step_label) {
-                    console.log(event);
                     var dialog = ngDialog.open({
                         template: '/static/templates/dialogs/rois_loading.html',
                         showClose: false,
@@ -420,7 +415,6 @@
                                     $rootScope.$broadcast('focus_region.new', focus_region_info);
                                     if (focus_region.hasOwnProperty('gleason_patterns')) {
                                         for (var gp in focus_region.gleason_patterns) {
-                                            console.log('processing gleason pattern ' + focus_region.gleason_patterns[gp].label);
                                             var gleason_pattern = focus_region.gleason_patterns[gp];
                                             AnnotationsViewerService.drawShape($.parseJSON(gleason_pattern.roi_json));
                                             var gleason_pattern_info = {
@@ -471,7 +465,6 @@
             $log.info('Registering components');
             AnnotationsViewerService.registerComponents(viewer_manager,
                 annotations_manager, tools_manager);
-            $log.debug('--- VERIFY ---');
             AnnotationsViewerService.checkComponents();
             var clinical_annotation_step_label = undefined;
             if (rois_read_only) {
@@ -576,15 +569,9 @@
             )
 
             $scope.$on('slides_sequence.page.change', function(event, args) {
-                if (args.viewer_id === vm.getViewerID()) {
-                    console.log('Ignore change page trigger, it was me');
-                } else {
-                    console.log('Received order to change to page ' + args.page);
+                if (args.viewer_id !== vm.getViewerID()) {
                     if (vm.checkPage(args.page)) {
-                        console.log('Changing to page ' + args.page);
                         vm.goToPage(args.page, false);
-                    } else {
-                        console.log('SlidesSet has no page ' + args.page);
                     }
                 }
             });
@@ -650,7 +637,6 @@
             SlidesSequenceViewerService.goToPage(vm.getViewerID(), pages_map[page_label]);
             vm.current_page = page_label;
             if (trigger_event) {
-                console.log('Trigger page changed event');
                 $rootScope.$broadcast('slides_sequence.page.changed',
                     {'page': page_label, 'viewer_id': vm.getViewerID()});
             }
