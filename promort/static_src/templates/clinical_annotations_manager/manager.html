@@ -28,6 +28,11 @@
                class="btn btn-default">
                 <i class="icon-arrow_big_left"></i> Back to slides
             </a>
+            <button class="btn btn-info" style="margin-left: 15px; margin-right: 15px;"
+                    ng-click="cmc.activateNewGleasonPatternAnnotationMode()"
+                    ng-disabled="cmc.annotationModeActive() || cmc.getPositiveFocusRegionsCount() == 0">
+                    <i class="icon-plus"></i> New Gleason Pattern
+            </button>
             <button class="btn btn-danger" ng-click="cmc.rejectAnnotation()" ng-disabled="cmc.newClinicalAnnotationModeActive()">
                 <i class="icon-cancel_circle"></i> Reject slide review
             </button>
@@ -81,6 +86,14 @@
                 <div ng-controller="NewScopeController as nsc" ng-show="cmc.showFocusRegionAnnotationModeActive()">
                     <show-focus-region-annotation-controller></show-focus-region-annotation-controller>
                     <show-focus-region-annotation-buttons></show-focus-region-annotation-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.newGleasonPatternAnnotationModeActive()">
+                    <new-gleason-pattern-annotation-form></new-gleason-pattern-annotation-form>
+                    <new-gleason-pattern-annotation-buttons></new-gleason-pattern-annotation-buttons>
+                </div>
+                <div ng-controller="NewScopeController as nsc" ng-show="cmc.showGleasonPatternAnnotationModeActive()">
+                    <show-gleason-pattern-annotation-form></show-gleason-pattern-annotation-form>
+                    <show-gleason-pattern-annotation-buttons></show-gleason-pattern-annotations-buttons>
                 </div>
             </div>
         </div>
