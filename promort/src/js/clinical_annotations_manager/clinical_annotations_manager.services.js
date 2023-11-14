@@ -169,8 +169,8 @@
                 gleason_pattern_config);
         }
 
-        function deleteAnnotation() {
-
+        function deleteAnnotation(gleason_pattern_id) {
+            return $http.delete('api/gleason_patterns/' + gleason_pattern_id + '/');
         }
     }
 })();

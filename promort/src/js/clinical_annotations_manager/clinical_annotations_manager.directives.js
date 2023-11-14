@@ -40,7 +40,8 @@
         .directive('newGleasonPatternAnnotationButtons', newGleasonPatternAnnotationButtons)
         .directive('newGleasonFourAnnotationForm', newGleasonFourAnnotationForm)
         .directive('newGleasonFiveAnnotationForm', newGleasonFiveAnnotationForm)
-        .directive('showGleasonPatternAnnotationForm', showGleasonPatternAnnotationForm);
+        .directive('showGleasonPatternAnnotationForm', showGleasonPatternAnnotationForm)
+        .directive('showGleasonPatternAnnotationButtons', showGleasonPatternAnnotationButtons);
 
     function newSliceAnnotationForm() {
         var directive = {
@@ -255,6 +256,17 @@
             replace: true,
             restrict: 'E',
             templateUrl: '/static/templates/clinical_annotations_manager/gleason_pattern_annotation.html',
+            controller: 'ShowGleasonPatternAnnotationController',
+            controllerAs: 'cmCtrl'
+        };
+        return directive;
+    }
+
+    function showGleasonPatternAnnotationButtons() {
+        var directive = {
+            replace: true,
+            restrict: 'E',
+            templateUrl: '/static/templates/clinical_annotations_manager/buttons_ctrl_group.html',
             controller: 'ShowGleasonPatternAnnotationController',
             controllerAs: 'cmCtrl'
         };

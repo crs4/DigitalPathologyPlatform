@@ -72,6 +72,7 @@
         vm._registerCore = _registerCore;
         vm._registerFocusRegion = _registerFocusRegion;
         vm._registerGleasonPattern = _registerGleasonPattern;
+        vm._unregisterGleasonPattern = _unregisterGleasonPattern;
         vm._getSliceLabel = _getSliceLabel;
         vm._getCoreLabel = _getCoreLabel;
         vm._getFocusRegionLabel = _getFocusRegionLabel;
@@ -231,6 +232,15 @@
                     }
                 );
 
+                $scope.$on('gleason_pattern.deleted',
+                    function (event, opt) {
+                        AnnotationsViewerService.deleteShape(opt.gleason_pattern_label);
+                        $("#" + opt.gleason_pattern_label + "_list").remove();
+                        vm._unregisterGleasonPattern(opt.gleason_pattern_id);
+                        vm.allModesOff();
+                    }
+                );
+
                 $scope.$on('slice_annotation.saved',
                     function (event, slice_label, slice_id) {
                         var $icon = $("#" + slice_label).find('i');
@@ -341,6 +351,15 @@
         function _registerGleasonPattern(gleason_pattern_info) {
             $rootScope.gleason_patterns.push(gleason_pattern_info);
             vm.gleason_patterns_map[gleason_pattern_info.id] = gleason_pattern_info.label;
+        }
+
+        function _unregisterGleasonPattern(gleason_pattern_id) {
+            delete vm.gleason_patterns_map[gleason_pattern_id];
+            $rootScope.gleason_patterns = $.grep($rootScope.gleason_patterns,
+                function(value) {
+                    return value.id !== gleason_pattern_id;
+                }
+            );
         }
 
         function _getGleasonPatternLabel(gleason_pattern_id) {
@@ -660,6 +679,7 @@
             for (var mode in vm.ui_active_modes) {
                 vm.ui_active_modes[mode] = false;
             }
+            vm._clearGleasonSubregions();
             vm._unlockRoisTree();
         }
 
@@ -3314,6 +3334,7 @@
         vm.deselectShape = deselectShape;
         vm.focusOnShape = focusOnShape;
         vm.switchShapeActiveState = switchShapeActiveState;
+        vm.deleteAnnotation = deleteAnnotation;
 
         activate();
 
@@ -3411,5 +3432,46 @@
             }
         }
 
+        function deleteAnnotation() {
+            ngDialog.openConfirm({
+                template: '/static/templates/dialogs/delete_annotation_confirm.html',
+                closeByEscape: false,
+                showClose: false,
+                closeByNavigation: false,
+                closeByDocument: false
+            }).then(confirmFn);
+
+            var dialog = undefined;
+            
+            function confirmFn(confirm_value) {
+                if (confirm_value) {
+                    dialog = ngDialog.open({
+                        template: '/static/templates/dialogs/deleting_data.html',
+                        showClose: true,
+                        closeByEscape: false,
+                        closeByNavigation: false,
+                        closeByDocument: false
+                    });
+                    GleasonPatternAnnotationsManagerService.deleteAnnotation(vm.gleason_pattern_id)
+                        .then(deleteGleasonPatternSuccessFn, deleteGleasonPatternErrorFn);
+                }
+            }
+
+            function deleteGleasonPatternSuccessFn(response) {
+                $rootScope.$broadcast('gleason_pattern.deleted',
+                    {
+                        'gleason_pattern_id': vm.gleason_pattern_id,
+                        'gleason_pattern_label': vm.shape_label
+                    }
+                );
+                dialog.close();
+            }
+
+            function deleteGleasonPatternErrorFn(response) {
+                $log.error('unable to delete core annotation');
+                $log.error(response);
+                dialog.close();
+            }
+        }
     }
 })();
