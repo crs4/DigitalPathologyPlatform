@@ -22,6 +22,6 @@ CDPP is based on a modular architecture comprising:
 - A slide repository (based on <a href="https://www.openmicroscopy.org/omero/" target="_blank">Open Microscopy's OMERO</a>)
 - A virtual microscope for WSI viewing <a href="https://github.com/crs4/ome_seadragon/tree/master" target="_blank">View on Github</a>
 - An annotation manager supporting both manual and AI-assisted annotation <a href="https://github.com/crs4/DigitalPathologyPlatform/tree/master" target="_blank">View on Github</a>
-- A workflow manager for automated image analysis (via Apache Airflow + CWL)
+- A workflow manager for automated image analysis (via Apache Airflow + CWL) <a href="https://github.com/crs4/cdpp-workflows" target="_blank">View on Github</a>
 
 Its web-based interface supports distributed, protocol-driven collaboration and simplifies setup through Docker-based deployment.
