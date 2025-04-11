@@ -19,9 +19,9 @@ The CRS4 Digital Pathology Platform (CDPP) is an open-source software system des
 
 CDPP is based on a modular architecture comprising:
 
-- A slide repository (based on <a href="https://www.openmicroscopy.org/omero/" target="_blank">Open Microscopy's OMERO</a>)
-- A virtual microscope for WSI viewing <a href="https://github.com/crs4/ome_seadragon/tree/master" target="_blank">View on Github</a>
-- An annotation manager supporting both manual and AI-assisted annotation <a href="https://github.com/crs4/DigitalPathologyPlatform/tree/master" target="_blank">View on Github</a>
-- A workflow manager for automated image analysis (via Apache Airflow + CWL) <a href="https://github.com/crs4/cdpp-workflows" target="_blank">View on Github</a>
+- A slide repository (based on [Open Microscopy's OMERO](https://www.openmicroscopy.org/omero/){:target="_blank"})
+- A virtual microscope for WSI viewing and interactive ROIs creation [View on Github](https://github.com/crs4/ome_seadragon/tree/master){:target="_blank"}
+- An annotation manager supporting both manual and AI-assisted annotation [View on Github](https://github.com/crs4/DigitalPathologyPlatform/tree/master){:target="_blank"}
+- A workflow manager for automated image analysis (via Apache Airflow + CWL) [View on Github](https://github.com/crs4/cdpp-workflows){:target="_blank"}
 
 Its web-based interface supports distributed, protocol-driven collaboration and simplifies setup through Docker-based deployment.
