@@ -5,7 +5,7 @@ parent: Installation & Usage
 nav_order: 1
 ---
 
-## Prerequisites
+# Prerequisites
 
 Before getting started, ensure the following software is installed on your system:
 
