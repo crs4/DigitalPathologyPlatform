@@ -2,7 +2,7 @@
 layout: default
 title: Deployment
 parent: Installation & Usage
-nav_order: 2
+nav_order: 3
 ---
 
 ## Deployment
