@@ -5,7 +5,8 @@ parent: Installation & Usage
 nav_order: 2
 ---
 
-# Setup and Run
+
+## Setup
 
 This section outlines the steps required to download and configure the CDPP (CRS4 Digital Pathology Platform) using Docker Compose. The platform is composed of multiple containerized services—including the Slides Manager, Annotations Manager, and CWL-based Workflow Engine—designed to work together within a shared environment. You will begin by cloning the deployment repository and generating the necessary configuration files, which define environment variables and service-specific parameters.
 
@@ -89,17 +90,6 @@ To configure the Workflow Engine, edit the following variables in the `.env` fil
 * `PROMORT_TOOLS_IMG`: Specifies the Docker image used for the Annotations Manager auxiliary tools. You can explore available versions on [Docker Hub](https://hub.docker.com/repository/docker/crs4/promort_tools/general){:target="_blank"}.
 
 ### Misc
-
-
-## Run
-To deploy the platform, run:
-
-```
-./compose.sh up -d
-```
-
-Check if the ```init``` service exited with 0 code, otherwise restart it. It can fail for timing reason, typically because SQL tables do not exist yet.
-
 
 * `DOCKER_NETWORK`: Docker Compose network name
 * `PROJECT`: Docker Compose project name
