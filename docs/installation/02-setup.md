@@ -93,3 +93,17 @@ Here is a list of env variables not related to the previous services:
 * ```DOCKER_NETWORK```: docker compose network name;
 * ```PROJECT```: docker compose project name;
 * ```PROXY_PORT```: proxy port.
+
+
+## Run
+To deploy the platform, run:
+```
+
+```
+```
+./compose.sh up -d
+```
+
+Check if the ```init``` service exited with 0 code, otherwise restart it. It can fail for timing reason, typically because SQL tables do not exist yet.
+
+
