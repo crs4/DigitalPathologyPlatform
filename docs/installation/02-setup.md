@@ -97,9 +97,7 @@ Here is a list of env variables not related to the previous services:
 
 ## Run
 To deploy the platform, run:
-```
 
-```
 ```
 ./compose.sh up -d
 ```
