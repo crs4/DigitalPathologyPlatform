@@ -12,6 +12,7 @@ Before getting started, ensure the following software is installed on your syste
 - [Docker](https://www.docker.com){:target="_blank"} (version 26.1 or higher)
 - [Docker Compose](https://docs.docker.com/compose/){:target="_blank"} (version 2.33 or higher)
 - [Git](https://git-scm.com){:target="_blank"}
+- [Poetry](https://python-poetry.org/){:target="_blank"} (tested with version 1.8.3)
 
 Your system should support virtualization and have sufficient resources. **At least 16 GB of RAM is recommended** for optimal performance.
 
