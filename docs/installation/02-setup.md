@@ -62,7 +62,7 @@ To configure the Workflow Engine, edit the following variables in the `.env` fil
 
 * `AIRFLOW_HOME`: Base directory for Airflow
 * `CWL_TMP_FOLDER`: Temporary directory for CWL-based workflow execution
-* `CWL_INPUTS_FOLDER`: Directory for CWL inputs (shared with the Slides Manager)
+* `CWL_INPUTS_FOLDER`: Directory for CWL inputs (shared with the Slides Manager, if both systems are running on the same host)
 * `CWL_OUTPUTS_FOLDER`: Directory for CWL outputs
 * `CWL_PICKLE_FOLDER`: Directory for CWL pickled files
 * `AIRFLOW_WEBSERVER_PORT`: Port to access Airflow web interface (default: 8080)
@@ -72,7 +72,7 @@ To configure the Workflow Engine, edit the following variables in the `.env` fil
 * `INPUT_DIR`: Directory for workflow inputs
 * `FAILED_DIR`: Directory for storing data from failed workflows
 * `BACKUP_DIR`: Directory for storing backups of workflow-processed data
-* `PREDICTIONS_DIR`: Directory for model outputs (shared with the Slides Manager)
+* `PREDICTIONS_DIR`: Directory for model outputs (shared with the Slides Manager, if both systems are running on the same host)
 * `CWLDOCKER_GPUS`: GPU IDs for running inference (if available)
 * `MYSQL_ROOT_PASSWORD`: Root password for the workflow engine's database
 * `MYSQL_DATABASE`: Name of the workflow database
