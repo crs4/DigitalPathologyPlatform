@@ -12,3 +12,7 @@ aux_links:
     - "https://github.com/crs4"
 
 nav_sort: case_insensitive
+
+includes:
+  head: head_custom.html
+  
