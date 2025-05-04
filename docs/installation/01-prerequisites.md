@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Prerequisites
-parent: Installation & Usage
+parent: Install & config
 nav_order: 1
 ---
 

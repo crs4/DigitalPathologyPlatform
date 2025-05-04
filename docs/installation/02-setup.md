@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Setup and Run
-parent: Installation & Usage
+title: Setup
+parent: Install & config
 nav_order: 2
 ---
 

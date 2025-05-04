@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Execute workflows
-parent: Installation & Usage
-nav_order: 5
+parent: Usage
+nav_order: 1
 ---
 
 # Execute workflows
@@ -28,6 +28,3 @@ The easiest way for developing a custom workflow is to copy the ```data/dags/bas
 
 For uploading output to the CDPP, in general you have to upload first to OMERO. Take a look at *add_prediction_to_omero* and *add_prediction_to_promort* functions.
 For creating vectorial shapes, take a look at the *tissue_branch*  function. For making visual predictions as heatmaps, see *tumor_branch*. 
-
-
-

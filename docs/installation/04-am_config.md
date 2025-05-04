@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Annotation Manager Configuration
-parent: Installation & Usage
+title: AM users creation
+parent: Install & config
 nav_order: 4 
 ---
 
-## Annotation Manager Configuration
+## Annotation Manager: users creation
 
 After deploying the platform, configure the Annotation Manager by performing the following steps:
 
