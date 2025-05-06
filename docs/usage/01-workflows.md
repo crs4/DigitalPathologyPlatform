@@ -41,12 +41,14 @@ To facilitate the process, we suggest to use the `$INPUT_DIR` directory defined 
 After starting the platform services (using `./compose.sh`), place the WSIs to be analyzed in the `$INPUT_DIR` directory, which is defined in your `.env` file.
 
 Use `slide_importer/local.py` to run either:
+
 - the `basic_pipeline` for slide ingestion and tissue segmentation (H&E WSIs), or
 - the more advanced `pca_pipeline`, which also performs prostate cancer classification.
 
 ```bash
 cd slide-importer
 poetry install
+source ../.env
 poetry run python slide_importer/local.py basic_pipeline  --user $AIRFLOW_USER -P $AIRFLOW_PASSWORD --server-url http://localhost:$AIRFLOW_WEBSERVER_PORT  --wait --params '{"level": 8}'
 # or 
 poetry run python slide_importer/local.py pca_pipeline --user $AIRFLOW_USER -P $AIRFLOW_PASSWORD --server-url http://localhost:$AIRFLOW_WEBSERVER_PORT -p '{ "tissue-high-level": 8, "tissue-high-filter": "tissue_low>1", "tumor-filter": "tissue_low>1", "gpu": null}'  --wait 
