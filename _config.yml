@@ -2,8 +2,8 @@ title: CRS4 Digital Pathology Platform
 description: Documentation for the CRS4 Digital Pathology Platform (CDPP)
 theme: just-the-docs
 
-url: ""
-# baseurl: "/cdpp-docs"
+url: "https://crs4.github.io"
+baseurl: "/DigitalPathologyPlatform"
 
 search_enabled: true
 
@@ -15,4 +15,3 @@ nav_sort: case_insensitive
 
 includes:
   head: head_custom.html
-  
