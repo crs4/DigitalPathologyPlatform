@@ -51,10 +51,15 @@ To configure the Annotations Manager, edit the following variables in the `.env`
 
 * `PROMORT_IMG`: Specifies the Docker image used for the Annotations Manager. You can browse available image versions on [Docker Hub](https://hub.docker.com/repository/docker/crs4/promort-web/general){:target="_blank"}.
 * `PROMORT_PORT`: Port used to access the Annotations Manager's web user interface
-* `PROMORT_DB`: Name of the database that will store the data for the Annotations Manager
-* `PROMORT_USER`: Username for connecting to `PROMORT_DB`
-* `PROMORT_PASSWORD`: Password for the `PROMORT_USER`
+* `PROMORT_DB_NAME`: Name of the database that will store the data for the Annotations Manager
+* `PROMORT_DB_USER`: Username for connecting to `PROMORT_DB`
+* `PROMORT_DB_PASSWORD`: Password for the `PROMORT_USER`
 * `PROMORT_SESSION_ID`: Session ID used for the Django session cookie
+
+The system will automatically create a user in the Annotation Manager which will be used by the Workflow Engine's tools to interact with it when reading/writing data from/to is necessary. To setup this user edit the following variables:
+
+* `PROMORT_USER`: Username of the user that will be used by the workflow engine's tools
+* `PROMORT_PASSWORD`: Password for the `PROMORT_USER` to access the Annotation Manager API
 
 ### Workflow Engine
 
@@ -84,8 +89,8 @@ To configure the Workflow Engine, edit the following variables in the `.env` fil
 * `PROMORT_HOST`: Hostname of the Annotations Manager
 * `PROMORT_CONN_TYPE`: Protocol for connecting to the Annotations Manager
 * `PROMORT_PORT`: Port used by the Annotations Manager
-* `PROMORT_USER`: Username for the Annotations Manager database
-* `PROMORT_PASSWORD`: Password for the Annotations Manager database
+* `PROMORT_USER`: Username of the user to interact with the Annotations Manager
+* `PROMORT_PASSWORD`: Password for the `PROMORT_USER`
 * `PROMORT_SESSION_ID`: Session ID for the Django session cookie
 * `PROMORT_TOOLS_IMG`: Specifies the Docker image used for the Annotations Manager auxiliary tools. You can explore available versions on [Docker Hub](https://hub.docker.com/repository/docker/crs4/promort_tools/general){:target="_blank"}.
 
