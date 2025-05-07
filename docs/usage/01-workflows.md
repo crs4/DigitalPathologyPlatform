@@ -55,3 +55,9 @@ poetry run python slide_importer/local.py pca_pipeline --user $AIRFLOW_USER -P $
 ```
 
 Parameters for the 'basic_pipeline' are defined in `cwl/tissue_segmentation_workflow.cwl`, while the ones for the 'pca_pipeline' are defined in `cwl/pca_classification_workflow.cwl`.
+
+## Inspect outputs
+
+The outputs of a workflow run are located in ```$CWL_OUTPUTS_FOLDER<WORKFLOW_NAME><WORKFLOW_RUN_NAME>```. 
+If the workflow is based on CWL, ```$CWL_OUTPUTS_FOLDER<WORKFLOW_NAME><WORKFLOW_RUN_NAME>/rocrate``` dir is also present, containing the RO-Crate that tracks the provenance of the given workflow execution. 
+It contains all the information needed for re-running the workflow. You can read and validate it using libraries such [rocrate](https://pypi.org/project/rocrate/) and [rocrate-validator](https://rocrate-validator.readthedocs.io/en/latest/).
