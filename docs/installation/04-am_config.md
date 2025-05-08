@@ -29,7 +29,7 @@ You will be prompted to enter:
 Example output:
 
 ```bash
-~/cdpp-workflows$ ./compose.sh exec promort-web python manage.py createsuperuser
+user@host:~/cdpp-workflows$ ./compose.sh exec promort-web python manage.py createsuperuser
 WARN[0000] The "CWLDOCKER_ENV" variable is not set. Defaulting to a blank string.
 WARN[0000] The "CWLDOCKER_PID" variable is not set. Defaulting to a blank string.
 ...
